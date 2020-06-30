@@ -89,7 +89,7 @@ export const RegionWrap = styled.section`
     top: 0px;
     height: 100%;
     min-width: 1px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.3);
     z-index: 4;
     margin: 0;
     padding: 0;
@@ -101,7 +101,7 @@ export const RegionWrap = styled.section`
     border-color: transparent blue transparent red;
     border-width: 0 2px;
     background: none;
-    box-shadow: 0px 0 0px ${1000 * 100}px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0 0px ${1000 * 100}px rgba(0, 0, 0, 0.4);
   }
   .idx{
     position: absolute;
