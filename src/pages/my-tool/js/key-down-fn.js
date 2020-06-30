@@ -16,8 +16,8 @@ export default class {
       'ctrl + d': () => this.toDel(), //删除
       'ctrl + Up': () => this.putTogether('prior'), // 合并上一句
       'ctrl + Down': () => this.putTogether('next'), // 合并下一句
-      'ctrl + z': () => this.getHistory(-1), //撤销
-      'ctrl + shift + z': () => this.getHistory(1), //恢复
+      'ctrl + z': () => this.setHistory(-1), //撤销
+      'ctrl + shift + z': () => this.setHistory(1), //恢复
       'ctrl + shift + c': () => this.split(), //分割
       // alt 系列
       'alt + j': () => this.previousAndNext(-1),
@@ -40,7 +40,7 @@ export default class {
     const keyName = [16, 17, 18].includes(keyCode) ? '' : keyMap[keyCode];
     const keyStr = ctrl + shift + alt + keyName;
     const theFn = this.getFn(keyStr);
-    console.log('按下了：', keyCode, keyStr);
+    keyName && console.log('按下了：', keyCode, keyStr);
     if (!theFn) return;
     theFn();
     ev.preventDefault();
@@ -131,23 +131,16 @@ export default class {
     this.setState({aTimeLine, iCurLine});
   }
   // ▼撤销-恢复
-  getHistory(iType){
-    const {aHistory, aHistory:{length: len}} = this.state;
-    console.log('历史方向', iType);
-    console.log(JSON.parse(
-      JSON.stringify(aHistory)
-    ));
+  setHistory(iType){
+    let {aHistory, iNowStep, aHistory:{length: len}} = this.state;
+    iNowStep += iType;
+    console.log('前进方向：', iType);
+    console.log('历史数据：', aHistory.dc_);
     if (!len) return;
-    const oLast = (()=>{
-      if (len>1) {
-        aHistory.pop();
-        return aHistory.slice(-1)[0];
-      }
-      return aHistory.pop();
-    })();
+    const oLast = aHistory[len-2] || aHistory[len-1];
     // console.log('历史', oLast.aTimeLine[0]);
     // console.log('历史', oLast.aTimeLine[0].start);
-    this.setState({...oLast, aHistory});
+    this.setState({...oLast, aHistory, iNowStep});
   }
   // ▼一刀两段
   split(){
@@ -155,16 +148,20 @@ export default class {
     const {currentTime} = this.oAudio.current;
     const {iCurLine, aTimeLine} = this.state;
     const oCur = {...aTimeLine[iCurLine]};
-    aTimeLine.splice(iCurLine, 1, this.fixTime({
-      ...oCur,
-      end: currentTime,
-      text: oCur.text.slice(0, selectionStart).trim(),
-    }), this.fixTime({
-      ...oCur,
-      start: currentTime + 0.01,
-      text: oCur.text.slice(selectionStart).trim(),
-    }));
-    const aHistory = this.saveHistory(aTimeLine, iCurLine);
+    const aNewItems = [
+      this.fixTime({
+        ...oCur,
+        end: currentTime,
+        text: oCur.text.slice(0, selectionStart).trim(),
+      }),
+      this.fixTime({
+        ...oCur,
+        start: currentTime + 0.01,
+        text: oCur.text.slice(selectionStart).trim(),
+      }),
+    ];
+    aTimeLine.splice(iCurLine, 1, ...aNewItems);
+    const aHistory = this.getHistory(aTimeLine, iCurLine);
     this.setState({aTimeLine, aHistory});
   }
 }

@@ -24,6 +24,29 @@ Object.defineProperties(window, {
   },
 });
 
+Object.defineProperties(Object.prototype, { // eslint-disable-line
+  'dc_': { // deep copy = 深拷贝
+    get: function () {
+      function toClone(source) {
+        const isNeed = source && typeof source == 'object' && source instanceof Object;
+        if (!isNeed) return source; //不处理非数组、非对象
+        const newObj = new source.constructor();
+        const iterator = Array.isArray(source) ? source.entries() : Object.entries(source);
+        for (let [key, val] of iterator) {
+          newObj[key] = val instanceof Object ? toClone(val) : val;
+        }
+        return newObj;
+      }
+      try {
+        return toClone(this);
+      } catch (err) {
+        return JSON.parse(JSON.stringify(this));
+      }
+    },
+  },
+});
+
+
 ReactDOM.render(
   // <React.StrictMode>
     <App />,

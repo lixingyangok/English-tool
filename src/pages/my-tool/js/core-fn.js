@@ -127,14 +127,13 @@ export default class {
     }
     this.fixTime(oCurLine);
     aTimeLine[iCurLine] = oCurLine;
-    const aHistory = this.saveHistory(aTimeLine, iCurLine);
+    const aHistory = this.getHistory(aTimeLine, iCurLine);
     this.setState({aTimeLine, aHistory});
   }
-  saveHistory(aTimeLine, iCurLine){
-    const dc = obj => JSON.parse(JSON.stringify(obj));
-    const aHistory =dc(this.state.aHistory);
+  getHistory(aTimeLine, iCurLine){
+    const aHistory = this.state.aHistory.dc_;
     aHistory.push({
-      iCurLine, aTimeLine: dc(aTimeLine),
+      iCurLine, aTimeLine: aTimeLine.dc_,
     });
     if (aHistory.length > 100) aHistory.shift();
     return aHistory;

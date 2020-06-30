@@ -9,8 +9,7 @@ export const mp3Src  = `./static/${fileName}.mp3`;
 
 export async function getMp3() {
   const res = await fetch(mp3Src);
-  console.log('音频文件', res);
-  // console.log('音频返回', res);
+  // console.log('音频文件', res);
   const arrayBuffer = await res.arrayBuffer();
   let audioContext = new (window.AudioContext || window.webkitAudioContext)();
   const buffer = await audioContext.decodeAudioData(arrayBuffer);

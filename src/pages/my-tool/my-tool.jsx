@@ -41,11 +41,12 @@ export default class Tool extends MyClass {
       loading: false, //是否在加载中（解析文件
       aHistory: [],
       iCurHst: 0,
+      iNowStep: 0,
     };
   }
   render() {
     const {
-      buffer, aTimeLine, iCurLine, iCanvasHeight, aHistory,
+      buffer, aTimeLine, iCurLine, iCanvasHeight, aHistory, iNowStep,
       duration, iPerSecPx, fileSrc, // fPerSecPx,
     } = this.state;
     const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
@@ -102,7 +103,8 @@ export default class Tool extends MyClass {
             </label>
           </div>
         </cpnt.BtnBar>
-        <ul>
+        <ul style={{padding: '10px 20px 0'}} >
+          <li style={{display: 'inline-block'}}>步骤：{iNowStep} ■&emsp;&emsp;&emsp;&emsp;</li>
           {aHistory.map((cur,idx)=>{
             return <li key={idx} style={{display: 'inline-block'}} >
               {idx}--&emsp;
