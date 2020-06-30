@@ -75,24 +75,24 @@ export default class {
   }
   // ▼删除某条
   toDel() {
-    const {aTimeLine, iCurLine} = this.state;
-    this.setState({
-      aTimeLine: aTimeLine.filter((cur, idx) => idx !== iCurLine),
-    });
+    const {iCurLine, aLines} = this.getCurStep();
+    aLines.splice(iCurLine, 1);
+    this.setCurStep();
   }
   // ▼保存字幕到浏览器
   async toSave() {
-    const {aTimeLine, fileName} = this.state;
+    const {aLines} = this.getCurStep();
+    const {fileName} = this.state;
     if (!fileName) return;
-    window.lf.setItem(fileName, aTimeLine);
+    window.lf.setItem(fileName, aLines);
     this.message.success('保存成功');
   }
-  // ▼微调区域
+  // ▼微调区域（1参可能是 start、end
   fixRegion(sKey, iDirection) {
-    const { aTimeLine, iCurLine } = this.state;
-    const oOld = aTimeLine[iCurLine];
-    const previous = aTimeLine[iCurLine - 1];
-    const next = aTimeLine[iCurLine + 1];
+    const {iCurLine, aLines} = this.getCurStep();
+    const oOld = this.getCurLine();
+    const previous = aLines[iCurLine - 1];
+    const next = aLines[iCurLine + 1];
     let fNewVal = oOld[sKey] + iDirection;
     if (fNewVal < 0) fNewVal = 0;
     if (previous && fNewVal < previous.end) {
@@ -111,13 +111,13 @@ export default class {
   }
   // ▼合并
   putTogether(sType){
-    let {aTimeLine, iCurLine} = this.state;
+    const {oCurStep, aLines, iCurLine} = this.getCurStep();
     const oTarget = ({
-      prior: aTimeLine[iCurLine - 1],
-      next: aTimeLine[iCurLine + 1],
+      prior: aLines[iCurLine - 1], //合并上一条
+      next: aLines[iCurLine + 1], //合并下一条
     }[sType]);
-    if (!oTarget) return;
-    const oCur = aTimeLine[iCurLine];
+    if (!oTarget) return; //没有邻居不再执行
+    const oCur = aLines[iCurLine];
     oTarget.start = Math.min(oTarget.start, oCur.start);
     oTarget.end = Math.max(oTarget.end, oCur.end);
     oTarget.text = (()=>{ 
@@ -126,28 +126,24 @@ export default class {
       return sResult.replace(/\s+/g, ' ');
     })();
     this.fixTime(oTarget);
-    aTimeLine.splice(iCurLine, 1);
-    if (sType === 'prior') iCurLine--;
-    this.setState({aTimeLine, iCurLine});
+    aLines.splice(iCurLine, 1);
+    oCurStep.iCurLine = sType === 'prior' ? iCurLine-1 : iCurLine;
+    this.setCurStep();
   }
   // ▼撤销-恢复
   setHistory(iType){
-    let {aSteps, iCurStep, aSteps:{length: len}} = this.state;
-    iCurStep += iType;
-    console.log('前进方向：', iType);
-    console.log('历史数据：', aSteps.dc_);
-    if (!len) return;
-    const oLast = aSteps[len-2] || aSteps[len-1];
-    // console.log('历史', oLast.aTimeLine[0]);
-    // console.log('历史', oLast.aTimeLine[0].start);
-    this.setState({...oLast, aSteps, iCurStep});
+    const {aSteps:{length}} = this.state;
+    let iCurStep = this.state.iCurStep + iType;
+    if (iCurStep < 0 || iCurStep > length - 1) return;
+    console.log('新位置：', iCurStep);
+    this.setState({iCurStep});
   }
   // ▼一刀两段
   split(){
     const {selectionStart} = this.oTextArea.current;
     const {currentTime} = this.oAudio.current;
-    const {iCurLine, aTimeLine} = this.state;
-    const oCur = {...aTimeLine[iCurLine]};
+    const {iCurLine, aLines} = this.getCurStep();
+    const oCur = {...aLines[iCurLine]};
     const aNewItems = [
       this.fixTime({
         ...oCur,
@@ -160,8 +156,8 @@ export default class {
         text: oCur.text.slice(selectionStart).trim(),
       }),
     ];
-    aTimeLine.splice(iCurLine, 1, ...aNewItems);
-    // this.setState({aTimeLine, aSteps});
+    aLines.splice(iCurLine, 1, ...aNewItems);
+    this.setCurStep();
   }
 }
 

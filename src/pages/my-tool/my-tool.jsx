@@ -27,12 +27,10 @@ export default class Tool extends MyClass {
       aPeaks: [], //波形数据
       duration: 0, //音频长度（秒
       playTimer: null, // 定时器
-      iCurLine: 0, //当前行
       oFirstLine, //默认行
-      aTimeLine: [oFirstLine], //字幕
       fileName: "", //文件名
       fileSrc: "", //文件地址
-      fileSrcFull: "",
+      fileSrcFull: "", //文件地址2
       iHeight: 50, // 波形高
       iCanvasHeight: 150, //画布高
       iPerSecPx: 55, //人为定义的每秒像素数
@@ -40,24 +38,25 @@ export default class Tool extends MyClass {
       drawing: false, //是否在绘制中（用于防抖
       loading: false, //是否在加载中（解析文件
       // ▼新的部分
-      iCurStep: 0, //当前步骤
       aSteps: [{ //历史记录
         iCurLine: 0, // 当前所在行
         aLines: [[oFirstLine]], //字幕
       }],
+      iCurStep: 0, //当前步骤
     };
   }
   render() {
     const {
       aSteps, iCurStep,
       buffer, iCanvasHeight, 
-      duration, iPerSecPx, fileSrc, // fPerSecPx, iCurLine, aTimeLine,
+      duration, iPerSecPx, fileSrc, // fPerSecPx
     } = this.state;
     // =========================================================
     const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
     const fPerSecPx = buffer.length / sampleSize / duration;
-    const {aLines, iCurLine} = aSteps[iCurStep];
-    if (0) console.log(aLines, iCurLine);
+    if (!aSteps[iCurStep]) debugger;
+    const {aLines, iCurLine} = aSteps[iCurStep] || aSteps.last_;
+    console.log('来到了步骤：', iCurStep);
     return (
       <cpnt.Div>
         <Spin spinning={this.state.loading} size="large"></Spin>
@@ -111,7 +110,9 @@ export default class Tool extends MyClass {
           </div>
         </cpnt.BtnBar>
         <ul style={{padding: '10px 20px 0'}} >
-          <li style={{display: 'inline-block'}}>步骤：{iCurStep} ■&emsp;&emsp;&emsp;&emsp;</li>
+          <li style={{display: 'inline-block'}}>
+            当前步骤：{iCurStep} ■&emsp;&emsp;&emsp;&emsp;
+          </li>
           {aSteps.map((cur,idx)=>{
             return <li key={idx} style={{display: 'inline-block'}} >
               {idx}--&emsp;

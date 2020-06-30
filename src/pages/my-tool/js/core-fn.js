@@ -148,17 +148,22 @@ export default class {
     return sTime;
   }
   // ▼得到当前步骤
-  getCurStep(isJustNowStep = false){
+  getCurStep(isJustCurStep = false){
     const oCurStep = this.state.aSteps[this.state.iCurStep];
-    if (isJustNowStep) return oCurStep; //简化版
+    if (isJustCurStep) return oCurStep; //简化版
     const {iCurLine, aLines} = oCurStep;
     return {oCurStep, iCurLine, aLines}; //丰富信息版
   }
   // ▼更新当前步骤的数据
   setCurStep(){
-    const {aSteps, iCurStep} = this.state;
-    aSteps[iCurStep] = this.getCurStep(true);
-    this.setState({aSteps});
+    const aSteps = this.state.aSteps.dc_;
+    const iCurStep = this.state.iCurStep + 1;
+    aSteps.splice(
+      iCurStep, Infinity, this.getCurStep(true).dc_,
+    );
+    if (aSteps.length > 100) aSteps.shift();
+    // console.log('新步骤:', iCurStep);
+    this.setState({aSteps, iCurStep});
   }
   // ▼得到当前行，或某个指定行
   getCurLine(idx){
