@@ -13,8 +13,8 @@ export default class {
     const oWaveWrap = this.oWaveWrap.current;
     const {scrollLeft, offsetWidth} = oWaveWrap;
     const {fPerSecPx} = this.state;
-    const {oNowStep, aLines} = this.getCurStep();
-    const {start, end, long} = aLines[idx] || aLines[idx - 1];
+    const {oCurStep} = this.getCurStep(); //aLines
+    const {start, end, long} = this.getCurLine(idx);
     if (
       (start * fPerSecPx < scrollLeft) || //【起点】超出可视区
       (end * fPerSecPx > scrollLeft + offsetWidth) //【终点】超出可视区
@@ -34,7 +34,7 @@ export default class {
       return oneLineHeight * (idx - 2);
     })();
     oSententList.scrollTo(0, fHeight);
-    oNowStep.iCurLine = idx;
+    oCurStep.iCurLine = idx;
     this.setCurStep();
   }
   // ▼清空画布
@@ -73,11 +73,10 @@ export default class {
   }
   // ▼播放
   async toPlay(iCurLine, isFromHalf) {
-    const {state} = this;
-    const {aTimeLine, fPerSecPx} = this.state;
-    clearInterval(state.playTimer); //把之前的关闭再说
-    iCurLine = typeof iCurLine === 'number' ? iCurLine : state.iCurLine;
-    const {start, long} = aTimeLine[iCurLine];
+    clearInterval(this.state.playTimer); //把之前播放的关闭再说
+    iCurLine = typeof iCurLine === 'number' ? iCurLine : this.getCurStep().iCurLine;
+    const {fPerSecPx} = this.state;
+    const {start, long} = this.getCurLine(iCurLine);
     const Audio = this.oAudio.current;
     const {style} = this.oPointer.current;
     const fStartTime = start + (isFromHalf ? long / 2 : 0);
@@ -86,10 +85,10 @@ export default class {
     Audio.play();
     const iSecFrequency = 100; //每秒执行次数
     const playTimer = setInterval(() => {
-      const {fPerSecPx, aTimeLine} = this.state;
-      const {long, end} = aTimeLine[iCurLine];
-      const step = long * fPerSecPx / (long * iSecFrequency);
-      const newLeft = Number.parseFloat(style.left) + step;
+      const {fPerSecPx} = this.state;
+      const {long, end} = this.getCurLine();
+      const fOneStepLong = long * fPerSecPx / (long * iSecFrequency);
+      const newLeft = Number.parseFloat(style.left) + fOneStepLong;
       const fEndPx = end * fPerSecPx;
       if (newLeft > fEndPx || Audio.currentTime > end) {
         Audio.pause();
@@ -111,30 +110,19 @@ export default class {
   }
   // ▼设定时间。1参是类型，2参是秒数
   setTime(sKey, fVal){
-    const {aTimeLine, iCurLine} = this.state;
-    const oCurLine = aTimeLine[iCurLine];
+    const oCurLine = this.getCurLine();
     const {start, end} = oCurLine;
-    if (sKey === 'start' && fVal > end) {
+    if (sKey === 'start' && fVal > end) { //起点在终点右侧
       oCurLine.start = end;
       oCurLine.end = fVal;
-    } else if (sKey==='end' && fVal < start){
+    } else if (sKey==='end' && fVal < start){ // 终点在起点左侧
       oCurLine.start = fVal;
       oCurLine.end = start;
     } else {
       oCurLine[sKey] = fVal;
     }
     this.fixTime(oCurLine);
-    aTimeLine[iCurLine] = oCurLine;
-    const aSteps = this.getHistory(aTimeLine, iCurLine);
-    this.setState({aTimeLine, aSteps});
-  }
-  getHistory(aTimeLine, iCurLine){
-    const aSteps = this.state.aSteps.dc_;
-    aSteps.push({
-      iCurLine, aTimeLine: aTimeLine.dc_,
-    });
-    if (aSteps.length > 100) aSteps.shift();
-    return aSteps;
+    this.setCurStep();
   }
   fixTime(oTarget){
     const {start, end, text=''} = oTarget;
@@ -161,10 +149,10 @@ export default class {
   }
   // ▼得到当前步骤
   getCurStep(isJustNowStep = false){
-    const oNowStep = this.state.aSteps[this.state.iCurStep];
-    if (isJustNowStep) return oNowStep; //简化版
-    const {iCurLine, aLines} = oNowStep;
-    return {oNowStep, iCurLine, aLines}; //丰富信息版
+    const oCurStep = this.state.aSteps[this.state.iCurStep];
+    if (isJustNowStep) return oCurStep; //简化版
+    const {iCurLine, aLines} = oCurStep;
+    return {oCurStep, iCurLine, aLines}; //丰富信息版
   }
   // ▼更新当前步骤的数据
   setCurStep(){
@@ -172,9 +160,13 @@ export default class {
     aSteps[iCurStep] = this.getCurStep(true);
     this.setState({aSteps});
   }
-  // ▼得到当前行
-  getCurLine(){
+  // ▼得到当前行，或某个指定行
+  getCurLine(idx){
     const {iCurLine, aLines} = this.getCurStep();
+    if (typeof idx === 'number') {
+      if (!aLines[idx]) console.log('目标行-1');
+      return aLines[idx] || aLines[idx -1];
+    }
     return aLines[iCurLine];
   }
 }

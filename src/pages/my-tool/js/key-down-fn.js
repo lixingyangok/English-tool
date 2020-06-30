@@ -48,19 +48,19 @@ export default class {
   }
   // ▼切换当前句子（上一句，下一句）
   previousAndNext(iDirection) {
-    const { aTimeLine, iCurLine } = this.state;
+    const {oCurStep, iCurLine, aLines} = this.getCurStep();
     let iCurLineNew = iCurLine + iDirection;
     if (iCurLineNew < 0) iCurLineNew = 0;
-    if (iCurLineNew > aTimeLine.length - 1) {
-      const oLast = aTimeLine.slice(-1)[0];
+    if (iCurLineNew > aLines.length - 1) {
+      const {end} = aLines.last_;
       const oNewItem = this.fixTime({
-        start: oLast.end + 0.05,
-        end: oLast.end + 10.05,
+        start: end + 0.05,
+        end: end + 10.05,
       });
-      this.setState({
-        aTimeLine: [...aTimeLine, oNewItem],
-      });
+      aLines.push(oNewItem);
     };
+    oCurStep.iCurLine = iCurLineNew;
+    this.setCurStep();
     this.setState({iCurLine: iCurLineNew});
     this.goLine(iCurLineNew);
   }
@@ -161,8 +161,7 @@ export default class {
       }),
     ];
     aTimeLine.splice(iCurLine, 1, ...aNewItems);
-    const aSteps = this.getHistory(aTimeLine, iCurLine);
-    this.setState({aTimeLine, aSteps});
+    // this.setState({aTimeLine, aSteps});
   }
 }
 
