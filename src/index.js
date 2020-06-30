@@ -25,11 +25,11 @@ Object.defineProperties(window, {
 });
 
 Object.defineProperties(Object.prototype, { // eslint-disable-line
-  'dc_': { // deep copy = 深拷贝
+  dc_: { // deep copy = 深拷贝
     get: function () {
       function toClone(source) {
         const isNeed = source && typeof source == 'object' && source instanceof Object;
-        if (!isNeed) return source; //不处理非数组、非对象
+        if (!isNeed) return source; //不处理值类型，即忽略非数组、非对象
         const newObj = new source.constructor();
         const iterator = Array.isArray(source) ? source.entries() : Object.entries(source);
         for (let [key, val] of iterator) {
@@ -46,6 +46,13 @@ Object.defineProperties(Object.prototype, { // eslint-disable-line
   },
 });
 
+Object.defineProperties(Array.prototype, { // eslint-disable-line
+  last_: { // 取末位
+    get: function () {
+      return this[this.length - 1] || null;
+    },
+  },
+});
 
 ReactDOM.render(
   // <React.StrictMode>

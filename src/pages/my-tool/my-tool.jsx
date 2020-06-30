@@ -39,18 +39,25 @@ export default class Tool extends MyClass {
       fPerSecPx: 0, //实际每秒像素数
       drawing: false, //是否在绘制中（用于防抖
       loading: false, //是否在加载中（解析文件
-      aHistory: [],
-      iCurHst: 0,
-      iNowStep: 0,
+      // ▼新的部分
+      iCurStep: 0, //当前步骤
+      aSteps: [{ //历史记录
+        iCurLine: 0, // 当前所在行
+        aLines: [[oFirstLine]], //字幕
+      }],
     };
   }
   render() {
     const {
-      buffer, aTimeLine, iCurLine, iCanvasHeight, aHistory, iNowStep,
-      duration, iPerSecPx, fileSrc, // fPerSecPx,
+      aSteps, iCurStep,
+      buffer, iCanvasHeight, 
+      duration, iPerSecPx, fileSrc, // fPerSecPx, iCurLine, aTimeLine,
     } = this.state;
+    // =========================================================
     const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
     const fPerSecPx = buffer.length / sampleSize / duration;
+    const {aLines, iCurLine} = aSteps[iCurStep];
+    if (0) console.log(aLines, iCurLine);
     return (
       <cpnt.Div>
         <Spin spinning={this.state.loading} size="large"></Spin>
@@ -75,7 +82,7 @@ export default class Tool extends MyClass {
             </cpnt.MarkWrap>
             <cpnt.RegionWrap>
               <i className="pointer" ref={this.oPointer}/>
-              {aTimeLine.map(({ start, end }, idx) => {
+              {aLines.map(({ start, end }, idx) => {
                 return <span key={idx}
                   className={idx === iCurLine ? "cur region" : "region"}
                   style={{left: `${start * fPerSecPx}px`, width: `${(end - start) * fPerSecPx}px`}}
@@ -104,8 +111,8 @@ export default class Tool extends MyClass {
           </div>
         </cpnt.BtnBar>
         <ul style={{padding: '10px 20px 0'}} >
-          <li style={{display: 'inline-block'}}>步骤：{iNowStep} ■&emsp;&emsp;&emsp;&emsp;</li>
-          {aHistory.map((cur,idx)=>{
+          <li style={{display: 'inline-block'}}>步骤：{iCurStep} ■&emsp;&emsp;&emsp;&emsp;</li>
+          {aSteps.map((cur,idx)=>{
             return <li key={idx} style={{display: 'inline-block'}} >
               {idx}--&emsp;
             </li>;
@@ -114,8 +121,8 @@ export default class Tool extends MyClass {
         {/* 分界 */}
         <cpnt.InputWrap>
           {(() => {
-            if (!aTimeLine[iCurLine]) return <span />;
-            return <textarea value={(aTimeLine[iCurLine] || {}).text}
+            if (!aLines[iCurLine]) return <span />;
+            return <textarea value={(aLines[iCurLine] || {}).text}
               ref={this.oTextArea}
               onChange={(ev) => this.valChanged(ev)}
               onKeyDown={(ev) => this.enterKeyDown(ev)}
@@ -124,11 +131,11 @@ export default class Tool extends MyClass {
         </cpnt.InputWrap>
         {/* 分界 */}
         <cpnt.SentenceWrap ref={this.oSententList}>
-          {aTimeLine.map((cur, idx) => {
+          {aLines.map((cur, idx) => {
             return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
               key={idx} onClick={() => this.goLine(idx)}
             >
-              <i className="idx" style={{width: `${String(aTimeLine.length || 0).length}em`}} >
+              <i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
                 {idx + 1}
               </i>
               <span className="time">
@@ -143,6 +150,7 @@ export default class Tool extends MyClass {
   }
   // ▼以下是生命周期
   async componentDidMount() {
+    console.log(this);
     this.cleanCanvas();
     const oWaveWrap = this.oWaveWrap.current;
     oWaveWrap.addEventListener( //注册滚轮事件
@@ -156,19 +164,15 @@ export default class Tool extends MyClass {
     document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
     this.testFn();
   }
-  // componentWillUpdate(nextProps, nextState) {
-  //   const {aTimeLineOld} = this.state;
-  //   const {aTimeLineNew} = nextState;
-  //   if (aTimeLineOld==aTimeLineNew) return;
-    
-  //   console.log('componentWillUpdate', aTimeLineOld==aTimeLineNew);
-  // }
   // ▼测试
   async testFn(){
     const buffer = await fn.getMp3();
     const sText = await fn.getText();
-    const aTimeLine = this.getTimeLine(sText).slice(0, 13); //字幕
-    this.setState({buffer, aTimeLine, fileSrc: fn.mp3Src});
+    const {aSteps} = this.state;
+    aSteps.last_.aLines = this.getTimeLine(sText).slice(0, 13); //字幕
+    this.setState({
+      buffer, aSteps, fileSrc: fn.mp3Src,
+    });
     this.bufferToPeaks();
     this.toDraw();
   }

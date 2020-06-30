@@ -102,11 +102,11 @@ export default class {
   }
   // ▼导出文件
   toExport() {
-    const { aTimeLine } = this.state;
-    const aStr = aTimeLine.map(({ start_, end_, text }, idx) => {
+    const {aLines} = this.getCurStep();
+    const aStr = aLines.map(({start_, end_, text}, idx) => {
       return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
-    });
-    const blob = new Blob([aStr.join('\n')]);
+    }).join('\n');
+    const blob = new Blob([aStr]);
     Object.assign(document.createElement('a'), {
       download: `字幕文件-${new Date() * 1}.srt`,
       href: URL.createObjectURL(blob),
@@ -115,15 +115,16 @@ export default class {
   // ▼以上是字幕部分 ===================================================
   // ▼文件转字符，然后保存
   async getSubtitleToSave(oFile, oAudioFile){
-    let aTimeLine;
+    let aLines = [];
     if (oFile){
       const sText = await this.fileToStrings(oFile);
-      aTimeLine = this.getTimeLine(sText); //字幕
+      aLines = this.getTimeLine(sText); //字幕
     }else if(oAudioFile){
-      aTimeLine = await window.lf.getItem(oAudioFile.name);
-      aTimeLine = aTimeLine || [this.state.oFirstLine];
+      aLines = await window.lf.getItem(oAudioFile.name);
+      aLines = aLines || [this.state.oFirstLine];
     }
-    this.setState({aTimeLine});
+    const aSteps = [{iCurLine: 0, aLines}];
+    this.setState({aSteps});
   }
   // ▼文件转字符
   fileToStrings(oFile){

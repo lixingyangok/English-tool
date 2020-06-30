@@ -4,19 +4,17 @@ export default class {
   message = message;
   // ▼输入框文字改变
   valChanged(ev) {
-    const text = ev.target.value;
-    // if (/^\s+.+/.test(text)) return; //禁止空格开头 
-    const {iCurLine, aTimeLine} = this.state;
-    aTimeLine[iCurLine].text = text;
-    this.setState({aTimeLine});
+    const oCurLine = this.getCurLine();
+    oCurLine.text = ev.target.value;
+    this.setCurStep();
   }
   // ▼跳至某行
   async goLine(idx) {
-    // await new Promise(resolve => resolve(), 100);
     const oWaveWrap = this.oWaveWrap.current;
     const {scrollLeft, offsetWidth} = oWaveWrap;
-    const {fPerSecPx, aTimeLine} = this.state;
-    const {start, end, long} = aTimeLine[idx] || aTimeLine[idx - 1];
+    const {fPerSecPx} = this.state;
+    const {oNowStep, aLines} = this.getCurStep();
+    const {start, end, long} = aLines[idx] || aLines[idx - 1];
     if (
       (start * fPerSecPx < scrollLeft) || //【起点】超出可视区
       (end * fPerSecPx > scrollLeft + offsetWidth) //【终点】超出可视区
@@ -36,7 +34,8 @@ export default class {
       return oneLineHeight * (idx - 2);
     })();
     oSententList.scrollTo(0, fHeight);
-    this.setState({iCurLine: idx});
+    oNowStep.iCurLine = idx;
+    this.setCurStep();
   }
   // ▼清空画布
   cleanCanvas(){
@@ -47,9 +46,8 @@ export default class {
     Context.fillStyle = 'black';
     Context.fillRect(0, 0, width, oCanvas.height);
   }
-  // ▼绘制
+  // ▼绘制（//修改波形高度的时候不需要参数
   toDraw(aPeaks_) {
-    // aPeaks_ 修改波形高度的时候没有这个参数
     this.cleanCanvas();
     const {iHeight} = this.state; //波形高
     const aPeaks = aPeaks_ || this.state.aPeaks;
@@ -127,16 +125,16 @@ export default class {
     }
     this.fixTime(oCurLine);
     aTimeLine[iCurLine] = oCurLine;
-    const aHistory = this.getHistory(aTimeLine, iCurLine);
-    this.setState({aTimeLine, aHistory});
+    const aSteps = this.getHistory(aTimeLine, iCurLine);
+    this.setState({aTimeLine, aSteps});
   }
   getHistory(aTimeLine, iCurLine){
-    const aHistory = this.state.aHistory.dc_;
-    aHistory.push({
+    const aSteps = this.state.aSteps.dc_;
+    aSteps.push({
       iCurLine, aTimeLine: aTimeLine.dc_,
     });
-    if (aHistory.length > 100) aHistory.shift();
-    return aHistory;
+    if (aSteps.length > 100) aSteps.shift();
+    return aSteps;
   }
   fixTime(oTarget){
     const {start, end, text=''} = oTarget;
@@ -160,6 +158,24 @@ export default class {
     let [sec01, sec02='000'] = fSec.split('.');
     const sTime = `${iHour.padStart(2, 0)}:${iMinut.padStart(2, 0)}:${sec01.padStart(2, 0)},${sec02.slice(0, 3).padEnd(3,0)}`;
     return sTime;
+  }
+  // ▼得到当前步骤
+  getCurStep(isJustNowStep = false){
+    const oNowStep = this.state.aSteps[this.state.iCurStep];
+    if (isJustNowStep) return oNowStep; //简化版
+    const {iCurLine, aLines} = oNowStep;
+    return {oNowStep, iCurLine, aLines}; //丰富信息版
+  }
+  // ▼更新当前步骤的数据
+  setCurStep(){
+    const {aSteps, iCurStep} = this.state;
+    aSteps[iCurStep] = this.getCurStep(true);
+    this.setState({aSteps});
+  }
+  // ▼得到当前行
+  getCurLine(){
+    const {iCurLine, aLines} = this.getCurStep();
+    return aLines[iCurLine];
   }
 }
 

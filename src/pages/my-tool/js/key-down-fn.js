@@ -132,15 +132,15 @@ export default class {
   }
   // ▼撤销-恢复
   setHistory(iType){
-    let {aHistory, iNowStep, aHistory:{length: len}} = this.state;
-    iNowStep += iType;
+    let {aSteps, iCurStep, aSteps:{length: len}} = this.state;
+    iCurStep += iType;
     console.log('前进方向：', iType);
-    console.log('历史数据：', aHistory.dc_);
+    console.log('历史数据：', aSteps.dc_);
     if (!len) return;
-    const oLast = aHistory[len-2] || aHistory[len-1];
+    const oLast = aSteps[len-2] || aSteps[len-1];
     // console.log('历史', oLast.aTimeLine[0]);
     // console.log('历史', oLast.aTimeLine[0].start);
-    this.setState({...oLast, aHistory, iNowStep});
+    this.setState({...oLast, aSteps, iCurStep});
   }
   // ▼一刀两段
   split(){
@@ -161,8 +161,8 @@ export default class {
       }),
     ];
     aTimeLine.splice(iCurLine, 1, ...aNewItems);
-    const aHistory = this.getHistory(aTimeLine, iCurLine);
-    this.setState({aTimeLine, aHistory});
+    const aSteps = this.getHistory(aTimeLine, iCurLine);
+    this.setState({aTimeLine, aSteps});
   }
 }
 
