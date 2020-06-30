@@ -10,7 +10,7 @@ export const aNavData = [{
   name: '工具',
   path: '/practicing',
   target:'_blank',
-  component: React.lazy(() => import('pages/my-tool-3/my-tool.jsx')),
+  component: React.lazy(() => import('pages/my-tool/my-tool.jsx')),
 },{
   name: '关于',
   path: '/about',

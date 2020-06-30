@@ -3,13 +3,13 @@ import keyMap from './key-map.js';
 export default class {
   getFn(keyStr){
     const fnLib = {
+      // ▼单键系列
       '`': () => this.toPlay(null, true),
       'Tab': () => this.toPlay(),
       'Prior': () => this.previousAndNext(-1),
       'Next': () => this.previousAndNext(1),
       'F1': ()=>this.cutHere('start'),
       'F2': ()=>this.cutHere('end'),
-      // 一万两段
       // ctrl 系列
       'ctrl + Enter': () => this.toPlay(), //播放
       'ctrl + Delete': () => this.toDel(), //删除
@@ -18,6 +18,7 @@ export default class {
       'ctrl + Down': () => this.putTogether('next'), // 合并下一句
       'ctrl + z': () => this.getHistory(-1), //撤销
       'ctrl + shift + z': () => this.getHistory(1), //恢复
+      'ctrl + shift + c': () => this.split(), //分割
       // alt 系列
       'alt + j': () => this.previousAndNext(-1),
       'alt + k': () => this.previousAndNext(1),
@@ -36,9 +37,10 @@ export default class {
     const ctrl = ctrlKey ? 'ctrl + ' : '';
     const shift = shiftKey ? 'shift + ' : '';
     const alt = altKey ? 'alt + ' : '';
-    const keyStr = ctrl + shift + alt + keyMap[keyCode];
+    const keyName = [16, 17, 18].includes(keyCode) ? '' : keyMap[keyCode];
+    const keyStr = ctrl + shift + alt + keyName;
     const theFn = this.getFn(keyStr);
-    console.log('按下了：', keyCode);
+    console.log('按下了：', keyCode, keyStr);
     if (!theFn) return;
     theFn();
     ev.preventDefault();
@@ -128,6 +130,7 @@ export default class {
     if (sType === 'prior') iCurLine--;
     this.setState({aTimeLine, iCurLine});
   }
+  // ▼撤销-恢复
   getHistory(iType){
     const {aHistory, aHistory:{length: len}} = this.state;
     console.log('历史方向', iType);
@@ -145,6 +148,24 @@ export default class {
     // console.log('历史', oLast.aTimeLine[0]);
     // console.log('历史', oLast.aTimeLine[0].start);
     this.setState({...oLast, aHistory});
+  }
+  // ▼一刀两段
+  split(){
+    const {selectionStart} = this.oTextArea.current;
+    const {currentTime} = this.oAudio.current;
+    const {iCurLine, aTimeLine} = this.state;
+    const oCur = {...aTimeLine[iCurLine]};
+    aTimeLine.splice(iCurLine, 1, this.fixTime({
+      ...oCur,
+      end: currentTime,
+      text: oCur.text.slice(0, selectionStart).trim(),
+    }), this.fixTime({
+      ...oCur,
+      start: currentTime + 0.01,
+      text: oCur.text.slice(selectionStart).trim(),
+    }));
+    const aHistory = this.saveHistory(aTimeLine, iCurLine);
+    this.setState({aTimeLine, aHistory});
   }
 }
 

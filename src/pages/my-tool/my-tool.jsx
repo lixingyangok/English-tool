@@ -18,6 +18,7 @@ export default class Tool extends MyClass {
   oWaveWrap = React.createRef();
   oPointer = React.createRef();
   oSententList = React.createRef();
+  oTextArea = React.createRef();
   constructor(props) {
     super(props);
     const oFirstLine = this.fixTime({start: 0.1, end: 5});
@@ -113,6 +114,7 @@ export default class Tool extends MyClass {
           {(() => {
             if (!aTimeLine[iCurLine]) return <span />;
             return <textarea value={(aTimeLine[iCurLine] || {}).text}
+              ref={this.oTextArea}
               onChange={(ev) => this.valChanged(ev)}
               onKeyDown={(ev) => this.enterKeyDown(ev)}
             />;
