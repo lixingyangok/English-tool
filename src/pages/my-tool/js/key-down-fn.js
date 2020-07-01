@@ -4,7 +4,7 @@ export default class {
   getFn(keyStr){
     const fnLib = {
       // ▼单键系列
-      '`': () => this.toPlay(null, true),
+      '`': () => this.toPlay(true),
       'Tab': () => this.toPlay(),
       'Prior': () => this.previousAndNext(-1),
       'Next': () => this.previousAndNext(1),
@@ -48,36 +48,33 @@ export default class {
   }
   // ▼切换当前句子（上一句，下一句）
   previousAndNext(iDirection) {
-    const {oCurStep, iCurLine, aLines} = this.getCurStep();
-    let iCurLineNew = iCurLine + iDirection;
-    if (iCurLineNew < 0) iCurLineNew = 0;
-    if (iCurLineNew > aLines.length - 1) {
+    const {iCurLine, aLines} = this.getCurStep();
+    if (iCurLine==0 && iDirection==-1) return; //不可退
+    const iCurLineNew = iCurLine + iDirection;
+    let oNewItem = null;
+    if (iCurLineNew > aLines.length - 1) { //超出，需要新增
       const {end} = aLines.last_;
-      const oNewItem = this.fixTime({
+      oNewItem = this.fixTime({
         start: end + 0.05,
-        end: end + 10.05,
+        end: end + 10,
       });
-      aLines.push(oNewItem);
     };
-    oCurStep.iCurLine = iCurLineNew;
-    this.setCurStep();
-    this.setState({iCurLine: iCurLineNew});
-    this.goLine(iCurLineNew);
+    this.goLine(iCurLineNew, oNewItem);
   }
   // ▼按下回车键
   enterKeyDown(ev) {
-    const { keyCode, altKey, ctrlKey, shiftKey } = ev;
-    if (keyCode === 13 && !altKey && !ctrlKey && !shiftKey) {
-      ev.preventDefault();
-      this.previousAndNext(1);
-      return false;
-    }
+    const {keyCode, altKey, ctrlKey, shiftKey} = ev;
+    const willDo = keyCode === 13 && !altKey && !ctrlKey && !shiftKey;
+    if (!willDo) return;
+    this.previousAndNext(1);
+    ev.preventDefault();
+    return false;
   }
   // ▼删除某条
   toDel() {
-    const {iCurLine, aLines} = this.getCurStep();
-    aLines.splice(iCurLine, 1);
-    this.setCurStep();
+    const {oCurStepDc, iCurLine} = this.getCurStep();
+    oCurStepDc.aLines.splice(iCurLine, 1);
+    this.setCurStep(oCurStepDc);
   }
   // ▼保存字幕到浏览器
   async toSave() {
@@ -111,7 +108,9 @@ export default class {
   }
   // ▼合并
   putTogether(sType){
-    const {oCurStep, aLines, iCurLine} = this.getCurStep();
+    const {oCurStepDc, iCurLine} = this.getCurStep();
+    const {aLines} = oCurStepDc;
+    const isMergeNext = sType === 'next';
     const oTarget = ({
       prior: aLines[iCurLine - 1], //合并上一条
       next: aLines[iCurLine + 1], //合并下一条
@@ -120,15 +119,36 @@ export default class {
     const oCur = aLines[iCurLine];
     oTarget.start = Math.min(oTarget.start, oCur.start);
     oTarget.end = Math.max(oTarget.end, oCur.end);
-    oTarget.text = (()=>{ 
-      let sResult = oTarget.text + ' ' + oCur.text;
-      if (sType === 'next') sResult = oCur.text + ' ' + oTarget.text;
-      return sResult.replace(/\s+/g, ' ');
+    oTarget.text = (()=>{
+      const aResult = [oTarget.text, oCur.text];
+      if (isMergeNext) aResult.reverse();
+      return aResult.join(' ').replace(/\s{2,}/g, ' ');
     })();
     this.fixTime(oTarget);
     aLines.splice(iCurLine, 1);
-    oCurStep.iCurLine = sType === 'prior' ? iCurLine-1 : iCurLine;
-    this.setCurStep();
+    oCurStepDc.iCurLine = isMergeNext ? iCurLine : iCurLine-1;
+    this.setCurStep(oCurStepDc);
+  }
+  // ▼一刀两段
+  split(){
+    const {selectionStart} = this.oTextArea.current;
+    const {currentTime} = this.oAudio.current;
+    const {oCurStepDc, iCurLine} = this.getCurStep();
+    const oCurLine = this.getCurLine();
+    const aNewItems = [
+      this.fixTime({
+        ...oCurLine,
+        end: currentTime,
+        text: oCurLine.text.slice(0, selectionStart).trim(),
+      }),
+      this.fixTime({
+        ...oCurLine,
+        start: currentTime + 0.01,
+        text: oCurLine.text.slice(selectionStart).trim(),
+      }),
+    ];
+    oCurStepDc.aLines.splice(iCurLine, 1, ...aNewItems);
+    this.setCurStep(oCurStepDc);
   }
   // ▼撤销-恢复
   setHistory(iType){
@@ -137,27 +157,6 @@ export default class {
     if (iCurStep < 0 || iCurStep > length - 1) return;
     console.log('新位置：', iCurStep);
     this.setState({iCurStep});
-  }
-  // ▼一刀两段
-  split(){
-    const {selectionStart} = this.oTextArea.current;
-    const {currentTime} = this.oAudio.current;
-    const {iCurLine, aLines} = this.getCurStep();
-    const oCur = {...aLines[iCurLine]};
-    const aNewItems = [
-      this.fixTime({
-        ...oCur,
-        end: currentTime,
-        text: oCur.text.slice(0, selectionStart).trim(),
-      }),
-      this.fixTime({
-        ...oCur,
-        start: currentTime + 0.01,
-        text: oCur.text.slice(selectionStart).trim(),
-      }),
-    ];
-    aLines.splice(iCurLine, 1, ...aNewItems);
-    this.setCurStep();
   }
 }
 

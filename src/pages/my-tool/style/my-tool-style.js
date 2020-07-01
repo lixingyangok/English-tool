@@ -124,7 +124,7 @@ export const RegionWrap = styled.section`
 export const BtnBar = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 15px 0 -5px;
+  margin: 15px 0 0;
 `;
 
 export const InputWrap = styled.div`
@@ -179,5 +179,20 @@ export const SentenceWrap = styled.ol`
     em{
       font-style: normal;
     }
+  }
+`;
+
+export const Steps = styled.ul`
+  margin: 10px 0 0;
+  display: flex;
+  flex-flow: wrap row;
+  outline: solid 1px #ccc;
+  padding: 0;
+  li{
+    display: inline-block;
+    padding: 0 10px;
+  }
+  .cur{
+    background: yellow;
   }
 `;

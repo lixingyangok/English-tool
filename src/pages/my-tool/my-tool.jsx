@@ -54,9 +54,8 @@ export default class Tool extends MyClass {
     // =========================================================
     const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
     const fPerSecPx = buffer.length / sampleSize / duration;
-    if (!aSteps[iCurStep]) debugger;
+    // if (!aSteps[iCurStep]) debugger;
     const {aLines, iCurLine} = aSteps[iCurStep] || aSteps.last_;
-    console.log('来到了步骤：', iCurStep);
     return (
       <cpnt.Div>
         <Spin spinning={this.state.loading} size="large"></Spin>
@@ -109,16 +108,13 @@ export default class Tool extends MyClass {
             </label>
           </div>
         </cpnt.BtnBar>
-        <ul style={{padding: '10px 20px 0'}} >
-          <li style={{display: 'inline-block'}}>
-            当前步骤：{iCurStep} ■&emsp;&emsp;&emsp;&emsp;
-          </li>
+        <cpnt.Steps>
           {aSteps.map((cur,idx)=>{
-            return <li key={idx} style={{display: 'inline-block'}} >
-              {idx}--&emsp;
+            return <li key={idx} className={idx===iCurStep ? 'cur' : ''}>
+              {idx}
             </li>;
           })}
-        </ul>
+        </cpnt.Steps>
         {/* 分界 */}
         <cpnt.InputWrap>
           {(() => {

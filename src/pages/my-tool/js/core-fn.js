@@ -4,16 +4,15 @@ export default class {
   message = message;
   // ▼输入框文字改变
   valChanged(ev) {
-    const oCurLine = this.getCurLine();
+    const oCurLine = this.getCurLine().dc_;
     oCurLine.text = ev.target.value;
-    this.setCurStep();
+    this.setCurLine(oCurLine);
   }
   // ▼跳至某行
-  async goLine(idx) {
+  async goLine(idx, oNewLine) {
     const oWaveWrap = this.oWaveWrap.current;
     const {scrollLeft, offsetWidth} = oWaveWrap;
     const {fPerSecPx} = this.state;
-    const {oCurStep} = this.getCurStep(); //aLines
     const {start, end, long} = this.getCurLine(idx);
     if (
       (start * fPerSecPx < scrollLeft) || //【起点】超出可视区
@@ -34,8 +33,11 @@ export default class {
       return oneLineHeight * (idx - 2);
     })();
     oSententList.scrollTo(0, fHeight);
-    oCurStep.iCurLine = idx;
-    this.setCurStep();
+    // 
+    const {oCurStepDc} = this.getCurStep();
+    oCurStepDc.iCurLine = idx;
+    if (oNewLine) oCurStepDc.aLines.push(oNewLine);
+    this.setCurStep(oCurStepDc);
   }
   // ▼清空画布
   cleanCanvas(){
@@ -72,11 +74,10 @@ export default class {
     return oCanvas;
   }
   // ▼播放
-  async toPlay(iCurLine, isFromHalf) {
+  async toPlay(isFromHalf) {
     clearInterval(this.state.playTimer); //把之前播放的关闭再说
-    iCurLine = typeof iCurLine === 'number' ? iCurLine : this.getCurStep().iCurLine;
     const {fPerSecPx} = this.state;
-    const {start, long} = this.getCurLine(iCurLine);
+    const {start, long} = this.getCurLine();
     const Audio = this.oAudio.current;
     const {style} = this.oPointer.current;
     const fStartTime = start + (isFromHalf ? long / 2 : 0);
@@ -88,7 +89,7 @@ export default class {
       const {fPerSecPx} = this.state;
       const {long, end} = this.getCurLine();
       const fOneStepLong = long * fPerSecPx / (long * iSecFrequency);
-      const newLeft = Number.parseFloat(style.left) + fOneStepLong;
+      const newLeft = parseFloat(style.left) + fOneStepLong;
       const fEndPx = end * fPerSecPx;
       if (newLeft > fEndPx || Audio.currentTime > end) {
         Audio.pause();
@@ -97,8 +98,7 @@ export default class {
       }
       style.left = `${newLeft}px`;
     }, 1000 / iSecFrequency);
-    this.setState({playTimer, iCurLine});
-    this.goLine(iCurLine);
+    this.setState({playTimer});
   }
   // ▼得到点击处的秒数，收受一个事件对象
   getPointSec({clientX}){
@@ -110,7 +110,7 @@ export default class {
   }
   // ▼设定时间。1参是类型，2参是秒数
   setTime(sKey, fVal){
-    const oCurLine = this.getCurLine();
+    const oCurLine = this.getCurLine().dc_;
     const {start, end} = oCurLine;
     if (sKey === 'start' && fVal > end) { //起点在终点右侧
       oCurLine.start = end;
@@ -122,14 +122,15 @@ export default class {
       oCurLine[sKey] = fVal;
     }
     this.fixTime(oCurLine);
-    this.setCurStep();
+    this.setCurLine(oCurLine);
   }
+  // ▼修整某一行
   fixTime(oTarget){
-    const {start, end, text=''} = oTarget;
+    const {start, end, text} = oTarget;
     oTarget.start_ = this.secToStr(start);
     oTarget.end_ = this.secToStr(end);
     oTarget.long = end - start;
-    oTarget.text = text;
+    oTarget.text = text || '';
     return oTarget;
   }
   // ▼时间轴的时间转秒
@@ -151,19 +152,24 @@ export default class {
   getCurStep(isJustCurStep = false){
     const oCurStep = this.state.aSteps[this.state.iCurStep];
     if (isJustCurStep) return oCurStep; //简化版
-    const {iCurLine, aLines} = oCurStep;
-    return {oCurStep, iCurLine, aLines}; //丰富信息版
+    const {iCurLine, aLines, dc_} = oCurStep;
+    return {oCurStep, iCurLine, aLines, oCurStepDc: dc_}; //丰富信息版
   }
   // ▼更新当前步骤的数据
-  setCurStep(){
+  setCurStep(oNewStep){
     const aSteps = this.state.aSteps.dc_;
-    const iCurStep = this.state.iCurStep + 1;
-    aSteps.splice(
-      iCurStep, Infinity, this.getCurStep(true).dc_,
-    );
-    if (aSteps.length > 100) aSteps.shift();
-    // console.log('新步骤:', iCurStep);
+    let iCurStep = this.state.iCurStep + 1;
+    aSteps.splice(iCurStep, Infinity, oNewStep);
+    if (aSteps.length > 100) {
+      aSteps.shift(); iCurStep--;
+    }
     this.setState({aSteps, iCurStep});
+  }
+  // ▼设定当前行
+  setCurLine(oLine){
+    const {oCurStepDc, iCurLine} = this.getCurStep();
+    oCurStepDc.aLines[iCurLine] = oLine;
+    this.setCurStep(oCurStepDc);
   }
   // ▼得到当前行，或某个指定行
   getCurLine(idx){
