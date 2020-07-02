@@ -4,7 +4,7 @@ export const iScrollHeight = 15;
 
 export const Div = styled.div`
   box-sizing: border-box;
-  padding: 20px 40px 60px;
+  /* padding: 0px 40px 0px; */
   height: calc(100vh - 50px);
   display: flex;
   flex-flow: column nowrap;
@@ -27,6 +27,7 @@ export const Div = styled.div`
 `;
 
 export const WaveWrap = styled.div`
+  margin-top: 30px;
   width: 100%;
   background: yellow;
   overflow-x: auto;

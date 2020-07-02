@@ -6,6 +6,7 @@ import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
+import Nav from './children/menu/menu.jsx';
 
 const MyClass = window.mix(
   React.Component,
@@ -58,6 +59,7 @@ export default class Tool extends MyClass {
     const {aLines, iCurLine} = aSteps[iCurStep] || aSteps.last_;
     return (
       <cpnt.Div>
+        <Nav/>
         <Spin spinning={this.state.loading} size="large"></Spin>
         <cpnt.WaveWrap ref={this.oWaveWrap}
           onScroll={() => this.onScrollFn()}

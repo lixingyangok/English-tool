@@ -49,7 +49,7 @@ export default class {
   // ▼切换当前句子（上一句，下一句）
   previousAndNext(iDirection) {
     const {iCurLine, aLines} = this.getCurStep();
-    if (iCurLine==0 && iDirection==-1) return; //不可退
+    if (iCurLine === 0 && iDirection === -1) return; //不可退
     const iCurLineNew = iCurLine + iDirection;
     let oNewItem = null;
     if (iCurLineNew > aLines.length - 1) { //超出，需要新增
