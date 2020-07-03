@@ -33,7 +33,7 @@ export default class Tool extends MyClass {
       fileSrc: "", //文件地址
       fileSrcFull: "", //文件地址2
       iHeight: 50, // 波形高
-      iCanvasHeight: 150, //画布高
+      iCanvasHeight: 140, //画布高
       iPerSecPx: 55, //人为定义的每秒像素数
       fPerSecPx: 0, //实际每秒像素数
       drawing: false, //是否在绘制中（用于防抖
@@ -60,39 +60,41 @@ export default class Tool extends MyClass {
     return (
       <cpnt.Div>
         <Nav/>
+        <audio src={fileSrc} ref={this.oAudio}/>
         <Spin spinning={this.state.loading} size="large"></Spin>
-        <cpnt.WaveWrap ref={this.oWaveWrap}
-          onScroll={() => this.onScrollFn()}
-          style={{height: `${iCanvasHeight + cpnt.iScrollHeight}px`}}
-        >
-          <canvas height={iCanvasHeight} ref={this.oCanvas} />
-          <audio src={fileSrc} ref={this.oAudio}/>
-          <cpnt.TimeBar style={{width: `${fPerSecPx * duration}px`}}
-            onContextMenu={ev => this.clickOnWave(ev)}
-            onMouseDown={ev=>this.mouseDownFn(ev)}
+        <div>
+          <canvas height={iCanvasHeight} ref={this.oCanvas}/>
+          <cpnt.WaveWrap ref={this.oWaveWrap}
+            onScroll={() => this.onScrollFn()}
+            style={{height: `${iCanvasHeight + cpnt.iScrollHeight}px`}}
           >
-            <cpnt.MarkWrap className="mark-wrap" >
-              {[...Array(~~duration).keys()].map((cur, idx) => {
-                return <span className="second-mark" key={cur}
-                  style={{width: fPerSecPx + "px", left: idx*fPerSecPx + "px"}}
-                >
-                  {cur}
-                </span>;
-              })}
-            </cpnt.MarkWrap>
-            <cpnt.RegionWrap>
-              <i className="pointer" ref={this.oPointer}/>
-              {aLines.map(({ start, end }, idx) => {
-                return <span key={idx}
-                  className={idx === iCurLine ? "cur region" : "region"}
-                  style={{left: `${start * fPerSecPx}px`, width: `${(end - start) * fPerSecPx}px`}}
-                >
-                  <span className="idx" >{idx + 1}</span>
-                </span>
-              })}
-            </cpnt.RegionWrap>
-          </cpnt.TimeBar>
-        </cpnt.WaveWrap>
+            <cpnt.TimeBar style={{width: `${fPerSecPx * duration}px`}}
+              onContextMenu={ev => this.clickOnWave(ev)}
+              onMouseDown={ev=>this.mouseDownFn(ev)}
+            >
+              <cpnt.MarkWrap className="mark-wrap" >
+                {[...Array(~~duration).keys()].map((cur, idx) => {
+                  return <span className="second-mark" key={cur}
+                    style={{width: fPerSecPx + "px", left: idx*fPerSecPx + "px"}}
+                  >
+                    {cur}
+                  </span>;
+                })}
+              </cpnt.MarkWrap>
+              <cpnt.RegionWrap>
+                <i className="pointer" ref={this.oPointer}/>
+                {aLines.map(({ start, end }, idx) => {
+                  return <span key={idx}
+                    className={idx === iCurLine ? "cur region" : "region"}
+                    style={{left: `${start * fPerSecPx}px`, width: `${(end - start) * fPerSecPx}px`}}
+                  >
+                    <span className="idx" >{idx + 1}</span>
+                  </span>
+                })}
+              </cpnt.RegionWrap>
+            </cpnt.TimeBar>
+          </cpnt.WaveWrap>
+        </div>
         {/* 上下分界 */}
         <cpnt.BtnBar>
           <div>

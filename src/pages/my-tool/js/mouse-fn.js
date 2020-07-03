@@ -53,7 +53,6 @@ export default class {
     const {aPeaks, fPerSecPx} = this.getPeaks(
       buffer, iPerSecPx, scrollLeft, offsetWidth,
     );
-    this.oCanvas.current.style.left = scrollLeft + 'px';
     this.setState({aPeaks, fPerSecPx});
     this.toDraw(aPeaks);
   }
