@@ -45,8 +45,8 @@ export default class {
     const oCanvas = this.oCanvas.current;
     const Context = oCanvas.getContext('2d');
     oCanvas.width = width;
-    Context.fillStyle = 'black';
-    Context.fillRect(0, 0, width, oCanvas.height);
+    // Context.fillStyle = 'transparent';
+    Context.clearRect(0, 0, width, oCanvas.height);
   }
   // ▼绘制（//修改波形高度的时候不需要参数
   toDraw(aPeaks_) {
