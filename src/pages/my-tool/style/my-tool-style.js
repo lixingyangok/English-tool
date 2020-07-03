@@ -80,7 +80,11 @@ export const MarkWrap = styled.section`
     position: absolute;
     bottom: 0;
     color: white;
-    font-size: 12px;
+    /* font-size: 12px;
+    transform: scale(0.8); */
+    font-size: 10px;
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
     line-height: 1;
     padding: 0 0 2px 2px;
     color: #0f0;

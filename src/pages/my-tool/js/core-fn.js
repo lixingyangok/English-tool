@@ -63,10 +63,11 @@ export default class {
       const cur1 = aPeaks[idx * 2] * iHeight;
       const cur2 = aPeaks[idx * 2 + 1] * iHeight;
       Context.fillRect(
-        idx, (halfHeight - cur1), 1, Math.ceil(cur1 - cur2),
+        // idx, (halfHeight - cur1), 1, Math.ceil(cur1 - cur2),
+        idx, (halfHeight - cur1), 1, cur1 - cur2,
       );
     }
-    Context.fillStyle = '#4ddc4d';
+    Context.fillStyle = '#0f0';
     Context.fillRect(0, halfHeight, oCanvas.width, 1);
     this.setState({drawing: false});
     return oCanvas;
@@ -89,13 +90,12 @@ export default class {
       const fOneStepLong = long * fPerSecPx / (long * iSecFrequency);
       const newLeft = parseFloat(style.left) + fOneStepLong;
       const fEndPx = end * fPerSecPx;
+      style.left = `${newLeft}px`;
       if (newLeft > fEndPx || Audio.currentTime > end) {
         Audio.pause();
-        style.left = `${fEndPx}px`;
+        clearInterval(this.state.playTimer);
         this.setState({playing: false});
-        return clearInterval(this.state.playTimer);
       }
-      style.left = `${newLeft}px`;
     }, 1000 / iSecFrequency);
     this.setState({playTimer, playing: true});
   }
