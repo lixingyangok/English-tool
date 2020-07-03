@@ -41,11 +41,10 @@ export default class {
   }
   // ▼清空画布
   cleanCanvas(){
-    const width = this.oWaveWrap.current.offsetWidth;
     const oCanvas = this.oCanvas.current;
+    const width = oCanvas.parentElement.offsetWidth;
     const Context = oCanvas.getContext('2d');
     oCanvas.width = width;
-    // Context.fillStyle = 'transparent';
     Context.clearRect(0, 0, width, oCanvas.height);
   }
   // ▼绘制（//修改波形高度的时候不需要参数
@@ -55,21 +54,20 @@ export default class {
     const aPeaks = aPeaks_ || this.state.aPeaks;
     const oCanvas = this.oCanvas.current;
     const Context = oCanvas.getContext('2d');
-    const {height} = oCanvas;
-    const halfHeight = height / 2;
+    const halfHeight = oCanvas.height / 2;
     let idx = -1;
     const fCanvasWidth = aPeaks.length / 2;
+    Context.fillStyle = '#55c655';
     while (idx < fCanvasWidth) {
       idx++;
       const cur1 = aPeaks[idx * 2] * iHeight;
       const cur2 = aPeaks[idx * 2 + 1] * iHeight;
-      Context.fillStyle = '#55c655';
       Context.fillRect(
         idx, (halfHeight - cur1), 1, Math.ceil(cur1 - cur2),
       );
-      Context.fillStyle = '#4ddc4d';
-      Context.fillRect(idx, halfHeight, 1, 1);
     }
+    Context.fillStyle = '#4ddc4d';
+    Context.fillRect(0, halfHeight, oCanvas.width, 1);
     this.setState({drawing: false});
     return oCanvas;
   }
@@ -94,11 +92,12 @@ export default class {
       if (newLeft > fEndPx || Audio.currentTime > end) {
         Audio.pause();
         style.left = `${fEndPx}px`;
+        this.setState({playing: false});
         return clearInterval(this.state.playTimer);
       }
       style.left = `${newLeft}px`;
     }, 1000 / iSecFrequency);
-    this.setState({playTimer});
+    this.setState({playTimer, playing: true});
   }
   // ▼得到点击处的秒数，收受一个事件对象
   getPointSec({clientX}){

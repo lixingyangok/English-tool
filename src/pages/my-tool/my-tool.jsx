@@ -1,5 +1,6 @@
 import React from "react";
 import * as cpnt from "./style/my-tool-style.js";
+import {iCanvasHeight} from "./style/my-tool-style.js";
 import * as fn from "./js/my-tool-pure-fn.js";
 import {Button, Spin} from "antd";
 import coreFn from "./js/core-fn.js";
@@ -33,11 +34,12 @@ export default class Tool extends MyClass {
       fileSrc: "", //文件地址
       fileSrcFull: "", //文件地址2
       iHeight: 50, // 波形高
-      iCanvasHeight: 140, //画布高
+      iCanvasHeight, //画布高
       iPerSecPx: 55, //人为定义的每秒像素数
       fPerSecPx: 0, //实际每秒像素数
       drawing: false, //是否在绘制中（用于防抖
       loading: false, //是否在加载中（解析文件
+      playing: false, //是否在播放中（用于控制指针显示
       // ▼新的部分
       aSteps: [{ //历史记录
         iCurLine: 0, // 当前所在行
@@ -50,7 +52,7 @@ export default class Tool extends MyClass {
     const {
       aSteps, iCurStep,
       buffer, iCanvasHeight, 
-      duration, iPerSecPx, fileSrc, // fPerSecPx
+      duration, iPerSecPx, fileSrc, playing// fPerSecPx
     } = this.state;
     // =========================================================
     const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
@@ -61,32 +63,33 @@ export default class Tool extends MyClass {
       <cpnt.Div>
         <Nav/>
         <audio src={fileSrc} ref={this.oAudio}/>
-        <Spin spinning={this.state.loading} size="large"></Spin>
-        <div>
+        <Spin spinning={this.state.loading} size="large"/>
+        <cpnt.WaveBox>
           <canvas height={iCanvasHeight} ref={this.oCanvas}/>
           <cpnt.WaveWrap ref={this.oWaveWrap}
             onScroll={() => this.onScrollFn()}
-            style={{height: `${iCanvasHeight + cpnt.iScrollHeight}px`}}
           >
             <cpnt.TimeBar style={{width: `${fPerSecPx * duration}px`}}
               onContextMenu={ev => this.clickOnWave(ev)}
               onMouseDown={ev=>this.mouseDownFn(ev)}
             >
-              <cpnt.MarkWrap className="mark-wrap" >
+              <cpnt.MarkWrap>
                 {[...Array(~~duration).keys()].map((cur, idx) => {
                   return <span className="second-mark" key={cur}
-                    style={{width: fPerSecPx + "px", left: idx*fPerSecPx + "px"}}
+                    style={{width: fPerSecPx + "px", left: idx * fPerSecPx + "px"}}
                   >
                     {cur}
                   </span>;
                 })}
               </cpnt.MarkWrap>
               <cpnt.RegionWrap>
-                <i className="pointer" ref={this.oPointer}/>
-                {aLines.map(({ start, end }, idx) => {
+                <i ref={this.oPointer}
+                  className={"pointer " + (playing ? 'playing' : '')}
+                />
+                {aLines.map(({start, long}, idx) => {
                   return <span key={idx}
                     className={idx === iCurLine ? "cur region" : "region"}
-                    style={{left: `${start * fPerSecPx}px`, width: `${(end - start) * fPerSecPx}px`}}
+                    style={{left: `${start * fPerSecPx}px`, width: `${long * fPerSecPx}px`}}
                   >
                     <span className="idx" >{idx + 1}</span>
                   </span>
@@ -94,7 +97,7 @@ export default class Tool extends MyClass {
               </cpnt.RegionWrap>
             </cpnt.TimeBar>
           </cpnt.WaveWrap>
-        </div>
+        </cpnt.WaveBox>
         {/* 上下分界 */}
         <cpnt.BtnBar>
           <div>

@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+export const iMarkWrapHeight = 20;
+export const iCanvasHeight = 125;
 export const iScrollHeight = 15;
 
 export const Div = styled.div`
@@ -26,22 +28,30 @@ export const Div = styled.div`
   }
 `;
 
-export const WaveWrap = styled.div`
-  /* margin-top: 30px; */
-  width: 100%;
-  background: yellow;
-  overflow-x: auto;
-  overflow-y: hidden;
+export const WaveBox = styled.article`
   position: relative;
+  background: black;
+  overflow: hidden;
+  height: ${iMarkWrapHeight + iCanvasHeight + iScrollHeight}px;
   flex: none;
   canvas{
-    position: absolute;
-    top: 0;
-    left: 0;
+    display: block;
+    margin-top: ${iMarkWrapHeight}px;
   }
+`;
+
+export const WaveWrap = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: none;
+  position: absolute; /* 用于贴紧父级左上角 */
+  top: 0;
+  left: 0;
   ::-webkit-scrollbar{
     height: ${iScrollHeight}px;
-    background: #000;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb{
     background: #00c800;
@@ -51,7 +61,6 @@ export const WaveWrap = styled.div`
 export const TimeBar = styled.div`
   position: relative;
   height: 100%;
-  background: rgba(0,0,0,0.1);
   z-index: 2;
   display: flex;
   flex-flow: column nowrap;
@@ -59,7 +68,7 @@ export const TimeBar = styled.div`
 
 export const MarkWrap = styled.section`
   width: 100%;
-  height: 20px;
+  height: ${iMarkWrapHeight}px;
   position: relative;
   flex: none;
   .second-mark{
@@ -74,6 +83,7 @@ export const MarkWrap = styled.section`
     font-size: 12px;
     line-height: 1;
     padding: 0 0 2px 2px;
+    color: #0f0;
   }
 `;
 
@@ -90,7 +100,7 @@ export const RegionWrap = styled.section`
     top: 0px;
     height: 100%;
     min-width: 1px;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.4);
     z-index: 4;
     margin: 0;
     padding: 0;
@@ -102,7 +112,7 @@ export const RegionWrap = styled.section`
     border-color: transparent blue transparent red;
     border-width: 0 2px;
     background: none;
-    box-shadow: 0px 0 0px ${1000 * 100}px rgba(0, 0, 0, 0.4);
+    box-shadow: 0px 0 0px ${10000 * 100}px rgba(0, 0, 0, 0.4);
   }
   .idx{
     position: absolute;
@@ -119,6 +129,11 @@ export const RegionWrap = styled.section`
     top: 0;
     left: 0;
     z-index: 9;
+    opacity: 0;
+    transition: 0.3s opacity;
+    &[class~=playing]{
+      opacity: 1;
+    }
   }
 `;
 
