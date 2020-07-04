@@ -19,7 +19,6 @@ export const Nav = styled.nav`
 
 export const Ul = styled.ul`
     display: flex;
-    padding: 0 20px;
     margin: 0;
     li{
         line-height: 2;
@@ -29,5 +28,18 @@ export const Ul = styled.ul`
 `;
 
 export const BtnBar = styled.section`
-
+    padding: 10px 0;
+    display: flex;
+    .btn{
+       width: 40px;
+       text-align: center;
+       cursor: pointer;
+       &:Hover{
+            color: blue;
+       }
+    }
+    .fas{
+        font-size: 20px;
+        
+    }
 `;

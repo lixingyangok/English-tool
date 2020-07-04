@@ -141,12 +141,6 @@ export const RegionWrap = styled.section`
   }
 `;
 
-export const BtnBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 15px 0 0;
-`;
-
 export const InputWrap = styled.div`
   height: 90px;
   margin: 25px 0;

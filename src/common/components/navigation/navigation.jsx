@@ -1,5 +1,5 @@
 import React from "react";
-import {NavLink, useLocation} from "react-router-dom";
+import {NavLink, /* useLocation */} from "react-router-dom";
 import * as cpnt from './style/navigation.js';
 
 export const aNavData = [{
@@ -9,7 +9,7 @@ export const aNavData = [{
 },{
   name: '工具',
   path: '/practicing',
-  target:'_blank',
+  // target:'_blank',
   component: React.lazy(() => import('pages/my-tool/my-tool.jsx')),
 },{
   name: '关于',
@@ -18,11 +18,11 @@ export const aNavData = [{
 }];
 
 export default function () {
-  const oLocation = useLocation();
-  const isPracticing = oLocation.pathname.includes('/practicing');
-  if (isPracticing) {
-    return <div></div>;
-  }
+  // const oLocation = useLocation();
+  // const isPracticing = oLocation.pathname.includes('/practicing');
+  // if (isPracticing) {
+  //   return <div></div>;
+  // }
   return <nav>
     <cpnt.Ul>
       {aNavData.map((cur,idx)=>{

@@ -55,20 +55,17 @@ export default class {
     const oCanvas = this.oCanvas.current;
     const Context = oCanvas.getContext('2d');
     const halfHeight = oCanvas.height / 2;
-    let idx = -1;
+    let idx = 0;
     const fCanvasWidth = aPeaks.length / 2;
     Context.fillStyle = '#55c655';
     while (idx < fCanvasWidth) {
-      idx++;
       const cur1 = aPeaks[idx * 2] * iHeight;
       const cur2 = aPeaks[idx * 2 + 1] * iHeight;
-      Context.fillRect(
-        // idx, (halfHeight - cur1), 1, Math.ceil(cur1 - cur2),
-        idx, (halfHeight - cur1), 1, cur1 - cur2,
-      );
+      Context.fillRect(idx, (halfHeight - cur1), 1, cur1 - cur2);
+      idx++;
     }
     Context.fillStyle = '#0f0';
-    Context.fillRect(0, halfHeight, oCanvas.width, 1);
+    Context.fillRect(0, ~~halfHeight, oCanvas.width, 1);
     this.setState({drawing: false});
     return oCanvas;
   }
@@ -178,6 +175,12 @@ export default class {
       return aLines[idx] || aLines[idx -1];
     }
     return aLines[iCurLine];
+  }
+  // ▼传递给子级的方法
+  commander(sFnName, aRest){
+    console.log('收到函数名，和参数', sFnName, aRest);
+    const theFn = this[sFnName];
+    theFn && theFn.call(this, ...aRest);
   }
 }
 

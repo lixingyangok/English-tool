@@ -61,7 +61,7 @@ export default class Tool extends MyClass {
     const {aLines, iCurLine} = aSteps[iCurStep] || aSteps.last_;
     return (
       <cpnt.Div>
-        <Nav/>
+        <Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
         <audio src={fileSrc} ref={this.oAudio}/>
         <Spin spinning={this.state.loading} size="large"/>
         <cpnt.WaveBox>
@@ -98,25 +98,9 @@ export default class Tool extends MyClass {
             </cpnt.TimeBar>
           </cpnt.WaveWrap>
         </cpnt.WaveBox>
-        {/* 上下分界 */}
-        <cpnt.BtnBar>
-          <div>
-            <Button type="primary" onClick={() => this.toSave()}>
-              保存到IndexedDB
-            </Button>&nbsp;
-            <Button onClick={() => this.toExport()}>
-              导出.srt文件
-            </Button>&nbsp;
-            <label className="ant-btn" >
-              导入文件
-              <input style={{display: 'none'}} type="file" multiple="multiple"
-                onChange={ev => this.toImport(ev)}
-              />
-            </label>
-          </div>
-        </cpnt.BtnBar>
+        {/* 分界 */}
         <cpnt.Steps>
-          {aSteps.map((cur,idx)=>{
+          {aSteps.map((cur, idx)=>{
             return <li key={idx} className={idx===iCurStep ? 'cur' : ''}>
               {idx}
             </li>;
