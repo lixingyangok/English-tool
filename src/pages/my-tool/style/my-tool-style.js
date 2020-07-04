@@ -6,7 +6,7 @@ export const iScrollHeight = 15;
 
 export const Div = styled.div`
   box-sizing: border-box;
-  padding: 0px 20px 0px;
+  padding: 20px 20px 0px;
   height: calc(100vh - 50px);
   display: flex;
   flex-flow: column nowrap;
@@ -80,8 +80,6 @@ export const MarkWrap = styled.section`
     position: absolute;
     bottom: 0;
     color: white;
-    /* font-size: 12px;
-    transform: scale(0.8); */
     font-size: 10px;
     text-size-adjust: none;
     -webkit-text-size-adjust: none;
@@ -143,7 +141,7 @@ export const RegionWrap = styled.section`
 
 export const InputWrap = styled.div`
   height: 90px;
-  margin: 25px 0;
+  margin: 15px 0;
   flex: none;
   textarea{
     display: block;
@@ -151,9 +149,11 @@ export const InputWrap = styled.div`
     width: 100%;
     height: 100%;
     padding: 5px 10px;
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 22px;
+    /* font-weight: bold; */
     resize: none;
+    color: #333;
+    font-weight: 500;
   }
 `;
 

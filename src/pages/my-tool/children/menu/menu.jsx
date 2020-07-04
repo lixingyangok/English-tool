@@ -11,14 +11,14 @@ export default class Menu extends React.Component{
 	render(){
 		const {commander} = this.props;
 		return <cpnt.Header>
-			<cpnt.Nav>
+			{/* <cpnt.Nav>
 				<cpnt.Ul>
 					<li>文件</li>
 					<li>编辑</li>
 					<li>字幕</li>
 					<li>关于</li>
 				</cpnt.Ul>
-			</cpnt.Nav>
+			</cpnt.Nav> */}
 			{/* 分界 */}
 			<cpnt.BtnBar>
 				<label className="btn" title="打开本地文件" >

@@ -6,8 +6,8 @@
 import styled from "styled-components";
 
 export const Ul = styled.ul`
-  height: 50px;
-  line-height: 50px;
+  height: 40px;
+  line-height: 40px;
   background: black;
   margin: 0;
   display: flex;

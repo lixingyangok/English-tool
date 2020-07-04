@@ -7,10 +7,14 @@ export const aNavData = [{
   path: '/index',
   component: React.lazy(() => import('pages/index/index.jsx')),
 },{
-  name: '工具',
+  name: '学习工具',
   path: '/practicing',
   // target:'_blank',
   component: React.lazy(() => import('pages/my-tool/my-tool.jsx')),
+},{
+  name: '历史记录',
+  path: '/learning-history',
+  component: React.lazy(() => import('pages/learning-history/learning-history.jsx')),
 },{
   name: '关于',
   path: '/about',
