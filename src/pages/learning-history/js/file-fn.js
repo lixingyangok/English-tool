@@ -5,128 +5,132 @@
  */
 
 export default class {
-  // ▼拖入文件
-  pushFiles(ev) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    console.clear();
-    console.log(ev);
-    console.log(ev.dataTransfer);
-    console.log(ev.dataTransfer.files);
-    if (ev.type !== 'drop') return;
-    this.getCorrectFile(ev.dataTransfer.files);
-  }
-  // ▼input导入文件
-  toImport(ev) {
-    const {target} = ev;
-    if (!target.files.length) return;
-    this.getCorrectFile(target.files);
-    // console.log(target.value);
-    target.value = '';
-  }
-  // ▼过滤出正确的文件
-  async getCorrectFile(oFiles){
-    const aFiles = [...oFiles];
-    const audioFile = aFiles.find(({type}) => type=='audio/mpeg');
-    const srtFile = aFiles.find(({name}) => name.split('.').pop() === 'srt');
-    this.saveFileToDB(audioFile, srtFile);
-  }
-  // ▼保存
-  saveFileToDB(audioFile, srtFile){
-    console.log('音频', audioFile);
-    console.log('字幕', srtFile);
-  }
-  
-  // ▼绘制波形
-  async getFileToDraw(audioFile){
-    console.log('文件', audioFile);
-    this.cleanCanvas();
-    this.setState({loading: true});
-    const fileName = audioFile.name;
-    const fileSrc = URL.createObjectURL(audioFile);
-    const buffer = await this.fileToBuffer(audioFile);
-    this.setState({loading: false});
-    // ▼返回内容有：fPerSecPx, aPeaks, duration
-    const oBackData = this.getPeaks(
-      buffer, this.state.iPerSecPx, 0,
-      this.oWaveWrap.current.offsetWidth,
-    );
-    this.toDraw(oBackData.aPeaks);
-    this.setState({fileName, fileSrc, buffer, ...oBackData});
-  }
-  
-  // ▼从文件得到 buffer 数据
-  fileToBuffer(oFile) {
-    const reader = new FileReader();
-    let resolveFn = xx => xx;
-    const promise = new Promise(resolve => resolveFn = resolve);
-    reader.onload = async evt => {
-      const arrayBuffer = evt.currentTarget.result;
-      let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const buffer = await audioContext.decodeAudioData(arrayBuffer);
-      resolveFn(buffer);
-      audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
-    };
-    reader.readAsArrayBuffer(oFile);
-    return promise;
-  }
-  // ▼导出文件
-  toExport() {
-    const {aLines} = this.getCurStep();
-    const aStr = aLines.map(({start_, end_, text}, idx) => {
-      return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
-    }).join('\n');
-    const blob = new Blob([aStr]);
-    Object.assign(document.createElement('a'), {
-      download: `字幕文件-${new Date() * 1}.srt`,
-      href: URL.createObjectURL(blob),
-    }).click();
-  }
-  // ▼以上是字幕部分 ===================================================
-  // ▼文件转字符，然后保存
-  async getSubtitleToSave(oFile, oAudioFile){
-    let aLines = [];
-    if (oFile){
-      const sText = await this.fileToStrings(oFile);
-      aLines = this.getTimeLine(sText); //字幕
-    }else if(oAudioFile){
-      aLines = await window.lf.getItem(oAudioFile.name);
-      aLines = aLines || [this.state.oFirstLine];
-    }
-    const aSteps = [{iCurLine: 0, aLines}];
-    this.setState({aSteps});
-  }
-  // ▼文件转字符
-  fileToStrings(oFile){
-    let resolveFn = xx => xx;
-    const oPromise = new Promise(resolve => resolveFn = resolve);
-    const reader = Object.assign(new FileReader(), {
-      onload: event => resolveFn(event.target.result), // event.target.result就是文件文本内容,
-    });
-    reader.readAsText(oFile);
-    return oPromise;
-  }
-  // ▼字符转字幕数据，用于显示
-  getTimeLine(text) {
-    let strArr = text.split('\n');
-    const aLine = [];
-    strArr = strArr.filter((cur, idx) => {
-      const isTime = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(cur);
-      if (!isTime) return false;
-      aLine.push(strArr[idx+1]);
-      return isTime;
-    });
-    return strArr.map((cur, idx) => {
-      const [aa, bb] = cur.split(' --> ');
-      const [start, end] = [this.getSeconds(aa), this.getSeconds(bb)];
-      return {
-        start_: aa,
-        end_: bb,
-        start,
-        end,
-        long: (end - start).toFixed(2) * 1,
-        text: aLine[idx].trim(),
-      };
-    });
-  }
+	// ▼拖入文件
+	pushFiles(ev) {
+		ev.preventDefault();
+		ev.stopPropagation();
+		console.clear();
+		console.log(ev);
+		console.log(ev.dataTransfer);
+		console.log(ev.dataTransfer.files);
+		if (ev.type !== 'drop') return;
+		// const aFiles = this.getCorrectFile(ev.dataTransfer.files);
+		// this.saveFileToDB(oStory, aFiles)
+	}
+	// ▼input导入文件
+	toImport(ev, oStory) {
+		const { target } = ev;
+		if (!target.files.length) return;
+		const aFiles = this.getCorrectFile(target.files);
+		if (aFiles[0]) aFiles[0].path = target.value;
+		this.saveFileToDB(oStory, aFiles)
+		target.value = '';
+	}
+	// ▼过滤出正确的文件
+	getCorrectFile(oFiles) {
+		const aFiles = [...oFiles];
+		const audioFile = aFiles.find(({ type }) => type === 'audio/mpeg');
+		const srtFile = aFiles.find(({ name }) => name.split('.').pop() === 'srt');
+		return [audioFile, srtFile];
+	}
+	// ▼保存
+	saveFileToDB(oStory, aFiles) {
+		const {oStories} = this.state;
+		const [audioFile, srtFile] = aFiles;
+		if (!audioFile) return;
+		const oOneTrack = {
+			name: audioFile.name,
+			path: audioFile.path,
+			audioFile,
+			srtFile,
+		};
+		oStories.update(oStory.id, {
+			...oStory,
+			tracks: (oStory.tracks || []).concat(oOneTrack),
+		});
+		console.log(audioFile.path);
+		// console.log('故事', oStory);
+		console.log('音频', audioFile);
+		// console.log('字幕', srtFile);
+		// console.log(oItem);
+		this.toUpdata();
+	}
+	// ▼从文件得到 buffer 数据
+	fileToBuffer(oFile) {
+		const reader = new FileReader();
+		let resolveFn = xx => xx;
+		const promise = new Promise(resolve => resolveFn = resolve);
+		reader.onload = async evt => {
+			const arrayBuffer = evt.currentTarget.result;
+			let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			const buffer = await audioContext.decodeAudioData(arrayBuffer);
+			resolveFn(buffer);
+			audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
+		};
+		reader.readAsArrayBuffer(oFile);
+		return promise;
+	}
+	// ▼导出文件
+	toExport() {
+		const { aLines } = this.getCurStep();
+		const aStr = aLines.map(({ start_, end_, text }, idx) => {
+			return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
+		}).join('\n');
+		const blob = new Blob([aStr]);
+		Object.assign(document.createElement('a'), {
+			download: `字幕文件-${new Date() * 1}.srt`,
+			href: URL.createObjectURL(blob),
+		}).click();
+	}
+	// ▼以上是字幕部分 ===================================================
+	// ▼文件转字符，然后保存
+	async getSubtitleToSave(oFile, oAudioFile) {
+		let aLines = [];
+		if (oFile) {
+			const sText = await this.fileToStrings(oFile);
+			aLines = this.getTimeLine(sText); //字幕
+		} else if (oAudioFile) {
+			aLines = await window.lf.getItem(oAudioFile.name);
+			aLines = aLines || [this.state.oFirstLine];
+		}
+		const aSteps = [{ iCurLine: 0, aLines }];
+		this.setState({ aSteps });
+	}
+	// ▼文件转字符
+	fileToStrings(oFile) {
+		let resolveFn = xx => xx;
+		const oPromise = new Promise(resolve => resolveFn = resolve);
+		const reader = Object.assign(new FileReader(), {
+			onload: event => resolveFn(event.target.result), // event.target.result就是文件文本内容,
+		});
+		reader.readAsText(oFile);
+		return oPromise;
+	}
+	// ▼字符转字幕数据，用于显示
+	getTimeLine(text) {
+		let strArr = text.split('\n');
+		const aLine = [];
+		strArr = strArr.filter((cur, idx) => {
+			const isTime = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(cur);
+			if (!isTime) return false;
+			aLine.push(strArr[idx + 1]);
+			return isTime;
+		});
+		return strArr.map((cur, idx) => {
+			const [aa, bb] = cur.split(' --> ');
+			const [start, end] = [this.getSeconds(aa), this.getSeconds(bb)];
+			return {
+				start_: aa,
+				end_: bb,
+				start,
+				end,
+				long: (end - start).toFixed(2) * 1,
+				text: aLine[idx].trim(),
+			};
+		});
+	}
+	// 
+	toDelOneTrack(){
+		
+	}
 };

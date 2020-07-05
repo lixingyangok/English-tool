@@ -17,18 +17,16 @@ export const BtnBar = styled.div`
 
 export const Ul = styled.ul`
     margin: 5px 0 0;
-    li{
-        padding: 20px 0;
-        border: solid #ccc;
-        border-width: 1px 0 0;
-        position: relative;
-    }
     li:last-child{
         border-bottom-width: 1px;
     }
 `;
 
 export const OneItem = styled.li`
+    padding: 20px 0;
+    border: solid #ccc;
+    border-width: 1px 0 0;
+    position: relative;
     .my-title{
         margin: 0;
     }
@@ -43,5 +41,17 @@ export const OneItem = styled.li`
     }
     .ant-btn + .ant-btn{
         margin: 0 0 0 8px;
+    }
+`;
+
+export const TrackList = styled.ul`
+    margin: 5px 0 0;
+    line-height: 1.3;
+    li{
+        cursor: pointer;
+        margin: 0 0 15px;
+        &:hover{
+            background: #eee;
+        }
     }
 `;

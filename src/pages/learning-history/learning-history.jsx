@@ -54,12 +54,27 @@ export default class extends MyClass{
 							<label className="ant-btn ant-btn-sm">
 								导入文件
 								<input type="file" style={{display: 'none'}} multiple="multiple"
-									onChange={ev=>this.toImport(ev)}
+									onChange={ev=>this.toImport(ev, cur)}
 								/>
 							</label>
 						</div>
 						<div>
-							{cur.note}
+							<p>{cur.note || '暂无描述'}</p>
+							<cpnt.TrackList>
+								{cur.tracks.map((oTrack, idx)=>{
+									return <li key={idx}>
+										<h3>{oTrack.name}</h3>
+										<div>
+											来源：{(oTrack.audioFile.size / 1024 / 1024).toFixed(2) || '未知'}
+											&emsp;&emsp;&emsp;
+											来源：{oTrack.path || '未知'}
+										</div>
+										<div>
+											字幕：{(oTrack.srtFile || {}).name || '暂无'}
+										</div>
+									</li>
+								})}
+							</cpnt.TrackList>
 						</div>
 					</cpnt.OneItem>
 				})}
@@ -76,7 +91,7 @@ export default class extends MyClass{
 					<Form.Item label="名称" name="name" rules={[{ required: true, message: 'Please input' }]} >
 						<Input/>
 					</Form.Item>
-					<Form.Item label="备注" name="note" rules={[{ required: true, message: 'Please input' }]} >
+					<Form.Item label="备注" name="note">
 						<Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }}/>
 					</Form.Item>
 					<Form.Item name="id" hidden={true}><Input/></Form.Item>

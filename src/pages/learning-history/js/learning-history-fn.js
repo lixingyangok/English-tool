@@ -40,7 +40,7 @@ export default class{
 		}else{
 			delete oForm.id;
 			oForm.createDate = sTime;
-			oForm.itmes = [];
+			oForm.tracks = [];
 			oStories.add(oForm);
 		}
 		this.toUpdata();
