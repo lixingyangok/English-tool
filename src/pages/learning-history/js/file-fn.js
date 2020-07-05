@@ -17,13 +17,21 @@ export default class {
 		// const aFiles = this.getCorrectFile(ev.dataTransfer.files);
 		// this.saveFileToDB(oStory, aFiles)
 	}
-	// ▼input导入文件
+	// ▼input导入文件到某个故事
 	toImport(ev, oStory) {
 		const { target } = ev;
 		if (!target.files.length) return;
 		const aFiles = this.getCorrectFile(target.files);
 		if (aFiles[0]) aFiles[0].path = target.value;
 		this.saveFileToDB(oStory, aFiles)
+		target.value = '';
+	}
+	// ▼input导入文件，替换音轨track
+	toImportToTrack(ev, oStory) {
+		const { target } = ev;
+		if (!target.files.length) return;
+		const aFiles = this.getCorrectFile(target.files);
+		if (aFiles[0]) aFiles[0].path = target.value;
 		target.value = '';
 	}
 	// ▼过滤出正确的文件
@@ -129,8 +137,10 @@ export default class {
 			};
 		});
 	}
-	// 
-	toDelOneTrack(){
-		
+	// ▼删除某条音轨
+	toDelOneTrack(oStory, iTrackIdx){
+		oStory.tracks.splice(iTrackIdx, 1);
+		this.state.oStories.update(oStory.id, oStory);
+		this.toUpdata();
 	}
 };

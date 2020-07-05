@@ -6,13 +6,24 @@
 
 import styled from 'styled-components';
 
+export const Outter = styled.article`
+    padding: 45px 0 60px;
+`;
+
 export const H1 = styled.h1`
     font-size: 28px;
-    margin: 35px 0 20px
+    margin: 35px 0 20px;
 `;
 
 export const BtnBar = styled.div`
     text-align: right;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    em{
+        font-size: 20px;
+        font-weight: bold;
+    }
 `;
 
 export const Ul = styled.ul`
@@ -47,11 +58,47 @@ export const OneItem = styled.li`
 export const TrackList = styled.ul`
     margin: 5px 0 0;
     line-height: 1.3;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
     li{
+        box-sizing: border-box;
         cursor: pointer;
-        margin: 0 0 15px;
+        margin: 0 0 10px;
+        width: calc(50% - 5px);
+        padding: 15px 20px;
+        border: dashed 1px #ccc;
+        position: relative;
         &:hover{
-            background: #eee;
+            background: #f1f1f1;
+            .btns{
+                opacity: 1;
+            }
         }
+    }
+`;
+
+export const BtnWrapInTrack = styled.div`
+    position: absolute;
+    top: 8px;
+    right: 20px;
+    opacity: 0;
+    transition: 0.5s;
+    button{
+        padding: 0;
+    }
+`;
+
+export const InfoWrap = styled.dl`
+    line-height: 1.5;
+    display: flex;
+    flex-flow: row wrap;
+    margin: 0;
+    dt{
+        width: 3em;
+    }
+    dd{
+        width: calc(100% - 3em);
+        margin: 0;
     }
 `;

@@ -24,11 +24,10 @@ export default class extends MyClass{
 	}
 	render(){
 		const {aStories, visible} = this.state;
-		return <div className='center-box'>
-			<cpnt.H1>
-				历史记录
-			</cpnt.H1>
+		return <cpnt.Outter className='center-box'>
+			{/* <cpnt.H1>历史记录</cpnt.H1> */}
 			<cpnt.BtnBar>
+				<em>历史记录</em>
 				<Button type="primary" onClick={()=>this.showModal()}>
 					新增
 				</Button>
@@ -64,14 +63,28 @@ export default class extends MyClass{
 								{cur.tracks.map((oTrack, idx)=>{
 									return <li key={idx}>
 										<h3>{oTrack.name}</h3>
-										<div>
-											来源：{(oTrack.audioFile.size / 1024 / 1024).toFixed(2) || '未知'}
-											&emsp;&emsp;&emsp;
-											来源：{oTrack.path || '未知'}
-										</div>
-										<div>
-											字幕：{(oTrack.srtFile || {}).name || '暂无'}
-										</div>
+										<cpnt.BtnWrapInTrack className="btns" >
+											{/* <label className="ant-btn">
+												替换文件
+												<input file='type' style={{display: 'none'}} multiple="multiple"
+													onChange={ev=>this.toImportToTrack(ev, cur, idx)}
+												/>
+											</label> */}
+											<Button type="link">初始化</Button>
+											<Popconfirm placement="topRight" okText="删除" cancelText="取消"
+												title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelOneTrack(cur, idx)}
+											>
+												<Button type="link">删除</Button>
+											</Popconfirm>
+										</cpnt.BtnWrapInTrack>
+										<cpnt.InfoWrap>
+											<dt>来源：</dt>
+											<dd>{oTrack.path || '未知'}</dd>
+											<dt>体积：</dt>
+											<dd>{(oTrack.audioFile.size / 1024 / 1024).toFixed(2)}MB</dd>
+											<dt>字幕：</dt>
+											<dd>{(oTrack.srtFile || {}).name || '暂无'}</dd>
+										</cpnt.InfoWrap>
 									</li>
 								})}
 							</cpnt.TrackList>
@@ -97,7 +110,7 @@ export default class extends MyClass{
 					<Form.Item name="id" hidden={true}><Input/></Form.Item>
 				</Form>
 			</Modal>
-		</div>
+		</cpnt.Outter>
 	}
 	componentDidMount(){
 		this.startDb();
