@@ -1,13 +1,15 @@
 import React from 'react';
 import TheFn from './js/learning-history-fn.js';
 import * as cpnt from './style/learning-history.js';
+import FileFn from './js/file-fn.js';
+
 // ▼组件库
 import {
 	Modal, Form, Input, Button, Typography, Popconfirm
 } from 'antd';
 
 const MyClass = window.mix(
-	React.Component, TheFn,
+	React.Component, TheFn, FileFn,
 );
 
 export default class extends MyClass{
@@ -37,7 +39,6 @@ export default class extends MyClass{
 						<Typography.Title className='my-title' level={4}>
 							{cur.name}	
 						</Typography.Title>
-
 						<div className="info-bar" >
 							<span>创建日期：{cur.createDate}</span>
 							&emsp;&emsp;&emsp;
@@ -50,8 +51,11 @@ export default class extends MyClass{
 							>
 								<Button size='small'>删除</Button>
 							</Popconfirm>
-							<label className="ant-btn ant-btn-sm" >
-								导入文件<input type="file" style={{display: 'none'}} />
+							<label className="ant-btn ant-btn-sm">
+								导入文件
+								<input type="file" style={{display: 'none'}} multiple="multiple"
+									onChange={ev=>this.toImport(ev)}
+								/>
 							</label>
 						</div>
 						<div>
