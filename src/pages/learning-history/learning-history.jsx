@@ -3,7 +3,7 @@ import TheFn from './js/learning-history-fn.js';
 import * as cpnt from './style/learning-history.js';
 // ▼组件库
 import {
-	Modal, Form, Input, Button, Typography 
+	Modal, Form, Input, Button, Typography, Popconfirm
 } from 'antd';
 
 const MyClass = window.mix(
@@ -20,54 +20,54 @@ export default class extends MyClass{
 		oStories: {},
 		aStories: [],
 	}
-	onFinish = values => {
-        const {oStories, aStories} = this.state;
-		console.log('Success:', values);
-		this.setState({
-			visible: false,
-            aStories: aStories.concat(values),
-		});
-		oStories.add(values);
-	};
-	onFinishFailed = errorInfo => {
-		console.log('Failed:', errorInfo);
-	};
 	render(){
-		const {aStories} = this.state;
+		const {aStories, visible} = this.state;
 		return <div className='center-box'>
 			<cpnt.H1>
 				历史记录
 			</cpnt.H1>
 			<cpnt.BtnBar>
-				<Button type="primary" onClick={this.showModal}>
+				<Button type="primary" onClick={()=>this.showModal()}>
 					新增
 				</Button>
 			</cpnt.BtnBar>
 			<cpnt.Ul>
 				{aStories.map((cur, idx)=>{
 					return <cpnt.OneItem key={idx}>
-						<Typography.Title level={4}>
+						<Typography.Title className='my-title' level={4}>
 							{cur.name}	
 						</Typography.Title>
-						<Button size='small' className="to-del" onClick={()=>this.toDel(cur.id)} >
-							删除
-						</Button>
-						{cur.note}
+
+						<div className="info-bar" >
+							<span>创建日期：{cur.createDate}</span>
+							&emsp;&emsp;&emsp;
+							<span>修改日期：{cur.modifyData}</span>
+						</div>
+						<div className="btn-wrap">
+							<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
+							<Popconfirm placement="topRight" okText="删除" cancelText="取消"
+								title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id)}
+							>
+								<Button size='small'>删除</Button>
+							</Popconfirm>
+							<label className="ant-btn ant-btn-sm" >
+								导入文件<input type="file" style={{display: 'none'}} />
+							</label>
+						</div>
+						<div>
+							{cur.note}
+						</div>
 					</cpnt.OneItem>
 				})}
 			</cpnt.Ul>
-			{/* onOk={()=>this.handleOk()}
-			onCancel={this.handleCancel} */}
-			<Modal title="新增" visible={this.state.visible}
-				footer={[
-					<Button key="back" onClick={this.handleCancel}>关闭</Button>,
-					<Button key="submit" type="primary" onClick={()=>this.oForm.current.submit()}>保存</Button>,
-				]}
+			<Modal title="新增" okText="保存" cancelText="关闭"
+				visible={visible}
+				onOk={()=>this.oForm.current.submit()}
+				onCancel={()=>this.setState({visible: false})}
 			>
 				<Form name="basic" initialValues={{}}
-					ref={this.oForm}
 					{...{labelCol: {span: 4}, wrapperCol: {span: 19}}}
-					onFinish={this.onFinish} onFinishFailed={this.onFinishFailed}
+					ref={this.oForm} onFinish={obj=>this.onSave(obj)}
 				>
 					<Form.Item label="名称" name="name" rules={[{ required: true, message: 'Please input' }]} >
 						<Input/>
@@ -75,9 +75,7 @@ export default class extends MyClass{
 					<Form.Item label="备注" name="note" rules={[{ required: true, message: 'Please input' }]} >
 						<Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }}/>
 					</Form.Item>
-					<Form.Item>
-						<Button type="primary" htmlType="submit">Submit</Button>
-					</Form.Item>
+					<Form.Item name="id" hidden={true}><Input/></Form.Item>
 				</Form>
 			</Modal>
 		</div>
@@ -85,17 +83,5 @@ export default class extends MyClass{
 	componentDidMount(){
 		this.startDb();
 	}
-	showModal = () => {
-		this.setState({
-			visible: true,
-		});
-	};
-	handleOk = e => {
-		this.oForm.current.submit(); //提交表单
-	};
-	handleCancel = e => {
-		this.setState({
-			visible: false,
-		});
-	};
+	
 }

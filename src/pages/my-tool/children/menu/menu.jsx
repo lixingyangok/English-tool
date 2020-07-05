@@ -38,7 +38,7 @@ export default class Menu extends React.Component{
 					<i className="fas fa-download"/>
 				</span>
 				<span className="btn" title="复制到剪贴板" 
-					onClick={()=>commander('12abc')}
+					onClick={()=>commander('12aadd')}
 				>
 					<i className="fas fa-paste"/>
 				</span>

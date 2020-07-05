@@ -16,7 +16,7 @@ export const BtnBar = styled.div`
 `;
 
 export const Ul = styled.ul`
-    margin: 25px 0;
+    margin: 5px 0 0;
     li{
         padding: 20px 0;
         border: solid #ccc;
@@ -29,9 +29,19 @@ export const Ul = styled.ul`
 `;
 
 export const OneItem = styled.li`
-   .to-del{
-       position: absolute;
-       top: 20px;
-       right: 0;
-   }
+    .my-title{
+        margin: 0;
+    }
+    .info-bar{
+        color: #aaa;
+        margin: 3px 0 20px;
+    }
+    .btn-wrap{
+        position: absolute;
+        top: 20px;
+        right: 0;
+    }
+    .ant-btn + .ant-btn{
+        margin: 0 0 0 8px;
+    }
 `;
