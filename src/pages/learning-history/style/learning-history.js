@@ -76,16 +76,23 @@ export const TrackList = styled.ul`
             }
         }
     }
+    h3{
+        margin: 0 0 12px;
+        /* font-size: 16px; */
+        font-weight: bold;
+    }
 `;
 
 export const BtnWrapInTrack = styled.div`
     position: absolute;
-    top: 8px;
+    top: 13px;
     right: 20px;
-    opacity: 0;
+    /* opacity: 0; */
     transition: 0.5s;
-    button{
+    .ant-btn{
         padding: 0;
+        line-height: 20px;
+        height: 20px;
     }
 `;
 
@@ -95,10 +102,10 @@ export const InfoWrap = styled.dl`
     flex-flow: row wrap;
     margin: 0;
     dt{
-        width: 3em;
+        width: 4em;
     }
     dd{
-        width: calc(100% - 3em);
+        width: calc(100% - 4em);
         margin: 0;
     }
 `;

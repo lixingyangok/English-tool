@@ -11,6 +11,7 @@ export default class {
 		ev.stopPropagation();
 		console.clear();
 		console.log(ev);
+		console.log(ev.path); //落点
 		console.log(ev.dataTransfer);
 		console.log(ev.dataTransfer.files);
 		if (ev.type !== 'drop') return;
@@ -18,20 +19,11 @@ export default class {
 		// this.saveFileToDB(oStory, aFiles)
 	}
 	// ▼input导入文件到某个故事
-	toImport(ev, oStory) {
+	toImport(ev, oStory, idx) {
 		const { target } = ev;
 		if (!target.files.length) return;
 		const aFiles = this.getCorrectFile(target.files);
-		if (aFiles[0]) aFiles[0].path = target.value;
-		this.saveFileToDB(oStory, aFiles)
-		target.value = '';
-	}
-	// ▼input导入文件，替换音轨track
-	toImportToTrack(ev, oStory) {
-		const { target } = ev;
-		if (!target.files.length) return;
-		const aFiles = this.getCorrectFile(target.files);
-		if (aFiles[0]) aFiles[0].path = target.value;
+		this.saveFileToDB(oStory, aFiles, idx);
 		target.value = '';
 	}
 	// ▼过滤出正确的文件
@@ -42,26 +34,23 @@ export default class {
 		return [audioFile, srtFile];
 	}
 	// ▼保存
-	saveFileToDB(oStory, aFiles) {
-		const {oStories} = this.state;
+	saveFileToDB(oStory, aFiles, idx) {
 		const [audioFile, srtFile] = aFiles;
-		if (!audioFile) return;
-		const oOneTrack = {
-			name: audioFile.name,
-			path: audioFile.path,
-			audioFile,
-			srtFile,
+		if (!audioFile && !srtFile) return;
+		const {oStories} = this.state;
+		const {id, tracks=[]} = oStory;
+		const hasIdx = typeof idx === 'number';
+		const oTarget = hasIdx ? tracks[idx] : {};
+		const iAim = hasIdx ? idx : tracks.length;
+		tracks[iAim] = {
+			audioFile: audioFile || oTarget.audioFile || {},
+			srtFile: srtFile || oTarget.srtFile || {},
 		};
-		oStories.update(oStory.id, {
-			...oStory,
-			tracks: (oStory.tracks || []).concat(oOneTrack),
-		});
-		console.log(audioFile.path);
-		// console.log('故事', oStory);
-		console.log('音频', audioFile);
-		// console.log('字幕', srtFile);
-		// console.log(oItem);
+		oStories.update(id, {...oStory, tracks});
 		this.toUpdata();
+	}
+	trackInit(){
+		
 	}
 	// ▼从文件得到 buffer 数据
 	fileToBuffer(oFile) {
@@ -144,3 +133,4 @@ export default class {
 		this.toUpdata();
 	}
 };
+

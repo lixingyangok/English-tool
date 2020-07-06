@@ -36,7 +36,7 @@ export default class extends MyClass{
 				{aStories.map((cur, idx)=>{
 					return <cpnt.OneItem key={idx}>
 						<Typography.Title className='my-title' level={4}>
-							{cur.name}	
+							{cur.name}
 						</Typography.Title>
 						<div className="info-bar" >
 							<span>创建日期：{cur.createDate}</span>
@@ -62,14 +62,16 @@ export default class extends MyClass{
 							<cpnt.TrackList>
 								{cur.tracks.map((oTrack, idx)=>{
 									return <li key={idx}>
-										<h3>{oTrack.name}</h3>
+										<h3>
+											{(oTrack.audioFile || {}).name || '无音频'}
+										</h3>
 										<cpnt.BtnWrapInTrack className="btns" >
-											{/* <label className="ant-btn">
-												替换文件
-												<input file='type' style={{display: 'none'}} multiple="multiple"
-													onChange={ev=>this.toImportToTrack(ev, cur, idx)}
+											<label className="ant-btn ant-btn-link">
+												<span>替换文件</span>
+												<input type="file" style={{display: 'none'}} multiple="multiple"
+													onChange={ev=>this.toImport(ev, cur, idx)}
 												/>
-											</label> */}
+											</label>
 											<Button type="link">初始化</Button>
 											<Popconfirm placement="topRight" okText="删除" cancelText="取消"
 												title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelOneTrack(cur, idx)}
@@ -77,14 +79,7 @@ export default class extends MyClass{
 												<Button type="link">删除</Button>
 											</Popconfirm>
 										</cpnt.BtnWrapInTrack>
-										<cpnt.InfoWrap>
-											<dt>来源：</dt>
-											<dd>{oTrack.path || '未知'}</dd>
-											<dt>体积：</dt>
-											<dd>{(oTrack.audioFile.size / 1024 / 1024).toFixed(2)}MB</dd>
-											<dt>字幕：</dt>
-											<dd>{(oTrack.srtFile || {}).name || '暂无'}</dd>
-										</cpnt.InfoWrap>
+										{this.getTrackInfo(oTrack)}
 									</li>
 								})}
 							</cpnt.TrackList>
@@ -114,6 +109,30 @@ export default class extends MyClass{
 	}
 	componentDidMount(){
 		this.startDb();
+		const pushFiles = this.pushFiles.bind(this);
+		document.addEventListener("drop", pushFiles);		// ▼拖动释放
+		document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
+		document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
+		document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
 	}
-	
+	getTrackInfo(oTrack){
+		const {audioFile, srtFile={}} = oTrack;
+		const size = audioFile.size ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
+		return <>
+			<p>
+				体积：{size}MB&emsp;&emsp;
+				时长：{size}MB&emsp;&emsp;
+			</p>
+			<cpnt.InfoWrap>
+				<dt>字幕：</dt>
+				<dd>
+					{srtFile.name || '暂无'}
+				</dd>
+				<dt>初始化：</dt>
+				<dd>
+					未完成
+				</dd>
+			</cpnt.InfoWrap>
+		</>
+	}
 }
