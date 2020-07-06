@@ -60,8 +60,8 @@ export default class extends MyClass{
 						<div>
 							<p>{cur.note || '暂无描述'}</p>
 							<cpnt.TrackList>
-								{cur.tracks.map((oTrack, idx)=>{
-									return <li key={idx}>
+								{cur.tracks.map((oTrack, idx02)=>{
+									return <li key={idx02}>
 										<h3>
 											{(oTrack.audioFile || {}).name || '无音频'}
 										</h3>
@@ -69,12 +69,14 @@ export default class extends MyClass{
 											<label className="ant-btn ant-btn-link">
 												<span>替换文件</span>
 												<input type="file" style={{display: 'none'}} multiple="multiple"
-													onChange={ev=>this.toImport(ev, cur, idx)}
+													onChange={ev=>this.toImport(ev, cur, idx02)}
 												/>
 											</label>
-											<Button type="link">初始化</Button>
+											<Button type="link" onClick={()=>this.trackInit(cur, idx02)} >
+												初始化
+											</Button>
 											<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-												title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelOneTrack(cur, idx)}
+												title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelOneTrack(cur, idx02)}
 											>
 												<Button type="link">删除</Button>
 											</Popconfirm>
@@ -117,7 +119,9 @@ export default class extends MyClass{
 	}
 	getTrackInfo(oTrack){
 		const {audioFile, srtFile={}} = oTrack;
-		const size = audioFile.size ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
+		const size = audioFile ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
+		console.log(oTrack);
+		console.log(oTrack.buffer);
 		return <>
 			<p>
 				体积：{size}MB&emsp;&emsp;
@@ -130,7 +134,7 @@ export default class extends MyClass{
 				</dd>
 				<dt>初始化：</dt>
 				<dd>
-					未完成
+					{oTrack.buffer ? '完成' : '未完成'}
 				</dd>
 			</cpnt.InfoWrap>
 		</>

@@ -43,14 +43,35 @@ export default class {
 		const oTarget = hasIdx ? tracks[idx] : {};
 		const iAim = hasIdx ? idx : tracks.length;
 		tracks[iAim] = {
-			audioFile: audioFile || oTarget.audioFile || {},
-			srtFile: srtFile || oTarget.srtFile || {},
+			audioFile: audioFile || oTarget.audioFile || null,
+			srtFile: srtFile || oTarget.srtFile || null,
 		};
 		oStories.update(id, {...oStory, tracks});
 		this.toUpdata();
 	}
-	trackInit(){
-		
+	async trackInit(oStory, idx){
+		const {oStories} = this.state;
+		const {id, tracks=[]} = oStory;
+		const oTrack = tracks[idx];
+		const {audioFile, srtFile} = oTrack;
+		if (audioFile) {
+			const buffer = await this.fileToBuffer(audioFile);
+			const aChannelData = buffer.getChannelData(0);
+			oTrack.buffer = {
+				duration: buffer.duration,
+				length: buffer.length,
+				numberOfChannels: buffer.numberOfChannels,
+				sampleRate: buffer.sampleRate,
+				aChannelData,
+				// getChannelData: ()=>aChannelData,
+			}
+		}
+		if (srtFile) {
+			console.log(srtFile);
+		}
+		// oStories.update(id, oStory);
+		oStories.put(oStory);
+		this.toUpdata();
 	}
 	// ▼从文件得到 buffer 数据
 	fileToBuffer(oFile) {
