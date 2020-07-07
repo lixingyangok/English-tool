@@ -120,7 +120,6 @@ export default class extends MyClass{
 	getTrackInfo(oTrack){
 		const {audioFile, srtFile={}} = oTrack;
 		const size = audioFile ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
-		console.log(oTrack);
 		console.log(oTrack.buffer);
 		return <>
 			<p>
