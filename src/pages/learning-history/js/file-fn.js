@@ -59,23 +59,24 @@ export default class {
 	async trackInit(oStory, idx){
 		console.log('初始化');
 		const {oStories} = this.state;
-		const {tracks=[]} = oStory;
-		const oTrack = tracks[idx];
+		const oTrack = oStory.tracks[idx];
 		const {audioFile, srtFile, buffer, aLines} = oTrack;
-		if (audioFile && !buffer) {
-			let obj = await fileToBuffer(audioFile);;
-			console.log(obj)
+		if (audioFile) {
+			let obj = await fileToBuffer(audioFile);
+			console.log('拿到了：bufferOBJ', obj)
 			oTrack.buffer = obj;
 		}
-		if (srtFile && !aLines) {
-			oTrack.aLine = await fileToTimeLines(srtFile);
+		if (srtFile) {
+			oTrack.aLines = await fileToTimeLines(srtFile);
 		}
-		// oStories.update(id, oStory);
-		console.log('当前故事：',oStory);
-		oStories.put(oStory).catch(err=>{
-			console.log(err);
-		});
+		console.log('oStory.tracks', oStory.tracks);
+		oStories.update(oStory.id, {tracks: oStory.tracks});
+		// await oStories.put(oStory).catch(err=>{
+		// 	console.error('保存出错了', err);
+		// });
 		this.toUpdata();
+		console.log('成功保存了：', oStory);
+
 	}
 	// ▼以上是字幕部分 ===================================================
 	// ▼文件转字符

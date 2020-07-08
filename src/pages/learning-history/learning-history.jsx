@@ -119,11 +119,11 @@ export default class extends MyClass{
 	}
 	getTrackInfo(oTrack){
 		const {
-			audioFile, aLine=[],
+			audioFile, aLines=[],
 			buffer={}, srtFile={},
 		} = oTrack;
 		console.log('buffer', buffer);
-		console.log('aLine', aLine);
+		console.log('aLines', aLines);
 		const size = audioFile ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
 		const {duration=0} = buffer || {};
 		return <>
@@ -141,7 +141,7 @@ export default class extends MyClass{
 					{oTrack.buffer ? '完成' : '未完成'}
 				</dd>
 				<dt>字幕：</dt>
-				<dd>{aLine.length}句</dd>
+				<dd>{aLines.length}句</dd>
 			</cpnt.InfoWrap>
 		</>
 	}
