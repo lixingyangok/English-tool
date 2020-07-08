@@ -4,6 +4,7 @@
  * @Description: 
  */
 
+import {message} from 'antd';
 import {fileToTimeLines, fileToBuffer} from 'assets/js/pure-fn.js';
 
 export default class {
@@ -36,22 +37,24 @@ export default class {
 		return [audioFile, srtFile];
 	}
 	// ▼保存
-	saveFileToDB(oStory, aFiles, idx) {
+	async saveFileToDB(oStory, aFiles, idx) {
 		const [audioFile, srtFile] = aFiles;
 		if (!audioFile && !srtFile) return;
+		message.success('正在保存');
 		const {oStories} = this.state;
 		const {id, tracks=[]} = oStory;
 		const hasIdx = typeof idx === 'number';
 		const oTarget = hasIdx ? tracks[idx] : {};
 		const iAim = hasIdx ? idx : tracks.length;
 		tracks[iAim] = {
-			audioFile: audioFile || oTarget.audioFile || null,
-			srtFile: srtFile || oTarget.srtFile || null,
-			aLines: null,
-			buffer: null,
+			audioFile: audioFile || oTarget.audioFile || undefined,
+			srtFile: srtFile || oTarget.srtFile || undefined,
+			aLines: undefined,
+			buffer: undefined,
 		};
-		oStories.update(id, {...oStory, tracks});
+		await oStories.update(id, {...oStory, tracks});
 		this.toUpdata();
+		message.success('保存完成');
 	}
 	async trackInit(oStory, idx){
 		console.log('初始化');
@@ -69,20 +72,13 @@ export default class {
 		}
 		// oStories.update(id, oStory);
 		console.log('当前故事：',oStory);
-		oStories.put(oStory);
+		oStories.put(oStory).catch(err=>{
+			console.log(err);
+		});
 		this.toUpdata();
 	}
 	// ▼以上是字幕部分 ===================================================
 	// ▼文件转字符
-	fileToStrings(oFile) {
-		let resolveFn = xx => xx;
-		const oPromise = new Promise(resolve => resolveFn = resolve);
-		const reader = Object.assign(new FileReader(), {
-			onload: event => resolveFn(event.target.result), // event.target.result就是文件文本内容,
-		});
-		reader.readAsText(oFile);
-		return oPromise;
-	}
 	// ▼删除某条音轨
 	toDelOneTrack(oStory, iTrackIdx){
 		oStory.tracks.splice(iTrackIdx, 1);
@@ -101,6 +97,5 @@ export default class {
 			href: URL.createObjectURL(blob),
 		}).click();
 	}
-
 };
 

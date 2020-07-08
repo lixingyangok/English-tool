@@ -118,13 +118,18 @@ export default class extends MyClass{
 		document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
 	}
 	getTrackInfo(oTrack){
-		const {audioFile, srtFile={}} = oTrack;
+		const {
+			audioFile, aLine=[],
+			buffer={}, srtFile={},
+		} = oTrack;
+		console.log('buffer', buffer);
+		console.log('aLine', aLine);
 		const size = audioFile ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
-		console.log(oTrack.buffer);
+		const {duration=0} = buffer || {};
 		return <>
 			<p>
 				体积：{size}MB&emsp;&emsp;
-				时长：{size}MB&emsp;&emsp;
+				时长：{((duration / 60) || 0).toFixed(2)}分钟&emsp;&emsp;
 			</p>
 			<cpnt.InfoWrap>
 				<dt>字幕：</dt>
@@ -135,6 +140,8 @@ export default class extends MyClass{
 				<dd>
 					{oTrack.buffer ? '完成' : '未完成'}
 				</dd>
+				<dt>字幕：</dt>
+				<dd>{aLine.length}句</dd>
 			</cpnt.InfoWrap>
 		</>
 	}
