@@ -33,7 +33,8 @@ export async  function fileToBuffer(oFile){
         const arrayBuffer = evt.currentTarget.result;
         const buffer = await audioContext.decodeAudioData(arrayBuffer);
         audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
-        resolveFn(bufferToObj(buffer));
+        // resolveFn(bufferToObj(buffer));
+        resolveFn(buffer);
     };
     reader.readAsArrayBuffer(oFile);
     return promise;

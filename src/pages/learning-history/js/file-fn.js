@@ -60,7 +60,7 @@ export default class {
 		console.log('初始化');
 		const {oStories} = this.state;
 		const oTrack = oStory.tracks[idx];
-		const {audioFile, srtFile, buffer, aLines} = oTrack;
+		const {audioFile, srtFile, /* buffer, aLines */} = oTrack;
 		if (audioFile) {
 			let obj = await fileToBuffer(audioFile);
 			console.log('拿到了：bufferOBJ', obj)

@@ -59,6 +59,11 @@ export default class{
 		// const {oStories, aStories} = this.state;
 		// oStories.put({id: 2, name: '新名字'}); //note键会丢失
 	}
+	goTool(oStory, iTrackIdx){
+		// console.log(oStory, iTrackIdx);
+		const sPath = `/practicing?id=${oStory.id}&idx=${iTrackIdx}`;
+		this.props.history.push(sPath);
+	}
 }
 
 

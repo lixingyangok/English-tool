@@ -8,6 +8,10 @@ import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
 import Nav from './children/menu/menu.jsx';
+import {fileToTimeLines, fileToBuffer} from 'assets/js/pure-fn.js';
+
+// import {useLocation} from "react-router-dom";
+
 
 const { TextArea } = Input;
 const MyClass = window.mix(
@@ -24,6 +28,17 @@ export default class Tool extends MyClass {
   oTextArea = React.createRef();
   constructor(props) {
     super(props);
+    const {search} = props.location;
+    const oTarget = (()=>{
+      if (!search) return {};
+      const oResult = {};
+      search.slice(1).split('&').forEach(cur=>{
+          const [key, val] = cur.split('=');
+          oResult[key] = val;
+      })
+      return oResult;
+    })();
+    console.log('search ', oTarget);
     const oFirstLine = this.fixTime({start: 0.1, end: 5});
     this.state = {
       buffer: {}, //音频数据
@@ -46,6 +61,7 @@ export default class Tool extends MyClass {
         aLines: [[oFirstLine]], //字幕
       }],
       iCurStep: 0, //当前步骤
+      oTarget,
     };
   }
   render() {
@@ -131,7 +147,7 @@ export default class Tool extends MyClass {
   }
   // ▼以下是生命周期
   async componentDidMount() {
-    console.log(this);
+    const {oTarget} = this.state;
     this.cleanCanvas();
     const oWaveWrap = this.oWaveWrap.current;
     oWaveWrap.addEventListener( //注册滚轮事件
@@ -143,7 +159,21 @@ export default class Tool extends MyClass {
     document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
     document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
     document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
-    this.testFn();
+    if (oTarget.id){
+      this.init(oTarget);
+    }else{
+      this.testFn();
+    }
+  }
+  async init({id, idx}){
+    const myDb = window.myDb = new window.Dexie("myDb");
+		myDb.version(1).stores({stories: '++id, name'});
+    const oStories = myDb.stories;
+    const oStory = await oStories.get(id*1);
+    const oStrack = oStory.tracks[idx];
+    const buffer = await fileToBuffer(oStrack.audioFile);
+    const aLines = await fileToTimeLines(oStrack.srtFile);
+    this.testFn(buffer, aLines);
   }
   // ▼销毁前
   componentWillUnmount(){
@@ -151,11 +181,12 @@ export default class Tool extends MyClass {
     // ReactDOM.unmountComponentAtNode(document.getElementById("tool"));
   }
   // ▼测试
-  async testFn(){
-    const buffer = await fn.getMp3();
-    const sText = await fn.getText();
+  async testFn(buffer, sText){
+    buffer = buffer || await fn.getMp3();
+    sText = sText || await fn.getText();
     const {aSteps} = this.state;
-    aSteps.last_.aLines = this.getTimeLine(sText).slice(0, 13); //字幕
+    // aSteps.last_.aLines = this.getTimeLine(sText).slice(0, 13); //字幕
+    aSteps.last_.aLines = sText; //字幕
     this.setState({
       buffer, aSteps, fileSrc: fn.mp3Src,
     });

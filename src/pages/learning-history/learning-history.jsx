@@ -72,6 +72,9 @@ export default class extends MyClass{
 													onChange={ev=>this.toImport(ev, cur, idx02)}
 												/>
 											</label>
+											<Button type="link" onClick={()=>this.goTool(cur, idx02)} >
+												开始
+											</Button>
 											<Button type="link" onClick={()=>this.trackInit(cur, idx02)} >
 												初始化
 											</Button>
@@ -122,8 +125,6 @@ export default class extends MyClass{
 			audioFile, aLines=[],
 			buffer={}, srtFile={},
 		} = oTrack;
-		console.log('buffer', buffer);
-		console.log('aLines', aLines);
 		const size = audioFile ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
 		const {duration=0} = buffer || {};
 		return <>
