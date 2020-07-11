@@ -5,6 +5,8 @@
  */ 
 
 import styled from 'styled-components';
+import { Empty } from 'antd';
+
 
 export const Outter = styled.article`
     padding: 45px 0 60px;
@@ -28,9 +30,17 @@ export const BtnBar = styled.div`
 
 export const Ul = styled.ul`
     margin: 5px 0 0;
+    /* display: ${props => props.visible ? 'block' : 'none' }; */
     li:last-child{
         border-bottom-width: 1px;
     }
+`;
+
+export const Empty_ = styled(Empty)`
+    display: ${props => !props.visible ? 'block' : 'none' };
+    padding: 10vh 0 10vh;
+    border: solid #ddd;
+    border-width: 1px 0;
 `;
 
 export const OneItem = styled.li`

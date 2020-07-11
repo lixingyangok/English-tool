@@ -19,14 +19,19 @@ export default class {
 		console.log(ev.dataTransfer.files);
 		if (ev.type !== 'drop') return;
 		// const aFiles = this.getCorrectFile(ev.dataTransfer.files);
-		// this.saveFileToDB(oStory, aFiles)
 	}
 	// ▼input导入文件到某个故事
-	toImport(ev, oStory, idx) {
+	// 通过第3个参数判断是新增还是修改
+	toImport(ev, oStory, oSct) {
 		const { target } = ev;
 		if (!target.files.length) return;
 		const aFiles = this.getCorrectFile(target.files);
-		this.saveFileToDB(oStory, aFiles, idx);
+		if (!aFiles.length) return;
+		if (oSct) {
+			this.upDateSection(oSct, aFiles);
+		}else{
+			this.saveSection(oStory, aFiles);
+		}
 		target.value = '';
 	}
 	// ▼过滤出正确的文件
@@ -36,30 +41,37 @@ export default class {
 		const srtFile = aFiles.find(({ name }) => name.split('.').pop() === 'srt');
 		return [audioFile, srtFile];
 	}
-	// ▼保存
-	async saveFileToDB(oStory, aFiles, idx) {
+	// ▼保存章节
+	async saveSection(oStory, aFiles) {
 		const [audioFile, srtFile] = aFiles;
-		if (!audioFile && !srtFile) return;
-		message.success('正在保存');
-		const {oStories} = this.state;
-		const {id, tracks=[]} = oStory;
-		const hasIdx = typeof idx === 'number';
-		const oTarget = hasIdx ? tracks[idx] : {};
-		const iAim = hasIdx ? idx : tracks.length;
-		tracks[iAim] = {
-			audioFile: audioFile || oTarget.audioFile || undefined,
-			srtFile: srtFile || oTarget.srtFile || undefined,
-			aLines: undefined,
+		const oSection = {
+			idx: 0,
+			aLines: await fileToTimeLines(srtFile),
+			parent: oStory.id,
+			srtFile: srtFile || undefined,
+			audioFile: audioFile || undefined,
 			buffer: undefined,
 		};
-		tracks[iAim].aLines = await fileToTimeLines(tracks[iAim].srtFile);
-		await oStories.update(id, {...oStory, tracks});
-		this.toUpdata();
+		this.state.oSectionTB.add(oSection);
+		this.init02();
 		message.success('保存完成');
 	}
+	// ▼【更新】章节
+	async upDateSection(oSct, aFiles) {
+		const [audioFile, srtFile] = aFiles;
+		const oSection = {
+			aLines: oSct.aLines || await fileToTimeLines(srtFile),
+			srtFile: srtFile || oSct.srtFile,
+			audioFile: audioFile || oSct.audioFile,
+		};
+		this.state.oSectionTB.update(oSct.id, oSection);
+		this.init02();
+		message.success('保存完成');
+	}
+	
 	async trackInit(oStory, idx){
 		console.log('初始化', oStory, idx); //停用
-		// const {oStories} = this.state;
+		// const {oStoryTB} = this.state;
 		// const oTrack = oStory.tracks[idx];
 		// const {srtFile, /* buffer, aLines, audioFile */} = oTrack;
 		// // if (audioFile) {
@@ -70,18 +82,14 @@ export default class {
 		// if (srtFile) {
 		// 	oTrack.aLines = await fileToTimeLines(srtFile);
 		// }
-		// oStories.update(oStory.id, {tracks: oStory.tracks});
+		// oStoryTB.update(oStory.id, {tracks: oStory.tracks});
 		// this.toUpdata();
 		// console.log('成功保存了：', oStory);
-
 	}
-	// ▼以上是字幕部分 ===================================================
-	// ▼文件转字符
-	// ▼删除某条音轨
-	toDelOneTrack(oStory, iTrackIdx){
-		oStory.tracks.splice(iTrackIdx, 1);
-		this.state.oStories.update(oStory.id, oStory);
-		this.toUpdata();
+	// ▼删除某章节
+	toDelSection(oSct){
+		this.state.oSectionTB.delete(oSct.id);
+		this.init02();
 	}
 	// ▼导出文件
 	toExport() {

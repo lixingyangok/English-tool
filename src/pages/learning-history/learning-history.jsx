@@ -19,11 +19,12 @@ export default class extends MyClass{
 	oForm = React.createRef();
 	state = {
 		visible: false, //窗口显示
-		oStories: {},
 		aStories: [],
+		oSectionTB: {},
 	}
 	render(){
 		const {aStories, visible} = this.state;
+
 		return <cpnt.Outter className='center-box'>
 			{/* <cpnt.H1>历史记录</cpnt.H1> */}
 			<cpnt.BtnBar>
@@ -32,7 +33,10 @@ export default class extends MyClass{
 					新增
 				</Button>
 			</cpnt.BtnBar>
-			<cpnt.Ul>
+			<cpnt.Empty_ visible={aStories.length}
+				image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE} 
+			/>
+			<cpnt.Ul visible={aStories.length}>
 				{aStories.map((cur, idx)=>{
 					return <cpnt.OneItem key={idx}>
 						<Typography.Title className='my-title' level={4}>
@@ -60,16 +64,16 @@ export default class extends MyClass{
 						<div>
 							<p>{cur.note || '暂无描述'}</p>
 							<cpnt.TrackList>
-								{cur.tracks.map((oTrack, idx02)=>{
+								{(cur.aSections || []).map((oSct, idx02)=>{
 									return <li key={idx02}>
 										<h3>
-											{(oTrack.audioFile || {}).name || '无音频'}
+											{(oSct.audioFile || {}).name || '无音频'}
 										</h3>
 										<cpnt.BtnWrapInTrack className="btns" >
 											<label className="ant-btn ant-btn-link">
-												<span>替换文件</span>
+												<span>导入</span>
 												<input type="file" style={{display: 'none'}} multiple="multiple"
-													onChange={ev=>this.toImport(ev, cur, idx02)}
+													onChange={ev=>this.toImport(ev, cur, oSct)}
 												/>
 											</label>
 											<Button type="link" onClick={()=>this.goTool(cur, idx02)} >
@@ -79,12 +83,12 @@ export default class extends MyClass{
 												初始化
 											</Button>
 											<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-												title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelOneTrack(cur, idx02)}
+												title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelSection(oSct)}
 											>
 												<Button type="link">删除</Button>
 											</Popconfirm>
 										</cpnt.BtnWrapInTrack>
-										{this.getTrackInfo(oTrack)}
+										{this.getTrackInfo(oSct)}
 									</li>
 								})}
 							</cpnt.TrackList>
@@ -112,8 +116,9 @@ export default class extends MyClass{
 			</Modal>
 		</cpnt.Outter>
 	}
-	componentDidMount(){
-		this.startDb();
+	async componentDidMount(){
+		await this.init();
+		this.init02();
 		const pushFiles = this.pushFiles.bind(this);
 		document.addEventListener("drop", pushFiles);		// ▼拖动释放
 		document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
