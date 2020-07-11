@@ -38,12 +38,11 @@ export default class Tool extends MyClass {
     const myDb = window.myDb = new window.Dexie("myDb");
 		myDb.version(1).stores({stories: '++id, name'});
     const oStoryDB = myDb.stories;
-
     this.state = {
       buffer: {}, //音频数据
       aPeaks: [], //波形数据
       duration: 0, //音频长度（秒
-      playTimer: null, // 定时器
+      playTimer: null, //定时器
       oFirstLine, //默认行
       fileName: "", //文件名
       fileSrc: "", //文件地址
@@ -58,13 +57,12 @@ export default class Tool extends MyClass {
       aSteps: [{ //历史记录
         iCurLine: 0, // 当前所在行
         aLines: [[oFirstLine]], //字幕
-        ts: 0, //ts = timestap = 时间戳
+        // ts: 0, //ts = timestap = 时间戳
       }],
       iCurStep: 0, //当前步骤
       oTarget, // 故事信息如：id、trackIdx
       oStoryDB, //数据库
       oStory: {}, //本地故事数据
-      iPrior: 0, //上次操作的时间戳
     };
   }
   render() {

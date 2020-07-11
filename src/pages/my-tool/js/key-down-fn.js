@@ -13,14 +13,12 @@ export default class {
     const type02 = { // ctrl 系列
       'ctrl + d': () => this.toDel(), //删除
       'ctrl + s': () => this.toSave(), //保存到浏览器
+      'ctrl + shift + s': () => this.toSave(), // ★导出到本地
       'ctrl + z': () => this.setHistory(-1), //撤销
       'ctrl + Enter': () => this.toPlay(), //播放
       'ctrl + Delete': () => this.toDel(), //删除
-      'ctrl + Up': () => this.putTogether('prior'), // 合并上一句
-      'ctrl + Down': () => this.putTogether('next'), // 合并下一句
-      'ctrl + p': () => this.putTogether('prior'), // previous 
-      'ctrl + n': () => this.putTogether('next'), // next
-      // +shift
+      'ctrl + j': () => this.putTogether('prior'), // 合并上一句
+      'ctrl + k': () => this.putTogether('next'), // 合并下一句
       'ctrl + shift + z': () => this.setHistory(1), //恢复
       'ctrl + shift + c': () => this.split(), //分割
     };
@@ -29,12 +27,15 @@ export default class {
       'alt + k': () => this.previousAndNext(1),
       'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
       'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
-      'alt + ,': () => this.changeWaveHeigh(-1),
-      'alt + .': () => this.changeWaveHeigh(1),
-      'alt + u': () => this.fixRegion('start', -0.1),
-      'alt + i': () => this.fixRegion('start', 0.1),
-      'alt + o': () => this.fixRegion('end', -0.1),
-      'alt + p': () => this.fixRegion('end', 0.1),
+      'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
+      'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
+      'alt + ,': () => this.zoomWave({deltaY: 1}), //波形横向缩放
+      'alt + .': () => this.zoomWave({deltaY: -1}), //波形横向缩放
+      'alt + u': () => this.fixRegion('start', -0.07), //起点向左
+      'alt + i': () => this.fixRegion('start', 0.07), //起点向右
+      'alt + n': () => this.fixRegion('end', -0.07), //终点向左
+      'alt + m': () => this.fixRegion('end', 0.07), //终点向右
+      'alt + s': () => this.toStop(), //停止播放
     }
     const fnLib = {...type01, ...type02, ...type03};
     const fn = fnLib[keyStr];
@@ -199,17 +200,21 @@ export default class {
     const isToLeft = iDirection === -1;
     const {iCurLine, aLines, oCurStepDc} = this.getCurStep(); //丰富信息版
     const {start, end} = aLines[iCurLine]; //当前行
-    if (start==0) return; //0开头，不可向前插入
+    if (start === 0) return; //0开头，不可向前插入
     const oAim = aLines[iCurLine + iDirection] || {};
     const newIdx = isToLeft ? iCurLine : iCurLine + 1;
     const oNewLine = this.fixTime({
       start: isToLeft ? (oAim.end || 0) : end,
       end: isToLeft ? start : (oAim.start || end + 10),
     });
-    if (oNewLine.start == oNewLine.end) return;
+    if (oNewLine.start === oNewLine.end) return;
     oCurStepDc.aLines.splice(newIdx, 0, oNewLine);
     oCurStepDc.iCurLine += isToLeft ? 0 : 1;
     this.setCurStep(oCurStepDc);
+  }
+  // 停止
+  toStop(){
+    this.setState({playing: false});
   }
 }
 

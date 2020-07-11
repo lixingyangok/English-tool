@@ -11,6 +11,9 @@ export default class {
     const oWaveWrap = this.oWaveWrap.current;
     const downPoint = ev01.clientX; // 把落点提前准备出来
     this.setTime('start', this.getPointSec(ev01));
+    document.onmouseup = function () {
+      oWaveWrap.onmousemove = () => 0;
+    };
     oWaveWrap.onmousemove = ev02 => {
       console.log('拖动中');
       const keyName = ev02.clientX >= downPoint ? 'end' : 'start';
@@ -18,9 +21,6 @@ export default class {
       ev02.preventDefault();
       ev02.stopPropagation();
       return false;
-    };
-    document.onmouseup = function () {
-      oWaveWrap.onmousemove = () => 0;
     };
   }
   // ▼处理右键点击事件
@@ -71,7 +71,7 @@ export default class {
   zoomWave(ev){
     if (this.state.drawing) return; //防抖
     const {iPerSecPx: perSecPxOld, fPerSecPx, buffer} = this.state;
-    const {clientX, deltaY} = ev;
+    const {deltaY, clientX = document.body.offsetWidth / 2} = ev;
     const [min, max, iStep] = [10, 250, 20]; //每秒最小/最大px
     if ((perSecPxOld<=min && deltaY>=0) || (perSecPxOld>=max && deltaY<=0)){
       return this.setState({drawing: false});

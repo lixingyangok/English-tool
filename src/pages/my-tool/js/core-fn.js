@@ -77,7 +77,7 @@ export default class {
     Audio.play();
     const playTimer = setInterval(() => {
       const {currentTime: cTime} = Audio;
-      if (cTime < this.getCurLine().end) {
+      if (cTime < this.getCurLine().end && this.state.playing) {
         return style.left = `${cTime * this.state.fPerSecPx}px`;
       }
       Audio.pause();
@@ -89,8 +89,8 @@ export default class {
   // ▼得到点击处的秒数，收受一个事件对象
   getPointSec({clientX}){
     const {fPerSecPx} = this.state;
-    const {offsetLeft, scrollLeft} = this.oWaveWrap.current;
-    const iLeftPx = clientX - offsetLeft + scrollLeft; //鼠标左侧的px值
+    const {offsetLeft, scrollLeft} = this.oWaveWrap.current.parentElement;
+    const iLeftPx = clientX - offsetLeft + scrollLeft; //鼠标距左边缘的px长度
     const iNowSec = iLeftPx / fPerSecPx; //当前指向时间（秒）
     return iNowSec;
   }
