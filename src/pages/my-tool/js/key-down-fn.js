@@ -18,6 +18,8 @@ export default class {
       'ctrl + Delete': () => this.toDel(), //删除
       'ctrl + Up': () => this.putTogether('prior'), // 合并上一句
       'ctrl + Down': () => this.putTogether('next'), // 合并下一句
+      'ctrl + p': () => this.putTogether('prior'), // previous 
+      'ctrl + n': () => this.putTogether('next'), // next
       // +shift
       'ctrl + shift + z': () => this.setHistory(1), //恢复
       'ctrl + shift + c': () => this.split(), //分割

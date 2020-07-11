@@ -75,20 +75,15 @@ export default class {
     style.left = `${fStartTime * fPerSecPx}px`;
     Audio.currentTime = fStartTime;
     Audio.play();
-    const iSecFrequency = 100; //每秒执行次数
     const playTimer = setInterval(() => {
-      const {fPerSecPx} = this.state;
-      const {long, end} = this.getCurLine();
-      const fOneStepLong = long * fPerSecPx / (long * iSecFrequency);
-      const newLeft = parseFloat(style.left) + fOneStepLong;
-      const fEndPx = end * fPerSecPx;
-      style.left = `${newLeft}px`;
-      if (newLeft > fEndPx || Audio.currentTime > end) {
-        Audio.pause();
-        clearInterval(this.state.playTimer);
-        this.setState({playing: false});
+      const {currentTime: cTime} = Audio;
+      if (cTime < this.getCurLine().end) {
+        return style.left = `${cTime * this.state.fPerSecPx}px`;
       }
-    }, 1000 / iSecFrequency);
+      Audio.pause();
+      clearInterval(this.state.playTimer);
+      this.setState({playing: false});
+    }, 1000 / 70); //每秒执行次数70
     this.setState({playTimer, playing: true});
   }
   // ▼得到点击处的秒数，收受一个事件对象
