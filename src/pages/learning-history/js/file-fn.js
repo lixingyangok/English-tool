@@ -52,30 +52,27 @@ export default class {
 			aLines: undefined,
 			buffer: undefined,
 		};
+		tracks[iAim].aLines = await fileToTimeLines(tracks[iAim].srtFile);
 		await oStories.update(id, {...oStory, tracks});
 		this.toUpdata();
 		message.success('保存完成');
 	}
 	async trackInit(oStory, idx){
-		console.log('初始化');
-		const {oStories} = this.state;
-		const oTrack = oStory.tracks[idx];
-		const {audioFile, srtFile, /* buffer, aLines */} = oTrack;
-		if (audioFile) {
-			let obj = await fileToBuffer(audioFile);
-			console.log('拿到了：bufferOBJ', obj)
-			oTrack.buffer = obj;
-		}
-		if (srtFile) {
-			oTrack.aLines = await fileToTimeLines(srtFile);
-		}
-		console.log('oStory.tracks', oStory.tracks);
-		oStories.update(oStory.id, {tracks: oStory.tracks});
-		// await oStories.put(oStory).catch(err=>{
-		// 	console.error('保存出错了', err);
-		// });
-		this.toUpdata();
-		console.log('成功保存了：', oStory);
+		console.log('初始化', oStory, idx); //停用
+		// const {oStories} = this.state;
+		// const oTrack = oStory.tracks[idx];
+		// const {srtFile, /* buffer, aLines, audioFile */} = oTrack;
+		// // if (audioFile) {
+		// // 	let obj = await fileToBuffer(audioFile);
+		// // 	console.log('拿到了：bufferOBJ', obj)
+		// // 	oTrack.buffer = obj;
+		// // }
+		// if (srtFile) {
+		// 	oTrack.aLines = await fileToTimeLines(srtFile);
+		// }
+		// oStories.update(oStory.id, {tracks: oStory.tracks});
+		// this.toUpdata();
+		// console.log('成功保存了：', oStory);
 
 	}
 	// ▼以上是字幕部分 ===================================================

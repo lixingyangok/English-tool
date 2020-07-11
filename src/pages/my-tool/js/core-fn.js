@@ -2,12 +2,7 @@ import {message} from 'antd';
 
 export default class {
   message = message;
-  // ▼输入框文字改变
-  valChanged(ev) {
-    const oCurLine = this.getCurLine().dc_;
-    oCurLine.text = ev.target.value;
-    this.setCurLine(oCurLine);
-  }
+
   // ▼跳至某行
   async goLine(idx, oNewLine) {
     const oWaveWrap = this.oWaveWrap.current;
@@ -156,7 +151,7 @@ export default class {
     const aSteps = this.state.aSteps.dc_;
     let iCurStep = this.state.iCurStep + 1;
     aSteps.splice(iCurStep, Infinity, oNewStep);
-    if (aSteps.length > 100) {
+    if (aSteps.length > 30) { //最多保存30步
       aSteps.shift(); iCurStep--;
     }
     this.setState({aSteps, iCurStep});

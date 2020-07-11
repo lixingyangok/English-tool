@@ -6,6 +6,7 @@
 
 // ▼字符转字幕数据，用于显示
 export async function fileToTimeLines(oFile) {
+    if (!oFile) return [];
     const text = await fileToStrings(oFile);
     const aLine = [];
     let strArr = text.split('\n');
@@ -78,12 +79,12 @@ function fileToStrings(oFile) {
     return oPromise;
 }
 
-function bufferToObj(buffer){
-    return {
-        duration: buffer.duration,
-        length: buffer.length,
-        sampleRate: buffer.sampleRate,
-        numberOfChannels: buffer.numberOfChannels,
-        aChannelData: buffer.getChannelData(0),
-    };
-}
+// function bufferToObj(buffer){
+//     return {
+//         duration: buffer.duration,
+//         length: buffer.length,
+//         sampleRate: buffer.sampleRate,
+//         numberOfChannels: buffer.numberOfChannels,
+//         aChannelData: buffer.getChannelData(0),
+//     };
+// }

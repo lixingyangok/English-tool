@@ -1,17 +1,12 @@
 import React from "react";
-// import ReactDOM from "react-dom";
 import * as cpnt from "./style/my-tool-style.js";
-import * as fn from "./js/my-tool-pure-fn.js";
 import {Spin, Input} from "antd";
 import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
 import Nav from './children/menu/menu.jsx';
-import {fileToTimeLines, fileToBuffer} from 'assets/js/pure-fn.js';
-
-// import {useLocation} from "react-router-dom";
-
+import {fileToBuffer} from 'assets/js/pure-fn.js';
 
 const { TextArea } = Input;
 const MyClass = window.mix(
@@ -40,6 +35,10 @@ export default class Tool extends MyClass {
     })();
     console.log('search ', oTarget);
     const oFirstLine = this.fixTime({start: 0.1, end: 5});
+    const myDb = window.myDb = new window.Dexie("myDb");
+		myDb.version(1).stores({stories: '++id, name'});
+    const oStoryDB = myDb.stories;
+
     this.state = {
       buffer: {}, //音频数据
       aPeaks: [], //波形数据
@@ -59,9 +58,13 @@ export default class Tool extends MyClass {
       aSteps: [{ //历史记录
         iCurLine: 0, // 当前所在行
         aLines: [[oFirstLine]], //字幕
+        ts: 0, //ts = timestap = 时间戳
       }],
       iCurStep: 0, //当前步骤
-      oTarget,
+      oTarget, // 故事信息如：id、trackIdx
+      oStoryDB, //数据库
+      oStory: {}, //本地故事数据
+      iPrior: 0, //上次操作的时间戳
     };
   }
   render() {
@@ -95,7 +98,7 @@ export default class Tool extends MyClass {
                 </span>;
               })}
             </cpnt.MarkWrap>
-            <cpnt.RegionWrap  >
+            <cpnt.RegionWrap>
               <i ref={this.oPointer} className={"pointer " + (playing ? 'playing' : '')} />
               {aLines.map(({start, long}, idx) => {
                 return <span key={idx} className={idx === iCurLine ? "cur region" : "region"}
@@ -143,8 +146,8 @@ export default class Tool extends MyClass {
         })}
       </cpnt.SentenceWrap>
     </cpnt.Div>;
-    // render 结束
   }
+  // ▲render
   // ▼以下是生命周期
   async componentDidMount() {
     const {oTarget} = this.state;
@@ -159,39 +162,25 @@ export default class Tool extends MyClass {
     document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
     document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
     document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
-    if (oTarget.id){
-      this.init(oTarget);
-    }else{
-      this.testFn();
-    }
-  }
-  async init({id, idx}){
-    const myDb = window.myDb = new window.Dexie("myDb");
-		myDb.version(1).stores({stories: '++id, name'});
-    const oStories = myDb.stories;
-    const oStory = await oStories.get(id*1);
-    const oStrack = oStory.tracks[idx];
-    const buffer = await fileToBuffer(oStrack.audioFile);
-    const aLines = await fileToTimeLines(oStrack.srtFile);
-    this.testFn(buffer, aLines);
+    if (oTarget.id) this.init(oTarget);
   }
   // ▼销毁前
   componentWillUnmount(){
     this.setState = (state, callback) => {return};
     // ReactDOM.unmountComponentAtNode(document.getElementById("tool"));
   }
-  // ▼测试
-  async testFn(buffer, sText){
-    buffer = buffer || await fn.getMp3();
-    sText = sText || await fn.getText();
-    const {aSteps} = this.state;
-    // aSteps.last_.aLines = this.getTimeLine(sText).slice(0, 13); //字幕
-    aSteps.last_.aLines = sText; //字幕
-    this.setState({
-      buffer, aSteps, fileSrc: fn.mp3Src,
-    });
+  async init({id, idx}){
+    const {oStoryDB, aSteps} = this.state;
+    const oStory = await oStoryDB.get(id*1);
+    const oStrack = oStory.tracks[idx];
+    const buffer = await fileToBuffer(oStrack.audioFile);
+    const fileSrc = URL.createObjectURL(oStrack.audioFile);
+    console.log('保存');
+    aSteps.last_.aLines = oStrack.aLines; //字幕
+    this.setState({fileSrc, buffer, aSteps, oStory});
     this.bufferToPeaks();
   }
+  
   // ▼音频数据转换波峰数据
   bufferToPeaks(perSecPx_, leftPoint = 0) {
     const oWaveWrap = this.oWaveWrap.current;
@@ -207,3 +196,15 @@ export default class Tool extends MyClass {
     return obackData.aPeaks;
   }
 }
+
+
+// // ▼测试
+// async testFn(){
+//   const buffer = await fn.getMp3();
+//   const sText = await fn.getText();
+//   const {aSteps} = this.state;
+//   // aSteps.last_.aLines = this.getTimeLine(sText).slice(0, 13); //字幕
+//   aSteps.last_.aLines = sText; //字幕
+//   this.setState({buffer, aSteps});
+//   this.bufferToPeaks();
+// }

@@ -2,31 +2,37 @@ import keyMap from './key-map.js';
 
 export default class {
   getFn(keyStr){
-    const fnLib = {
-      // ▼单键系列
+    const type01 = { //单键系列
       '`': () => this.toPlay(true),
       'Tab': () => this.toPlay(),
       'Prior': () => this.previousAndNext(-1),
       'Next': () => this.previousAndNext(1),
       'F1': ()=>this.cutHere('start'),
       'F2': ()=>this.cutHere('end'),
-      // ctrl 系列
+    };
+    const type02 = { // ctrl 系列
+      'ctrl + d': () => this.toDel(), //删除
+      'ctrl + s': () => this.toSave(), //保存到浏览器
+      'ctrl + z': () => this.setHistory(-1), //撤销
       'ctrl + Enter': () => this.toPlay(), //播放
       'ctrl + Delete': () => this.toDel(), //删除
-      'ctrl + d': () => this.toDel(), //删除
       'ctrl + Up': () => this.putTogether('prior'), // 合并上一句
       'ctrl + Down': () => this.putTogether('next'), // 合并下一句
-      'ctrl + z': () => this.setHistory(-1), //撤销
+      // +shift
       'ctrl + shift + z': () => this.setHistory(1), //恢复
       'ctrl + shift + c': () => this.split(), //分割
-      // alt 系列
+    };
+    const type03 = { // alt 系列
       'alt + j': () => this.previousAndNext(-1),
       'alt + k': () => this.previousAndNext(1),
       'alt + ,': () => this.changeWaveHeigh(-1),
       'alt + .': () => this.changeWaveHeigh(1),
       'alt + u': () => this.fixRegion('start', -0.1),
       'alt + i': () => this.fixRegion('start', 0.1),
+      'alt + o': () => this.fixRegion('end', -0.1),
+      'alt + p': () => this.fixRegion('end', 0.1),
     }
+    const fnLib = {...type01, ...type02, ...type03};
     const fn = fnLib[keyStr];
     if (!fn) return false;
     return fn.bind(this);
@@ -40,11 +46,30 @@ export default class {
     const keyName = [16, 17, 18].includes(keyCode) ? '' : keyMap[keyCode];
     const keyStr = ctrl + shift + alt + keyName;
     const theFn = this.getFn(keyStr);
-    keyName && console.log('按下了：', keyCode, keyStr);
+    // keyName && console.log('按下了：', keyCode, keyStr); 
     if (!theFn) return;
     theFn();
     ev.preventDefault();
     ev.stopPropagation();
+  }
+  // ▼输入框文字改变
+  valChanged(ev) {
+    const newText = ev.target.value;
+    if (newText.endsWith(' ')){ //如果输入了空格，那么生成一条新记录
+      console.time('有了新历史');
+      const oCurLine = this.getCurLine();
+      const oCurLineDc = oCurLine.dc_;
+      oCurLineDc.text = newText;
+      this.setCurLine(oCurLineDc);
+      console.timeEnd('有了新历史');
+      return;
+    }
+    console.time('无新历史');
+    const {aSteps, iCurStep} = this.state;
+    const {iCurLine} = aSteps[iCurStep]; // 当前步骤
+    aSteps[iCurStep].aLines[iCurLine].text = newText;
+    this.setState({aSteps});
+    console.timeEnd('无新历史');
   }
   // ▼切换当前句子（上一句，下一句）
   previousAndNext(iDirection) {
@@ -78,10 +103,17 @@ export default class {
   }
   // ▼保存字幕到浏览器
   async toSave() {
+    const {oStoryDB, fileName, oStory, oTarget} = this.state;
+    const {id, idx} = oTarget;
     const {aLines} = this.getCurStep();
-    const {fileName} = this.state;
-    if (!fileName) return;
-    window.lf.setItem(fileName, aLines);
+    if (id && idx){ //有本地数据
+      oStory.tracks[idx].aLines = aLines;
+      await oStoryDB.put(oStory) //全量更新
+    } else if (fileName) {
+      await window.lf.setItem(fileName, aLines);
+    } else {
+      return;
+    }
     this.message.success('保存成功');
   }
   // ▼微调区域（1参可能是 start、end
