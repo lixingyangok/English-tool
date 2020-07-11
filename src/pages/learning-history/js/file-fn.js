@@ -5,7 +5,7 @@
  */
 
 import {message} from 'antd';
-import {fileToTimeLines, fileToBuffer} from 'assets/js/pure-fn.js';
+import {fileToTimeLines, /* fileToBuffer */} from 'assets/js/pure-fn.js';
 
 export default class {
 	// ▼拖入文件

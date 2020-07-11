@@ -25,6 +25,8 @@ export default class {
     const type03 = { // alt 系列
       'alt + j': () => this.previousAndNext(-1),
       'alt + k': () => this.previousAndNext(1),
+      'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
+      'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
       'alt + ,': () => this.changeWaveHeigh(-1),
       'alt + .': () => this.changeWaveHeigh(1),
       'alt + u': () => this.fixRegion('start', -0.1),
@@ -41,12 +43,12 @@ export default class {
   keyDowned(ev){
     const {ctrlKey, shiftKey, altKey, keyCode} = ev;
     const ctrl = ctrlKey ? 'ctrl + ' : '';
-    const shift = shiftKey ? 'shift + ' : '';
     const alt = altKey ? 'alt + ' : '';
+    const shift = shiftKey ? 'shift + ' : '';
     const keyName = [16, 17, 18].includes(keyCode) ? '' : keyMap[keyCode];
-    const keyStr = ctrl + shift + alt + keyName;
+    const keyStr = ctrl + alt + shift + keyName;
     const theFn = this.getFn(keyStr);
-    // keyName && console.log('按下了：', keyCode, keyStr); 
+    keyName && console.log('按下了：', keyCode, keyStr); 
     if (!theFn) return;
     theFn();
     ev.preventDefault();
@@ -189,6 +191,23 @@ export default class {
     if (iCurStep < 0 || iCurStep > length - 1) return;
     console.log('新位置：', iCurStep);
     this.setState({iCurStep});
+  }
+  // ▼插入一句。 参数说明：-1=向左，1=向右
+  toInsert(iDirection){
+    const isToLeft = iDirection === -1;
+    const {iCurLine, aLines, oCurStepDc} = this.getCurStep(); //丰富信息版
+    const {start, end} = aLines[iCurLine]; //当前行
+    if (start==0) return; //0开头，不可向前插入
+    const oAim = aLines[iCurLine + iDirection] || {};
+    const newIdx = isToLeft ? iCurLine : iCurLine + 1;
+    const oNewLine = this.fixTime({
+      start: isToLeft ? (oAim.end || 0) : end,
+      end: isToLeft ? start : (oAim.start || end + 10),
+    });
+    if (oNewLine.start == oNewLine.end) return;
+    oCurStepDc.aLines.splice(newIdx, 0, oNewLine);
+    oCurStepDc.iCurLine += isToLeft ? 0 : 1;
+    this.setCurStep(oCurStepDc);
   }
 }
 
