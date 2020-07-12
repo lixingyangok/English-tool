@@ -27,8 +27,11 @@ export default function () {
   // if (isPracticing) {
   //   return <div></div>;
   // }
-  return <nav>
-    <cpnt.Ul className="center-box02" >
+  return <cpnt.Nav className="center-box02">
+    <em className="logo" >
+      哈哈学习 Hahaxuexi.com
+    </em>
+    <cpnt.Ul  >
       {aNavData.map((cur,idx)=>{
         return <cpnt.Li key={idx}>
           <NavLink to={cur.path} target={cur.target || ''} >
@@ -37,5 +40,5 @@ export default function () {
         </cpnt.Li>
       })}
     </cpnt.Ul>
-  </nav>;
+  </cpnt.Nav>;
 }

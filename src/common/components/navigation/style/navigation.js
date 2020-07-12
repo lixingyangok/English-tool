@@ -5,10 +5,21 @@
  */ 
 import styled from "styled-components";
 
-export const Ul = styled.ul`
-  height: 40px;
-  line-height: 40px;
+export const Nav = styled.nav`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 55px;
+  line-height: 55px;
   background: #24292e;
+  color: white;
+  .logo{
+    font-size: 18px;
+    font-weight: bold;
+  }
+`;
+
+export const Ul = styled.ul`
   margin: 0;
   display: flex;
 `;
@@ -16,9 +27,8 @@ export const Ul = styled.ul`
 export const Li = styled.li`
   list-style: none;
   a{
-    display: block;
     color: white;
-    padding: 0 1.5em;
+    padding: 0.5em 1.5em;
   }
   .active{
     background: black;
