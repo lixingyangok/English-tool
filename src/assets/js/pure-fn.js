@@ -26,19 +26,19 @@ export async function fileToTimeLines(oFile) {
 
 export async  function fileToBuffer(oFile, isWantFakeBuffer=false){
     if (!oFile) return {};
-    console.log('转buffer');
-    const reader = new FileReader();
     let resolveFn = xx => xx;
     const promise = new Promise(resolve => resolveFn = resolve);
-    reader.onload = async evt => {
-        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const arrayBuffer = evt.currentTarget.result;
-        const buffer = await audioContext.decodeAudioData(arrayBuffer);
-        audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
-        if (isWantFakeBuffer) return resolveFn(bufferToObj(buffer));
-        resolveFn(buffer);
-    };
-    reader.readAsArrayBuffer(oFile);
+    Object.assign(new FileReader(), {
+        onload: async evt => {
+            let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const arrayBuffer = evt.currentTarget.result;
+            const buffer = await audioContext.decodeAudioData(arrayBuffer);
+            audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
+            console.log('fileToBuffer', buffer);
+            if (isWantFakeBuffer) return resolveFn(bufferToObj(buffer));
+            resolveFn(buffer);
+        },
+    }).readAsArrayBuffer(oFile);
     return promise;
 }
 
@@ -81,21 +81,22 @@ function fileToStrings(oFile) {
 }
 
 function bufferToObj(buffer){
-    const buffer_ = {
+    const buffer_ = { //原始数据
         duration: buffer.duration,
-        length: buffer.length,
+        length: buffer.length, // === buffer.getChannelData(0).length
         sampleRate: buffer.sampleRate,
         numberOfChannels: buffer.numberOfChannels,
     }
-    return {
+    console.log('length 万：', buffer.length);
+    return { //补充数据
         ...buffer_,
-        aChannelData_: toInt8(buffer.getChannelData(0)),
         sDuration_: secToStr(buffer.duration).split(',')[0],
+        aChannelData_: Int8Array.from( // int8的取值范围 -128 到 127
+            buffer.getChannelData(0).slice(0,100000000).map(xx => xx * (xx > 0 ? 127 : 128)),
+        ),
+        // aChannelData02_: Int8Array.from( // int8的取值范围 -128 到 127
+        //     buffer.getChannelData(0).slice(100000000).map(xx => xx * (xx > 0 ? 127 : 128)),
+        // ),
     };
 }
 
-function toInt8 (arr){ // int8的取值范围 -128 到 127
-    return Int8Array.from(
-        arr.map(xx => xx * (xx > 0 ? 127 : 128)),
-    );
-}

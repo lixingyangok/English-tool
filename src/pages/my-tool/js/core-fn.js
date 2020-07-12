@@ -2,7 +2,6 @@ import {message} from 'antd';
 
 export default class {
   message = message;
-
   // ▼跳至某行
   async goLine(idx, oNewLine) {
     const oWaveWrap = this.oWaveWrap.current;
@@ -68,7 +67,9 @@ export default class {
   async toPlay(isFromHalf) {
     clearInterval(this.state.playTimer); //把之前播放的关闭再说
     const {fPerSecPx} = this.state;
+    console.log(11);
     const {start, long} = this.getCurLine();
+    console.log(11);
     const Audio = this.oAudio.current;
     const {style} = this.oPointer.current;
     const fStartTime = start + (isFromHalf ? long / 2 : 0);
@@ -77,9 +78,11 @@ export default class {
     Audio.play();
     const playTimer = setInterval(() => {
       const {currentTime: cTime} = Audio;
+      console.log(22);
       if (cTime < this.getCurLine().end && this.state.playing) {
         return style.left = `${cTime * this.state.fPerSecPx}px`;
       }
+      console.log(22);
       Audio.pause();
       clearInterval(this.state.playTimer);
       this.setState({playing: false});
@@ -88,10 +91,9 @@ export default class {
   }
   // ▼得到点击处的秒数，收受一个事件对象
   getPointSec({clientX}){
-    const {fPerSecPx} = this.state;
-    const {offsetLeft, scrollLeft} = this.oWaveWrap.current.parentElement;
+    const {scrollLeft, parentElement:{offsetLeft}} = this.oWaveWrap.current;
     const iLeftPx = clientX - offsetLeft + scrollLeft; //鼠标距左边缘的px长度
-    const iNowSec = iLeftPx / fPerSecPx; //当前指向时间（秒）
+    const iNowSec = iLeftPx / this.state.fPerSecPx; //当前指向时间（秒）
     return iNowSec;
   }
   // ▼设定时间。1参是类型，2参是秒数
@@ -143,13 +145,13 @@ export default class {
   }
   // ▼更新当前步骤的数据
   setCurStep(oNewStep){
-    const aSteps = this.state.aSteps.dc_;
+    const maxStep = 30; //最多x步
     let iCurStep = this.state.iCurStep + 1;
-    aSteps.splice(iCurStep, Infinity, oNewStep);
-    if (aSteps.length > 30) { //最多保存30步
-      aSteps.shift(); iCurStep--;
-    }
-    this.setState({aSteps, iCurStep});
+    if (iCurStep >= maxStep) iCurStep--;
+    this.setState({
+      iCurStep,
+      aSteps: this.state.aSteps.slice(0, iCurStep).concat(oNewStep).slice(-1 * maxStep), 
+    });
   }
   // ▼设定当前行
   setCurLine(oLine){
@@ -159,7 +161,7 @@ export default class {
   }
   // ▼得到当前行，或某个指定行
   getCurLine(idx){
-    const {iCurLine, aLines} = this.getCurStep();
+    const {iCurLine, aLines} = this.getCurStep(true);
     if (typeof idx === 'number') {
       if (!aLines[idx]) console.log('目标行-1');
       return aLines[idx] || aLines[idx -1];

@@ -6,7 +6,7 @@ import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
 import Nav from './children/menu/menu.jsx';
-import {fileToBuffer} from 'assets/js/pure-fn.js';
+// import {fileToBuffer} from 'assets/js/pure-fn.js';
 
 const { TextArea } = Input;
 const MyClass = window.mix(
@@ -69,12 +69,12 @@ export default class Tool extends MyClass {
   render() {
     const {
       aSteps, iCurStep, buffer, iCanvasHeight,
-      duration, iPerSecPx, fileSrc, playing, //fPerSecPx
+      duration, iPerSecPx, fileSrc, playing, fPerSecPx,
     } = this.state;
-    const fPerSecPx = (()=>{ //待办-清除这个，用state的
-      const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
-      return buffer.length / sampleSize / duration;
-    })();
+    // const fPerSecPx = (()=>{ //待办-清除这个，用state的
+    //   const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
+    //   return buffer.length / sampleSize / duration;
+    // })();
     const {aLines, iCurLine} = aSteps[iCurStep];
     return <cpnt.Div>
       <audio src={fileSrc} ref={this.oAudio}/>

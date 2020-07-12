@@ -78,7 +78,7 @@ export default class {
   }
   // ▼切换当前句子（上一句，下一句）
   previousAndNext(iDirection) {
-    const {iCurLine, aLines} = this.getCurStep();
+    const {iCurLine, aLines} = this.getCurStep(true);
     if (iCurLine === 0 && iDirection === -1) return; //不可退
     const iCurLineNew = iCurLine + iDirection;
     let oNewItem = null;

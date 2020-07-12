@@ -61,8 +61,9 @@ export default class {
 	// ▼【更新】章节
 	async upDateSection(oSct, aFiles) {
 		const [audioFile, srtFile] = aFiles;
+		const aLines = srtFile ? await fileToTimeLines(srtFile) : oSct.aLines;
 		const oSection = {
-			aLines: oSct.aLines || await fileToTimeLines(srtFile),
+			aLines,
 			srtFile: srtFile || oSct.srtFile,
 			audioFile: audioFile || oSct.audioFile,
 		};
@@ -73,7 +74,6 @@ export default class {
 	// 给章节添加buffer
 	// 参数：故事，章节所在索引，章节对象
 	async getSectionBuffer(oStory, idx, oSct){
-		// console.log('故事，章节', oStory, oStory.aSections[idx]);
 		this.setState({
 			aStories: this.state.aStories.map(cur=>{
 				if (cur.id === oStory.id) Object.assign(
