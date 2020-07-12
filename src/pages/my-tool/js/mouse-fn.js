@@ -109,6 +109,7 @@ export default class {
 		this.setState({ iHeight });
 		this.toDraw();
 	}
+	
 }
 
 

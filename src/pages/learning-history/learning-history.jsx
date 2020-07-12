@@ -13,13 +13,11 @@ const MyClass = window.mix(
 );
 
 export default class extends MyClass{
-	// constructor(props){
-	// 	super(props);
-	// }
 	oForm = React.createRef();
 	state = {
 		visible: false, //窗口显示
 		aStories: [],
+		oStoryTB: {},
 		oSectionTB: {},
 	}
 	render(){
@@ -49,18 +47,18 @@ export default class extends MyClass{
 							<span>备注：{cur.note || '暂无'}</span>
 						</div>
 						<div className="btn-wrap">
-							<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
-							<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-								title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id)}
-							>
-								<Button size='small'>删除</Button>
-							</Popconfirm>
 							<label className="ant-btn ant-btn-sm">
 								导入文件
 								<input type="file" style={{display: 'none'}} multiple="multiple"
 									onChange={ev=>this.toImport(ev, cur)}
 								/>
 							</label>
+							<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
+							<Popconfirm placement="topRight" okText="删除" cancelText="取消"
+								title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id)}
+							>
+								<Button size='small'>删除</Button>
+							</Popconfirm>
 						</div>
 						{this.getSectionList(cur)}
 					</cpnt.OneItem>
@@ -102,7 +100,10 @@ export default class extends MyClass{
 					<h3>
 						{(oSct.audioFile || {}).name || '无音频'}
 					</h3>
-					<cpnt.BtnWrapInTrack className="btns" >
+					<cpnt.BtnWrapInTrack className="btns">
+						<Button type="link" onClick={()=>this.getSectionBuffer(oStory, idx, oSct)}>
+							初始化
+						</Button>
 						<label className="ant-btn ant-btn-link">
 							<span>导入</span>
 							<input type="file" style={{display: 'none'}} multiple="multiple"
@@ -110,10 +111,7 @@ export default class extends MyClass{
 							/>
 						</label>
 						<Button type="link" onClick={()=>this.goTool(oStory, oSct)} >
-							开始
-						</Button>
-						<Button type="link" onClick={()=>this.getSectionBuffer(oStory, idx, oSct)}>
-							初始化
+							听写
 						</Button>
 						<Popconfirm placement="topRight" okText="删除" cancelText="取消"
 							title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelSection(oSct)}

@@ -3,9 +3,6 @@
  * @LastEditors: 李星阳
  * @Description: 
  */
-
-//  Sct = section = 章节
-
 import {message} from 'antd';
 import {fileToTimeLines, fileToBuffer} from 'assets/js/pure-fn.js';
 

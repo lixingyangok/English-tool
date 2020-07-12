@@ -25,6 +25,7 @@ export default class {
     const type03 = { // alt 系列
       'alt + j': () => this.previousAndNext(-1),
       'alt + k': () => this.previousAndNext(1),
+      'alt + l': () => this.getLineAndGo(), // 跳到最后一句 l = last
       'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
       'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
       'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
@@ -108,12 +109,12 @@ export default class {
   }
   // ▼保存字幕到浏览器
   async toSave() {
-    const {oStoryDB, fileName, oStory, oTarget} = this.state;
-    const {id, idx} = oTarget;
+    console.log('保存');
+    const {fileName, oTarget, oSectionTB, oSct} = this.state;
+    const {storyId, sctId} = oTarget;
     const {aLines} = this.getCurStep();
-    if (id && idx){ //有本地数据
-      oStory.tracks[idx].aLines = aLines;
-      await oStoryDB.put(oStory) //全量更新
+    if (storyId && sctId){ //有本地数据
+      await oSectionTB.update(oSct.id, {aLines}); //增量更新
     } else if (fileName) {
       await window.lf.setItem(fileName, aLines);
     } else {
@@ -216,5 +217,11 @@ export default class {
   toStop(){
     this.setState({playing: false});
   }
+  getLineAndGo(){
+    document.querySelectorAll('textarea')[0].focus();
+		const {aLines} = this.getCurStep(true);
+		const idx = aLines.findIndex(cur=>cur.text.length<=1);
+		this.goLine(idx);
+	}
 }
 

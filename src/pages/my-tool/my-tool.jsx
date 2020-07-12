@@ -153,6 +153,7 @@ export default class Tool extends MyClass {
       <span>时长：{buffer.sDuration_}</span>
       <span>字幕：{srtFile.name}</span>
       <span>句子数量：{aLines.length || 0}句</span>
+      <span onClick={()=>this.getLineAndGo()} >最后一行</span>
     </cpnt.InfoBar>
   }
   // ▼以下是生命周期

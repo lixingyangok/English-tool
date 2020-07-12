@@ -40,9 +40,12 @@ export default class{
 		const aStories = await this.state.oStoryTB.toArray(); //所有表
 		this.setState({aStories});
 	}
-	toDel(id){
-		this.state.oStoryTB.delete(id);
-		this.toUpdata();
+	async toDel(id){
+		const {oSectionTB, oStoryTB} = this.state;
+		await oSectionTB.where('parent').equals(id).delete();
+		await oStoryTB.delete(id);
+		await this.init();
+		this.getSctToStory();
 	}
 	// ▼提交表单
 	onSave(oForm) {
@@ -69,9 +72,6 @@ export default class{
 		if (oFormData) oForm.setFieldsValue(oFormData);
 		else oForm.resetFields();
 	};
-	setMyDb(){
-		
-	}
 	goTool(oStory, oSct){
 		const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
 		this.props.history.push(sPath);

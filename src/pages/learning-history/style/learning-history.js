@@ -10,6 +10,9 @@ import { Empty } from 'antd';
 
 export const Outter = styled.article`
     padding: 45px 0 60px;
+    >.ant-empty{
+        margin-top: 90px;
+    }
 `;
 
 export const H1 = styled.h1`
