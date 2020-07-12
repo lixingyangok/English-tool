@@ -7,14 +7,14 @@ export const aNavData = [{
   path: '/index',
   component: React.lazy(() => import('pages/index/index.jsx')),
 },{
-  name: '学习工具',
+  name: '书柜',
+  path: '/learning-history',
+  component: React.lazy(() => import('pages/learning-history/learning-history.jsx')),
+},{
+  name: '自习室',
   path: '/practicing',
   // target:'_blank',
   component: React.lazy(() => import('pages/my-tool/my-tool.jsx')),
-},{
-  name: '历史记录',
-  path: '/learning-history',
-  component: React.lazy(() => import('pages/learning-history/learning-history.jsx')),
 },{
   name: '关于',
   path: '/about',
@@ -28,7 +28,7 @@ export default function () {
   //   return <div></div>;
   // }
   return <nav>
-    <cpnt.Ul>
+    <cpnt.Ul className="center-box02" >
       {aNavData.map((cur,idx)=>{
         return <cpnt.Li key={idx}>
           <NavLink to={cur.path} target={cur.target || ''} >

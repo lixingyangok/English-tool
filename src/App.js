@@ -6,12 +6,13 @@
 import React, {Suspense} from 'react';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import Navigation, {aNavData} from './common/components/navigation/navigation.jsx';
+import Loading from 'common/components/loading/loading.jsx';
 
 function App() {
   return <BrowserRouter>
     <Navigation/>
     {/* ▼异步组件父级必须有 Suspense */}
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={Loading}>
       <Switch>
         <Redirect exact from="/" to="/index" ></Redirect>
         {aNavData.map((cur,idx)=>{
