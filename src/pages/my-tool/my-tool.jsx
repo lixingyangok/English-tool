@@ -26,18 +26,18 @@ export default class Tool extends MyClass {
     const {search} = props.location;
     const oTarget = (()=>{
       if (!search) return {};
-      const oResult = {};
-      search.slice(1).split('&').forEach(cur=>{
-          const [key, val] = cur.split('=');
-          oResult[key] = val;
-      })
-      return oResult;
+      return search.slice(1).split('&').reduce((result, cur)=>{
+        const [key, val] = cur.split('=');
+        return {...result, [key]: val};
+      }, {});
     })();
     console.log('search ', oTarget);
     const oFirstLine = this.fixTime({start: 0.1, end: 5});
     const myDb = window.myDb = new window.Dexie("myDb");
-		myDb.version(1).stores({stories: '++id, name'});
-    const oStoryDB = myDb.stories;
+    myDb.version(1).stores({stories: '++id, name'});
+		myDb.version(2).stores({sections: '++id, idx, parent'});
+    const oStoryTB = myDb.stories;
+    const oSectionTB = myDb.sections;
     this.state = {
       buffer: {}, //音频数据
       aPeaks: [], //波形数据
@@ -47,7 +47,7 @@ export default class Tool extends MyClass {
       fileName: "", //文件名
       fileSrc: "", //文件地址
       fileSrcFull: "", //文件地址2
-      iHeight: 50, // 波形高
+      iHeight: 0.3, // 波形高
       iCanvasHeight: cpnt.iCanvasHeight, //画布高
       iPerSecPx: 55, //人为定义的每秒像素数
       fPerSecPx: 0, //实际每秒像素数
@@ -61,7 +61,8 @@ export default class Tool extends MyClass {
       }],
       iCurStep: 0, //当前步骤
       oTarget, // 故事信息如：id、trackIdx
-      oStoryDB, //数据库
+      oStoryTB, //故事数据库
+      oSectionTB, //
       oStory: {}, //本地故事数据
     };
   }
@@ -160,25 +161,26 @@ export default class Tool extends MyClass {
     document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
     document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
     document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
-    if (oTarget.id) this.init(oTarget);
+    if (Object.keys(oTarget).length) this.init(oTarget);
   }
   // ▼销毁前
   componentWillUnmount(){
     this.setState = (state, callback) => {return};
     // ReactDOM.unmountComponentAtNode(document.getElementById("tool"));
   }
-  async init({id, idx}){
-    const {oStoryDB, aSteps} = this.state;
-    const oStory = await oStoryDB.get(id*1);
-    const oStrack = oStory.tracks[idx];
-    const buffer = await fileToBuffer(oStrack.audioFile);
-    const fileSrc = URL.createObjectURL(oStrack.audioFile);
-    console.log('保存');
-    aSteps.last_.aLines = oStrack.aLines; //字幕
+  async init({storyId, sctId}){
+    console.log('故事-章节', storyId, sctId)
+    const {oStoryTB, oSectionTB, aSteps} = this.state;
+    const [oStory, oSct] = await Promise.all([
+      oStoryTB.get(storyId*1), oSectionTB.get(sctId*1),
+    ]);
+    if (!oStory || !oSct) return;
+    const buffer = oSct.buffer;
+    const fileSrc = URL.createObjectURL(oSct.audioFile);
+    aSteps.last_.aLines = oSct.aLines; //字幕
     this.setState({fileSrc, buffer, aSteps, oStory});
     this.bufferToPeaks();
   }
-  
   // ▼音频数据转换波峰数据
   bufferToPeaks(perSecPx_, leftPoint = 0) {
     const oWaveWrap = this.oWaveWrap.current;

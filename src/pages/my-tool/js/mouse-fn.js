@@ -101,7 +101,7 @@ export default class {
 	// 改变波形高度
 	changeWaveHeigh(deltaY) {
 		let { iHeight } = this.state;
-		const [min, max, iStep] = [10, 350, 10];
+		const [min, max, iStep] = [0.1, 3, 0.2];
 		if (deltaY >= 0) iHeight += iStep;
 		else iHeight -= iStep;
 		if (iHeight < min) iHeight = min;

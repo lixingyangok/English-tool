@@ -109,7 +109,7 @@ export default class extends MyClass{
 								onChange={ev=>this.toImport(ev, oStory, oSct)}
 							/>
 						</label>
-						<Button type="link" onClick={()=>this.goTool(oStory, idx)} >
+						<Button type="link" onClick={()=>this.goTool(oStory, oSct)} >
 							开始
 						</Button>
 						<Button type="link" onClick={()=>this.getSectionBuffer(oStory, idx, oSct)}>

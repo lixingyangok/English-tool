@@ -35,7 +35,6 @@ export async  function fileToBuffer(oFile, isWantFakeBuffer=false){
         const arrayBuffer = evt.currentTarget.result;
         const buffer = await audioContext.decodeAudioData(arrayBuffer);
         audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
-        window.myTest123 = buffer;
         if (isWantFakeBuffer) return resolveFn(bufferToObj(buffer));
         resolveFn(buffer);
     };
@@ -90,23 +89,13 @@ function bufferToObj(buffer){
     }
     return {
         ...buffer_,
-        aChannelData_: buffer.getChannelData(0),
-        aChannelData8: toInt8(buffer.getChannelData(0)),
+        aChannelData_: toInt8(buffer.getChannelData(0)),
         sDuration_: secToStr(buffer.duration).split(',')[0],
     };
 }
 
-function toInt16 (arr){
-    // Int16的范围 0x8000 -32768 到 0x7fff 32767
-    return Int16Array.from(
-        arr.map(xx => xx * (xx > 0 ? 0x7fff : 0x8000)),
-    );
-}
-function toInt8 (arr){
-    // int8的取值范围 -128 到 127
+function toInt8 (arr){ // int8的取值范围 -128 到 127
     return Int8Array.from(
         arr.map(xx => xx * (xx > 0 ? 127 : 128)),
     );
 }
-
-window.toInt16 = toInt16;

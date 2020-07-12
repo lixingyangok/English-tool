@@ -73,7 +73,6 @@ export default class {
 	// 给章节添加buffer
 	// 参数：故事，章节所在索引，章节对象
 	async getSectionBuffer(oStory, idx, oSct){
-		console.log('getSectionBuffer');
 		// console.log('故事，章节', oStory, oStory.aSections[idx]);
 		this.setState({
 			aStories: this.state.aStories.map(cur=>{
@@ -92,7 +91,7 @@ export default class {
 				return cur;
 			}),
 		});
-		// this.state.oSectionTB.update(oSct.id, {...oSct, buffer});
+		this.state.oSectionTB.update(oSct.id, {...oSct, buffer});
 	}
 	// ▼删除某章节
 	toDelSection(oSct){

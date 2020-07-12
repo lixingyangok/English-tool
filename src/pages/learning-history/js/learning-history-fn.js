@@ -72,9 +72,8 @@ export default class{
 	setMyDb(){
 		
 	}
-	goTool(oStory, iTrackIdx){
-		// console.log(oStory, iTrackIdx);
-		const sPath = `/practicing?id=${oStory.id}&idx=${iTrackIdx}`;
+	goTool(oStory, oSct){
+		const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
 		this.props.history.push(sPath);
 	}
 }
