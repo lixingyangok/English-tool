@@ -24,12 +24,14 @@ export default class{
 		// let aAfterAHalf = await oStoryTB.where('id').above(aAllItems.length/2).toArray(); //id大于9
 		// let aAim = await oStoryTB.where('id').equals(99).toArray();
 	}
-	async init02(){
+	// ▼查询故事下的章节
+	async getSctToStory(iStoryId){
 		const {aStories, oSectionTB} = this.state;
-	 	const arr = aStories.map(async cur=>{
-			let aSections = await oSectionTB.where('parent').equals(cur.id).toArray();
-			if (!aSections) return;
-			cur.aSections = aSections;
+	 	const arr = aStories.map(async (cur)=>{ //遍历每个故事
+			if (typeof iStoryId === 'number' && cur.id !== iStoryId) return; //不是我的目标，不操作
+			cur.aSections = []; //清空，以重新插入
+			const aSections = oSectionTB.where('parent').equals(cur.id); //查询故事包含的章节
+			await aSections.each(oSct => cur.aSections.push(oSct));
 		});
 		await Promise.all(arr);
 		this.setState({aStories});
@@ -52,7 +54,7 @@ export default class{
 		}else{
 			delete oForm.id;
 			oForm.createDate = sTime;
-			oForm.tracks = [];
+			oForm.aSections = [];
 			oStoryTB.add(oForm);
 		}
 		this.toUpdata();

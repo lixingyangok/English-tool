@@ -4,8 +4,10 @@
  * @Description: 
  */
 
+//  Sct = section = 章节
+
 import {message} from 'antd';
-import {fileToTimeLines, /* fileToBuffer */} from 'assets/js/pure-fn.js';
+import {fileToTimeLines, fileToBuffer} from 'assets/js/pure-fn.js';
 
 export default class {
 	// ▼拖入文件
@@ -53,7 +55,7 @@ export default class {
 			buffer: undefined,
 		};
 		this.state.oSectionTB.add(oSection);
-		this.init02();
+		this.getSctToStory(oStory.id);
 		message.success('保存完成');
 	}
 	// ▼【更新】章节
@@ -65,31 +67,37 @@ export default class {
 			audioFile: audioFile || oSct.audioFile,
 		};
 		this.state.oSectionTB.update(oSct.id, oSection);
-		this.init02();
+		this.getSctToStory();
 		message.success('保存完成');
 	}
-	
-	async trackInit(oStory, idx){
-		console.log('初始化', oStory, idx); //停用
-		// const {oStoryTB} = this.state;
-		// const oTrack = oStory.tracks[idx];
-		// const {srtFile, /* buffer, aLines, audioFile */} = oTrack;
-		// // if (audioFile) {
-		// // 	let obj = await fileToBuffer(audioFile);
-		// // 	console.log('拿到了：bufferOBJ', obj)
-		// // 	oTrack.buffer = obj;
-		// // }
-		// if (srtFile) {
-		// 	oTrack.aLines = await fileToTimeLines(srtFile);
-		// }
-		// oStoryTB.update(oStory.id, {tracks: oStory.tracks});
-		// this.toUpdata();
-		// console.log('成功保存了：', oStory);
+	// 给章节添加buffer
+	// 参数：故事，章节所在索引，章节对象
+	async getSectionBuffer(oStory, idx, oSct){
+		console.log('getSectionBuffer');
+		// console.log('故事，章节', oStory, oStory.aSections[idx]);
+		this.setState({
+			aStories: this.state.aStories.map(cur=>{
+				if (cur.id === oStory.id) Object.assign(
+					cur.aSections[idx], {isLoading: true, buffer: {}},
+				);
+				return cur;
+			}),
+		});
+		const buffer = await fileToBuffer(oSct.audioFile, true);
+		this.setState({
+			aStories: this.state.aStories.map(cur=>{
+				if (cur.id === oStory.id) Object.assign(
+					cur.aSections[idx], {isLoading: false, buffer},
+				);
+				return cur;
+			}),
+		});
+		// this.state.oSectionTB.update(oSct.id, {...oSct, buffer});
 	}
 	// ▼删除某章节
 	toDelSection(oSct){
 		this.state.oSectionTB.delete(oSct.id);
-		this.init02();
+		this.getSctToStory();
 	}
 	// ▼导出文件
 	toExport() {

@@ -24,17 +24,16 @@ export default class extends MyClass{
 	}
 	render(){
 		const {aStories, visible} = this.state;
-
 		return <cpnt.Outter className='center-box'>
-			{/* <cpnt.H1>历史记录</cpnt.H1> */}
 			<cpnt.BtnBar>
 				<em>历史记录</em>
 				<Button type="primary" onClick={()=>this.showModal()}>
 					新增
 				</Button>
 			</cpnt.BtnBar>
-			<cpnt.Empty_ visible={aStories.length}
-				image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE} 
+			<cpnt.Empty_ visible={aStories.length ? 0 : 1}
+				image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
+				description="暂无数据，请新增"
 			/>
 			<cpnt.Ul visible={aStories.length}>
 				{aStories.map((cur, idx)=>{
@@ -46,6 +45,8 @@ export default class extends MyClass{
 							<span>创建日期：{cur.createDate}</span>
 							&emsp;&emsp;&emsp;
 							<span>修改日期：{cur.modifyData}</span>
+							&emsp;&emsp;&emsp;
+							<span>备注：{cur.note || '暂无'}</span>
 						</div>
 						<div className="btn-wrap">
 							<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
@@ -61,41 +62,11 @@ export default class extends MyClass{
 								/>
 							</label>
 						</div>
-						<div>
-							<p>{cur.note || '暂无描述'}</p>
-							<cpnt.TrackList>
-								{(cur.aSections || []).map((oSct, idx02)=>{
-									return <li key={idx02}>
-										<h3>
-											{(oSct.audioFile || {}).name || '无音频'}
-										</h3>
-										<cpnt.BtnWrapInTrack className="btns" >
-											<label className="ant-btn ant-btn-link">
-												<span>导入</span>
-												<input type="file" style={{display: 'none'}} multiple="multiple"
-													onChange={ev=>this.toImport(ev, cur, oSct)}
-												/>
-											</label>
-											<Button type="link" onClick={()=>this.goTool(cur, idx02)} >
-												开始
-											</Button>
-											<Button type="link" onClick={()=>this.trackInit(cur, idx02)} >
-												初始化
-											</Button>
-											<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-												title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelSection(oSct)}
-											>
-												<Button type="link">删除</Button>
-											</Popconfirm>
-										</cpnt.BtnWrapInTrack>
-										{this.getTrackInfo(oSct)}
-									</li>
-								})}
-							</cpnt.TrackList>
-						</div>
+						{this.getSectionList(cur)}
 					</cpnt.OneItem>
 				})}
 			</cpnt.Ul>
+			{/* ▼弹出窗口 */}
 			<Modal title="新增" okText="保存" cancelText="关闭"
 				visible={visible}
 				onOk={()=>this.oForm.current.submit()}
@@ -116,39 +87,83 @@ export default class extends MyClass{
 			</Modal>
 		</cpnt.Outter>
 	}
-	async componentDidMount(){
-		await this.init();
-		this.init02();
-		const pushFiles = this.pushFiles.bind(this);
-		document.addEventListener("drop", pushFiles);		// ▼拖动释放
-		document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
-		document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
-		document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
+	// ▲render
+	// ▼章节列表
+	getSectionList(oStory){
+		const {aSections=[]} = oStory;
+		if (!aSections.length){
+			return <cpnt.Empty_ visible={1} description="暂无数据，请导入文件"
+				image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
+			/>
+		}
+		return <cpnt.SectionList>
+			{aSections.map((oSct, idx)=>{
+				return <li key={idx}>
+					<h3>
+						{(oSct.audioFile || {}).name || '无音频'}
+					</h3>
+					<cpnt.BtnWrapInTrack className="btns" >
+						<label className="ant-btn ant-btn-link">
+							<span>导入</span>
+							<input type="file" style={{display: 'none'}} multiple="multiple"
+								onChange={ev=>this.toImport(ev, oStory, oSct)}
+							/>
+						</label>
+						<Button type="link" onClick={()=>this.goTool(oStory, idx)} >
+							开始
+						</Button>
+						<Button type="link" onClick={()=>this.getSectionBuffer(oStory, idx, oSct)}>
+							初始化
+						</Button>
+						<Popconfirm placement="topRight" okText="删除" cancelText="取消"
+							title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelSection(oSct)}
+						>
+							<Button type="link">删除</Button>
+						</Popconfirm>
+					</cpnt.BtnWrapInTrack>
+					{this.getTrackInfo(oSct)}
+				</li>
+			})}
+		</cpnt.SectionList>
 	}
-	getTrackInfo(oTrack){
+	// ▼章节信息
+	getTrackInfo(oSct){
 		const {
 			audioFile, aLines=[],
 			buffer={}, srtFile={},
-		} = oTrack;
+			isLoading=false,
+		} = oSct;
 		const size = audioFile ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
 		const {duration=0} = buffer || {};
+		const nowState = (()=>{
+			if (duration) return <span><i className="fas fa-check-circle green"></i></span>;
+			if (isLoading) return <span><i className="fas fa-spinner fa-spin yellow"></i></span>;
+			return <span><i className="fas fa-exclamation-circle red"></i></span>;
+		})();
 		return <>
-			<p>
+			<cpnt.InfoBar>
 				体积：{size}MB&emsp;&emsp;
-				时长：{((duration / 60) || 0).toFixed(2)}分钟&emsp;&emsp;
-			</p>
+				时长：{buffer.sDuration_ || '未知'}&emsp;&emsp;
+				初始化：{nowState}
+			</cpnt.InfoBar>
 			<cpnt.InfoWrap>
 				<dt>字幕：</dt>
 				<dd>
 					{srtFile.name || '暂无'}
 				</dd>
-				<dt>初始化：</dt>
-				<dd>
-					{oTrack.buffer ? '完成' : '未完成'}
-				</dd>
-				<dt>字幕：</dt>
+				<dt>总数：</dt>
 				<dd>{aLines.length}句</dd>
 			</cpnt.InfoWrap>
 		</>
+	}
+	// ▼生命周期
+	async componentDidMount(){
+		await this.init();
+		this.getSctToStory();
+		const pushFiles = this.pushFiles.bind(this);
+		document.addEventListener("drop", pushFiles);		// ▼拖动释放
+		document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
+		document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
+		document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
 	}
 }

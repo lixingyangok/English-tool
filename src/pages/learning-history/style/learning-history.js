@@ -37,9 +37,9 @@ export const Ul = styled.ul`
 `;
 
 export const Empty_ = styled(Empty)`
-    display: ${props => !props.visible ? 'block' : 'none' };
-    padding: 10vh 0 10vh;
-    border: solid #ddd;
+    display: ${props => props.visible ? 'block' : 'none' };
+    /* padding: 10vh 0 10vh;
+    border: solid #ddd; */
     border-width: 1px 0;
 `;
 
@@ -48,12 +48,13 @@ export const OneItem = styled.li`
     border: solid #ccc;
     border-width: 1px 0 0;
     position: relative;
+    min-height: 150px;
     .my-title{
         margin: 0;
     }
     .info-bar{
         color: #aaa;
-        margin: 3px 0 20px;
+        margin: 5px 0 20px;
     }
     .btn-wrap{
         position: absolute;
@@ -65,7 +66,7 @@ export const OneItem = styled.li`
     }
 `;
 
-export const TrackList = styled.ul`
+export const SectionList = styled.ul`
     margin: 5px 0 0;
     line-height: 1.3;
     display: flex;
@@ -103,6 +104,18 @@ export const BtnWrapInTrack = styled.div`
         padding: 0;
         line-height: 20px;
         height: 20px;
+    }
+`;
+
+export const InfoBar = styled.p`
+    .red{
+        color: red;
+    }
+    .green{
+        color: green;
+    }
+    .yellow{
+        color: #e68205;
     }
 `;
 
