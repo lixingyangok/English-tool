@@ -58,6 +58,22 @@ export default class {
     ev.preventDefault();
     ev.stopPropagation();
   }
+  // ▼切换当前句子（上一句，下一句）
+  previousAndNext(iDirection, isNeedSave) {
+    const {iCurLine, aLines} = this.getCurStep(true);
+    if (iCurLine === 0 && iDirection === -1) return; //不可退
+    const iCurLineNew = iCurLine + iDirection;
+    let oNewItem = null;
+    if (iCurLineNew > aLines.length - 1) { //超出，需要新增
+      const {end} = aLines.last_;
+      oNewItem = this.fixTime({
+        start: end + 0.05,
+        end: end + 10,
+      });
+    };
+    if (isNeedSave && iCurLineNew % 2) this.toSave();
+    this.goLine(iCurLineNew, oNewItem);
+  }
   // ▼输入框文字改变
   valChanged(ev) {
     const newText = ev.target.value;
@@ -77,27 +93,12 @@ export default class {
     this.setState({aSteps});
     console.timeEnd('无新历史');
   }
-  // ▼切换当前句子（上一句，下一句）
-  previousAndNext(iDirection) {
-    const {iCurLine, aLines} = this.getCurStep(true);
-    if (iCurLine === 0 && iDirection === -1) return; //不可退
-    const iCurLineNew = iCurLine + iDirection;
-    let oNewItem = null;
-    if (iCurLineNew > aLines.length - 1) { //超出，需要新增
-      const {end} = aLines.last_;
-      oNewItem = this.fixTime({
-        start: end + 0.05,
-        end: end + 10,
-      });
-    };
-    this.goLine(iCurLineNew, oNewItem);
-  }
   // ▼按下回车键
   enterKeyDown(ev) {
     const {keyCode, altKey, ctrlKey, shiftKey} = ev;
     const willDo = keyCode === 13 && !altKey && !ctrlKey && !shiftKey;
     if (!willDo) return;
-    this.previousAndNext(1);
+    this.previousAndNext(1, true);
     ev.preventDefault();
     return false;
   }
@@ -169,7 +170,10 @@ export default class {
   }
   // ▼一刀两段
   split(){
-    const {selectionStart} = this.oTextArea.current;
+    const selectionStart = (
+      this.oTextArea.current.selectionStart ||
+      document.getElementById('myTextArea').selectionStart
+    );
     const {currentTime} = this.oAudio.current;
     const {oCurStepDc, iCurLine} = this.getCurStep();
     const oCurLine = this.getCurLine();

@@ -101,7 +101,7 @@ export default class extends MyClass{
 						{(oSct.audioFile || {}).name || '无音频'}
 					</h3>
 					<cpnt.BtnWrapInTrack className="btns">
-						<Button type="link" onClick={()=>this.getSectionBuffer(oStory, idx, oSct)}>
+						<Button type="link" onClick={()=>this.getSectionBuffer(oSct)}>
 							初始化
 						</Button>
 						<label className="ant-btn ant-btn-link">

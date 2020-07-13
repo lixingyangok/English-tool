@@ -3,8 +3,10 @@
  * @LastEditors: 李星阳
  * @Description: 
  */ 
+import {message} from 'antd';
 
 export default class{
+	message= message;
 	async init(){
 		const myDb = window.myDb = new window.Dexie("myDb");
 		myDb.version(1).stores({stories: '++id, name'});
@@ -73,6 +75,8 @@ export default class{
 		else oForm.resetFields();
 	};
 	goTool(oStory, oSct){
+		if (oSct.isLoading) return this.message.info('请等待初始化完成');
+		if (!oSct.aLines.length) return this.message.info('请导入字幕文件');
 		const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
 		this.props.history.push(sPath);
 	}

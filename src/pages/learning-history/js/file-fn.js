@@ -51,8 +51,9 @@ export default class {
 			audioFile: audioFile || undefined,
 			buffer: undefined,
 		};
-		this.state.oSectionTB.add(oSection);
-		this.getSctToStory(oStory.id);
+		const id = await this.state.oSectionTB.add(oSection);
+		await this.getSctToStory(oStory.id);
+		audioFile && this.getSectionBuffer({...oSection, id});
 		message.success('保存完成');
 	}
 	// ▼【更新】章节
@@ -65,30 +66,24 @@ export default class {
 			audioFile: audioFile || oSct.audioFile,
 		};
 		this.state.oSectionTB.update(oSct.id, oSection);
-		this.getSctToStory();
+		await this.getSctToStory(oSct.parent);
+		audioFile && this.getSectionBuffer(oSct);
 		message.success('保存完成');
 	}
 	// 给章节添加buffer
 	// 参数：故事，章节所在索引，章节对象
-	async getSectionBuffer(oStory, idx, oSct){
-		this.setState({
-			aStories: this.state.aStories.map(cur=>{
-				if (cur.id === oStory.id) Object.assign(
-					cur.aSections[idx], {isLoading: true, buffer: {}},
-				);
-				return cur;
-			}),
+	async getSectionBuffer(oSct){
+		const getStories = (isLoading, buffer) => this.state.aStories.map(cur=>{
+			if (cur.id === oSct.parent)  Object.assign(
+				cur.aSections.find(item=>item.id === oSct.id),
+				{isLoading, buffer},
+			);
+			return cur;
 		});
+		this.setState({aStories: getStories(true, {})});
 		const buffer = await fileToBuffer(oSct.audioFile, true);
-		this.setState({
-			aStories: this.state.aStories.map(cur=>{
-				if (cur.id === oStory.id) Object.assign(
-					cur.aSections[idx], {isLoading: false, buffer},
-				);
-				return cur;
-			}),
-		});
-		this.state.oSectionTB.update(oSct.id, {...oSct, buffer});
+		this.setState({aStories: getStories(false, buffer)});
+		this.state.oSectionTB.update(oSct.id, {buffer});
 	}
 	// ▼删除某章节
 	toDelSection(oSct){

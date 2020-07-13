@@ -13,17 +13,16 @@ const MyClass = window.mix(
   React.Component,
   coreFn, keyDownFn, MouseFn, fileFn,
 );
-
-
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
 export default class Tool extends MyClass {
-  oCanvas = React.createRef();
   oAudio = React.createRef();
-  oWaveWrap = React.createRef();
+  oCanvas = React.createRef();
   oPointer = React.createRef();
-  oSententList = React.createRef();
+  oWaveWrap = React.createRef();
   oTextArea = React.createRef();
+  oSententList = React.createRef();
+
   state = {
     buffer: {}, //音频数据
     aPeaks: [], //波形数据
@@ -117,10 +116,12 @@ export default class Tool extends MyClass {
       <cpnt.InputWrap>
         {(() => {
           if (!aLines[iCurLine]) return <span />;
+          // innerRef={dom => this.oTextArea = dom}
           return <TextArea value={(aLines[iCurLine] || {}).text}
             ref={this.oTextArea}
-            onChange={(ev) => this.valChanged(ev)}
-            onKeyDown={(ev) => this.enterKeyDown(ev)}
+            id="myTextArea"
+            onChange={ev => this.valChanged(ev)}
+            onKeyDown={ev => this.enterKeyDown(ev)}
           />;
         })()}
       </cpnt.InputWrap>
