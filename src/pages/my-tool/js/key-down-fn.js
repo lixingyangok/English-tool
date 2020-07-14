@@ -71,7 +71,7 @@ export default class {
         end: end + 10,
       });
     };
-    if (isNeedSave && iCurLineNew % 3 == 0) this.toSave();
+    if (isNeedSave && iCurLineNew % 3 === 0) this.toSave();
     this.goLine(iCurLineNew, oNewItem);
   }
   // ▼输入框文字改变
