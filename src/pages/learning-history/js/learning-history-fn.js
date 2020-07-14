@@ -76,7 +76,8 @@ export default class{
 	};
 	goTool(oStory, oSct){
 		if (oSct.isLoading) return this.message.info('请等待初始化完成');
-		if (!oSct.aLines.length) return this.message.info('请导入字幕文件');
+		// ▼没字幕也能跳转，从头开始听写
+		// if (!oSct.aLines.length) return this.message.info('请导入字幕文件'); 
 		const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
 		this.props.history.push(sPath);
 	}

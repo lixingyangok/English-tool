@@ -172,12 +172,10 @@ export const SentenceWrap = styled.ol`
 	margin: 0;
 	border-bottom: solid 1px #aaa;
 	.one-line{
-		line-height: 2.5;
 		border: solid #aaa;
 		border-width: 1px 0 0;
-		padding: 0 10px;
 		display: flex;
-		font-size: 15px;
+		font-size: 16px;
 		&[class~=cur],
 		&:hover{
 			background: #ceffe7;
@@ -191,16 +189,30 @@ export const SentenceWrap = styled.ol`
 		flex: none;
 		font-style: normal;
 		text-align: center;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-width: 2em;
 	}
 	.time{
 		flex: none;
-		border: solid 1px #aaa;
+		border: solid #aaa;
 		border-width: 0 1px;
-		padding: 0 0.6em;
-		margin: 0 0.6em;
+		margin: 0 0.6em 0 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 0 10px;
 		em{
 			font-style: normal;
 		}
+	}
+	.the-text{
+		min-height: 1.3em;
+		line-height: 1.3;
+		margin: 0 10px 0 0;
+		padding: 0.6em 0;
+		box-sizing: content-box;
 	}
 `;
 
@@ -217,4 +229,17 @@ export const Steps = styled.ul`
 	.cur{
 		background: yellow;
 	}
+`;
+
+export const TextBox = styled.div`
+	padding: 20px 0;
+	span{
+		background: yellow;
+		padding: 3px 8px;
+		margin: 0 5px 0 0;
+	}
+	.cur{
+		background: pink;
+	}
+
 `;

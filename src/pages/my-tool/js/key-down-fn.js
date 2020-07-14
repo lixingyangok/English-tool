@@ -105,7 +105,10 @@ export default class {
   // ▼删除某条
   toDel() {
     const {oCurStepDc, iCurLine} = this.getCurStep();
+    if (oCurStepDc.aLines.length<=1) return;
     oCurStepDc.aLines.splice(iCurLine, 1);
+    const iMax = oCurStepDc.aLines.length-1;
+    if (oCurStepDc.iCurLine >= iMax) oCurStepDc.iCurLine = iMax;
     this.setCurStep(oCurStepDc);
   }
   // ▼保存字幕到浏览器
@@ -142,7 +145,6 @@ export default class {
   // ▼重新定位起点，终点
   cutHere(sKey){
     const oAudio = this.oAudio.current;
-    console.log(sKey, oAudio.currentTime);
     this.setTime(sKey, oAudio.currentTime);
   }
   // ▼合并
@@ -194,9 +196,13 @@ export default class {
   }
   // ▼撤销-恢复
   setHistory(iType){
-    const {aSteps:{length}} = this.state;
+    const {aSteps, aSteps:{length}} = this.state;
     let iCurStep = this.state.iCurStep + iType;
-    if (iCurStep < 0 || iCurStep > length - 1) return;
+    if (iCurStep < 0 || iCurStep > length - 1) {
+      const actionName = {'-1': '上', '1': '下'}[iType];
+      return this.message.error(`没有${actionName}一步数据，已经到头了`);
+    }
+    console.log('历史', aSteps.map(cur=>cur.aLines));
     console.log('新位置：', iCurStep);
     this.setState({iCurStep});
   }

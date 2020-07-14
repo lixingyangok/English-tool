@@ -22,7 +22,6 @@ export default class Tool extends MyClass {
   oWaveWrap = React.createRef();
   oTextArea = React.createRef();
   oSententList = React.createRef();
-
   state = {
     buffer: {}, //音频数据
     aPeaks: [], //波形数据
@@ -41,7 +40,7 @@ export default class Tool extends MyClass {
     playing: false, //是否在播放中（用于控制指针显示
     aSteps: [{ //历史记录
       iCurLine: 0, // 当前所在行
-      aLines: [[oFirstLine]], //字幕
+      aLines: [oFirstLine.dc_], //字幕
     }],
     iCurStep: 0, //当前步骤
     oTarget: {}, // 故事信息如：故事id、章节id
@@ -80,12 +79,9 @@ export default class Tool extends MyClass {
       <Spin spinning={this.state.loading} size="large"/>
       <cpnt.WaveBox>
         <canvas height={iCanvasHeight} ref={this.oCanvas}/>
-        <cpnt.WaveWrap ref={this.oWaveWrap}
-          onScroll={() => this.onScrollFn()}
-        >
+        <cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
           <cpnt.TimeBar style={{width: `${fPerSecPx * duration}px`}}
-            onContextMenu={ev => this.clickOnWave(ev)}
-            onMouseDown={ev=>this.mouseDownFn(ev)}
+            onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
           >
             <cpnt.MarkWrap>
               {[...Array(~~duration).keys()].map((cur, idx) => {
@@ -99,6 +95,7 @@ export default class Tool extends MyClass {
             <cpnt.RegionWrap>
               <i ref={this.oPointer} className={"pointer " + (playing ? 'playing' : '')} />
               {aLines.map(({start, long}, idx) => {
+                // console.log(start, long);
                 return <span key={idx} className={idx === iCurLine ? "cur region" : "region"}
                   style={{left: `${start * fPerSecPx}px`, width: `${long * fPerSecPx}px`}}
                 >
@@ -109,6 +106,15 @@ export default class Tool extends MyClass {
           </cpnt.TimeBar>
         </cpnt.WaveWrap>
       </cpnt.WaveBox>
+      <cpnt.TextBox>
+        {aSteps.map((cur,idx)=>{
+          return <span key={idx} className={iCurStep === idx ? 'cur' : ''} 
+            onClick={()=>console.log('步骤',idx, cur)}
+          >
+            {idx}
+          </span>
+        })}
+      </cpnt.TextBox>
       {/* 分界 */}
       <Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
       {/* 分界 */}
@@ -137,7 +143,7 @@ export default class Tool extends MyClass {
             <span className="time">
               <em>{cur.start_}</em>&nbsp;-&nbsp;<em>{cur.end_}</em>
             </span>
-            {cur.text}
+            <p className="the-text" >{cur.text}</p>
           </li>;
         })}
       </cpnt.SentenceWrap>
@@ -189,7 +195,7 @@ export default class Tool extends MyClass {
       }),
     };
     const fileSrc = URL.createObjectURL(oSct.audioFile);
-    aSteps.last_.aLines = oSct.aLines; //字幕    
+    if (oSct.aLines.length) aSteps.last_.aLines = oSct.aLines; //字幕
     this.setState({fileSrc, buffer, aSteps, oStory, oSct});
     this.bufferToPeaks();
   }
