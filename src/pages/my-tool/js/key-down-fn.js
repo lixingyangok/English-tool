@@ -71,7 +71,7 @@ export default class {
         end: end + 10,
       });
     };
-    if (isNeedSave && iCurLineNew % 2) this.toSave();
+    if (isNeedSave && iCurLineNew % 3 == 0) this.toSave();
     this.goLine(iCurLineNew, oNewItem);
   }
   // ▼输入框文字改变
@@ -110,6 +110,7 @@ export default class {
     const iMax = oCurStepDc.aLines.length-1;
     if (oCurStepDc.iCurLine >= iMax) oCurStepDc.iCurLine = iMax;
     this.setCurStep(oCurStepDc);
+    this.goToCurLine();
   }
   // ▼保存字幕到浏览器
   async toSave() {
@@ -196,15 +197,14 @@ export default class {
   }
   // ▼撤销-恢复
   setHistory(iType){
-    const {aSteps, aSteps:{length}} = this.state;
+    const {aSteps:{length}} = this.state;
     let iCurStep = this.state.iCurStep + iType;
     if (iCurStep < 0 || iCurStep > length - 1) {
       const actionName = {'-1': '上', '1': '下'}[iType];
       return this.message.error(`没有${actionName}一步数据，已经到头了`);
     }
-    console.log('历史', aSteps.map(cur=>cur.aLines));
-    console.log('新位置：', iCurStep);
     this.setState({iCurStep});
+    this.goToCurLine();
   }
   // ▼插入一句。 参数说明：-1=向左，1=向右
   toInsert(iDirection){
@@ -228,10 +228,11 @@ export default class {
     this.setState({playing: false});
   }
   getLineAndGo(){
+		const {aLines, iCurLine} = this.getCurStep(true);
+    let idx = aLines.findIndex(cur => cur.text.length <= 1);
+    if (idx === -1 || idx === iCurLine) idx = aLines.length - 1;
+    this.goLine(idx);
     document.querySelectorAll('textarea')[0].focus();
-		const {aLines} = this.getCurStep(true);
-		const idx = aLines.findIndex(cur=>cur.text.length<=1);
-		this.goLine(idx);
 	}
 }
 

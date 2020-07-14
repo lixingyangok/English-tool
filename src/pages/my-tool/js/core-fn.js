@@ -1,13 +1,17 @@
 import { message } from 'antd';
 
 export default class {
-	message = message;
+    message = message;
+    goToCurLine(){
+        const {iCurLine} = this.getCurStep();
+        this.goLine(iCurLine, false, true);
+    }
 	// ▼跳至某行
 	async goLine(idx, oNewLine, doNotSave) {
 		const oWaveWrap = this.oWaveWrap.current;
 		const { scrollLeft, offsetWidth } = oWaveWrap;
 		const { fPerSecPx } = this.state;
-		const { start, end, long } = this.getCurLine(idx);
+		const { start, end, long } = oNewLine || this.getCurLine(idx);
 		if (
 			(start * fPerSecPx < scrollLeft) || //【起点】超出可视区
 			(end * fPerSecPx > scrollLeft + offsetWidth) //【终点】超出可视区
@@ -27,7 +31,8 @@ export default class {
 			return oneLineHeight * (idx - 2);
 		})();
 		oSententList.scrollTo(0, fHeight);
-		// 
+        // 
+        if (doNotSave) return;
 		const { oCurStepDc } = this.getCurStep();
 		oCurStepDc.iCurLine = idx;
 		if (oNewLine) oCurStepDc.aLines.push(oNewLine);

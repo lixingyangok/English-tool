@@ -176,10 +176,12 @@ export const SentenceWrap = styled.ol`
 		border-width: 1px 0 0;
 		display: flex;
 		font-size: 16px;
-		&[class~=cur],
-		&:hover{
+		cursor: pointer;
+		&[class~=cur]{
 			background: #ceffe7;
-			cursor: pointer;
+		}
+		&:hover{
+			background: #9de3c1;
 		}
 		&:last-child{
 			border-width: 1px 0;
