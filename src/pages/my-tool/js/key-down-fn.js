@@ -60,44 +60,66 @@ export default class {
   }
   // ▼切换当前句子（上一句，下一句）
   previousAndNext(iDirection, isNeedSave) {
-    const {buffer, iPerSecPx, fPerSecPx} = this.state;
     const {iCurLine, aLines} = this.getCurStep(true);
     if (iCurLine === 0 && iDirection === -1) return; //不可退
     const iCurLineNew = iCurLine + iDirection;
     let oNewItem = null;
     if (iCurLineNew > aLines.length - 1) { //超出，需要新增
       const {end} = aLines.last_;
-      const iPeakStart = ~~(fPerSecPx * end);
-      const {aPeaks} = this.getPeaks(
-        buffer, iPerSecPx, iPeakStart, iPerSecPx * 15, //15秒
-      );
-      console.log('波形', aPeaks);
+      const newStart = end + this.figureOut(end);
       oNewItem = this.fixTime({
-        start: end + 0.05,
-        end: end + 10,
+        start: newStart,
+        end: newStart + 10,
       });
     };
     if (isNeedSave && iCurLineNew % 3 === 0) this.toSave();
     this.goLine(iCurLineNew, oNewItem);
   }
+  // ▼能加断句
+  figureOut(fEndSec){
+    const {buffer, iPerSecPx, fPerSecPx, iHeight} = this.state;
+    const iPeakStart = ~~(fPerSecPx * fEndSec);
+    const {aPeaks} = this.getPeaks(
+      buffer, iPerSecPx, iPeakStart, iPerSecPx * 15, //15秒
+    );
+    let myArr = [];
+    for (let idx = 0; idx< aPeaks.length; idx+=2) {
+      const val = (aPeaks[idx] - aPeaks[idx+1]) * iHeight;
+      myArr.push(val);
+    }
+    console.log('波形', aPeaks);
+    console.log('波形2', myArr);
+    let begin = 0;
+    let step = 15; //采样跨度
+    let hight = 10;
+    for (let idx = 0; idx < myArr.length; idx += step){
+      const val = myArr.slice(idx, idx+step).reduce((result, cur)=>result+cur, 0) / step;
+      const val02 = myArr.slice(idx+step, idx+step+step).reduce((result, cur)=>result+cur, 0) / step;
+      if (idx === 0 && val > hight && val02 > hight) return 0;
+      if (val < hight && val02 > hight) {
+        begin = idx - step / 4;
+        break;
+      }
+      // console.log(`步${idx}平均值`, ~~val, ~~val02);
+    }
+    // myArr = Int16Array.from(myArr.map(xx => Math.round(xx)));
+    // console.log('起点', begin, begin / fPerSecPx);
+    return begin / fPerSecPx; //返回起点
+  }
   // ▼输入框文字改变
   valChanged(ev) {
     const newText = ev.target.value;
     if (newText.endsWith(' ')){ //如果输入了空格，那么生成一条新记录
-      console.time('有了新历史');
       const oCurLine = this.getCurLine();
       const oCurLineDc = oCurLine.dc_;
       oCurLineDc.text = newText;
       this.setCurLine(oCurLineDc);
-      console.timeEnd('有了新历史');
       return;
     }
-    console.time('无新历史');
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
     aSteps[iCurStep].aLines[iCurLine].text = newText;
     this.setState({aSteps});
-    console.timeEnd('无新历史');
   }
   // ▼按下回车键
   enterKeyDown(ev) {
