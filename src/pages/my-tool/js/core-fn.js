@@ -26,10 +26,10 @@ export default class {
 		}
 		// ▲波形定位，▼下方句子定位
 		const oSententList = this.oSententList.current;
-		const fHeight = (() => {
-			const oneLineHeight = (oSententList.children[0] || {}).offsetHeight || 0;
-			return oneLineHeight * (idx - 2);
-		})();
+		const fHeight = [...oSententList.children].reduce((result, cur, iLineIdx)=>{
+			if (iLineIdx + 2 >= idx) return result;
+			return result + cur.offsetHeight;
+		}, 0);
 		oSententList.scrollTo(0, fHeight);
         // 
         if (doNotSave) return;
@@ -54,8 +54,8 @@ export default class {
 		const oCanvas = this.oCanvas.current;
 		const Context = oCanvas.getContext('2d');
 		const halfHeight = oCanvas.height / 2;
-		let idx = 0;
 		const fCanvasWidth = aPeaks.length / 2;
+		let idx = 0;
 		Context.fillStyle = '#55c655';
 		while (idx < fCanvasWidth) {
 			const cur1 = aPeaks[idx * 2] * iHeight;
@@ -77,7 +77,7 @@ export default class {
 		console.log(11);
 		const Audio = this.oAudio.current;
 		const { style } = this.oPointer.current;
-		const fStartTime = start + (isFromHalf ? long / 2 : 0);
+		const fStartTime = start + (isFromHalf ? long * 0.4 : 0);
 		style.left = `${fStartTime * fPerSecPx}px`;
 		Audio.currentTime = fStartTime;
 		Audio.play();

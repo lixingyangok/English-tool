@@ -59,7 +59,8 @@ export default class {
   // buffer.numberOfChannels  // 通道数：整形
   // ▼计算波峰、波谷
   getPeaks(buffer, iPerSecPx, left=0, iCanvasWidth=500) {
-    const oChannel = buffer.aChannelData_ || buffer.getChannelData(0);
+    console.time('getPeaks 耗时');
+    const aChannel = buffer.aChannelData_ || buffer.getChannelData(0);
     const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
     const aPeaks = [];
     let idx = left;
@@ -70,19 +71,19 @@ export default class {
       let min = 0;
       let max = 0;
       while (start < end) {
-        const value = oChannel[start];
+        const value = aChannel[start];
         if (value > max) max = value;
         else if (value < min) min = value;
         start++;
       }
-      aPeaks[2 * idx] = max; // 波峰
-      aPeaks[2 * idx + 1] = min; // 波谷
+      aPeaks.push(max, min);
       idx++;
     }
+    console.timeEnd('getPeaks 耗时');
     return {
+      aPeaks,
+      duration: buffer.duration, // todo 将来可能不需要在这里返回，这东西万年不变
       fPerSecPx: buffer.length / sampleSize / buffer.duration,
-      aPeaks: aPeaks.slice(left*2),
-      duration: buffer.duration,
     };
   }
   // ▼从文件得到 buffer 数据

@@ -15,7 +15,7 @@ export default class {
       'ctrl + s': () => this.toSave(), //保存到浏览器
       'ctrl + shift + s': () => this.toSave(), // ★导出到本地
       'ctrl + z': () => this.setHistory(-1), //撤销
-      'ctrl + Enter': () => this.toPlay(), //播放
+      'ctrl + Enter': () => this.toPlay(true), //播放
       'ctrl + Delete': () => this.toDel(), //删除
       'ctrl + j': () => this.putTogether('prior'), // 合并上一句
       'ctrl + k': () => this.putTogether('next'), // 合并下一句
@@ -60,12 +60,18 @@ export default class {
   }
   // ▼切换当前句子（上一句，下一句）
   previousAndNext(iDirection, isNeedSave) {
+    const {buffer, iPerSecPx, fPerSecPx} = this.state;
     const {iCurLine, aLines} = this.getCurStep(true);
     if (iCurLine === 0 && iDirection === -1) return; //不可退
     const iCurLineNew = iCurLine + iDirection;
     let oNewItem = null;
     if (iCurLineNew > aLines.length - 1) { //超出，需要新增
       const {end} = aLines.last_;
+      const iPeakStart = ~~(fPerSecPx * end);
+      const {aPeaks} = this.getPeaks(
+        buffer, iPerSecPx, iPeakStart, iPerSecPx * 15, //15秒
+      );
+      console.log('波形', aPeaks);
       oNewItem = this.fixTime({
         start: end + 0.05,
         end: end + 10,
