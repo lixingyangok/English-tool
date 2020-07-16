@@ -19,7 +19,7 @@ export default class {
 			const leftVal = (() => {
 				const startPx = fPerSecPx * start;
 				const restPx = offsetWidth - long * fPerSecPx;
-				if (restPx <= 0) return startPx - 20;
+				if (restPx <= 0) return startPx - 100; //100表示起点距离左边100
 				return startPx - restPx / 2;
 			})();
 			oWaveWrap.scrollTo(leftVal, 0);
