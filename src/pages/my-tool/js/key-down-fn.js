@@ -299,9 +299,16 @@ export default class {
   toInset(idx){
     const {sTyped} = this.state;
     const arr = this.getWordsList(sTyped, true);
-    console.log('第几个？', idx);
-    console.log(sTyped, '---', arr);
-    console.log('选择',arr[idx-1]);
+    const theWord = arr[idx-1];
+    if (!theWord) return;
+    const cursorIdx = document.getElementById('myTextArea').selectionStart;
+    const {dc_: oCurLine, text} = this.getCurLine();
+    const [left, right] = [text.slice(0, cursorIdx+1), text.slice(cursorIdx)]
+    oCurLine.text = left + theWord + right
+    console.log('oCurLine', oCurLine);
+    console.log('左右', left, right);
+    console.log('结合', left + theWord + right);
+    this.setCurLine(oCurLine);
   }
   chooseMore(){
     console.log('扩');
