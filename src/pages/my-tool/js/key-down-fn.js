@@ -93,13 +93,13 @@ export default class {
     let myArr = [];
     for (let idx = 0; idx< aPeaks.length; idx+=2) {
       const val = (aPeaks[idx] - aPeaks[idx+1]) * iHeight;
-      myArr.push(val);
+      myArr.push(~~val);
     }
     console.log('波形', aPeaks);
     console.log('波形2', myArr);
     let begin = 0;
     let step = 15; //采样跨度
-    let hight = 10;
+    let hight = 10; //高度阈值
     for (let idx = 0; idx < myArr.length; idx += step){
       const val = myArr.slice(idx, idx+step).reduce((result, cur)=>result+cur, 0) / step;
       const val02 = myArr.slice(idx+step, idx+step+step).reduce((result, cur)=>result+cur, 0) / step;

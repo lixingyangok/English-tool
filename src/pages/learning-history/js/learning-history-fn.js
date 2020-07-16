@@ -59,7 +59,7 @@ export default class{
 		}else{
 			delete oForm.id;
 			oForm.createDate = sTime;
-			oForm.aSections = [];
+			oForm.aWords = [];
 			oStoryTB.add(oForm);
 		}
 		this.toUpdata();

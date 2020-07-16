@@ -72,7 +72,7 @@ export default class {
 		if (this.state.drawing) return; //防抖
 		const {iPerSecPx: perSecPxOld, fPerSecPx, buffer} = this.state;
 		const {deltaY, clientX = window.innerWidth / 2} = ev;
-		const [min, max, iStep] = [10, 250, 20]; //每秒最小/大宽度（px）
+		const [min, max, iStep] = [10, 350, 20]; //每秒最小/大宽度（px）， 变化步伐
 		if ((perSecPxOld<=min && deltaY>=0) || (perSecPxOld>=max && deltaY<=0)){
 			return this.setState({drawing: false});
 		}

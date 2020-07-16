@@ -75,7 +75,7 @@ export default class Tool extends MyClass {
     const {
       aSteps, iCurStep, iCanvasHeight,
       duration, fileSrc, playing, fPerSecPx,
-      aWords, sTyped,
+      /* aWords, */ sTyped,
     } = this.state;
     const {aLines, iCurLine} = aSteps[iCurStep];
     return <cpnt.Div>
