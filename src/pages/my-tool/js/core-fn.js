@@ -104,7 +104,7 @@ export default class {
 	// ▼设定时间。1参是类型，2参是秒数
 	setTime(sKey, fVal) {
 		const oCurLine = this.getCurLine().dc_;
-		const { start, end } = oCurLine;
+		const {start, end} = oCurLine;
 		if (sKey === 'start' && fVal > end) { //起点在终点右侧
 			oCurLine.start = end;
 			oCurLine.end = fVal;

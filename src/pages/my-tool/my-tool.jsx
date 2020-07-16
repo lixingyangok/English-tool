@@ -1,6 +1,6 @@
 import React from "react";
 import * as cpnt from "./style/my-tool-style.js";
-import {Spin, Input} from "antd";
+import {Spin, Input, Popconfirm} from "antd";
 import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
@@ -33,7 +33,7 @@ export default class Tool extends MyClass {
     fileSrcFull: "", //文件地址2
     iHeight: 0.3, // 波形高
     iCanvasHeight: cpnt.iCanvasHeight, //画布高
-    iPerSecPx: 55, //人为定义的每秒像素数
+    iPerSecPx: 55, //人为定义的每秒像素数，每秒宽度
     fPerSecPx: 0, //实际每秒像素数
     drawing: false, //是否在绘制中（用于防抖
     loading: false, //是否在加载中（解析文件
@@ -75,7 +75,7 @@ export default class Tool extends MyClass {
     const {
       aSteps, iCurStep, iCanvasHeight,
       duration, fileSrc, playing, fPerSecPx,
-      /* aWords, */ sTyped,
+      /* aWords, */ sTyped, 
     } = this.state;
     const {aLines, iCurLine} = aSteps[iCurStep];
     return <cpnt.Div>
@@ -110,6 +110,7 @@ export default class Tool extends MyClass {
           </cpnt.TimeBar>
         </cpnt.WaveWrap>
       </cpnt.WaveBox>
+
       <cpnt.TextBox>
         {aSteps.map((cur,idx)=>{
           return <span key={idx} className={iCurStep === idx ? 'cur' : ''} 
@@ -158,32 +159,33 @@ export default class Tool extends MyClass {
   }
   // ▲render
   getInfoBar(){
-    const {oStory, oSct, buffer} = this.state;
+    const {oStory, oSct, buffer, iPerSecPx} = this.state;
     if (!Object.keys(oSct).length) return;
     const {aLines=[], audioFile={}, srtFile={}} = oSct;
     return <cpnt.InfoBar>
       <span>故事：{oStory.name}</span>
       <span>音频：{audioFile.name}</span>
       <span>时长：{buffer.sDuration_}</span>
-      <span>字幕：{srtFile.name}</span>
-      <span>句子数量：{aLines.length || 0}句</span>
-      <span onClick={()=>this.getLineAndGo()} >最后一行</span>
+      <span>字幕：{srtFile.name || '无'}</span>
+      <span>共计：{aLines.length || 0}句</span>
+      <span>每秒：{iPerSecPx}px</span>
     </cpnt.InfoBar>
   }
   getWordsList(sTyped='', getArr=false){
     const {aWords} = this.state;
     const aMatched = (()=>{
       if (!sTyped) return aWords;
-      return aWords.filter((cur='')=>{
-        return cur.toLocaleLowerCase().startsWith(sTyped.toLocaleLowerCase());
-      })
+      return aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped.toLocaleLowerCase()));
     })();
     if (getArr) return aMatched;
-    // this.setState({aMatched});
     return aMatched.map((cur, idx)=>{
-      return <span key={idx} onClick={()=>this.delWord(cur)} >
-        <small>{idx+1}</small><em>{cur}</em>
-      </span>
+      return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
+        onConfirm={()=>this.delWord(cur)} key={idx}
+      >
+        <i className="idx" >{idx+1}</i>
+        <mark className="word">{sTyped}</mark>
+        <em className="word">{cur.slice(sTyped.length)}</em>
+      </Popconfirm>
     });
   }
   // ▼以下是生命周期

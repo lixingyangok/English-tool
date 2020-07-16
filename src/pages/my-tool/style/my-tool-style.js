@@ -158,25 +158,31 @@ export const InputWrap = styled.div`
 
 export const Words = styled.div`
 	display: flex;
-	margin: 0 0 15px;
-	min-height: 23px;
+	margin: -3px 0 18px;
+	min-height: 30px;
 	overflow: hidden;
 	span{
 		margin-right: 15px;
 	}
-	small{
+	.idx{
 		display: inline-block;
-		width: 15px;
-		height: 15px;
+		width: 16px;
+		height: 16px;
 		text-align: center;
-		line-height: 15px;
+		line-height: 13px;
 		border-radius: 100px;
 		background: blue;
-		margin-right: 3px;
+		margin-right: 5px;
 		color: white;
+		font-size: 16px;
 	}
-	em{
+	.word{
 		color: black;
+		font-size: 18px;
+		padding: 0;
+	}
+	mark{
+		background: yellow;
 	}
 `;
 

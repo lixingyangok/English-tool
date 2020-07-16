@@ -1,10 +1,11 @@
 import keyMap from './key-map.js';
 
+
 export default class {
   getFn(keyStr){
     const type01 = { //单键系列
-      '`': () => this.toPlay(true),
-      'Tab': () => this.toPlay(),
+      '`': () => this.toPlay(true), //播放
+      'Tab': () => this.toPlay(), //播放
       'Prior': () => this.previousAndNext(-1),
       'Next': () => this.previousAndNext(1),
       'F1': ()=>this.cutHere('start'),
@@ -12,24 +13,19 @@ export default class {
     };
     const type02 = { // ctrl 系列
       'ctrl + d': () => this.toDel(), //删除
-      'ctrl + s': () => this.toSave(), //保存到浏览器
-      'ctrl + shift + s': () => this.toSave(), // ★导出到本地
       'ctrl + z': () => this.setHistory(-1), //撤销
-      'ctrl + Enter': () => this.toPlay(true), //播放
-      'ctrl + Delete': () => this.toDel(), //删除
+      'ctrl + s': () => this.toSave(), //保存到浏览器
       'ctrl + j': () => this.putTogether('prior'), // 合并上一句
       'ctrl + k': () => this.putTogether('next'), // 合并下一句
+      'ctrl + Enter': () => this.toPlay(true), //播放
       'ctrl + shift + z': () => this.setHistory(1), //恢复
       'ctrl + shift + c': () => this.split(), //分割
+      'ctrl + shift + s': () => this.toExport(), // 导出到本地
     };
     const type03 = { // alt 系列
       'alt + j': () => this.previousAndNext(-1),
       'alt + k': () => this.previousAndNext(1),
       'alt + l': () => this.getLineAndGo(), // 跳到最后一句 l = last
-      'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
-      'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
-      'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
-      'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
       'alt + ,': () => this.zoomWave({deltaY: 1}), //波形横向缩放
       'alt + .': () => this.zoomWave({deltaY: -1}), //波形横向缩放
       'alt + u': () => this.fixRegion('start', -0.07), //起点向左
@@ -37,18 +33,22 @@ export default class {
       'alt + n': () => this.fixRegion('end', -0.07), //终点向左
       'alt + m': () => this.fixRegion('end', 0.07), //终点向右
       'alt + s': () => this.toStop(), //停止播放
-      'alt + w': () => this.saveWord(), //停止播放
-      'alt + number': number => this.toInset(number), //取词
       'alt + ]': () => this.chooseMore(), //扩选
+      'alt + number': number => this.toInset(number), //取词
+      'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
+      'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
+      'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
+      'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
+      'alt + shift + d': () => this.saveWord(), //保存单词到DB
     }
     const fnLib = {...type01, ...type02, ...type03};
     let fn = fnLib[keyStr];
     if (!fn) {
-      const isMatch = keyStr.match(/alt \+ \d/g);
-      if (isMatch && isMatch.length) {
-        return type03['alt + number'].bind(this, keyStr.slice(-1)[0]);
-      }
-      return false;
+      const isMatch = keyStr.match(/alt \+ [\dqwer]/);
+      if (!isMatch) return false; //没有相关方法
+      const last = keyStr.slice(-1);
+      const number = {q:1, w:2, e:3, r:4}[last];
+      return type03['alt + number'].bind(this, number || last);
     }
     return fn.bind(this);
   }
@@ -114,26 +114,27 @@ export default class {
   }
   // ▼输入框文字改变
   valChanged(ev) {
-    const newText = ev.target.value;
-    if (newText.endsWith(' ')){ //如果输入了空格，那么生成一条新记录
-      const oCurLine = this.getCurLine();
-      const oCurLineDc = oCurLine.dc_;
-      oCurLineDc.text = newText;
+    const sText = ev.target.value;
+    let sTyped = ''; //用于搜索的
+    if (sText.match(/.+[^a-z]$/)){ //如果最后的字母不是英文字母，不生成新历史
+      const oCurLineDc = this.getCurLine().dc_;
+      oCurLineDc.text = sText;
       this.setCurLine(oCurLineDc);
+      this.setState({sTyped});
       return;
     }
     const {selectionStart: idx} = ev.target;
-    const sLeft = newText.slice(0, idx) || '';
-    const sRight = newText.slice(idx) || '';
+    const sLeft = sText.slice(0, idx) || '';
+    const sRight = sText.slice(idx) || '';
     const needToCheck = (
       (/\s+[a-z]{1,5}$/i.test(sLeft) || /^[a-z]{1,5}$/i.test(sLeft)) &&
       (!sRight || /^\s+/.test(sRight))
     );
-    let sTyped = '';
-    if (needToCheck) sTyped = (' ' + sLeft).match(/\s[a-z]+/gi).pop().slice(1);
+    console.log('搜索吗？', needToCheck, sLeft);
+    if (needToCheck) sTyped = (' ' + sLeft).match(/\s[a-z]+$/gi).pop().slice(1);
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
-    aSteps[iCurStep].aLines[iCurLine].text = newText;
+    aSteps[iCurStep].aLines[iCurLine].text = sText;
     this.setState({aSteps, sTyped});
   }
   // ▼按下回车键
@@ -172,8 +173,9 @@ export default class {
   }
   // ▼微调区域（1参可能是 start、end
   fixRegion(sKey, iDirection) {
-    const {iCurLine, aLines} = this.getCurStep();
-    const oOld = this.getCurLine();
+    const {iCurLine, aLines} = this.getCurStep(true);
+    const oOld = aLines[iCurLine];
+    // const oOld = this.getCurLine();
     const previous = aLines[iCurLine - 1];
     const next = aLines[iCurLine + 1];
     let fNewVal = oOld[sKey] + iDirection;
@@ -277,14 +279,16 @@ export default class {
     this.goLine(idx);
     document.querySelectorAll('textarea')[0].focus();
   }
+  // ▼保存生词到本地
   saveWord(){
     const {oStoryTB, oStory} = this.state;
-    const sWord = window.getSelection().toString().trim(); 
+    const sWord = window.getSelection().toString().trim();
     const aWords = oStory.aWords || [];
-    aWords.includes(sWord) || aWords.push(sWord);
-    oStoryTB.update(oStory.id, {aWords}); //增量更新
-    this.message.success(`保存成功`);
+    if ((sWord.length<2 || sWord.length>20) || aWords.includes(sWord)) return; //不要重复保存
+    aWords.push(sWord);
+    oStoryTB.update(oStory.id, {aWords}); //增量更新本地数据
     this.setState({aWords});
+    this.message.success(`保存成功`);
   }
   delWord(sWord){
     const {oStoryTB, oStory} = this.state;
@@ -299,15 +303,12 @@ export default class {
   toInset(idx){
     const {sTyped} = this.state;
     const arr = this.getWordsList(sTyped, true);
-    const theWord = arr[idx-1];
+    const theWord = (arr[idx-1] || '').slice(sTyped.length);
     if (!theWord) return;
     const cursorIdx = document.getElementById('myTextArea').selectionStart;
     const {dc_: oCurLine, text} = this.getCurLine();
     const [left, right] = [text.slice(0, cursorIdx+1), text.slice(cursorIdx)]
     oCurLine.text = left + theWord + right
-    console.log('oCurLine', oCurLine);
-    console.log('左右', left, right);
-    console.log('结合', left + theWord + right);
     this.setCurLine(oCurLine);
   }
   chooseMore(){
