@@ -71,48 +71,44 @@ export default class {
     const {iCurLine, aLines} = this.getCurStep(true);
     if (iCurLine === 0 && iDirection === -1) return; //不可退
     const iCurLineNew = iCurLine + iDirection;
-    let oNewItem = null;
-    if (iCurLineNew > aLines.length - 1) { //超出，需要新增
-      const {end} = aLines.last_;
-      const newStart = end + this.figureOut(end);
-      oNewItem = this.fixTime({
-        start: newStart,
-        end: newStart + 10,
-      });
-    };
+    this.goLine(iCurLineNew, (
+      !aLines[iCurLineNew] && this.figureOut(aLines.last_.end) //没超出范围返回false=即不要新增。否则超出了就返回新行
+    ));
     if (isNeedSave && iCurLineNew % 3 === 0) this.toSave();
-    this.goLine(iCurLineNew, oNewItem);
   }
   // ▼能加断句
   figureOut(fEndSec){
     const {buffer, iPerSecPx, fPerSecPx, iHeight} = this.state;
-    const iPeakStart = ~~(fPerSecPx * fEndSec);
+    const iPeakStart = ~~(fPerSecPx * fEndSec); //取整。否则用浮点数计算太慢
     const {aPeaks} = this.getPeaks(
-      buffer, iPerSecPx, iPeakStart, iPerSecPx * 15, //15秒
+      buffer, iPerSecPx, iPeakStart, iPerSecPx * 20, // 取当前位置往后15秒
     );
-    let myArr = [];
-    for (let idx = 0; idx< aPeaks.length; idx+=2) {
-      const val = (aPeaks[idx] - aPeaks[idx+1]) * iHeight;
-      myArr.push(~~val);
-    }
-    console.log('波形', aPeaks);
+    const myArr = aPeaks.reduce((result, cur, idx, arr)=>{
+      if (idx % 2) return result; //不处理单数
+      return result.concat(~~((cur - arr[idx+1]) * iHeight));
+    }, []);
     console.log('波形2', myArr);
-    let begin = 0;
-    let step = 15; //采样跨度
-    let hight = 10; //高度阈值
+    let [start, end, lastAvg] = [0, 0, 0] // 起点，终点，上一步平均值
+    const [step, height] = [10, 10]; //采样跨度， 高度阈值
     for (let idx = 0; idx < myArr.length; idx += step){
-      const val = myArr.slice(idx, idx+step).reduce((result, cur)=>result+cur, 0) / step;
-      const val02 = myArr.slice(idx+step, idx+step+step).reduce((result, cur)=>result+cur, 0) / step;
-      if (idx === 0 && val > hight && val02 > hight) return 0;
-      if (val < hight && val02 > hight) {
-        begin = idx - step / 4;
-        break;
+      const curAvg = myArr.slice(idx, idx+step).reduce((rst, cur)=>rst+cur) / step; //这一段平均值
+      const nextAvg = myArr.slice(idx+step, idx+step+step).reduce((rst, cur)=>rst+cur, 0) / step; //下一段平均值
+      if (idx === 0 && curAvg > height && nextAvg > height) start = 0;
+      if (!start && curAvg < height && nextAvg > height) { // start没值时才去处理...
+        start = idx - step / 4;
       }
-      // console.log(`步${idx}平均值`, ~~val, ~~val02);
+      if (!start || idx - start < iPerSecPx) continue; //头部没算出来不向下计算尾部 || 当前位置没超过起点1秒，不向下求终点
+      if (lastAvg > height && curAvg < height && nextAvg < height){
+        console.warn('找到了-位置：', idx);
+        end = idx + step * 1; 
+        if (end / fPerSecPx > 3) break; //如果已经大于3秒，不再找下一个终点
+      }
+      lastAvg = curAvg;
     }
-    // myArr = Int16Array.from(myArr.map(xx => Math.round(xx)));
-    // console.log('起点', begin, begin / fPerSecPx);
-    return begin / fPerSecPx; //返回起点
+    return this.fixTime({
+      start: start / fPerSecPx + fEndSec,
+      end: (end || myArr.length) / fPerSecPx + fEndSec,
+    });
   }
   // ▼输入框文字改变
   valChanged(ev) {
