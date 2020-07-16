@@ -38,7 +38,8 @@ export default class {
       'alt + m': () => this.fixRegion('end', 0.07), //终点向右
       'alt + s': () => this.toStop(), //停止播放
       'alt + w': () => this.saveWord(), //停止播放
-      'alt + number': number => this.toInset(number), //分割
+      'alt + number': number => this.toInset(number), //取词
+      'alt + ]': () => this.chooseMore(), //扩选
     }
     const fnLib = {...type01, ...type02, ...type03};
     let fn = fnLib[keyStr];
@@ -91,16 +92,17 @@ export default class {
     let [start, end, lastAvg] = [0, 0, 0] // 起点，终点，上一步平均值
     const [step, height] = [10, 10]; //采样跨度， 高度阈值
     for (let idx = 0; idx < myArr.length; idx += step){
-      const curAvg = myArr.slice(idx, idx+step).reduce((rst, cur)=>rst+cur) / step; //这一段平均值
-      const nextAvg = myArr.slice(idx+step, idx+step+step).reduce((rst, cur)=>rst+cur, 0) / step; //下一段平均值
+      const myEnd = idx+step;
+      const curAvg = myArr.slice(idx, myEnd).reduce((rst, cur)=>rst+cur) / step; //这一段平均值
+      const nextAvg = myArr.slice(myEnd, myEnd+step).reduce((rst, cur)=>rst+cur || 0) / step; //下一段平均值
       if (idx === 0 && curAvg > height && nextAvg > height) start = 0;
       if (!start && curAvg < height && nextAvg > height) { // start没值时才去处理...
-        start = idx - step / 4;
+        start = idx - step / 2;
       }
       if (!start || idx - start < iPerSecPx) continue; //头部没算出来不向下计算尾部 || 当前位置没超过起点1秒，不向下求终点
       if (lastAvg > height && curAvg < height && nextAvg < height){
         console.warn('找到了-位置：', idx);
-        end = idx + step * 1; 
+        end = idx + step * 1.2;
         if (end / fPerSecPx > 3) break; //如果已经大于3秒，不再找下一个终点
       }
       lastAvg = curAvg;
@@ -293,12 +295,19 @@ export default class {
     });
     this.message.success(`保存成功`);
   }
+  // ▼插入选中的单词
   toInset(idx){
     const {sTyped} = this.state;
     const arr = this.getWordsList(sTyped, true);
     console.log('第几个？', idx);
     console.log(sTyped, '---', arr);
     console.log('选择',arr[idx-1]);
+  }
+  chooseMore(){
+    console.log('扩');
+    const oCurLine = this.getCurLine();
+    const newEnd = this.figureOut(oCurLine.end).end;
+    this.setTime('end', newEnd);
   }
 }
 
