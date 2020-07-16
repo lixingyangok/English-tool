@@ -48,6 +48,9 @@ export default class Tool extends MyClass {
     oSectionTB: {}, // 表-存章节
     oStory: {}, // DB中的故事数据
     oSct: {}, // DB中的章节数据
+    aWords: [],
+    sTyped: '', //输入的，用于搜索
+    aMatched: [],
   };
   constructor(props) {
     super(props);
@@ -72,6 +75,7 @@ export default class Tool extends MyClass {
     const {
       aSteps, iCurStep, iCanvasHeight,
       duration, fileSrc, playing, fPerSecPx,
+      aWords, sTyped,
     } = this.state;
     const {aLines, iCurLine} = aSteps[iCurStep];
     return <cpnt.Div>
@@ -131,6 +135,9 @@ export default class Tool extends MyClass {
           />;
         })()}
       </cpnt.InputWrap>
+      <cpnt.Words>
+        {this.getWordsList(sTyped)}
+      </cpnt.Words>
       {/* 分界 */}
       <cpnt.SentenceWrap ref={this.oSententList}>
         {aLines.map((cur, idx) => {
@@ -162,6 +169,22 @@ export default class Tool extends MyClass {
       <span>句子数量：{aLines.length || 0}句</span>
       <span onClick={()=>this.getLineAndGo()} >最后一行</span>
     </cpnt.InfoBar>
+  }
+  getWordsList(sTyped='', getArr=false){
+    const {aWords} = this.state;
+    const aMatched = (()=>{
+      if (!sTyped) return aWords;
+      return aWords.filter((cur='')=>{
+        return cur.toLocaleLowerCase().startsWith(sTyped.toLocaleLowerCase());
+      })
+    })();
+    if (getArr) return aMatched;
+    // this.setState({aMatched});
+    return aMatched.map((cur, idx)=>{
+      return <span key={idx} onClick={()=>this.delWord(cur)} >
+        <small>{idx+1}</small><em>{cur}</em>
+      </span>
+    });
   }
   // ▼以下是生命周期
   async componentDidMount() {
@@ -196,7 +219,7 @@ export default class Tool extends MyClass {
     };
     const fileSrc = URL.createObjectURL(oSct.audioFile);
     if (oSct.aLines.length) aSteps.last_.aLines = oSct.aLines; //字幕
-    this.setState({fileSrc, buffer, aSteps, oStory, oSct});
+    this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords: oStory.aWords});
     this.bufferToPeaks();
   }
   // ▼音频数据转换波峰数据

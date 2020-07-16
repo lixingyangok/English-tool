@@ -37,10 +37,18 @@ export default class {
       'alt + n': () => this.fixRegion('end', -0.07), //终点向左
       'alt + m': () => this.fixRegion('end', 0.07), //终点向右
       'alt + s': () => this.toStop(), //停止播放
+      'alt + w': () => this.saveWord(), //停止播放
+      'alt + number': number => this.toInset(number), //分割
     }
     const fnLib = {...type01, ...type02, ...type03};
-    const fn = fnLib[keyStr];
-    if (!fn) return false;
+    let fn = fnLib[keyStr];
+    if (!fn) {
+      const isMatch = keyStr.match(/alt \+ \d/g);
+      if (isMatch && isMatch.length) {
+        return type03['alt + number'].bind(this, keyStr.slice(-1)[0]);
+      }
+      return false;
+    }
     return fn.bind(this);
   }
   // ▼按下按键事件
@@ -84,20 +92,25 @@ export default class {
   valChanged(ev) {
     const newText = ev.target.value;
     if (newText.endsWith(' ')){ //如果输入了空格，那么生成一条新记录
-      console.time('有了新历史');
       const oCurLine = this.getCurLine();
       const oCurLineDc = oCurLine.dc_;
       oCurLineDc.text = newText;
       this.setCurLine(oCurLineDc);
-      console.timeEnd('有了新历史');
       return;
     }
-    console.time('无新历史');
+    const {selectionStart: idx} = ev.target;
+    const sLeft = newText.slice(0, idx) || '';
+    const sRight = newText.slice(idx) || '';
+    const needToCheck = (
+      (/\s+[a-z]{1,5}$/i.test(sLeft) || /^[a-z]{1,5}$/i.test(sLeft)) &&
+      (!sRight || /^\s+/.test(sRight))
+    );
+    let sTyped = '';
+    if (needToCheck) sTyped = (' ' + sLeft).match(/\s[a-z]+/gi).pop().slice(1);
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
     aSteps[iCurStep].aLines[iCurLine].text = newText;
-    this.setState({aSteps});
-    console.timeEnd('无新历史');
+    this.setState({aSteps, sTyped});
   }
   // ▼按下回车键
   enterKeyDown(ev) {
@@ -239,6 +252,31 @@ export default class {
     if (idx === -1 || idx === iCurLine) idx = aLines.length - 1;
     this.goLine(idx);
     document.querySelectorAll('textarea')[0].focus();
-	}
+  }
+  saveWord(){
+    const {oStoryTB, oStory} = this.state;
+    const sWord = window.getSelection().toString().trim(); 
+    const aWords = oStory.aWords || [];
+    aWords.includes(sWord) || aWords.push(sWord);
+    oStoryTB.update(oStory.id, {aWords}); //增量更新
+    this.message.success(`保存成功`);
+    this.setState({aWords});
+  }
+  delWord(sWord){
+    const {oStoryTB, oStory} = this.state;
+    const aWords = (oStory.aWords || []).filter(cur=>cur!==sWord);
+    oStoryTB.update(oStory.id, {aWords}); //增量更新
+    this.setState({
+      aWords: (this.state.aWords || []).filter(cur=>cur!==sWord),
+    });
+    this.message.success(`保存成功`);
+  }
+  toInset(idx){
+    const {sTyped} = this.state;
+    const arr = this.getWordsList(sTyped, true);
+    console.log('第几个？', idx);
+    console.log(sTyped, '---', arr);
+    console.log('选择',arr[idx-1]);
+  }
 }
 

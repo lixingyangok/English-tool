@@ -141,7 +141,7 @@ export const RegionWrap = styled.section`
 
 export const InputWrap = styled.div`
 	height: 90px;
-	margin: 3px 0 20px;
+	margin: 3px 0 5px;
 	flex: none;
 	textarea{
 		display: block;
@@ -150,10 +150,33 @@ export const InputWrap = styled.div`
 		height: 100%;
 		padding: 5px 10px;
 		font-size: 22px;
-		/* font-weight: bold; */
 		resize: none;
 		color: #333;
 		font-weight: 500;
+	}
+`;
+
+export const Words = styled.div`
+	display: flex;
+	margin: 0 0 15px;
+	min-height: 23px;
+	overflow: hidden;
+	span{
+		margin-right: 15px;
+	}
+	small{
+		display: inline-block;
+		width: 15px;
+		height: 15px;
+		text-align: center;
+		line-height: 15px;
+		border-radius: 100px;
+		background: blue;
+		margin-right: 3px;
+		color: white;
+	}
+	em{
+		color: black;
 	}
 `;
 
@@ -170,7 +193,8 @@ export const SentenceWrap = styled.ol`
 	list-style: none;
 	padding: 0 0 100px;
 	margin: 0;
-	border-bottom: solid 1px #aaa;
+	border: solid #aaa;
+	border-width: 1px 0;
 	.one-line{
 		border: solid #aaa;
 		border-width: 1px 0 0;
@@ -235,6 +259,7 @@ export const Steps = styled.ul`
 
 export const TextBox = styled.div`
 	padding: 20px 0;
+	overflow: hidden;
 	span{
 		background: yellow;
 		padding: 3px 8px;
@@ -243,5 +268,4 @@ export const TextBox = styled.div`
 	.cur{
 		background: pink;
 	}
-
 `;
