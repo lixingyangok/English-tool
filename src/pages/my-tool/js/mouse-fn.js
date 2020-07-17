@@ -33,7 +33,7 @@ export default class {
 	}
 	// ▼在波形上滚动滚轮
 	wheelOnWave(ev) {
-		const { altKey, ctrlKey, shiftKey, wheelDeltaY, deltaY } = ev;
+		const {altKey, ctrlKey, shiftKey, wheelDeltaY, deltaY} = ev;
 		if (0) console.log(shiftKey, deltaY);
 		if (ctrlKey) {
 			this.zoomWave(ev);
@@ -70,32 +70,30 @@ export default class {
 	// ▼横向缩放。接收一个事件对象
 	zoomWave(ev){
 		if (this.state.drawing) return; //防抖
-		const {iPerSecPx: perSecPxOld, fPerSecPx, buffer} = this.state;
+		const {iPerSecPx: perSecPxOld, buffer} = this.state;
 		const {deltaY, clientX = window.innerWidth / 2} = ev;
-		const [min, max, iStep] = [10, 350, 20]; //每秒最小/大宽度（px）， 变化步伐
-		if ((perSecPxOld<=min && deltaY>=0) || (perSecPxOld>=max && deltaY<=0)){
+		const [min, max, iStep] = [20, 250, 20]; //每秒最小/大宽度（px）， 变化步伐
+		// ▼说明：小到头了就不要再缩小了，大到头了也就要放大了
+		if (deltaY > 0 ? perSecPxOld <= min : perSecPxOld >= max){
 			return this.setState({drawing: false});
 		}
 		const oWaveWrap = this.oWaveWrap.current;
-		const {offsetLeft, scrollLeft} = oWaveWrap;
-		const iLeftPx = clientX - offsetLeft + scrollLeft; //鼠标左侧的px值
-		const iNowSec = iLeftPx / fPerSecPx; //当前指向时间（秒）
-		const iPerSecPx = (() => {
-			const iDirection = iStep * (deltaY <= 0 ? 1 : -1);
-			let result = perSecPxOld + iDirection;
+		const {parentElement:{offsetLeft}, children:[markBar]} = oWaveWrap;
+		const iPerSecPx = (() => { //新-每秒宽度
+			const result = perSecPxOld + iStep * (deltaY <= 0 ? 1 : -1);
 			if (result < min) return min;
 			else if (result > max) return max;
 			return result;
 		})();
-		const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
-		const fPerSecPx_ = buffer.length / sampleSize / buffer.duration;
-		const iNewLeftPx = (iNowSec * fPerSecPx_) - (clientX - offsetLeft);
-		this.setState({iPerSecPx, fPerSecPx_, drawing: true});
-		oWaveWrap.scrollTo(iNewLeftPx, 0);
-		this.oPointer.current.style.left = (()=>{
-			const {currentTime} = this.oAudio.current;
-			return `${currentTime * fPerSecPx_}px`;
+		const fPerSecPx = (()=>{ // 新-每秒宽度（精确）
+			const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
+			return buffer.length / sampleSize / buffer.duration; 
 		})();
+		markBar.style.width = fPerSecPx * buffer.duration + 'px';
+		const iNewLeftPx = this.getPointSec(ev) * fPerSecPx - (clientX - offsetLeft);
+		oWaveWrap.scrollLeft = iNewLeftPx;
+		this.oPointer.current.style.left = `${this.oAudio.current.currentTime * fPerSecPx}px`;
+		this.setState({iPerSecPx, drawing: true});
 		if (iNewLeftPx<=0) this.onScrollFn();
 	}
 	// 改变波形高度
@@ -109,7 +107,6 @@ export default class {
 		this.setState({ iHeight });
 		this.toDraw();
 	}
-	
 }
 
 

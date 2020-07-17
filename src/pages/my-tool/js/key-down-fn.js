@@ -17,10 +17,12 @@ export default class {
       'ctrl + s': () => this.toSave(), //保存到浏览器
       'ctrl + j': () => this.putTogether('prior'), // 合并上一句
       'ctrl + k': () => this.putTogether('next'), // 合并下一句
-      'ctrl + Enter': () => this.toPlay(true), //播放
-      'ctrl + shift + z': () => this.setHistory(1), //恢复
-      'ctrl + shift + c': () => this.split(), //分割
-      'ctrl + shift + s': () => this.toExport(), // 导出到本地
+      ...{ //+shift
+        'ctrl + Enter': () => this.toPlay(true), //播放
+        'ctrl + shift + z': () => this.setHistory(1), //恢复
+        'ctrl + shift + c': () => this.split(), //分割
+        'ctrl + shift + s': () => this.toExport(), // 导出到本地
+      },
     };
     const type03 = { // alt 系列
       'alt + j': () => this.previousAndNext(-1),
@@ -34,17 +36,19 @@ export default class {
       'alt + m': () => this.fixRegion('end', 0.07), //终点向右
       'alt + ]': () => this.chooseMore(), //扩选
       'alt + number': number => this.toInset(number), //取词
-      'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
-      'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
-      'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
-      'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
-      'alt + shift + d': () => this.saveWord(), //保存单词到DB
-      'alt + shift + s': () => this.toStop(), //停止播放
+      ...{ // +shift
+        'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
+        'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
+        'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
+        'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
+        'alt + shift + d': () => this.saveWord(), //保存单词到DB
+        'alt + shift + s': () => this.toStop(), //停止播放
+      },
     }
     const fnLib = {...type01, ...type02, ...type03};
     let fn = fnLib[keyStr];
     if (!fn) {
-      const isMatch = keyStr.match(/alt \+ [\dasdf]/);
+      const isMatch = keyStr.match(/alt \+ [asdf\d]/);
       if (!isMatch) return false; //没有相关方法
       const last = keyStr.slice(-1);
       const number = {a:1, s:2, d:3, f:4}[last];

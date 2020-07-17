@@ -58,7 +58,7 @@ export const WaveWrap = styled.div`
 	}
 `;
 
-export const TimeBar = styled.div`
+export const LongBar = styled.div`
 	position: relative;
 	height: 100%;
 	z-index: 2;
