@@ -156,11 +156,15 @@ export const TextareaWrap = styled.div`
 	}
 `;
 
+// 候选词
 export const Words = styled.div`
 	display: flex;
+	flex-flow: row wrap;
 	margin: 0 0 18px;
 	min-height: 30px;
 	overflow: hidden;
+	flex: none;
+	line-height: 1.4;
 	span{
 		margin-right: 15px;
 	}
@@ -248,20 +252,6 @@ export const SentenceWrap = styled.ol`
 	}
 `;
 
-export const Steps = styled.ul`
-	margin: 10px 0 0;
-	display: flex;
-	flex-flow: wrap row;
-	outline: solid 1px #ccc;
-	padding: 0;
-	li{
-		display: inline-block;
-		padding: 0 10px;
-	}
-	.cur{
-		background: yellow;
-	}
-`;
 
 export const HistoryBar = styled.div`
 	padding: 0;

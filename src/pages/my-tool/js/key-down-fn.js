@@ -32,22 +32,22 @@ export default class {
       'alt + i': () => this.fixRegion('start', 0.07), //起点向右
       'alt + n': () => this.fixRegion('end', -0.07), //终点向左
       'alt + m': () => this.fixRegion('end', 0.07), //终点向右
-      'alt + s': () => this.toStop(), //停止播放
       'alt + ]': () => this.chooseMore(), //扩选
       'alt + number': number => this.toInset(number), //取词
-      'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
-      'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
       'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
       'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
+      'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
+      'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
       'alt + shift + d': () => this.saveWord(), //保存单词到DB
+      'alt + shift + s': () => this.toStop(), //停止播放
     }
     const fnLib = {...type01, ...type02, ...type03};
     let fn = fnLib[keyStr];
     if (!fn) {
-      const isMatch = keyStr.match(/alt \+ [\dqwer]/);
+      const isMatch = keyStr.match(/alt \+ [\dasdf]/);
       if (!isMatch) return false; //没有相关方法
       const last = keyStr.slice(-1);
-      const number = {q:1, w:2, e:3, r:4}[last];
+      const number = {a:1, s:2, d:3, f:4}[last];
       return type03['alt + number'].bind(this, number || last);
     }
     return fn.bind(this);
@@ -78,7 +78,7 @@ export default class {
     if (isNeedSave && iCurLineNew % 3 === 0) this.toSave();
   }
   // ▼能加断句
-  figureOut(fEndSec){
+  figureOut(fEndSec, fLong=3){
     const {buffer, iPerSecPx, fPerSecPx, iHeight} = this.state;
     const iPeakStart = ~~(fPerSecPx * fEndSec); //取整。否则用浮点数计算太慢
     const {aPeaks} = this.getPeaks(
@@ -101,9 +101,8 @@ export default class {
       }
       if (!start || idx - start < iPerSecPx) continue; //头部没算出来不向下计算尾部 || 当前位置没超过起点1秒，不向下求终点
       if (lastAvg > height && curAvg < height && nextAvg < height){
-        console.warn('找到了-位置：', idx);
         end = idx + step * 1.2;
-        if (end / fPerSecPx > 3) break; //如果已经大于3秒，不再找下一个终点
+        if (end / fPerSecPx > fLong) break; //如果已经大于3秒，不再找下一个终点
       }
       lastAvg = curAvg;
     }
@@ -116,7 +115,7 @@ export default class {
   valChanged(ev) {
     const {value: sText, selectionStart: idx} = ev.target;
     let sTyped = ''; //用于搜索的
-    if (sText.match(/.+[^a-z]$/)){ //如果最后的字母不是英文字母，不生成新历史
+    if (sText.match(/.+[^a-zA-Z]$/)){ //如果最后的字母不是英文字母，不生成新历史
       const oCurLineDc = this.getCurLine().dc_;
       oCurLineDc.text = sText;
       this.setCurLine(oCurLineDc);
@@ -127,6 +126,7 @@ export default class {
     const sRight = sText.slice(idx);
     const needToCheck = /\b[a-z]{1,9}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
     if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
+    console.log('查？？？？？？？？', needToCheck);
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
     aSteps[iCurStep].aLines[iCurLine].text = sText;
@@ -279,7 +279,10 @@ export default class {
     const {oStoryTB, oStory} = this.state;
     const sWord = window.getSelection().toString().trim();
     const aWords = oStory.aWords || [];
-    if ((sWord.length<2 || sWord.length>20) || aWords.includes(sWord)) return; //不要重复保存
+    if ((sWord.length<2 || sWord.length>30) || aWords.includes(sWord)) {
+      this.message.error(`已经保存不可重复添加，或单词长度不在合法范围（2-30字母）`);
+      return; //不要重复保存
+    }
     aWords.push(sWord);
     oStoryTB.update(oStory.id, {aWords}); //增量更新本地数据
     this.setState({aWords});
@@ -287,11 +290,9 @@ export default class {
   }
   delWord(sWord){
     const {oStoryTB, oStory} = this.state;
-    const aWords = (oStory.aWords || []).filter(cur=>cur!==sWord);
+    const aWords = this.state.aWords.filter(cur=>cur!==sWord);
+    this.setState({aWords});
     oStoryTB.update(oStory.id, {aWords}); //增量更新
-    this.setState({
-      aWords: (this.state.aWords || []).filter(cur=>cur!==sWord),
-    });
     this.message.success(`保存成功`);
   }
   // ▼插入选中的单词
@@ -312,7 +313,7 @@ export default class {
   chooseMore(){
     console.log('扩');
     const oCurLine = this.getCurLine();
-    const newEnd = this.figureOut(oCurLine.end).end;
+    const newEnd = this.figureOut(oCurLine.end, 1).end;
     this.setTime('end', newEnd);
   }
 }

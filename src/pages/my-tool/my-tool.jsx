@@ -165,17 +165,20 @@ export default class Tool extends MyClass {
     </cpnt.InfoBar>
   }
   getWordsList(sTyped='', getArr=false){
+    sTyped = sTyped.toLocaleLowerCase().trim();
     const {aWords} = this.state;
     const aMatched = (()=>{
       if (!sTyped) return aWords;
-      return aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped.toLocaleLowerCase()));
+      const aFiltered = aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
+      return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
     })();
     if (getArr) return aMatched;
     return aMatched.map((cur, idx)=>{
+      const Idx = sTyped ? <i className="idx">{idx+1}</i> : null;
       return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
         onConfirm={()=>this.delWord(cur)} key={idx}
       >
-        <i className="idx" >{idx+1}</i>
+        {Idx}
         <mark className="word">{sTyped}</mark>
         <em className="word">{cur.slice(sTyped.length)}</em>
       </Popconfirm>

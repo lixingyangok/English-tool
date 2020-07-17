@@ -72,9 +72,7 @@ export default class {
 	async toPlay(isFromHalf) {
 		clearInterval(this.state.playTimer); //把之前播放的关闭再说
 		const { fPerSecPx } = this.state;
-		console.log(11);
 		const { start, long } = this.getCurLine();
-		console.log(11);
 		const Audio = this.oAudio.current;
 		const { style } = this.oPointer.current;
 		const fStartTime = start + (isFromHalf ? long * 0.4 : 0);
@@ -83,11 +81,9 @@ export default class {
 		Audio.play();
 		const playTimer = setInterval(() => {
 			const { currentTime: cTime } = Audio;
-			console.log(22);
 			if (cTime < this.getCurLine().end && this.state.playing) {
 				return style.left = `${cTime * this.state.fPerSecPx}px`;
 			}
-			console.log(22);
 			Audio.pause();
 			clearInterval(this.state.playTimer);
 			this.setState({ playing: false });
