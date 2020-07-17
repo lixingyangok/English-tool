@@ -139,9 +139,9 @@ export const RegionWrap = styled.section`
 	}
 `;
 
-export const InputWrap = styled.div`
+export const TextareaWrap = styled.div`
 	height: 90px;
-	margin: 3px 0 5px;
+	margin: 0;
 	flex: none;
 	textarea{
 		display: block;
@@ -158,7 +158,7 @@ export const InputWrap = styled.div`
 
 export const Words = styled.div`
 	display: flex;
-	margin: -3px 0 18px;
+	margin: 0 0 18px;
 	min-height: 30px;
 	overflow: hidden;
 	span{
@@ -263,15 +263,22 @@ export const Steps = styled.ul`
 	}
 `;
 
-export const TextBox = styled.div`
-	padding: 20px 0;
-	overflow: hidden;
-	span{
-		background: yellow;
-		padding: 3px 8px;
-		margin: 0 5px 0 0;
+export const HistoryBar = styled.div`
+	padding: 0;
+	margin: 0;
+	display: flex;
+	span {
+		background: #87c9ff;
+		margin: 0;
+		width: calc(100% / 30);
+		text-align: center;
+		letter-spacing: -1px;
+		height: 3px;
+		+span{
+			box-shadow: 1px 0px 0px 0px blue inset;
+		}
 	}
 	.cur{
-		background: pink;
+		background: blue;
 	}
 `;

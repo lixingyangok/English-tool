@@ -114,7 +114,7 @@ export default class {
   }
   // ▼输入框文字改变
   valChanged(ev) {
-    const sText = ev.target.value;
+    const {value: sText, selectionStart: idx} = ev.target;
     let sTyped = ''; //用于搜索的
     if (sText.match(/.+[^a-z]$/)){ //如果最后的字母不是英文字母，不生成新历史
       const oCurLineDc = this.getCurLine().dc_;
@@ -123,15 +123,10 @@ export default class {
       this.setState({sTyped});
       return;
     }
-    const {selectionStart: idx} = ev.target;
-    const sLeft = sText.slice(0, idx) || '';
-    const sRight = sText.slice(idx) || '';
-    const needToCheck = (
-      (/\s+[a-z]{1,5}$/i.test(sLeft) || /^[a-z]{1,5}$/i.test(sLeft)) &&
-      (!sRight || /^\s+/.test(sRight))
-    );
-    console.log('搜索吗？', needToCheck, sLeft);
-    if (needToCheck) sTyped = (' ' + sLeft).match(/\s[a-z]+$/gi).pop().slice(1);
+    const sLeft = sText.slice(0, idx);
+    const sRight = sText.slice(idx);
+    const needToCheck = /\b[a-z]{1,9}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
+    if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
     aSteps[iCurStep].aLines[iCurLine].text = sText;
@@ -304,12 +299,15 @@ export default class {
     const {sTyped} = this.state;
     const arr = this.getWordsList(sTyped, true);
     const theWord = (arr[idx-1] || '').slice(sTyped.length);
+    const myTextArea = document.getElementById('myTextArea');
     if (!theWord) return;
-    const cursorIdx = document.getElementById('myTextArea').selectionStart;
+    const cursorIdx = myTextArea.selectionStart;
     const {dc_: oCurLine, text} = this.getCurLine();
-    const [left, right] = [text.slice(0, cursorIdx+1), text.slice(cursorIdx)]
-    oCurLine.text = left + theWord + right
+    const [left, right] = [text.slice(0, cursorIdx), text.slice(cursorIdx)]
+    const newLeft = left + theWord;
+    oCurLine.text = newLeft + right;
     this.setCurLine(oCurLine);
+    myTextArea.selectionStart = myTextArea.selectionEnd = newLeft.length;
   }
   chooseMore(){
     console.log('扩');

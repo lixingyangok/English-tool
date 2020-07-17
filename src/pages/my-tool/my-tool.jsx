@@ -110,32 +110,25 @@ export default class Tool extends MyClass {
           </cpnt.TimeBar>
         </cpnt.WaveWrap>
       </cpnt.WaveBox>
-
-      <cpnt.TextBox>
-        {aSteps.map((cur,idx)=>{
-          return <span key={idx} className={iCurStep === idx ? 'cur' : ''} 
-            onClick={()=>console.log('步骤',idx, cur)}
-          >
-            {idx}
-          </span>
-        })}
-      </cpnt.TextBox>
-      {/* 分界 */}
       <Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
       {/* 分界 */}
       {this.getInfoBar()}
-      <cpnt.InputWrap>
+      <cpnt.HistoryBar>
+        {aSteps.map((cur,idx)=>{
+          return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
+        })}
+      </cpnt.HistoryBar>
+      <cpnt.TextareaWrap>
         {(() => {
           if (!aLines[iCurLine]) return <span />;
-          // innerRef={dom => this.oTextArea = dom}
-          return <TextArea value={(aLines[iCurLine] || {}).text}
-            ref={this.oTextArea}
+          return <TextArea value={aLines[iCurLine].text}
             id="myTextArea"
+            ref={this.oTextArea}
             onChange={ev => this.valChanged(ev)}
             onKeyDown={ev => this.enterKeyDown(ev)}
           />;
         })()}
-      </cpnt.InputWrap>
+      </cpnt.TextareaWrap>
       <cpnt.Words>
         {this.getWordsList(sTyped)}
       </cpnt.Words>
