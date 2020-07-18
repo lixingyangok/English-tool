@@ -25,12 +25,11 @@ export default class Tool extends MyClass {
 	state = {
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
-		duration: 0, //音频长度（秒
+		// duration: 0, //音频长度（秒
 		playTimer: null, //定时器
 		oFirstLine, //默认行
 		fileName: "", //文件名
 		fileSrc: "", //文件地址
-		fileSrcFull: "", //文件地址2
 		iHeight: 0.3, // 波形高
 		iCanvasHeight: cpnt.iCanvasHeight, //画布高
 		iPerSecPx: 55, //人为定义的每秒像素数，每秒宽度
@@ -74,7 +73,7 @@ export default class Tool extends MyClass {
 	render() {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
-			duration, fileSrc, fPerSecPx, sTyped,
+			fileSrc, fPerSecPx, sTyped, buffer
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		return <cpnt.Div>
@@ -83,7 +82,7 @@ export default class Tool extends MyClass {
 			<cpnt.WaveBox>
 				<canvas height={iCanvasHeight} ref={this.oCanvas}/>
 				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
-					<cpnt.LongBar style={{width: `${fPerSecPx * duration}px`}}
+					<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration}px`}}
 						onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
 					>
 						{this.getMarkBar(this.state)}
@@ -93,7 +92,7 @@ export default class Tool extends MyClass {
 			</cpnt.WaveBox>
 			<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
 			{/* 分界 */}
-			{this.getInfoBar()}
+			{this.getInfoBar(this.state)}
 			<cpnt.HistoryBar>
 				{aSteps.map((cur,idx)=>{
 					return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
@@ -133,8 +132,8 @@ export default class Tool extends MyClass {
 	}
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ▼时间刻度
-	getMarkBar({duration, fPerSecPx}){
-		const arr = [...Array(~~duration).keys()].map((cur, idx) => {
+	getMarkBar({buffer, fPerSecPx}){
+		const arr = [...Array(~~buffer.duration).keys()].map((cur, idx) => {
 			const minute = ~~(cur / 60);
 			const second = cur < 60 ? cur : cur % 60;
 			const text = (()=>{
@@ -166,8 +165,7 @@ export default class Tool extends MyClass {
 		</cpnt.RegionWrap>
 	}
 	// ▼故事信息等
-	getInfoBar(){ 
-		const {oStory, oSct, buffer, iPerSecPx} = this.state;
+	getInfoBar({oStory, oSct, buffer, iPerSecPx}){ 
 		if (!Object.keys(oSct).length) return;
 		const {aLines=[], audioFile={}, srtFile={}} = oSct;
 		return <cpnt.InfoBar>
@@ -246,7 +244,7 @@ export default class Tool extends MyClass {
 		const obackData = this.getPeaks(
 			buffer, (perSecPx_ || iPerSecPx), scrollLeft, offsetWidth,
 		);
-		// ▲返回内容：{aPeaks, fPerSecPx, duration};
+		// ▲返回内容：{aPeaks, fPerSecPx};
 		this.setState({ ...obackData });
 		this.toDraw();
 		return obackData.aPeaks;
