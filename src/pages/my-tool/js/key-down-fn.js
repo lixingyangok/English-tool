@@ -42,7 +42,7 @@ export default class {
         'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
         'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
         'alt + shift + d': () => this.saveWord(), //保存单词到DB
-        'alt + shift + s': () => this.toStop(), //停止播放
+        'alt + shift + c': () => this.toStop(), //停止播放
       },
     }
     const fnLib = {...type01, ...type02, ...type03};
@@ -157,7 +157,6 @@ export default class {
   }
   // ▼保存字幕到浏览器
   async toSave() {
-    console.log('保存');
     const {fileName, oTarget, oSectionTB, oSct} = this.state;
     const {storyId, sctId} = oTarget;
     const {aLines} = this.getCurStep();
@@ -267,7 +266,7 @@ export default class {
     oCurStepDc.iCurLine += isToLeft ? 0 : 1;
     this.setCurStep(oCurStepDc);
   }
-  // 停止
+  // 停止播放
   toStop(){
     this.setState({playing: false});
   }

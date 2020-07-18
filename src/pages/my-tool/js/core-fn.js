@@ -70,7 +70,7 @@ export default class {
 	}
 	// ▼播放
 	async toPlay(isFromHalf) {
-		clearInterval(this.state.playTimer); //把之前播放的关闭再说
+		clearInterval(this.state.playing); //把之前播放的关闭再说
 		const { fPerSecPx } = this.state;
 		const { start, long } = this.getCurLine();
 		const Audio = this.oAudio.current;
@@ -79,16 +79,16 @@ export default class {
 		style.left = `${fStartTime * fPerSecPx}px`;
 		Audio.currentTime = fStartTime;
 		Audio.play();
-		const playTimer = setInterval(() => {
+		const playing = setInterval(() => {
 			const { currentTime: cTime } = Audio;
 			if (cTime < this.getCurLine().end && this.state.playing) {
 				return style.left = `${cTime * this.state.fPerSecPx}px`;
 			}
 			Audio.pause();
-			clearInterval(this.state.playTimer);
+			clearInterval(this.state.playing);
 			this.setState({ playing: false });
 		}, 1000 / 70); //每秒执行次数70
-		this.setState({ playTimer, playing: true });
+		this.setState({playing});
 	}
 	// ▼得到点击处的秒数，收受一个事件对象
 	getPointSec({ clientX }) {

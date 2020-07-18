@@ -10,8 +10,7 @@ import Nav from './children/menu/menu.jsx';
 
 const { TextArea } = Input;
 const MyClass = window.mix(
-	React.Component,
-	coreFn, keyDownFn, MouseFn, fileFn,
+	React.Component, coreFn, keyDownFn, MouseFn, fileFn,
 );
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
@@ -25,18 +24,16 @@ export default class Tool extends MyClass {
 	state = {
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
-		// duration: 0, //音频长度（秒
-		playTimer: null, //定时器
 		oFirstLine, //默认行
 		fileName: "", //文件名
 		fileSrc: "", //文件地址
 		iHeight: 0.3, // 波形高
 		iCanvasHeight: cpnt.iCanvasHeight, //画布高
-		iPerSecPx: 55, //人为定义的每秒像素数，每秒宽度
-		fPerSecPx: 0, //实际每秒像素数
+		iPerSecPx: 55, //人为定义的每秒宽度
+		fPerSecPx: 55, //实际算出每秒像素数
 		drawing: false, //是否在绘制中（用于防抖
 		loading: false, //是否在加载中（解析文件
-		playing: false, //是否在播放中（用于控制指针显示
+		playing: false, //储存播放的定时器setInterval的返回值
 		aSteps: [{ //历史记录
 			iCurLine: 0, // 当前所在行
 			aLines: [oFirstLine.dc_], //字幕
@@ -45,11 +42,10 @@ export default class Tool extends MyClass {
 		oTarget: {}, // 故事信息如：故事id、章节id
 		oStoryTB: {}, // 表-存故事
 		oSectionTB: {}, // 表-存章节
-		oStory: {}, // DB中的故事数据
-		oSct: {}, // DB中的章节数据
-		aWords: [],
-		sTyped: '', //输入的，用于搜索
-		aMatched: [],
+		oStory: {}, // DB中的【故事】
+		oSct: {}, // DB中的【章节】
+		aWords: [], //DB中的【单词】
+		sTyped: '', //已经输入的，用于搜索
 	};
 	constructor(props) {
 		super(props);
