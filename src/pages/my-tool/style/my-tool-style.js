@@ -71,21 +71,29 @@ export const MarkWrap = styled.section`
 	height: ${iMarkWrapHeight}px;
 	position: relative;
 	flex: none;
-	.second-mark{
+	--color: #0f0;
+	color: var(--color);
+	.one-second{
 		box-sizing: border-box;
-		display: inline-block;
-		border-left: solid 1px rgba(255,255,255,0.5);
-		height: 80%;
-		z-index: 3;
 		position: absolute;
-		bottom: 0;
-		color: white;
+		top: 0;
+		height: 100%;
 		font-size: 10px;
 		text-size-adjust: none;
-		-webkit-text-size-adjust: none;
-		line-height: 1;
-		padding: 0 0 2px 2px;
-		color: #0f0;
+		padding: 3px 0 0 5px;
+		line-height: 1.2;
+	}
+	.mark{
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 1px;
+		height: 18%;
+		background: var(--color);
+	}
+	.one-second:nth-child(10n+1) .mark{
+		height: 50%;
+		width: 2px;
 	}
 `;
 
@@ -96,33 +104,6 @@ export const RegionWrap = styled.section`
 	border: solid green;
 	border-width: 1px 0;
 	overflow: hidden;
-	.region{
-		box-sizing: border-box;
-		position: absolute;
-		top: 0px;
-		height: 100%;
-		min-width: 1px;
-		background: rgba(0,0,0,0.4);
-		z-index: 4;
-		margin: 0;
-		padding: 0;
-		border: solid rgba(255,255,255,0.6);
-		border-width: 0 1px;
-		overflow: hidden;
-	}
-	.cur{
-		border-color: transparent blue transparent red;
-		border-width: 0 2px;
-		background: none;
-		box-shadow: 0px 0 0px ${10000 * 100}px rgba(0, 0, 0, 0.4);
-	}
-	.idx{
-		position: absolute;
-		left: 5px;
-		bottom: 1px;
-		font-size: 12px;
-		color: white;
-	}
 	.pointer{
 		position: absolute;
 		width: 1px;
@@ -136,6 +117,67 @@ export const RegionWrap = styled.section`
 		&[class~=playing]{
 			opacity: 1;
 		}
+	}
+	.region{
+		box-sizing: border-box;
+		position: absolute;
+		top: 0px;
+		height: 100%;
+		min-width: 1px;
+		background: rgba(0,0,0,0.4);
+		z-index: 4;
+		margin: 0;
+		padding: 0;
+		border: solid var(--border-color);
+		border-width: 0 1px;
+		overflow: hidden;
+		--border-color: rgba(255,255,255,0.6);
+	}
+	.cur{
+		--border-color: red;
+		border-width: 0 2px;
+		background: none;
+		box-shadow: 0px 0px 0px ${10000 * 100}px rgba(0, 0, 0, 0.4);
+		border-right-color: blue;
+		.idx:before, .idx:after{
+			--border-color: blue;
+		}
+	}
+	.idx{
+		padding: 102px 0 0 5px;
+    	display: inline-block;
+		font-size: 12px;
+		color: rgba(255,255,255, 0.7);
+	}
+	.region:before,
+	.region:after,
+	.idx:before,
+	.idx:after{
+		content: '';
+		width: 0px;
+		height: 0px;
+		position: absolute;
+		border: solid 3px;
+	}
+	.region:before{
+		border-color: var(--border-color) transparent transparent var(--border-color);
+		top: 0;
+		left: 0
+	}
+	.region:after{
+		border-color: transparent transparent var(--border-color) var(--border-color);
+		bottom: 0;
+		left: 0
+	}
+	.idx:before{
+		border-color: var(--border-color) var(--border-color) transparent transparent;
+		top: 0;
+		right: 0
+	}
+	.idx:after{
+		border-color: transparent var(--border-color) var(--border-color) transparent;
+		bottom: 0;
+		right: 0
 	}
 `;
 

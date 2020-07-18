@@ -92,7 +92,7 @@ export default class {
 	}
 	// ▼得到点击处的秒数，收受一个事件对象
 	getPointSec({ clientX }) {
-		const { scrollLeft, parentElement: { offsetLeft } } = this.oWaveWrap.current;
+		const {scrollLeft, parentElement: {offsetLeft}} = this.oWaveWrap.current;
 		const iLeftPx = clientX - offsetLeft + scrollLeft; //鼠标距左边缘的px长度
 		const iNowSec = iLeftPx / this.state.fPerSecPx; //当前指向时间（秒）
 		return iNowSec;
@@ -175,6 +175,15 @@ export default class {
 		console.log('收到函数名，和参数', sFnName, aRest);
 		const theFn = this[sFnName];
 		theFn && theFn.call(this, ...aRest);
+	}
+	getArea(){
+		const oWaveWrap = this.oWaveWrap.current;
+		if (!oWaveWrap) return [0, 0];
+		const {fPerSecPx} = this.state;
+		const {scrollLeft=0, offsetWidth=window.innerWidth} = oWaveWrap;
+		let start = ~~(scrollLeft / fPerSecPx - 1);
+		const end = ~~((scrollLeft + offsetWidth) / fPerSecPx + 1);
+		return [start > 0 ? start : 0, end];
 	}
 }
 

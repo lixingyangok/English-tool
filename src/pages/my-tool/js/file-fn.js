@@ -45,7 +45,6 @@ export default class {
     const fileSrc = URL.createObjectURL(audioFile);
     const buffer = await this.fileToBuffer(audioFile);
     this.setState({loading: false});
-    // ▼返回内容有：fPerSecPx, aPeaks,
     const oBackData = this.getPeaks( 
       buffer, this.state.iPerSecPx, 0,
       this.oWaveWrap.current.offsetWidth,
@@ -57,7 +56,7 @@ export default class {
   // buffer.length  // 采样帧率：整形
   // buffer.duration  // 时长(秒)：双精度型
   // buffer.numberOfChannels  // 通道数：整形
-  // ▼计算波峰、波谷
+  // ▼计算波峰波谷（纯函数）
   getPeaks(buffer, iPerSecPx, left=0, iCanvasWidth=500) {
     console.time('getPeaks 耗时');
     const aChannel = buffer.aChannelData_ || buffer.getChannelData(0);
@@ -79,8 +78,8 @@ export default class {
       aPeaks.push(max, min);
       idx++;
     }
-    console.timeEnd('getPeaks 耗时');
     const fPerSecPx = buffer.length / sampleSize / buffer.duration;
+    console.timeEnd('getPeaks 耗时');
     return {aPeaks, fPerSecPx};
   }
   // ▼从文件得到 buffer 数据

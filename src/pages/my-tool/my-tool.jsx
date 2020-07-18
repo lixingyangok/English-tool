@@ -63,18 +63,19 @@ export default class Tool extends MyClass {
 			theDB.version(2).stores({sections: '++id, idx, parent'});
 			return [theDB.stories, theDB.sections];
 		})();
-		Object.assign(this.state, {oStoryTB, oSectionTB, oTarget});
-		if (Object.keys(oTarget).length) this.init(oTarget);
+		const loading = !!oTarget.storyId;
+		Object.assign(this.state, {oStoryTB, oSectionTB, oTarget, loading});
+		if (oTarget.storyId) this.init(oTarget);
 	}
 	render() {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
-			fileSrc, fPerSecPx, sTyped, buffer
+			fileSrc, fPerSecPx, sTyped, buffer, loading,
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		return <cpnt.Div>
 			<audio src={fileSrc} ref={this.oAudio}/>
-			<Spin spinning={this.state.loading} size="large"/>
+			<Spin spinning={loading} size="large"/>
 			<cpnt.WaveBox>
 				<canvas height={iCanvasHeight} ref={this.oCanvas}/>
 				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
@@ -87,7 +88,6 @@ export default class Tool extends MyClass {
 				</cpnt.WaveWrap>
 			</cpnt.WaveBox>
 			<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
-			{/* 分界 */}
 			{this.getInfoBar(this.state)}
 			<cpnt.HistoryBar>
 				{aSteps.map((cur,idx)=>{
@@ -96,19 +96,14 @@ export default class Tool extends MyClass {
 			</cpnt.HistoryBar>
 			<cpnt.TextareaWrap>
 				{(() => {
-					if (!aLines[iCurLine]) return <span />;
-					return <TextArea value={aLines[iCurLine].text}
-						id="myTextArea"
-						ref={this.oTextArea}
+					return <TextArea id="myTextArea" ref={this.oTextArea}
+						value={aLines[iCurLine].text}
 						onChange={ev => this.valChanged(ev)}
 						onKeyDown={ev => this.enterKeyDown(ev)}
 					/>;
 				})()}
 			</cpnt.TextareaWrap>
-			<cpnt.Words>
-				{this.getWordsList(sTyped)}
-			</cpnt.Words>
-			{/* 分界 */}
+			{this.getWordsList(sTyped)}
 			<cpnt.SentenceWrap ref={this.oSententList}>
 				{aLines.map((cur, idx) => {
 					return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
@@ -128,37 +123,46 @@ export default class Tool extends MyClass {
 	}
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ▼时间刻度
-	getMarkBar({buffer, fPerSecPx}){
-		const arr = [...Array(~~buffer.duration).keys()].map((cur, idx) => {
-			const minute = ~~(cur / 60);
-			const second = cur < 60 ? cur : cur % 60;
-			const text = (()=>{
-				if (fPerSecPx > 100) return `${minute}′${second}″`;
-				if (fPerSecPx > 50) return `${second}″`;
-				if (idx%10 === 0) return `${minute}′${second}″`;
-			})();
-			return <span className="second-mark" key={cur}
-				style={{left: idx * fPerSecPx + "px", width: fPerSecPx + "px"}}
-			>
-				{text}
-			</span>;
-		});
-		return <cpnt.MarkWrap>{arr}</cpnt.MarkWrap>;
+	getMarkBar({fPerSecPx}){
+		let [nowSec, endSec] = this.getArea();
+		const myArr = [];
+		while (nowSec < endSec) {
+			const minute = ~~(nowSec / 60);
+			const second = nowSec < 60 ? nowSec : nowSec % 60;
+			myArr.push(
+				<span className="one-second" key={nowSec} style={{left: nowSec * fPerSecPx + "px"}}>
+					<b className="mark"/>
+					{(()=>{
+						if (minute && second === 0) return `${minute}'0`; //分钟
+						if (fPerSecPx > 100) return `${minute}'${second}`;
+						if (fPerSecPx > 50) return `${second}`;
+						if (nowSec % 10 === 0) return `${second}`; //如果每秒太窄-仅在几十秒的时候显示
+					})()}
+				</span>
+			);
+			nowSec++;
+		}
+		return <cpnt.MarkWrap>{myArr}</cpnt.MarkWrap>;
 	}
-	// ▼区间信息
 	getRegions({playing, aSteps, iCurStep, fPerSecPx}){
+		const myArr = [];
+		let [nowSec, endSec] = this.getArea();
 		const {aLines, iCurLine} = aSteps[iCurStep];
-		const arr = aLines.map(({start, long}, idx) => {
-			return <span key={idx} className={idx === iCurLine ? "cur region" : "region"}
-				style={{left: `${start * fPerSecPx}px`, width: `${long * fPerSecPx}px`}}
-			>
-				<span className="idx">{idx + 1}</span>
-			</span>
-		});
-		return <cpnt.RegionWrap>
-			<i ref={this.oPointer} className={"pointer " + (playing ? 'playing' : '')} />
-			{arr}
-		</cpnt.RegionWrap>
+		for (let idx = 0, len = aLines.length; idx < len; idx++){
+			const {end, start, long} = aLines[idx];
+			const IsShow = end > nowSec || end > endSec;
+			if (!IsShow) continue;
+			myArr.push(
+				<span key={idx} className={idx === iCurLine ? "cur region" : "region"}
+					style={{left: `${start * fPerSecPx}px`, width: `${long * fPerSecPx}px`}}
+				>
+					<span className="idx">{idx + 1}</span>
+				</span>
+			)
+			if (end > endSec) break;
+		}
+		const oPointer = <i ref={this.oPointer} className={"pointer " + (playing ? 'playing' : '')}/>;
+		return <cpnt.RegionWrap>{oPointer}{myArr}</cpnt.RegionWrap>
 	}
 	// ▼故事信息等
 	getInfoBar({oStory, oSct, buffer, iPerSecPx}){ 
@@ -176,14 +180,14 @@ export default class Tool extends MyClass {
 	// ▼提示单词
 	getWordsList(sTyped='', getArr=false){
 		sTyped = sTyped.toLocaleLowerCase().trim();
-		const {aWords} = this.state;
+		const {aWords=[]} = this.state;
 		const aMatched = (()=>{
 			if (!sTyped) return aWords;
 			const aFiltered = aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
 			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
 		})();
 		if (getArr) return aMatched;
-		return aMatched.map((cur, idx)=>{
+		const arr = aMatched.map((cur, idx)=>{
 			const Idx = sTyped ? <i className="idx">{idx+1}</i> : null;
 			return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
 				onConfirm={()=>this.delWord(cur)} key={idx}
@@ -193,6 +197,7 @@ export default class Tool extends MyClass {
 				<em className="word">{cur.slice(sTyped.length)}</em>
 			</Popconfirm>
 		});
+		return <cpnt.Words>{arr}</cpnt.Words>;
 	}
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	// ▼以下是生命周期
@@ -222,13 +227,12 @@ export default class Tool extends MyClass {
 		if (!oStory || !oSct) return;
 		const buffer = {
 			...oSct.buffer,
-			aChannelData_: await oSct.buffer.oChannelDataBlob_.arrayBuffer().then(res=>{
-					return new Int8Array(res)
-			}),
+			aChannelData_: await oSct.buffer.oChannelDataBlob_.arrayBuffer().then(res=>new Int8Array(res)),
 		};
+		const [{aWords=[]}, loading] = [oStory, false];
 		const fileSrc = URL.createObjectURL(oSct.audioFile);
 		if (oSct.aLines.length) aSteps.last_.aLines = oSct.aLines; //字幕
-		this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords: oStory.aWords});
+		this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords, loading});
 		this.bufferToPeaks();
 	}
 	// ▼音频数据转换波峰数据
@@ -240,7 +244,6 @@ export default class Tool extends MyClass {
 		const obackData = this.getPeaks(
 			buffer, (perSecPx_ || iPerSecPx), scrollLeft, offsetWidth,
 		);
-		// ▲返回内容：{aPeaks, fPerSecPx};
 		this.setState({ ...obackData });
 		this.toDraw();
 		return obackData.aPeaks;
