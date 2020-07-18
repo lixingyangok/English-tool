@@ -1,4 +1,4 @@
-import { message } from 'antd';
+import { message, Result } from 'antd';
 
 export default class {
     message = message;
@@ -10,28 +10,34 @@ export default class {
 	async goLine(idx, oNewLine, doNotSave) {
 		const oWaveWrap = this.oWaveWrap.current;
 		const { scrollLeft, offsetWidth } = oWaveWrap;
-		const { fPerSecPx } = this.state;
-		const { start, end, long } = oNewLine || this.getCurLine(idx);
+		const {fPerSecPx} = this.state;
+		const { start, end, long} = oNewLine || this.getCurLine(idx);
 		if (
 			(start * fPerSecPx < scrollLeft) || //【起点】超出可视区
 			(end * fPerSecPx > scrollLeft + offsetWidth) //【终点】超出可视区
 		) {
-			const leftVal = (() => {
+			oWaveWrap.scrollTo((() => {
 				const startPx = fPerSecPx * start;
 				const restPx = offsetWidth - long * fPerSecPx;
 				if (restPx <= 0) return startPx - 100; //100表示起点距离左边100
 				return startPx - restPx / 2;
-			})();
-			oWaveWrap.scrollTo(leftVal, 0);
+			})(), 0);
 		}
 		// ▲波形定位，▼下方句子定位
 		const oSententList = this.oSententList.current;
-		const fHeight = [...oSententList.children].reduce((result, cur, iLineIdx)=>{
-			if (iLineIdx + 2 >= idx) return result;
-			return result + cur.offsetHeight;
+		const {offsetHeight, scrollTop, children} = oSententList;
+		const iTargetPst = [...children].reduce((result, cur, iCurIdx)=>{
+			if (iCurIdx < idx) result += cur.offsetHeight ; //当前行小于目标行，累计高度
+			return result; //结果其实是【目标行】头顶以上所有行的总高度
 		}, 0);
-		oSententList.scrollTo(0, fHeight);
-        // 
+		oSententList.scrollTop = (()=>{
+			const topLineHeight = (children[idx-1] || {}).offsetHeight || 0;
+			let bottomLineHeight = (children[idx] || {}).offsetHeight || 65;
+			let bottomLineHeight02 = (children[idx+1] || {}).offsetHeight || 65;
+			if (iTargetPst < scrollTop + topLineHeight) return iTargetPst - topLineHeight;
+			if (iTargetPst > scrollTop + offsetHeight - bottomLineHeight - bottomLineHeight02) return scrollTop + bottomLineHeight;
+			return scrollTop;
+		})();
         if (doNotSave) return;
 		const { oCurStepDc } = this.getCurStep();
 		oCurStepDc.iCurLine = idx;
@@ -176,6 +182,7 @@ export default class {
 		const theFn = this[sFnName];
 		theFn && theFn.call(this, ...aRest);
 	}
+	// ▼得到可视区域的起点/终点的秒数，例：[3,9] 表示3-9秒
 	getArea(){
 		const oWaveWrap = this.oWaveWrap.current;
 		if (!oWaveWrap) return [0, 0];

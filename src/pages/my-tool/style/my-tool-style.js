@@ -78,10 +78,13 @@ export const MarkWrap = styled.section`
 		position: absolute;
 		top: 0;
 		height: 100%;
-		font-size: 10px;
-		text-size-adjust: none;
+		font-size: 12px;
 		padding: 3px 0 0 5px;
 		line-height: 1.2;
+		&[class~=ten-times] .mark{
+			height: 50%;
+			width: 2px;
+		}
 	}
 	.mark{
 		position: absolute;
@@ -90,10 +93,6 @@ export const MarkWrap = styled.section`
 		width: 1px;
 		height: 18%;
 		background: var(--color);
-	}
-	.one-second:nth-child(10n+1) .mark{
-		height: 50%;
-		width: 2px;
 	}
 `;
 

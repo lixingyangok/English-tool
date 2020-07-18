@@ -76,9 +76,13 @@ export default class {
     const {iCurLine, aLines} = this.getCurStep(true);
     if (iCurLine === 0 && iDirection === -1) return; //不可退
     const iCurLineNew = iCurLine + iDirection;
-    this.goLine(iCurLineNew, (
-      !aLines[iCurLineNew] && this.figureOut(aLines.last_.end) //没超出范围返回false=即不要新增。否则超出了就返回新行
-    ));
+    const newLine = (()=>{
+      if (aLines[iCurLineNew]) return false; //有数据，不用新增
+      if ((this.state.buffer.duration - aLines[iCurLine].end) < 1) return null; //临近终点不新增
+      return this.figureOut(aLines.last_.end)
+    })();
+    if (newLine === null) return this.message.error(`已经到头了`);
+    this.goLine(iCurLineNew, newLine);
     if (isNeedSave && iCurLineNew % 3 === 0) this.toSave();
   }
   // ▼能加断句
@@ -92,13 +96,12 @@ export default class {
       if (idx % 2) return result; //不处理单数
       return result.concat(~~((cur - arr[idx+1]) * iHeight));
     }, []);
-    console.log('波形2', myArr);
     let [start, end, lastAvg] = [0, 0, 0] // 起点，终点，上一步平均值
     const [step, height] = [10, 10]; //采样跨度， 高度阈值
-    for (let idx = 0; idx < myArr.length; idx += step){
-      const myEnd = idx+step;
-      const curAvg = myArr.slice(idx, myEnd).reduce((rst, cur)=>rst+cur) / step; //这一段平均值
-      const nextAvg = myArr.slice(myEnd, myEnd+step).reduce((rst, cur)=>rst+cur || 0) / step; //下一段平均值
+    for (let idx = 0, len = myArr.length; idx < len; idx += step){
+      const myEnd = idx + step;
+      const curAvg = myArr.slice(idx, myEnd).reduce((rst, cur)=>(rst+cur), 0) / step; //这一段平均值
+      const nextAvg = myArr.slice(myEnd, myEnd + step).reduce((rst, cur)=>(rst+cur), 0) / step; //下一段平均值
       if (idx === 0 && curAvg > height && nextAvg > height) start = 0;
       if (!start && curAvg < height && nextAvg > height) { // start没值时才去处理...
         start = idx - step / 2;
@@ -316,7 +319,7 @@ export default class {
   chooseMore(){
     console.log('扩');
     const oCurLine = this.getCurLine();
-    const newEnd = this.figureOut(oCurLine.end, 1).end;
+    const newEnd = this.figureOut(oCurLine.end, 0.5).end;
     this.setTime('end', newEnd);
   }
 }

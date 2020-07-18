@@ -129,14 +129,16 @@ export default class Tool extends MyClass {
 		while (nowSec < endSec) {
 			const minute = ~~(nowSec / 60);
 			const second = nowSec < 60 ? nowSec : nowSec % 60;
+			const is10Times = nowSec % 10 === 0;
+			const className = 'one-second ' + (is10Times ? 'ten-times' : '');
 			myArr.push(
-				<span className="one-second" key={nowSec} style={{left: nowSec * fPerSecPx + "px"}}>
+				<span className={className} key={nowSec} style={{left: nowSec * fPerSecPx + "px"}}>
 					<b className="mark"/>
 					{(()=>{
 						if (minute && second === 0) return `${minute}'0`; //分钟
 						if (fPerSecPx > 100) return `${minute}'${second}`;
 						if (fPerSecPx > 50) return `${second}`;
-						if (nowSec % 10 === 0) return `${second}`; //如果每秒太窄-仅在几十秒的时候显示
+						if (is10Times) return `${minute}'${second}`; //如果每秒太窄-仅在几十秒的时候显示
 					})()}
 				</span>
 			);
