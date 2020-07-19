@@ -30,7 +30,7 @@ export default class Tool extends MyClass {
 		fileSrc: "", //文件地址
 		iHeight: 0.3, // 波形高
 		iCanvasHeight: cpnt.iCanvasHeight, //画布高
-		iPerSecPx: 55, //人为定义的每秒宽度
+		iPerSecPx: 60, //人为定义的每秒宽度
 		fPerSecPx: 55, //实际算出每秒像素数
 		drawing: false, //是否在绘制中（用于防抖
 		loading: false, //是否在加载中（解析文件
@@ -189,11 +189,13 @@ export default class Tool extends MyClass {
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词
-	getWordsList({aMatched, sTyped}){
+	getWordsList({aMatched, aWords, sTyped}){
 		const arr = aMatched.map((cur, idx)=>{
 			const Idx = sTyped ? <i className="idx">{idx+1}</i> : null;
+			const isInDb = aWords.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
 			return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
 				onConfirm={()=>this.delWord(cur)} key={idx}
+				className={isInDb ? 'in-db' : ''}
 			>
 				{Idx}
 				<mark className="word">{sTyped}</mark>

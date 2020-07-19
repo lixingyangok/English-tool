@@ -10,11 +10,7 @@ export default class {
     }
     checkWordsDB(oWordsDB){
         window.oWordsDB = oWordsDB;
-        const aAlphabet = this.getAlphabet();
-        // const isDbPrepared = aAlphabet.every(cur=>{
-        //     return oWordsDB[cur];
-        // });
-        aAlphabet.forEach(async (cur, idx)=>{
+        this.getAlphabet().forEach(async (cur, idx)=>{
             oWordsDB.version(idx+1).stores({[cur]: '++id, word'});
         });
     }
@@ -34,7 +30,7 @@ export default class {
         let idx = 0;
         while (idx < aAlphabet.length) {
             const curLetter = aAlphabet[idx];
-            const wordArrToTb = wordArr[idx].split(/\n/).filter(Boolean).map((word,id)=>({id, word}));
+            const wordArrToTb = wordArr[idx].split(/\n/).filter(Boolean).map((word,id)=>({word, id}));
             const curTB = oWordsDB[curLetter];
             await curTB.clear();
             await curTB.bulkAdd(wordArrToTb);

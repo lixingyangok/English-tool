@@ -200,14 +200,23 @@ export const TextareaWrap = styled.div`
 // 候选词
 export const Words = styled.div`
 	display: flex;
-	flex-flow: row wrap;
+	flex-flow: row nowrap;
+	overflow: hidden;
 	margin: 0 0 18px;
 	min-height: 30px;
 	overflow: hidden;
 	flex: none;
 	line-height: 1.4;
+	white-space: nowrap;
+	&:hover{
+		flex-wrap: wrap;
+	}
 	span{
 		margin-right: 15px;
+		cursor: pointer;
+	}
+	.in-db{
+		font-weight: bold;
 	}
 	.idx{
 		display: inline-block;

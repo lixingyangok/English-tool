@@ -87,35 +87,36 @@ export default class {
   }
   // ▼能加断句
   figureOut(fEndSec, fLong=3){
-    const {buffer, iPerSecPx, fPerSecPx, iHeight} = this.state;
-    const iPeakStart = ~~(fPerSecPx * fEndSec); //取整。否则用浮点数计算太慢
+    const iPerSecPx = 100; //默认每秒100px宽
     const {aPeaks} = this.getPeaks(
-      buffer, iPerSecPx, iPeakStart, iPerSecPx * 20, // 取当前位置往后15秒
+      this.state.buffer, iPerSecPx, ~~(iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
     );
     const myArr = aPeaks.reduce((result, cur, idx, arr)=>{
-      if (idx % 2) return result; //不处理单数
-      return result.concat(~~((cur - arr[idx+1]) * iHeight));
+      if (idx % 2) return result; //只处理0、2、4这些。不处理单数，即不处理：1、3、5 这些
+      const iHowHeight = Math.round((cur - arr[idx+1]) * this.state.iHeight);
+      return result.concat(iHowHeight);
     }, []);
-    let [start, end, lastAvg] = [0, 0, 0] // 起点，终点，上一步平均值
-    const [step, height] = [10, 10]; //采样跨度， 高度阈值
+    let [start, end, lastAvg] = [null, 0, 0] // 起点，终点，上一步平均值
+    const [step, height] = [10, 15]; //采样跨度， 高度阈值
     for (let idx = 0, len = myArr.length; idx < len; idx += step){
       const myEnd = idx + step;
       const curAvg = myArr.slice(idx, myEnd).reduce((rst, cur)=>(rst+cur), 0) / step; //这一段平均值
       const nextAvg = myArr.slice(myEnd, myEnd + step).reduce((rst, cur)=>(rst+cur), 0) / step; //下一段平均值
       if (idx === 0 && curAvg > height && nextAvg > height) start = 0;
-      if (!start && curAvg < height && nextAvg > height) { // start没值时才去处理...
+      if (start === null && curAvg < height && nextAvg > height) { // start没值时才去处理...
         start = idx - step / 2;
+        if (start < 0) start = 0;
       }
-      if (!start || idx - start < iPerSecPx) continue; //头部没算出来不向下计算尾部 || 当前位置没超过起点1秒，不向下求终点
+      if (start === null || idx - start < iPerSecPx * fLong) continue; //头部没算出来不向下计算尾部 || 当前位置没超过起点x秒，不向下求终点
       if (lastAvg > height && curAvg < height && nextAvg < height){
-        end = idx + step * 1.2;
-        if (end / fPerSecPx > fLong) break; //如果已经大于3秒，不再找下一个终点
+        end = idx + step * 1.5;
+        if (end / iPerSecPx > fLong) break; //如果已经大于3秒，不再找下一个终点
       }
       lastAvg = curAvg;
     }
     return this.fixTime({
-      start: start / fPerSecPx + fEndSec,
-      end: (end || myArr.length) / fPerSecPx + fEndSec,
+      start: (start || 0) / iPerSecPx + fEndSec,
+      end: (end || myArr.length) / iPerSecPx + fEndSec,
     });
   }
   // ▼输入框文字改变
@@ -127,6 +128,7 @@ export default class {
       oCurLineDc.text = sText;
       this.setCurLine(oCurLineDc);
       this.setState({sTyped});
+      this.getMatchedWords();
       return;
     }
     const sLeft = sText.slice(0, idx);
@@ -137,7 +139,7 @@ export default class {
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
     aSteps[iCurStep].aLines[iCurLine].text = sText;
     this.setState({aSteps, sTyped, aMatched: []});
-    this.getMatchedWords(sTyped)
+    this.getMatchedWords(sTyped);
   }
   async getMatchedWords(sTyped=''){
 		sTyped = sTyped.toLocaleLowerCase().trim();
@@ -204,7 +206,6 @@ export default class {
     }
     this.setTime(sKey, fNewVal);
   }
-
   // ▼重新定位起点，终点
   cutHere(sKey){
     const oAudio = this.oAudio.current;
@@ -336,7 +337,6 @@ export default class {
   }
   // ▼扩选
   chooseMore(){
-    console.log('扩');
     const oCurLine = this.getCurLine();
     const newEnd = this.figureOut(oCurLine.end, 0.5).end;
     this.setTime('end', newEnd);
