@@ -124,8 +124,8 @@ export default class Tool extends MyClass {
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ▼时间刻度
 	getMarkBar({fPerSecPx}){
-		let [nowSec, endSec] = this.getArea();
 		const myArr = [];
+		let [nowSec, endSec] = this.getArea();
 		while (nowSec < endSec) {
 			const minute = ~~(nowSec / 60);
 			const second = nowSec < 60 ? nowSec : nowSec % 60;
@@ -146,6 +146,7 @@ export default class Tool extends MyClass {
 		}
 		return <cpnt.MarkWrap>{myArr}</cpnt.MarkWrap>;
 	}
+	// ▼句子区间
 	getRegions({playing, aSteps, iCurStep, fPerSecPx}){
 		const myArr = [];
 		let [nowSec, endSec] = this.getArea();
@@ -218,8 +219,9 @@ export default class Tool extends MyClass {
 	}
 	// ▼销毁前
 	componentWillUnmount(){
-		this.setState = (state, callback) => {return};
+		// this.setState = (state, callback) => {return};
 		// ReactDOM.unmountComponentAtNode(document.getElementById("tool"));
+		this.setState = (state, callback) => null;
 	}
 	async init({storyId, sctId}){
 		const {oStoryTB, oSectionTB, aSteps} = this.state;

@@ -251,6 +251,7 @@ export const SentenceWrap = styled.ol`
 		border-width: 1px 0 0;
 		display: flex;
 		font-size: 16px;
+		font-weight: 500;
 		cursor: pointer;
 		&[class~=cur]{
 			background: #ceffe7;
@@ -288,11 +289,10 @@ export const SentenceWrap = styled.ol`
 		min-height: 1.3em;
 		line-height: 1.3;
 		margin: 0 10px 0 0;
-		padding: 0.6em 0;
+		padding: 0.4em 0;
 		box-sizing: content-box;
 	}
 `;
-
 
 export const HistoryBar = styled.div`
 	padding: 0;

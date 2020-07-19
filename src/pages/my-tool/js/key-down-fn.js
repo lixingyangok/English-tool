@@ -27,7 +27,7 @@ export default class {
     const type03 = { // alt 系列
       'alt + j': () => this.previousAndNext(-1),
       'alt + k': () => this.previousAndNext(1),
-      'alt + l': () => this.getLineAndGo(), // 跳到最后一句 l = last
+      'alt + l': () => this.goLastLine(), // 跳到最后一句 l = last
       'alt + ,': () => this.zoomWave({deltaY: 1}), //波形横向缩放
       'alt + .': () => this.zoomWave({deltaY: -1}), //波形横向缩放
       'alt + u': () => this.fixRegion('start', -0.07), //起点向左
@@ -273,14 +273,15 @@ export default class {
   toStop(){
     this.setState({playing: false});
   }
-  getLineAndGo(){
+  // ▼到最后一行
+  goLastLine(){
 		const {aLines, iCurLine} = this.getCurStep(true);
     let idx = aLines.findIndex(cur => cur.text.length <= 1);
     if (idx === -1 || idx === iCurLine) idx = aLines.length - 1;
     this.goLine(idx);
     document.querySelectorAll('textarea')[0].focus();
   }
-  // ▼保存生词到本地
+  // ▼保存生词到DB
   saveWord(){
     const {oStoryTB, oStory} = this.state;
     const sWord = window.getSelection().toString().trim();
@@ -294,6 +295,7 @@ export default class {
     this.setState({aWords});
     this.message.success(`保存成功`);
   }
+  // ▼删除一个保存的单词
   delWord(sWord){
     const {oStoryTB, oStory} = this.state;
     const aWords = this.state.aWords.filter(cur=>cur!==sWord);
@@ -316,6 +318,7 @@ export default class {
     this.setCurLine(oCurLine);
     myTextArea.selectionStart = myTextArea.selectionEnd = newLeft.length;
   }
+  // ▼扩选
   chooseMore(){
     console.log('扩');
     const oCurLine = this.getCurLine();
