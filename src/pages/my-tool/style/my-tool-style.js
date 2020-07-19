@@ -221,13 +221,16 @@ export const Words = styled.div`
 		color: white;
 		font-size: 16px;
 	}
+	span:nth-child(n+5) .idx{
+		background: deepskyblue;
+	}
 	.word{
 		color: black;
 		font-size: 18px;
 		padding: 0;
 	}
 	mark{
-		background: yellow;
+		background: rgba(255,255,0, 0.35);
 	}
 `;
 

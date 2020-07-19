@@ -42,8 +42,8 @@ export default class Menu extends React.Component{
 				>
 					<i className="fas fa-paste"/>
 				</span>
-				<span className="btn" title="本地历史记录" 
-					onClick={()=>commander('ab43c')}
+				<span className="btn" title="词库初始化"
+					onClick={()=>commander('initWordsDB')}
 				>
 					<i className="fas fa-book"/>
 				</span>

@@ -35,7 +35,7 @@ export default class {
       'alt + n': () => this.fixRegion('end', -0.07), //终点向左
       'alt + m': () => this.fixRegion('end', 0.07), //终点向右
       'alt + ]': () => this.chooseMore(), //扩选
-      'alt + number': number => this.toInset(number), //取词
+      'alt + number': number => this.toInset(number-1), //取词
       ...{ // +shift
         'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
         'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
@@ -136,7 +136,23 @@ export default class {
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
     aSteps[iCurStep].aLines[iCurLine].text = sText;
-    this.setState({aSteps, sTyped});
+    this.setState({aSteps, sTyped, aMatched: []});
+    this.getMatchedWords(sTyped)
+  }
+  async getMatchedWords(sTyped=''){
+		sTyped = sTyped.toLocaleLowerCase().trim();
+    const {aWords=[], oWordsDB} = this.state;
+		const aMatched = (()=>{
+			if (!sTyped) return aWords;
+			const aFiltered = aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
+			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
+    })();
+		if (oWordsDB && sTyped && aMatched.length < 9) {
+			const theTB = oWordsDB[sTyped[0]].where('word').startsWith(sTyped);
+      const res = await theTB.limit(9 - aMatched.length).toArray();
+      aMatched.push(...res.map(({word})=>word));
+		}
+    this.setState({aMatched});
   }
   // ▼按下回车键
   enterKeyDown(ev) {
@@ -188,6 +204,7 @@ export default class {
     }
     this.setTime(sKey, fNewVal);
   }
+
   // ▼重新定位起点，终点
   cutHere(sKey){
     const oAudio = this.oAudio.current;
@@ -304,16 +321,16 @@ export default class {
   }
   // ▼插入选中的单词
   toInset(idx){
-    const {sTyped} = this.state;
-    const arr = this.getWordsList(sTyped, true);
-    const theWord = (arr[idx-1] || '').slice(sTyped.length);
-    const myTextArea = document.getElementById('myTextArea');
+    console.log('插入----', idx);
+    const {sTyped, aMatched} = this.state;
+    const theWord = (aMatched[idx] || '').slice(sTyped.length);
     if (!theWord) return;
+    const myTextArea = document.getElementById('myTextArea');
     const cursorIdx = myTextArea.selectionStart;
     const {dc_: oCurLine, text} = this.getCurLine();
     const [left, right] = [text.slice(0, cursorIdx), text.slice(cursorIdx)]
     const newLeft = left + theWord;
-    oCurLine.text = newLeft + right;
+    oCurLine.text = (newLeft + right).trim();
     this.setCurLine(oCurLine);
     myTextArea.selectionStart = myTextArea.selectionEnd = newLeft.length;
   }

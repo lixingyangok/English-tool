@@ -1,0 +1,45 @@
+/*
+ * @Author: 李星阳
+ * @LastEditors: 李星阳
+ * @Description: 
+ */ 
+
+export default class {
+    getAlphabet(){
+        return [...Array(26).keys()].map(cur=>String.fromCharCode(97 + cur));
+    }
+    checkWordsDB(oWordsDB){
+        window.oWordsDB = oWordsDB;
+        const aAlphabet = this.getAlphabet();
+        // const isDbPrepared = aAlphabet.every(cur=>{
+        //     return oWordsDB[cur];
+        // });
+        aAlphabet.forEach(async (cur, idx)=>{
+            oWordsDB.version(idx+1).stores({[cur]: '++id, word'});
+        });
+    }
+    async initWordsDB(){
+        const {oWordsDB} = this.state;
+        const aAlphabet = this.getAlphabet();
+        const wordArr = [];
+        const promiseArr = aAlphabet.map(async (cur, idx)=>{
+            const res = await fetch(`/static/text/${cur}.txt`, {
+                headers: {"Content-Type": "application/json"},
+                credentials: "same-origin",
+            });  //.then(async res=>await res.text()).catch(()=>false)
+            wordArr[idx] = await res.text();
+            return true;
+        });
+        await Promise.all(promiseArr);
+        let idx = 0;
+        while (idx < aAlphabet.length) {
+            const curLetter = aAlphabet[idx];
+            const wordArrToTb = wordArr[idx].split(/\n/).filter(Boolean).map((word,id)=>({id, word}));
+            const curTB = oWordsDB[curLetter];
+            await curTB.clear();
+            await curTB.bulkAdd(wordArrToTb);
+            this.message.success(`初始化完成 ${curLetter}`);
+            idx++;
+        }
+    }
+}

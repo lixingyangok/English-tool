@@ -5,12 +5,13 @@ import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
+import wordsDbFn from './js/words-db.js';
 import Nav from './children/menu/menu.jsx';
 // import {fileToBuffer} from 'assets/js/pure-fn.js';
 
 const { TextArea } = Input;
 const MyClass = window.mix(
-	React.Component, coreFn, keyDownFn, MouseFn, fileFn,
+	React.Component, coreFn, keyDownFn, MouseFn, fileFn, wordsDbFn,
 );
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
@@ -42,10 +43,12 @@ export default class Tool extends MyClass {
 		oTarget: {}, // 故事信息如：故事id、章节id
 		oStoryTB: {}, // 表-存故事
 		oSectionTB: {}, // 表-存章节
+		oWordsDB: {}, //词库
 		oStory: {}, // DB中的【故事】
 		oSct: {}, // DB中的【章节】
-		aWords: [], //DB中的【单词】
 		sTyped: '', //已经输入的，用于搜索
+		aWords: [], //DB中的【单词】
+		aMatched: [], //与当前输入匹配到的单词
 	};
 	constructor(props) {
 		super(props);
@@ -57,24 +60,25 @@ export default class Tool extends MyClass {
 				return {...result, [key]: val};
 			}, {});
 		})();
+		const loading = !!oTarget.storyId; //有id就loading
 		const [oStoryTB, oSectionTB] = (()=>{
 			const theDB = new window.Dexie("myDb");
 			theDB.version(1).stores({stories: '++id, name'});
 			theDB.version(2).stores({sections: '++id, idx, parent'});
 			return [theDB.stories, theDB.sections];
 		})();
-		const loading = !!oTarget.storyId;
-		Object.assign(this.state, {oStoryTB, oSectionTB, oTarget, loading});
+		const oWordsDB = new window.Dexie("wordsDB");
+		Object.assign(
+			this.state,
+			{oStoryTB, oSectionTB, oTarget, loading, oWordsDB},
+		);
 		if (oTarget.storyId) this.init(oTarget);
-		const wordsDB = new window.Dexie("wordsDB");
-		wordsDB.version(1).stores({aWords: '++id, word'});
-		window.wordsDB = wordsDB.aWords;
-		this.getWordsDB();
+		this.checkWordsDB(oWordsDB);
 	}
 	render() {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
-			fileSrc, fPerSecPx, sTyped, buffer, loading,
+			fileSrc, fPerSecPx, buffer, loading,
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		return <cpnt.Div>
@@ -107,7 +111,7 @@ export default class Tool extends MyClass {
 					/>;
 				})()}
 			</cpnt.TextareaWrap>
-			{this.getWordsList(sTyped)}
+			{this.getWordsList(this.state)}
 			<cpnt.SentenceWrap ref={this.oSententList}>
 				{aLines.map((cur, idx) => {
 					return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
@@ -185,20 +189,7 @@ export default class Tool extends MyClass {
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词
-	getWordsList(sTyped='', getArr=false){
-		sTyped = sTyped.toLocaleLowerCase().trim();
-		const {aWords=[]} = this.state;
-		const aMatched = (()=>{
-			if (!sTyped) return aWords;
-			const aFiltered = aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
-			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
-		})();
-		if (window.wordsDB){
-			window.wordsDB.where('word').startsWith(sTyped).limit(9).toArray().then(res=>{
-				console.log('搜索单词：', res.map(cur=>cur.word));
-			});
-		}
-		if (getArr) return aMatched;
+	getWordsList({aMatched, sTyped}){
 		const arr = aMatched.map((cur, idx)=>{
 			const Idx = sTyped ? <i className="idx">{idx+1}</i> : null;
 			return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
