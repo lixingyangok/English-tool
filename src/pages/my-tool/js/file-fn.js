@@ -4,6 +4,7 @@
  * @Description: 
  */
 
+
 export default class {
   // ▼拖入文件
   pushFiles(ev) {
@@ -133,7 +134,7 @@ export default class {
     reader.readAsText(oFile);
     return oPromise;
   }
-  // ▼字符转字幕数据，用于显示
+  // ▼字符转字幕数据，用于显示，疑似废弃
   getTimeLine(text) {
     let strArr = text.split('\n');
     const aLine = [];
@@ -156,4 +157,20 @@ export default class {
       };
     });
   }
+  async getWordsDB(){
+    if (1) return;
+    const res = await fetch('/static/text/a-words.txt');
+    if (!res) return;
+    const text = await res.text();
+    const arr = text.split(/\n/).map((cur,idx)=>({id: idx, word: cur}));
+    // console.log('文本', arr.slice(0, 10));
+    window.wordsDB.bulkAdd(arr);
+    window.wordsDB.where('word').startsWith('abso').limit(9).toArray().then(res=>{
+        console.log(res)
+    });
+  }
+  logWords(){
+
+  }
 };
+

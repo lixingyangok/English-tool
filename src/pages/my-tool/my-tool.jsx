@@ -66,6 +66,10 @@ export default class Tool extends MyClass {
 		const loading = !!oTarget.storyId;
 		Object.assign(this.state, {oStoryTB, oSectionTB, oTarget, loading});
 		if (oTarget.storyId) this.init(oTarget);
+		const wordsDB = new window.Dexie("wordsDB");
+		wordsDB.version(1).stores({aWords: '++id, word'});
+		window.wordsDB = wordsDB.aWords;
+		this.getWordsDB();
 	}
 	render() {
 		const {
@@ -189,6 +193,11 @@ export default class Tool extends MyClass {
 			const aFiltered = aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
 			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
 		})();
+		if (window.wordsDB){
+			window.wordsDB.where('word').startsWith(sTyped).limit(9).toArray().then(res=>{
+				console.log('搜索单词：', res.map(cur=>cur.word));
+			});
+		}
 		if (getArr) return aMatched;
 		const arr = aMatched.map((cur, idx)=>{
 			const Idx = sTyped ? <i className="idx">{idx+1}</i> : null;
@@ -222,6 +231,7 @@ export default class Tool extends MyClass {
 		// this.setState = (state, callback) => {return};
 		// ReactDOM.unmountComponentAtNode(document.getElementById("tool"));
 		this.setState = (state, callback) => null;
+		document.onkeydown = xx=>xx;
 	}
 	async init({storyId, sctId}){
 		const {oStoryTB, oSectionTB, aSteps} = this.state;

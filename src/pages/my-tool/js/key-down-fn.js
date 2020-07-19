@@ -133,7 +133,6 @@ export default class {
     const sRight = sText.slice(idx);
     const needToCheck = /\b[a-z]{1,9}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
     if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
-    console.log('查？？？？？？？？', needToCheck);
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
     aSteps[iCurStep].aLines[iCurLine].text = sText;
