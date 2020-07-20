@@ -1,7 +1,8 @@
 import { message } from 'antd';
 
 export default class {
-    message = message;
+	message = message;
+	// ▼跳转到当前行（可以删除）因为 goLine 没收到目标行，即跳到当前行
     goToCurLine(){
         const {iCurLine} = this.getCurStep();
         this.goLine(iCurLine, false, true);
@@ -118,6 +119,7 @@ export default class {
 		}
 		this.fixTime(oCurLine);
 		this.setCurLine(oCurLine);
+		this.goToCurLine();
 	}
 	// ▼修整某一行
 	fixTime(oTarget) {

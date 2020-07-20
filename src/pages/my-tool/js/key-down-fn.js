@@ -86,7 +86,7 @@ export default class {
     if (isNeedSave && iCurLineNew % 3 === 0) this.toSave();
   }
   // ▼能加断句
-  figureOut(fEndSec, fLong=3){
+  figureOut(fEndSec, fLong=2.5){
     const iPerSecPx = 100; //默认每秒100px宽
     const {aPeaks} = this.getPeaks(
       this.state.buffer, iPerSecPx, ~~(iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
@@ -133,7 +133,7 @@ export default class {
     }
     const sLeft = sText.slice(0, idx);
     const sRight = sText.slice(idx);
-    const needToCheck = /\b[a-z]{1,9}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
+    const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
     if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
     const {aSteps, iCurStep} = this.state;
     const {iCurLine} = aSteps[iCurStep]; // 当前步骤
@@ -338,7 +338,7 @@ export default class {
   // ▼扩选
   chooseMore(){
     const oCurLine = this.getCurLine();
-    const newEnd = this.figureOut(oCurLine.end, 0.5).end;
+    const newEnd = this.figureOut(oCurLine.end, 0.35).end;
     this.setTime('end', newEnd);
   }
 }
