@@ -90,7 +90,7 @@ export default class {
 			return buffer.length / sampleSize / buffer.duration; 
 		})();
 		markBar.style.width = fPerSecPx * buffer.duration + 'px';
-		const iNewLeftPx = this.getPointSec(ev) * fPerSecPx - (clientX - offsetLeft);
+		const iNewLeftPx = this.getPointSec({clientX}) * fPerSecPx - (clientX - offsetLeft);
 		oWaveWrap.scrollLeft = iNewLeftPx;
 		this.oPointer.current.style.left = `${this.oAudio.current.currentTime * fPerSecPx}px`;
 		this.setState({iPerSecPx, drawing: true});

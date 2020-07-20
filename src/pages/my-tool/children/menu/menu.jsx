@@ -28,7 +28,7 @@ export default class Menu extends React.Component{
 					/>
 				</label>
 				<span className="btn" title="保存到浏览器" 
-					onClick={()=>commander('toSave')}
+					onClick={()=>commander('toSaveInDb')}
 				>
 					<i className="fas fa-save"/>
 				</span>
