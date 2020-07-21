@@ -7,7 +7,7 @@ import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
 import wordsDbFn from './js/words-db.js';
 import Nav from './children/menu/menu.jsx';
-// import {fileToBuffer} from 'assets/js/pure-fn.js';
+import {Modal, Button, Upload} from 'antd';
 
 const { TextArea } = Input;
 const MyClass = window.mix(
@@ -49,6 +49,7 @@ export default class Tool extends MyClass {
 		sTyped: '', //已经输入的，用于搜索
 		aWords: [], //DB中的【单词】
 		aMatched: [], //与当前输入匹配到的单词
+		visible: false,
 	};
 	constructor(props) {
 		super(props);
@@ -127,6 +128,7 @@ export default class Tool extends MyClass {
 					</li>;
 				})}
 			</cpnt.SentenceWrap>
+			{this.getDialog(this.state)}
 		</cpnt.Div>;
 	}
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
@@ -202,11 +204,32 @@ export default class Tool extends MyClass {
 				<em className="word">{cur.slice(sTyped.length)}</em>
 			</Popconfirm>
 		});
-		return <cpnt.Words onMouseOver={ev=>this.showAllTipWords(ev)}
-			onMouseOut={ev=>this.showAllTipWords(ev)}
-		>
+		return <cpnt.Words>
 			{arr}
 		</cpnt.Words>;
+	}
+	getDialog({aWords}){
+		const arr = aWords.map((cur, idx)=>{
+			return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
+				onConfirm={()=>this.delWord(cur)} key={idx}
+			>
+				<span style={{'margin': '0 10px 10px 0'}} >
+					{cur}
+				</span>
+			</Popconfirm>
+		});
+		
+		return <Modal title="新增" okText="保存" cancelText="关闭"
+			visible={this.state.visible} footer={null}
+			onCancel={()=>this.setState({visible: false})}
+		>
+			{arr}
+			<br/><br/>
+			<Upload type="primary" beforeUpload={file=>this.beforeUpload(file)} >
+				<Button>导入</Button>
+			</Upload>
+			<Button onClick={()=>this.exportWods()}>导出</Button>
+		</Modal>;
 	}
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	// ▼以下是生命周期

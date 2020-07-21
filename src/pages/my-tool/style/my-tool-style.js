@@ -203,14 +203,15 @@ export const Words = styled.div`
 	flex-flow: row nowrap;
 	overflow: hidden;
 	margin: 0 0 18px;
-	min-height: 30px;
 	overflow: hidden;
 	flex: none;
 	line-height: 1.4;
 	white-space: nowrap;
+	min-height: 30px;
+	transition: 0.5s;
+	transition-delay: 0.5s;
 	&[class~=show-all]{
 		flex-wrap: wrap;
-		outline: solid 1px red;
 	}
 	span{
 		margin-right: 15px;

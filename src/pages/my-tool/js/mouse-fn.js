@@ -107,9 +107,21 @@ export default class {
 		this.setState({ iHeight });
 		this.toDraw();
 	}
-	showAllTipWords(ev){
-		console.log(ev);
-		console.log(ev.target);
+	// ▼词库
+	showDialog(){
+		console.log(123);
+		this.setState({visible: true});
+	}
+	// ▼ type='in', 'out'
+	async exportWods(){
+		const {oTarget, oStoryTB} = this.state;
+		console.log(oTarget);
+		const res = await oStoryTB.get(oTarget.storyId*1);
+		console.log(res.aWords );
+	}
+	beforeUpload(file){
+		console.log(file);
+		return false;
 	}
 }
 

@@ -47,6 +47,11 @@ export default class Menu extends React.Component{
 				>
 					<i className="fas fa-book"/>
 				</span>
+				<span className="btn" title="词库"
+					onClick={()=>commander('showDialog')}
+				>
+					<i className="fas fa-book"/>
+				</span>
 			</cpnt.BtnBar>
 		</cpnt.Header>
 	}
