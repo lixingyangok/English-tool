@@ -135,23 +135,19 @@ export default class {
 	// ▼输入框文字改变
 	valChanged(ev) {
 		const { value: sText, selectionStart: idx } = ev.target;
-		let sTyped = ''; //用于搜索的
-		if (sText.match(/.+[^a-zA-Z]$/)) { //如果最后的字母不是英文字母，不生成新历史
-			const oCurLineDc = this.getCurLine().dc_;
-			oCurLineDc.text = sText;
-			this.setCurLine(oCurLineDc);
-			this.setState({ sTyped });
-			this.getMatchedWords();
-			return;
-		}
-		const sLeft = sText.slice(0, idx);
-		const sRight = sText.slice(idx);
-		const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
-		if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
+		let sTyped = ''; // 单词开头（用于搜索的）
+		const [sLeft, sRight] = [sText.slice(0, idx), sText.slice(idx)];
 		const { aSteps, iCurStep } = this.state;
-		const { iCurLine } = aSteps[iCurStep]; // 当前步骤
-		aSteps[iCurStep].aLines[iCurLine].text = sText;
-		this.setState({ aSteps, sTyped, aMatched: [] });
+		const { iCurLine, aLines } = aSteps[iCurStep]; // 当前步骤
+		if (sLeft.match(/.+[^a-zA-Z]$/)) { // 如果键入了【非】英文字母，【需要】生成新历史
+			this.setCurLine({...aLines[iCurLine], text: sText});
+			this.setState({sTyped}); // 进入判断 sTyped 一定是空字符
+		}else{ // 英文字母结尾，【不要】生成新历史
+			const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
+			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
+			aLines[iCurLine].text = sText;
+			this.setState({aSteps, sTyped});
+		}
 		this.getMatchedWords(sTyped);
 	}
 	async getMatchedWords(sTyped = '') {

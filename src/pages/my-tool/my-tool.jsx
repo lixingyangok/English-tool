@@ -202,7 +202,11 @@ export default class Tool extends MyClass {
 				<em className="word">{cur.slice(sTyped.length)}</em>
 			</Popconfirm>
 		});
-		return <cpnt.Words>{arr}</cpnt.Words>;
+		return <cpnt.Words onMouseOver={ev=>this.showAllTipWords(ev)}
+			onMouseOut={ev=>this.showAllTipWords(ev)}
+		>
+			{arr}
+		</cpnt.Words>;
 	}
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	// ▼以下是生命周期

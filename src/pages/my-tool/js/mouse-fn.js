@@ -107,6 +107,10 @@ export default class {
 		this.setState({ iHeight });
 		this.toDraw();
 	}
+	showAllTipWords(ev){
+		console.log(ev);
+		console.log(ev.target);
+	}
 }
 
 

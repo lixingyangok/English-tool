@@ -208,8 +208,9 @@ export const Words = styled.div`
 	flex: none;
 	line-height: 1.4;
 	white-space: nowrap;
-	&:hover{
+	&[class~=show-all]{
 		flex-wrap: wrap;
+		outline: solid 1px red;
 	}
 	span{
 		margin-right: 15px;
