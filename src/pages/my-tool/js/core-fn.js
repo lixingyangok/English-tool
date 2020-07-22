@@ -1,7 +1,5 @@
-import { message } from 'antd';
 
 export default class {
-	message = message;
 	// ▼跳转到当前行（可以删除）因为 goLine 没收到目标行，即跳到当前行
     goToCurLine(){
         const {iCurLine} = this.getCurStep();
@@ -193,6 +191,24 @@ export default class {
 		let start = ~~(scrollLeft / fPerSecPx - 1);
 		const end = ~~((scrollLeft + offsetWidth) / fPerSecPx + 1);
 		return [start > 0 ? start : 0, end];
+	}
+	// ▼词库
+	showWordsDialog(){
+		this.setState({visible: true});
+	}
+	// ▼清空词库
+	cleanWordsList(){
+		const onOk = ()=>{
+			let {oTarget:{storyId}, oStoryTB} = this.state;
+			this.setState({aWords: []});
+			oStoryTB.update(storyId*1, {aWords: []});
+		};
+		this.confirm({
+			title: '清空后不可恢复，欢乐祥瑞清空？', 
+			okText: '确定', cancelText: '取消',
+			onOk, onCancel: ()=>null,
+		});
+		this.setState({visible: true});
 	}
 }
 

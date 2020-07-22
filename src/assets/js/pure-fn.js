@@ -72,13 +72,12 @@ export function fixTime(oTarget){
 }
 
 // ▼文件转字符
-function fileToStrings(oFile) {
+export function fileToStrings(oFile) {
 	let resolveFn = xx => xx;
 	const oPromise = new Promise(resolve => resolveFn = resolve);
-	const reader = Object.assign(new FileReader(), {
+	Object.assign(new FileReader(), {
 		onload: event => resolveFn(event.target.result), // event.target.result就是文件文本内容,
-	});
-	reader.readAsText(oFile);
+	}).readAsText(oFile);
 	return oPromise;
 }
 
@@ -106,4 +105,12 @@ export async function getChannelDataFromBlob(oBlob){
     const arrayBuffer = await oBlob.arrayBuffer();
     const aInt8Array = new Int8Array(arrayBuffer);
     return aInt8Array;
+}
+
+export function downloadString(aStr, fileName='文本文件', suffix='txt'){
+	const blob = new Blob([aStr]);
+    Object.assign(document.createElement('a'), {
+		download: `${fileName}.${suffix}`,
+		href: URL.createObjectURL(blob),
+    }).click();
 }

@@ -7,15 +7,19 @@ import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
 import wordsDbFn from './js/words-db.js';
 import Nav from './children/menu/menu.jsx';
-import {Modal, Button, Upload} from 'antd';
+import {Modal, Button, Upload, message} from 'antd';
 
 const { TextArea } = Input;
+const { confirm } = Modal;
+
 const MyClass = window.mix(
 	React.Component, coreFn, keyDownFn, MouseFn, fileFn, wordsDbFn,
 );
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
 export default class Tool extends MyClass {
+	message= message;
+	confirm = confirm;
 	oAudio = React.createRef();
 	oCanvas = React.createRef();
 	oPointer = React.createRef();
@@ -50,6 +54,7 @@ export default class Tool extends MyClass {
 		aWords: [], //DB中的【单词】
 		aMatched: [], //与当前输入匹配到的单词
 		visible: false,
+		aWordsDBState: [],
 	};
 	constructor(props) {
 		super(props);
@@ -208,27 +213,35 @@ export default class Tool extends MyClass {
 			{arr}
 		</cpnt.Words>;
 	}
-	getDialog({aWords}){
-		const arr = aWords.map((cur, idx)=>{
+	getDialog({aWords, aWordsDBState}){
+		const arr = aWords.sort().map((cur, idx)=>{
 			return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
 				onConfirm={()=>this.delWord(cur)} key={idx}
 			>
-				<span style={{'margin': '0 10px 10px 0'}} >
-					{cur}
-				</span>
+				<span className="one-word">{cur}</span>
 			</Popconfirm>
 		});
-		
-		return <Modal title="新增" okText="保存" cancelText="关闭"
+		const noWrods = <p className="no-words">暂无单词</p>;
+		const isWordsDBOK = aWordsDBState.every(Boolean);
+		return <Modal title="单词库"
 			visible={this.state.visible} footer={null}
 			onCancel={()=>this.setState({visible: false})}
-		>
-			{arr}
-			<br/><br/>
-			<Upload type="primary" beforeUpload={file=>this.beforeUpload(file)} >
-				<Button>导入</Button>
-			</Upload>
-			<Button onClick={()=>this.exportWods()}>导出</Button>
+		>	
+			<cpnt.WordsDialog>
+				<div className="btn-bar">
+					<Button onClick={()=>this.initWordsDB()} type={isWordsDBOK && "primary"}>
+						{isWordsDBOK ? '词库已经初始化' : '初始化单词库'}
+					</Button>
+					<Upload type="primary" beforeUpload={file=>this.beforeUpload(file)} >
+						<Button>导入</Button>
+					</Upload>
+					<Button onClick={()=>this.exportWods()}>导出</Button>
+					<Button onClick={()=>this.cleanWordsList()}>清空</Button>
+				</div>
+				<div className="words-list">
+					{arr.length ? arr : noWrods}
+				</div>
+			</cpnt.WordsDialog>
 		</Modal>;
 	}
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -253,6 +266,7 @@ export default class Tool extends MyClass {
 		this.setState = (state, callback) => null;
 		document.onkeydown = xx=>xx;
 	}
+	// ▼主要方法等
 	async init({storyId, sctId}){
 		const {oStoryTB, oSectionTB, aSteps} = this.state;
 		const [oStory, oSct] = await Promise.all([

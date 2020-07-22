@@ -37,18 +37,8 @@ export default class Menu extends React.Component{
 				>
 					<i className="fas fa-download"/>
 				</span>
-				<span className="btn" title="复制到剪贴板" 
-					onClick={()=>commander('12aadd')}
-				>
-					<i className="fas fa-paste"/>
-				</span>
-				<span className="btn" title="词库初始化"
-					onClick={()=>commander('initWordsDB')}
-				>
-					<i className="fas fa-book"/>
-				</span>
 				<span className="btn" title="词库"
-					onClick={()=>commander('showDialog')}
+					onClick={()=>commander('showWordsDialog')}
 				>
 					<i className="fas fa-book"/>
 				</span>

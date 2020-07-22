@@ -327,3 +327,28 @@ export const HistoryBar = styled.div`
 		background: blue;
 	}
 `;
+
+export const WordsDialog = styled.div`
+	.btn-bar{
+		margin: -5px 0 0;
+		>*{
+			display: inline-block;
+			margin-right: 10px;
+		}
+		.ant-upload-list{
+			display: none;
+		}
+	}
+	.words-list{
+		padding: 15px 0 15px;
+		min-height: 200px;
+	}
+	.one-word{
+		margin: 0 10px 10px 0;
+		display: inline-block;
+		font-size: 16px;
+	}
+	.no-words{
+		padding: 2em 0 0;
+	}
+`;
