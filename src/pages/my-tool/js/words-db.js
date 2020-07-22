@@ -42,7 +42,7 @@ export default class {
 			await curTB.clear();
 			await curTB.bulkAdd(wordArrToTb);
             this.message.success(`初始化完成 ${curLetter}`);
-            if (idx==25) this.checkWordsDB();
+            if (idx===25) this.checkWordsDB();
         }
 	}
 }
