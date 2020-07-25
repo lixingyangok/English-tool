@@ -97,13 +97,12 @@ export default class {
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
-
 	// ▼能加断句
-	// 1参是上一步的结尾的秒数， 2参是在 fLong 秒内取到终点就返回
-	figureOut(fEndSec, fLong = 2.5) {
+	// 1参是上一步的结尾的秒数， 2参是在 x 秒内取到终点就返回
+	figureOut(fEndSec, fLong = 3) {
 		const iPerSecPx = 100; //默认每秒100px宽
 		const { aPeaks } = this.getPeaks(
-			this.state.buffer, iPerSecPx, ~~(iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
+			this.state.buffer, iPerSecPx, (iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
 		);
 		const myArr = aPeaks.reduce((result, cur, idx, arr) => {
 			if (idx % 2) return result; //只处理0、2、4这些。不处理单数，即不处理：1、3、5 这些
@@ -112,17 +111,32 @@ export default class {
 		}, []);
 		let [start, end, lastAvg] = [null, 0, 0] // 起点，终点，上一步平均值
 		const [step, height] = [10, 15]; //采样跨度， 高度阈值
+		const getAverage = function(iStart, iEnd){
+			const aThisPice = myArr.slice(iStart, iEnd);
+			const sum = aThisPice.reduce((rst, cur) => (rst + cur), 0); //这一段平均值
+			return sum / step;
+		};
 		for (let idx = 0, len = myArr.length; idx < len; idx += step) {
-			const myEnd = idx + step;
-			const curAvg = myArr.slice(idx, myEnd).reduce((rst, cur) => (rst + cur), 0) / step; //这一段平均值
-			const nextAvg = myArr.slice(myEnd, myEnd + step).reduce((rst, cur) => (rst + cur), 0) / step; //下一段平均值
+			const [myEnd01, myEnd02] = [idx + step, idx + step + step];
+			const curAvg = getAverage(idx, myEnd01); //这一段平均值
+			const nextAvg = getAverage(myEnd01, myEnd02); //下一段平均值
+			const nextAvg02 = getAverage(myEnd02, myEnd02 + step); //下下一段平均值
 			if (idx === 0 && curAvg > height && nextAvg > height) start = 0;
 			if (start === null && curAvg < height && nextAvg > height) { // start没值时才去处理...
-				start = Math.max(idx - step / 2, 0);
+				const startVal = idx - (lastAvg < height ? step * 0.8 : step * 0.5);
+				start = Math.max(startVal, 0);
 			}
-			if (start === null || idx - start < iPerSecPx * fLong) continue; //头部没算出来不向下计算尾部 || 当前位置没超过起点x秒，不向下求终点
-			if (lastAvg > height && curAvg < height && nextAvg < height) {
-				end = idx + step * 1.7;
+			if (start === null || idx - start < iPerSecPx * fLong) continue; //(头部没算出来 || 当前位置没超过起点x秒) 不向下求终点
+			// if (idx > 890){ debugger; }
+			if (
+				(lastAvg > height && curAvg < height && nextAvg < height && nextAvg02 < height) ||
+				(curAvg < height && nextAvg < height && nextAvg02 < height)
+			) {
+				console.log(myArr);
+				console.log(
+					idx, myArr.slice(idx, idx+100),
+				);
+				end = idx + step * 2;
 				break;
 			}
 			lastAvg = curAvg;
@@ -307,28 +321,7 @@ export default class {
 		this.goLine(idx);
 		document.querySelectorAll('textarea')[0].focus();
 	}
-	// ▼保存生词到DB
-	saveWord() {
-		const { oStoryTB, oStory } = this.state;
-		const sWord = window.getSelection().toString().trim();
-		const aWords = oStory.aWords || [];
-		if ((sWord.length < 2 || sWord.length > 30) || aWords.includes(sWord)) {
-			this.message.error(`已经保存不可重复添加，或单词长度不在合法范围（2-30字母）`);
-			return; //不要重复保存
-		}
-		aWords.push(sWord);
-		oStoryTB.update(oStory.id, { aWords }); //增量更新本地数据
-		this.setState({ aWords });
-		this.message.success(`保存成功`);
-	}
-	// ▼删除一个保存的单词
-	delWord(sWord) {
-		const { oStoryTB, oStory } = this.state;
-		const aWords = this.state.aWords.filter(cur => cur !== sWord);
-		this.setState({ aWords });
-		oStoryTB.update(oStory.id, { aWords }); //增量更新
-		this.message.success(`保存成功`);
-	}
+	
 	// ▼插入选中的单词
 	toInset(idx) {
 		console.log('插入----', idx);

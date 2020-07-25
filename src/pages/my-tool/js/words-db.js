@@ -45,4 +45,44 @@ export default class {
             if (idx===25) this.checkWordsDB();
         }
 	}
+	// ▼词库
+	showWordsDialog(){
+		this.setState({visible: true});
+	}
+	// ▼清空词库
+	cleanWordsList(){
+		const onOk = ()=>{
+			let {oTarget:{storyId}, oStoryTB} = this.state;
+			this.setState({aWords: []});
+			oStoryTB.update(storyId*1, {aWords: []});
+		};
+		this.confirm({
+			title: '清空后不可恢复，欢乐祥瑞清空？', 
+			okText: '确定', cancelText: '取消',
+			onOk, onCancel: ()=>null,
+		});
+		this.setState({visible: true});
+	}
+	// ▼保存生词到DB
+	saveWord() {
+		const { oStoryTB, oStory } = this.state;
+		const sWord = window.getSelection().toString().trim();
+		const aWords = oStory.aWords || [];
+		if ((sWord.length < 2 || sWord.length > 30) || aWords.includes(sWord)) {
+			this.message.error(`已经保存不可重复添加，或单词长度不在合法范围（2-30字母）`);
+			return; //不要重复保存
+		}
+		aWords.push(sWord);
+		oStoryTB.update(oStory.id, { aWords }); //增量更新本地数据
+		this.setState({ aWords });
+		this.message.success(`保存成功`);
+	}
+	// ▼删除一个保存的单词
+	delWord(sWord) {
+		const { oStoryTB, oStory } = this.state;
+		const aWords = this.state.aWords.filter(cur => cur !== sWord);
+		this.setState({ aWords });
+		oStoryTB.update(oStory.id, { aWords }); //增量更新
+		this.message.success(`保存成功`);
+	}
 }
