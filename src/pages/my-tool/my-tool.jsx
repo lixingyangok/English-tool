@@ -67,13 +67,13 @@ export default class Tool extends MyClass {
 			}, {});
 		})();
 		const loading = !!oTarget.storyId; //有id就loading
-		const [oStoryTB, oSectionTB] = (()=>{
+		const [oStoryTB, oSectionTB, oWordsDB] = (()=>{
 			const theDB = new window.Dexie("myDb");
+			const oWordsDB = new window.Dexie("wordsDB");
 			theDB.version(1).stores({stories: '++id, name'});
 			theDB.version(2).stores({sections: '++id, idx, parent'});
-			return [theDB.stories, theDB.sections];
+			return [theDB.stories, theDB.sections, oWordsDB];
 		})();
-		const oWordsDB = new window.Dexie("wordsDB");
 		Object.assign(
 			this.state,
 			{oStoryTB, oSectionTB, oTarget, loading, oWordsDB},
@@ -84,14 +84,23 @@ export default class Tool extends MyClass {
 	render() {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
-			fileSrc, fPerSecPx, buffer, loading,
+			fileSrc, fPerSecPx, buffer, loading, oSct,
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
-		return <cpnt.Div>
+		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
+
+		return <cpnt.Container>
 			<Spin spinning={loading} size="large"/>
 			<cpnt.MediaAndWave>
-				<video width="320" height="240" controls src={fileSrc} ref={this.oAudio}/>
-				<div className="right" >
+				<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
+					<video src={fileSrc} name="controls"
+						ref={this.oAudio} className="video"
+					/>
+					<p className="subtitle" data-text={aLines[iCurLine].text}>
+						{aLines[iCurLine].text}
+					</p>
+				</cpnt.VideoWrap>
+				<div className="right">
 					<cpnt.WaveBox>
 						<canvas height={iCanvasHeight} ref={this.oCanvas}/>
 						<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
@@ -111,18 +120,16 @@ export default class Tool extends MyClass {
 						})}
 					</cpnt.HistoryBar>
 					<cpnt.TextareaWrap>
-						{(() => {
-							return <TextArea id="myTextArea" ref={this.oTextArea}
-								value={aLines[iCurLine].text}
-								onChange={ev => this.valChanged(ev)}
-								onKeyDown={ev => this.enterKeyDown(ev)}
-							/>;
-						})()}
-					</cpnt.TextareaWrap>李
+						<TextArea id="myTextArea" ref={this.oTextArea}
+							value={aLines[iCurLine].text}
+							onChange={ev => this.valChanged(ev)}
+							onKeyDown={ev => this.enterKeyDown(ev)}
+						/>
+					</cpnt.TextareaWrap>
 					{this.getWordsList(this.state)}
 				</div>
 			</cpnt.MediaAndWave>
-			
+			{/* 分界 */}
 			<cpnt.SentenceWrap ref={this.oSententList}>
 				{aLines.map((cur, idx) => {
 					return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
@@ -139,7 +146,7 @@ export default class Tool extends MyClass {
 				})}
 			</cpnt.SentenceWrap>
 			{this.getDialog(this.state)}
-		</cpnt.Div>;
+		</cpnt.Container>;
 	}
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ▼时间刻度
@@ -188,15 +195,15 @@ export default class Tool extends MyClass {
 		return <cpnt.RegionWrap>{oPointer}{myArr}</cpnt.RegionWrap>
 	}
 	// ▼故事信息等
-	getInfoBar({oStory, oSct, buffer, iPerSecPx}){ 
+	getInfoBar({oStory, oSct, buffer, iPerSecPx, aSteps, iCurStep}){ 
+		const oCurStep = aSteps[iCurStep];
 		if (!Object.keys(oSct).length) return;
-		const {aLines=[], audioFile={}, srtFile={}} = oSct;
+		const {audioFile={}} = oSct;
 		return <cpnt.InfoBar>
 			<span>故事：{oStory.name}</span>
 			<span>音频：{audioFile.name}</span>
 			<span>时长：{buffer.sDuration_}</span>
-			<span>字幕：{srtFile.name || '无'}</span>
-			<span>共计：{aLines.length || 0}句</span>
+			<span>共计：{oCurStep.aLines.length || 0}句</span>
 			<span>每秒：{iPerSecPx}px</span>
 		</cpnt.InfoBar>
 	}
@@ -254,8 +261,12 @@ export default class Tool extends MyClass {
 	async componentDidMount() {
 		this.cleanCanvas();
 		const oWaveWrap = this.oWaveWrap.current;
+		const oAudio = this.oAudio.current;
 		oWaveWrap.addEventListener( //注册滚轮事件
 			"mousewheel", ev => this.wheelOnWave(ev), {passive: false},
+		);
+		oAudio.addEventListener( //注册滚轮事件
+			"mousewheel", ev => this.changeVideoSize(ev), // {passive: false},
 		);
 		const pushFiles = this.pushFiles.bind(this);
 		document.onkeydown = this.keyDowned.bind(this);
@@ -275,8 +286,10 @@ export default class Tool extends MyClass {
 	async init({storyId, sctId}){
 		const {oStoryTB, oSectionTB, aSteps} = this.state;
 		const [oStory, oSct] = await Promise.all([
-			oStoryTB.get(storyId*1), oSectionTB.get(sctId*1),
+			oStoryTB.get(storyId*1),
+			oSectionTB.get(sctId*1),
 		]);
+		console.log(oSct);
 		if (!oStory || !oSct) return;
 		const buffer = {
 			...oSct.buffer,

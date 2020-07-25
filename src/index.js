@@ -10,7 +10,7 @@ import * as serviceWorker from './serviceWorker';
 import { mix } from './common/common.js';
 import lf from 'localforage';
 // ▼样式
-import 'assets/style/normalize.css';
+// import 'assets/style/normalize.css';
 import 'assets/style/reset.css';
 import 'assets/style/global.css'
 import 'antd/dist/antd.css';

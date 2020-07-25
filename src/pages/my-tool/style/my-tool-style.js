@@ -4,7 +4,7 @@ export const iMarkWrapHeight = 20;
 export const iCanvasHeight = 120;
 export const iScrollHeight = 15;
 
-export const Div = styled.div`
+export const Container = styled.div`
 	box-sizing: border-box;
 	padding: 20px 20px 0px;
 	height: calc(100vh - 80px);
@@ -28,16 +28,59 @@ export const Div = styled.div`
 	}
 `;
 
+
 export const MediaAndWave = styled.div`
 	display: flex;
 	justify-content: space-between;
-	align-items: flex-start;
-	video{
-		flex: none;
-		background: black;
-	}
+	flex: none;
+	overflow: hidden;
+	align-items: stretch;
+	max-height: 400px;
 	.right{
 		flex: auto;
+		overflow: hidden;
+	}
+`;
+
+export const VideoWrap = styled.div`
+	min-width: 250px;
+	max-width: 35%;
+	margin-right: 15px;
+	background: black;
+	flex: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	display: none;
+	position: relative;
+	.video{
+		max-height: 100%;
+		max-width: 100%;
+	}
+	&[class~=show]{
+		display: flex;
+	}
+	.subtitle{
+		position: absolute;
+		width: 90%;
+		left: 5%;
+		bottom: 7%;
+		color: white;
+		font-weight: bold;
+		text-align: center;
+		line-height: 1.3;
+		word-break: break-word;
+		font-size: 17px;
+		z-index: 2;
+		&::before {
+			content: attr(data-text);
+			width: 100%;
+			display: block;
+			position: absolute;
+			-webkit-text-stroke: 6px #000;
+			z-index: -1;
+			color: black;
+		}
 	}
 `;
 
@@ -206,6 +249,7 @@ export const TextareaWrap = styled.div`
 		resize: none;
 		color: #333;
 		font-weight: 500;
+		line-height: 1.4;
 	}
 `;
 
@@ -214,7 +258,6 @@ export const Words = styled.div`
 	display: flex;
 	flex-flow: row nowrap;
 	overflow: hidden;
-	margin: 0 0 18px;
 	overflow: hidden;
 	flex: none;
 	line-height: 1.4;
@@ -260,8 +303,15 @@ export const Words = styled.div`
 export const InfoBar = styled.div`
 	font-size: 14px;
 	padding: 15px 0 0;
+	overflow: hidden;
+	white-space: nowrap;
 	span{
 		margin-right: 1.8em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 15em;
+		display: inline-block;
 	}
 `;
 
@@ -269,7 +319,7 @@ export const SentenceWrap = styled.ol`
 	overflow-y: auto;
 	list-style: none;
 	padding: 0 0 100px;
-	margin: 0;
+	margin: 20px 0 0;
 	border: solid #aaa;
 	border-width: 1px 0;
 	.one-line{

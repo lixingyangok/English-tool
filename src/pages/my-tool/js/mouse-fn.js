@@ -107,6 +107,14 @@ export default class {
 		this.setState({ iHeight });
 		this.toDraw();
 	}
+	changeVideoSize(ev){ 
+		const {deltaY, target, target:{offsetWidth}} = ev; // 推轮 deltaY=负值，拉得正值
+		const [min, max] = [250, 700];
+		let iWidth = offsetWidth + (deltaY * -1 * 0.5);
+		if (iWidth<min) iWidth = min;
+		else if (iWidth>max) iWidth = max;
+		target.width = iWidth;
+	}
 }
 
 

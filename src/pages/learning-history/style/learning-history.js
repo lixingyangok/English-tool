@@ -92,8 +92,11 @@ export const SectionList = styled.ul`
     }
     h3{
         margin: 0 0 12px;
-        /* font-size: 16px; */
         font-weight: bold;
+        max-width: 55%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 `;
 
@@ -111,6 +114,8 @@ export const BtnWrapInTrack = styled.div`
 `;
 
 export const InfoBar = styled.p`
+    margin: 0 0 1em;
+    font-size: 14px;
     .red{
         color: red;
     }
@@ -127,8 +132,10 @@ export const InfoWrap = styled.dl`
     display: flex;
     flex-flow: row wrap;
     margin: 0;
+    font-size: inherit;
+    font-size: 14px;
     dt{
-        width: 4em;
+        
     }
     dd{
         width: calc(100% - 4em);

@@ -97,7 +97,7 @@ export default class extends MyClass{
 		return <cpnt.SectionList>
 			{aSections.map((oSct, idx)=>{
 				return <li key={idx}>
-					<h3>
+					<h3 title={(oSct.audioFile || {}).name}>
 						{(oSct.audioFile || {}).name || '无音频'}
 					</h3>
 					<cpnt.BtnWrapInTrack className="btns">
