@@ -28,12 +28,24 @@ export const Div = styled.div`
 	}
 `;
 
+export const MediaAndWave = styled.div`
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	video{
+		flex: none;
+		background: black;
+	}
+	.right{
+		flex: auto;
+	}
+`;
+
 export const WaveBox = styled.article`
 	position: relative;
 	background: black;
 	overflow: hidden;
 	height: ${iMarkWrapHeight + iCanvasHeight + iScrollHeight}px;
-	flex: none;
 	canvas{
 		display: block;
 		margin-top: ${iMarkWrapHeight}px;

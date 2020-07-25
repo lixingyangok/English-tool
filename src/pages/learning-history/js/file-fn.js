@@ -36,7 +36,10 @@ export default class {
 	// ▼过滤出正确的文件
 	getCorrectFile(oFiles) {
 		const aFiles = [...oFiles];
-		const audioFile = aFiles.find(({ type }) => type === 'audio/mpeg');
+		const audioFile = aFiles.find(({ type }) => {
+			return ['audio/mpeg', 'video/mp4'].includes(type);
+		});
+		console.log(audioFile);
 		const srtFile = aFiles.find(({ name }) => name.split('.').pop() === 'srt');
 		return [audioFile, srtFile];
 	}

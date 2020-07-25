@@ -88,36 +88,41 @@ export default class Tool extends MyClass {
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		return <cpnt.Div>
-			<audio src={fileSrc} ref={this.oAudio}/>
 			<Spin spinning={loading} size="large"/>
-			<cpnt.WaveBox>
-				<canvas height={iCanvasHeight} ref={this.oCanvas}/>
-				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
-					<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration}px`}}
-						onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
-					>
-						{this.getMarkBar(this.state)}
-						{this.getRegions(this.state)}
-					</cpnt.LongBar>
-				</cpnt.WaveWrap>
-			</cpnt.WaveBox>
-			<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
-			{this.getInfoBar(this.state)}
-			<cpnt.HistoryBar>
-				{aSteps.map((cur,idx)=>{
-					return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
-				})}
-			</cpnt.HistoryBar>
-			<cpnt.TextareaWrap>
-				{(() => {
-					return <TextArea id="myTextArea" ref={this.oTextArea}
-						value={aLines[iCurLine].text}
-						onChange={ev => this.valChanged(ev)}
-						onKeyDown={ev => this.enterKeyDown(ev)}
-					/>;
-				})()}
-			</cpnt.TextareaWrap>
-			{this.getWordsList(this.state)}
+			<cpnt.MediaAndWave>
+				<video width="320" height="240" controls src={fileSrc} ref={this.oAudio}/>
+				<div className="right" >
+					<cpnt.WaveBox>
+						<canvas height={iCanvasHeight} ref={this.oCanvas}/>
+						<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
+							<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration}px`}}
+								onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
+							>
+								{this.getMarkBar(this.state)}
+								{this.getRegions(this.state)}
+							</cpnt.LongBar>
+						</cpnt.WaveWrap>
+					</cpnt.WaveBox>
+					<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
+					{this.getInfoBar(this.state)}
+					<cpnt.HistoryBar>
+						{aSteps.map((cur,idx)=>{
+							return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
+						})}
+					</cpnt.HistoryBar>
+					<cpnt.TextareaWrap>
+						{(() => {
+							return <TextArea id="myTextArea" ref={this.oTextArea}
+								value={aLines[iCurLine].text}
+								onChange={ev => this.valChanged(ev)}
+								onKeyDown={ev => this.enterKeyDown(ev)}
+							/>;
+						})()}
+					</cpnt.TextareaWrap>李
+					{this.getWordsList(this.state)}
+				</div>
+			</cpnt.MediaAndWave>
+			
 			<cpnt.SentenceWrap ref={this.oSententList}>
 				{aLines.map((cur, idx) => {
 					return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
