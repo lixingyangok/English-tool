@@ -64,7 +64,7 @@ export default class {
 		const aChannel = buffer.aChannelData_ || buffer.getChannelData(0);
 		const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
 		const aPeaks = [];
-		let idx = ~~left;
+		let idx = Math.round(left);
 		const last = idx + iCanvasWidth;
 		while (idx <= last) {
 			let start = idx * sampleSize;
