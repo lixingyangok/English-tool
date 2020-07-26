@@ -117,7 +117,6 @@ export default class {
 		}
 		this.fixTime(oCurLine);
 		this.setCurLine(oCurLine);
-		this.goToCurLine();
 	}
 	// ▼修整某一行
 	fixTime(oTarget) {

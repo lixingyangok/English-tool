@@ -97,10 +97,7 @@ export default class {
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
-	// ▼能加断句
-	// 1参是上一步的结尾的秒数， 2参是在 x 秒内取到终点就返回
-	figureOut(fEndSec, fLong = 3) {
-		const iPerSecPx = 100; //默认每秒100px宽
+	getPeaksAndAverageFn(fEndSec, iPerSecPx, step){
 		const { aPeaks } = this.getPeaks(
 			this.state.buffer, iPerSecPx, (iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
 		);
@@ -109,34 +106,37 @@ export default class {
 			const iHeightVal = Math.round((cur - arr[idx + 1]) * this.state.iHeight);
 			return result.concat(iHeightVal);
 		}, []);
-		let [start, end, lastAvg] = [null, 0, 0] // 起点，终点，上一步平均值
-		const [step, height] = [10, 15]; //采样跨度， 高度阈值
-		const getAverage = function(iStart, iEnd){
+		const getAverageFn = function(iStart, iEnd){
 			const aThisPice = myArr.slice(iStart, iEnd);
 			const sum = aThisPice.reduce((rst, cur) => (rst + cur), 0); //这一段平均值
 			return sum / step;
 		};
+		return [myArr, getAverageFn];
+	}
+	// ▼能加断句
+	// 1参是上一步的结尾的秒数， 2参是在 x 秒内取到终点就返回
+	figureOut(fEndSec, fLong = 3) {
+		const [iPerSecPx, step, height] = [100, 10, 15]; //默认每秒100px宽，采样跨度，高度阈值
+		const [myArr, getAverageFn] = this.getPeaksAndAverageFn(fEndSec, iPerSecPx, step);
+		let [start, end, lastAvg] = [null, 0, 0] // 下一个区间的起点、终点，和次计算的平均值
+		console.log(myArr);
 		for (let idx = 0, len = myArr.length; idx < len; idx += step) {
 			const [myEnd01, myEnd02] = [idx + step, idx + step + step];
-			const curAvg = getAverage(idx, myEnd01); //这一段平均值
-			const nextAvg = getAverage(myEnd01, myEnd02); //下一段平均值
-			const nextAvg02 = getAverage(myEnd02, myEnd02 + step); //下下一段平均值
+			const curAvg = getAverageFn(idx, myEnd01); //这一段平均值
+			const nextAvg = getAverageFn(myEnd01, myEnd02); //下一段平均值
 			if (idx === 0 && curAvg > height && nextAvg > height) start = 0;
 			if (start === null && curAvg < height && nextAvg > height) { // start没值时才去处理...
-				const startVal = idx - (lastAvg < height ? step * 0.8 : step * 0.5);
+				const startVal = idx - (lastAvg < height ? step * 0.8 : step * 0.4);
 				start = Math.max(startVal, 0);
 			}
 			if (start === null || idx - start < iPerSecPx * fLong) continue; //(头部没算出来 || 当前位置没超过起点x秒) 不向下求终点
-			// if (idx > 890){ debugger; }
+			const nextAvg02 = getAverageFn(myEnd02, myEnd02 + step); //下下一段平均值
 			if (
-				(lastAvg > height && curAvg < height && nextAvg < height && nextAvg02 < height) ||
+				(lastAvg > height && curAvg < height && nextAvg < height) ||
 				(curAvg < height && nextAvg < height && nextAvg02 < height)
 			) {
-				console.log(myArr);
-				console.log(
-					idx, myArr.slice(idx, idx+100),
-				);
-				end = idx + step * 2;
+				console.log( idx, myArr.slice(idx, idx+100), );
+				end = idx + step * 1;
 				break;
 			}
 			lastAvg = curAvg;
