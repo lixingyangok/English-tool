@@ -34,8 +34,8 @@ export default class Tool extends MyClass {
 		fileSrc: "", //文件地址
 		iHeight: 0.3, // 波形高
 		iCanvasHeight: cpnt.iCanvasHeight, //画布高
-		iPerSecPx: 60, //人为定义的每秒宽度
-		fPerSecPx: 55, //实际算出每秒像素数
+		iPerSecPx: 100, //人为定义的每秒宽度
+		fPerSecPx: 100, //实际算出每秒像素数
 		drawing: false, //是否在绘制中（用于防抖
 		loading: false, //是否在加载中（解析文件
 		playing: false, //储存播放的定时器setInterval的返回值

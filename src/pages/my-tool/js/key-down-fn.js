@@ -97,7 +97,7 @@ export default class {
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
-	getPeaksAndAverageFn(fEndSec, iPerSecPx, step){
+	getWaveArr(fEndSec, iPerSecPx){
 		const { aPeaks } = this.getPeaks(
 			this.state.buffer, iPerSecPx, (iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
 		);
@@ -106,44 +106,40 @@ export default class {
 			const iHeightVal = Math.round((cur - arr[idx + 1]) * this.state.iHeight);
 			return result.concat(iHeightVal);
 		}, []);
-		const getAverageFn = function(iStart, iEnd){
-			const aThisPice = myArr.slice(iStart, iEnd);
-			const sum = aThisPice.reduce((rst, cur) => (rst + cur), 0); //这一段平均值
-			return sum / step;
-		};
-		return [myArr, getAverageFn];
+		return myArr;
 	}
-	// ▼能加断句
-	// 1参是上一步的结尾的秒数， 2参是在 x 秒内取到终点就返回
+	// ▼能加断句：1参是上一步的结尾的秒数， 2参是在 x 秒内取到终点就返回
 	figureOut(fEndSec, fLong = 3) {
-		const [iPerSecPx, step, height] = [100, 10, 15]; //默认每秒100px宽，采样跨度，高度阈值
-		const [myArr, getAverageFn] = this.getPeaksAndAverageFn(fEndSec, iPerSecPx, step);
-		let [start, end, lastAvg] = [null, 0, 0] // 下一个区间的起点、终点，和次计算的平均值
-		console.log(myArr);
-		for (let idx = 0, len = myArr.length; idx < len; idx += step) {
-			const [myEnd01, myEnd02] = [idx + step, idx + step + step];
-			const curAvg = getAverageFn(idx, myEnd01); //这一段平均值
-			const nextAvg = getAverageFn(myEnd01, myEnd02); //下一段平均值
-			if (idx === 0 && curAvg > height && nextAvg > height) start = 0;
-			if (start === null && curAvg < height && nextAvg > height) { // start没值时才去处理...
-				const startVal = idx - (lastAvg < height ? step * 0.8 : step * 0.4);
-				start = Math.max(startVal, 0);
+		const [iPerSecPx, height] = [100, 10]; //默认每秒 Xpx宽，高度阈值
+		const myArr = this.getWaveArr(fEndSec, iPerSecPx); // console.log(myArr);
+		let [aSection, len] = [[],  myArr.length];
+		for (let idx = 0; idx < len; idx++) {
+			if (myArr[idx] < height) continue;
+			const oLast = aSection.last_;
+			if (oLast && (idx - oLast.end) / iPerSecPx < 0.3){ //视为一段话，累加长度
+				oLast.end = idx;
+				oLast.long = (idx - oLast.start) / iPerSecPx; //长度（秒）
+			} else { //视为新句子，新建
+				aSection.push({
+					start: idx, end: idx, long: 0,
+					iGap: !oLast ? 0 : (idx - oLast.end) / iPerSecPx, //与上一句的间距（秒）
+				});
 			}
-			if (start === null || idx - start < iPerSecPx * fLong) continue; //(头部没算出来 || 当前位置没超过起点x秒) 不向下求终点
-			const nextAvg02 = getAverageFn(myEnd02, myEnd02 + step); //下下一段平均值
-			if (
-				(lastAvg > height && curAvg < height && nextAvg < height) ||
-				(curAvg < height && nextAvg < height && nextAvg02 < height)
-			) {
-				console.log( idx, myArr.slice(idx, idx+100), );
-				end = idx + step * 1;
-				break;
-			}
-			lastAvg = curAvg;
 		}
+		aSection = aSection.filter(cur => cur.long > 0.3);// 只要大于x秒的
+		console.log(aSection);
+		let {start, end} = (()=>{
+			const [oFirst, oSecond] = aSection;
+			if (!oFirst) return [0, len];
+			let start = Math.max(0, oFirst.start - 10);
+			if (oFirst.long >= fLong || !oSecond || oSecond.iGap > 1.5) { //长度达标 || 没有第二选择 || 第二选择太远
+				return {start, end: oFirst.end + 10};
+			}
+			return {start, end: oSecond.end + 10};
+		})();
 		return this.fixTime({
-			start: (start || 0) / iPerSecPx + fEndSec,
-			end: (end || myArr.length) / iPerSecPx + fEndSec,
+			start: start / iPerSecPx + fEndSec,
+			end: end / iPerSecPx + fEndSec,
 		});
 	}
 	// ▼输入框文字改变
@@ -345,3 +341,15 @@ export default class {
 	}
 }
 
+
+// if (start === null || idx - start < iPerSecPx * fLong) continue; //(头部没算出来 || 当前位置没超过起点x秒) 不向下求终点
+// const nextAvg02 = getAverageFn(myEnd02, myEnd02 + step); //下下一段平均值
+// if (
+// 	(lastAvg > height && curAvg < height && nextAvg < height) ||
+// 	(curAvg < height && nextAvg < height && nextAvg02 < height)
+// ) {
+// 	console.log( idx, myArr.slice(idx, idx+100), );
+// 	end = idx + step * 1;
+// 	break;
+// }
+// lastAvg = curAvg;
