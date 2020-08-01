@@ -17,7 +17,8 @@ export default class {
 			'ctrl + j': () => this.putTogether('prior'), // 合并上一句
 			'ctrl + k': () => this.putTogether('next'), // 合并下一句
 			...{ //+shift
-				'ctrl + Enter': () => this.toPlay(true), //播放
+				'ctrl + Enter': () => this.toPlay(), //播放
+				'ctrl + shift + Enter': () => this.toPlay(true), //播放
 				'ctrl + shift + z': () => this.setHistory(1), //恢复
 				'ctrl + shift + c': () => this.split(), //分割
 				'ctrl + shift + s': () => this.toExport(), // 导出到本地
@@ -97,51 +98,71 @@ export default class {
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
+	// ▼给断句提供数据（数组）
 	getWaveArr(fEndSec, iPerSecPx){
-		const { aPeaks } = this.getPeaks(
+		const {aPeaks} = this.getPeaks(
 			this.state.buffer, iPerSecPx, (iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
 		);
 		const myArr = aPeaks.reduce((result, cur, idx, arr) => {
-			if (idx % 2) return result; //只处理0、2、4这些。不处理单数，即不处理：1、3、5 这些
-			const iHeightVal = Math.round((cur - arr[idx + 1]) * this.state.iHeight);
-			return result.concat(iHeightVal);
+			if (idx % 2) return result; //只处理0、2、4。不处理：1、3、5
+			const iOnePxHeight = Math.round((cur - arr[idx + 1]) * this.state.iHeight);
+			return result.concat(iOnePxHeight);
 		}, []);
 		return myArr;
 	}
-	// ▼能加断句：1参是上一步的结尾的秒数， 2参是在 x 秒内取到终点就返回
-	figureOut(fEndSec, fLong = 3) {
-		const [iPerSecPx, height] = [100, 10]; //默认每秒 Xpx宽，高度阈值
-		const myArr = this.getWaveArr(fEndSec, iPerSecPx); // console.log(myArr);
-		let [aSection, len] = [[],  myArr.length];
-		for (let idx = 0; idx < len; idx++) {
-			if (myArr[idx] < height) continue;
+	// ▼给断句提供数据（数组）
+	getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight){
+		console.log('收到波形', aWaveArr);
+		const aSection = []; // 用于返回的数据
+		for (let idx = 0; idx < aWaveArr.length; idx++) {
+			const iCurHeight = aWaveArr[idx];
+			if (iCurHeight < iWaveHeight) continue;
 			const oLast = aSection.last_;
-			if (oLast && (idx - oLast.end) / iPerSecPx < 0.3){ //视为一段话，累加长度
+			if (oLast && (idx - oLast.end) / iPerSecPx < 0.3){ //上一区间存在 && 距离上一区间很近(0.3秒之内)。则视为一段话，累加长度
 				oLast.end = idx;
 				oLast.long = (idx - oLast.start) / iPerSecPx; //长度（秒）
-			} else { //视为新句子，新建
-				aSection.push({
-					start: idx, end: idx, long: 0,
-					iGap: !oLast ? 0 : (idx - oLast.end) / iPerSecPx, //与上一句的间距（秒）
-				});
+				oLast.iTotalHeight += iCurHeight; //高度追加
+				continue;
 			}
+			//视为新句子，新建
+			aSection.push({
+				start: idx, end: idx, long: 0,
+				iTotalHeight: iCurHeight, // 用于累计高度
+				iGap: !oLast ? 0 : (idx - oLast.end) / iPerSecPx, //与上一句的间距（秒）
+			});
 		}
-		aSection = aSection.filter(cur => cur.long > 0.3);// 只要大于x秒的
-		console.log(aSection);
-		let {start, end} = (()=>{
-			const [oFirst, oSecond] = aSection;
-			if (!oFirst) return [0, len];
-			let start = Math.max(0, oFirst.start - 10);
-			if (oFirst.long >= fLong || !oSecond || oSecond.iGap > 1.5) { //长度达标 || 没有第二选择 || 第二选择太远
-				return {start, end: oFirst.end + 10};
-			}
-			return {start, end: oSecond.end + 10};
-		})();
-		return this.fixTime({
-			start: start / iPerSecPx + fEndSec,
-			end: end / iPerSecPx + fEndSec,
+		return aSection.map(cur=>{
+			cur.fAveHeight = cur.iTotalHeight / (cur.end - cur.start); //标记每个区间的音量平均值
+			delete cur.iTotalHeight;
+			return cur;
 		});
 	}
+
+	// ▼能加断句：1参是上一步的结尾的秒数， 2参是在取得的区间的理想的长度（秒数）
+	figureOut(fEndSec, fLong = 3) {
+		const [iPerSecPx, iWaveHeight, iAddition] = [100, 12, 20]; // 默认每秒宽度值（px），高度阈值，两头的空隙，
+		const aWaveArr = this.getWaveArr(fEndSec, iPerSecPx); //取得波形
+		const aSection = this.getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight).filter(cur => { // 只留下大于x秒的，除非声音很大
+			if (cur.long > 0.3) return true;
+			if (cur.long > 0.2 && cur.fAveHeight >= iWaveHeight * 2) {
+				console.error('短，但强'); return true;
+			}
+		});
+		const {start, end} = (()=>{
+			if (!aSection[0]) return [0, aSection.length];
+			const [oFirst, oSecond] = aSection;
+			const start = Math.max(0, oFirst.start - iAddition);
+			if (oFirst.long >= fLong || !oSecond || oSecond.iGap > 1.5) { //长度已达标 || 没有第二选择 || 第二选择太远了
+				return {start, end: oFirst.end + iAddition};
+			}
+			return {start, end: oSecond.end + iAddition};
+		})();
+		return this.fixTime({
+			start: fEndSec + (start / iPerSecPx),
+			end: fEndSec + (end / iPerSecPx),
+		});
+	}
+
 	// ▼输入框文字改变
 	valChanged(ev) {
 		const { value: sText, selectionStart: idx } = ev.target;
@@ -341,15 +362,3 @@ export default class {
 	}
 }
 
-
-// if (start === null || idx - start < iPerSecPx * fLong) continue; //(头部没算出来 || 当前位置没超过起点x秒) 不向下求终点
-// const nextAvg02 = getAverageFn(myEnd02, myEnd02 + step); //下下一段平均值
-// if (
-// 	(lastAvg > height && curAvg < height && nextAvg < height) ||
-// 	(curAvg < height && nextAvg < height && nextAvg02 < height)
-// ) {
-// 	console.log( idx, myArr.slice(idx, idx+100), );
-// 	end = idx + step * 1;
-// 	break;
-// }
-// lastAvg = curAvg;
