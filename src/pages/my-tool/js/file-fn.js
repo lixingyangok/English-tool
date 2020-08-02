@@ -107,7 +107,8 @@ export default class {
 		});
 		const {oTarget:{sctId}, oSectionTB} = this.state;
 		const res = await oSectionTB.get(sctId*1);
-		downloadString(aStr.join('\n'), res.audioFile.name, 'srt');
+		const fileName = res.audioFile.name.split('.').slice(0, -1).join('');
+		downloadString(aStr.join('\n'), fileName, 'srt');
 	}
 	// ▼导入词汇
 	async beforeUpload(file){

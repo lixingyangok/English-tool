@@ -87,20 +87,20 @@ export default class {
 		// ▲跳转
 		// ▼处理保存相关事宜
 		if (!(isWantSave && iCurStep > 0 && iCurLineNew % 2)) return; // 不满足保存条件 return
-		const isNeedSave = (()=>{
+		const isNeedSave = (() => {
 			if (newLine) return true; //新建行了，得保存！
-			const {aLines: aOldlines} = aSteps[iCurStep - 1]; //提取上一步的行数据
+			const { aLines: aOldlines } = aSteps[iCurStep - 1]; //提取上一步的行数据
 			if (!aOldlines[iCurLine]) { //当前行在上一步历史中不存在，保存！（此判断好像不会判断通过，观察观察
 				this.message.error(`当前行在上一步历史中不存在`);
-				return true; 
+				return true;
 			}
 			return aOldlines[iCurLine].text !== aLines[iCurLine].text; //当前行与上一行不一样，保存！
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
-	// ▼给断句提供数据（数组）
-	getWaveArr(fEndSec, iPerSecPx){
-		const {aPeaks} = this.getPeaks(
+	// ▼提供【波形数组】用于断句
+	getWaveArr(fEndSec, iPerSecPx) {
+		const { aPeaks } = this.getPeaks(
 			this.state.buffer, iPerSecPx, (iPerSecPx * fEndSec), iPerSecPx * 20, // 取当前位置往后x秒
 		);
 		const myArr = aPeaks.reduce((result, cur, idx, arr) => {
@@ -110,59 +110,79 @@ export default class {
 		}, []);
 		return myArr;
 	}
-	// ▼给断句提供数据（数组）
-	getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight){
-		console.log('收到波形', aWaveArr);
+	// ▼提供断句方法一个【候选区间的数组】
+	getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight) {
 		const aSection = []; // 用于返回的数据
 		for (let idx = 0; idx < aWaveArr.length; idx++) {
 			const iCurHeight = aWaveArr[idx];
 			if (iCurHeight < iWaveHeight) continue;
 			const oLast = aSection.last_;
-			if (oLast && (idx - oLast.end) / iPerSecPx < 0.3){ //上一区间存在 && 距离上一区间很近(0.3秒之内)。则视为一段话，累加长度
+			if (oLast && (idx - oLast.end) / iPerSecPx < 0.35) { //上一区间存在 && 距离上一区间很近(0.35秒之内)。则视为一段话，累加长度
+				const { start, end, fAveHeight } = oLast;
+				const pxLong = idx - start + 1;
 				oLast.end = idx;
-				oLast.long = (idx - oLast.start) / iPerSecPx; //长度（秒）
-				oLast.iTotalHeight += iCurHeight; //高度追加
+				oLast.long = pxLong / iPerSecPx; //长度（秒）
+				oLast.fAveHeight = Math.round(((end - start + 1) * fAveHeight + iCurHeight) / pxLong); //平均高度
 				continue;
 			}
-			//视为新句子，新建
-			aSection.push({
-				start: idx, end: idx, long: 0,
-				iTotalHeight: iCurHeight, // 用于累计高度
-				iGap: !oLast ? 0 : (idx - oLast.end) / iPerSecPx, //与上一句的间距（秒）
+			aSection.push({ // 视为新句子，新建
+				start: idx, end: idx, long: 0, fAveHeight: iCurHeight,
 			});
+			if (!oLast) continue;
+			oLast.iDistanceToNext = (idx - oLast.end) / iPerSecPx; //到下一步的距离
 		}
-		return aSection.map(cur=>{
-			cur.fAveHeight = cur.iTotalHeight / (cur.end - cur.start); //标记每个区间的音量平均值
-			delete cur.iTotalHeight;
-			return cur;
-		});
+		return aSection;
 	}
-
-	// ▼能加断句：1参是上一步的结尾的秒数， 2参是在取得的区间的理想的长度（秒数）
-	figureOut(fEndSec, fLong = 3) {
-		const [iPerSecPx, iWaveHeight, iAddition] = [100, 12, 20]; // 默认每秒宽度值（px），高度阈值，两头的空隙，
-		const aWaveArr = this.getWaveArr(fEndSec, iPerSecPx); //取得波形
-		const aSection = this.getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight).filter(cur => { // 只留下大于x秒的，除非声音很大
-			if (cur.long > 0.3) return true;
-			if (cur.long > 0.2 && cur.fAveHeight >= iWaveHeight * 2) {
-				console.error('短，但强'); return true;
+	// ▼处理尾部
+	fixTail(aWaveArr, iOldEnd, iPerSecPx, iAddition, iDistanceToNext){
+		const iSupplement = (()=>{
+			for (let idx = 0; idx < iPerSecPx; idx++) { //在1秒范围内进行判断
+				const iOneStepPx = 10;
+				const iSum = aWaveArr.slice(idx, idx + iOneStepPx).reduce((result, cur)=>{
+					return result + cur;
+				});
+				if (iSum / iOneStepPx < 2) return idx;
 			}
+			return false;
+		})();
+		const iResult = (()=>{
+			if (iSupplement && iSupplement < iPerSecPx * 0.6){
+				// console.error('分析数据：', aWaveArr.slice(0, 100));
+				console.error('此后无声：', iSupplement, '补上！');
+				return iSupplement + iAddition * 0.7;
+			}
+			return iAddition; //默认补偿值
+		})();
+		const iMaxEnd = iOldEnd + (iDistanceToNext * iPerSecPx - iAddition * 0.5);
+		return Math.min(iOldEnd + iResult, iMaxEnd); //即便补偿，不能越界
+	}
+	// ▼智能断句：1参是上一步的结尾的秒数， 2参是在取得的区间的理想的长度（秒数）
+	figureOut(fEndSec, fLong = 3) {
+		const [iPerSecPx, iWaveHeight, iAddition] = [100, 12, 20]; // 默认每秒宽度值（px），高度阈值，添加在两头的空隙，
+		const aWaveArr = this.getWaveArr(fEndSec, iPerSecPx); //取得波形
+		const aSection = this.getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight).filter(cur => {
+			const isCondition01 = cur.long > 0.3; // 只留下大于x秒的
+			const isCondition02 = cur.long > 0.2 && cur.fAveHeight >= iWaveHeight * 2; //或者声音很大
+			return isCondition01 || isCondition02;
 		});
-		const {start, end} = (()=>{
-			if (!aSection[0]) return [0, aSection.length];
+		const { start, end } = (() => {
+			if (!aSection[0]) return {start: 0, end: aWaveArr.length};
 			const [oFirst, oSecond] = aSection;
 			const start = Math.max(0, oFirst.start - iAddition);
-			if (oFirst.long >= fLong || !oSecond || oSecond.iGap > 1.5) { //长度已达标 || 没有第二选择 || 第二选择太远了
-				return {start, end: oFirst.end + iAddition};
-			}
-			return {start, end: oSecond.end + iAddition};
+			let {end, iDistanceToNext} = (()=>{
+				if (oFirst.long >= fLong || oFirst.iDistanceToNext > 1.5 || !oSecond) { //长度已达标 || 第二选择太远了 || 没有第二选择
+					return oFirst;
+				}
+				return oSecond;
+			})();
+			end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iDistanceToNext);
+			return {start, end};
 		})();
 		return this.fixTime({
 			start: fEndSec + (start / iPerSecPx),
 			end: fEndSec + (end / iPerSecPx),
 		});
 	}
-
 	// ▼输入框文字改变
 	valChanged(ev) {
 		const { value: sText, selectionStart: idx } = ev.target;
@@ -171,13 +191,13 @@ export default class {
 		const { aSteps, iCurStep } = this.state;
 		const { iCurLine, aLines } = aSteps[iCurStep]; // 当前步骤
 		if (sLeft.match(/.+[^a-zA-Z]$/)) { // 如果键入了【非】英文字母，【需要】生成新历史
-			this.setCurLine({...aLines[iCurLine], text: sText});
-			this.setState({sTyped}); // 进入判断 sTyped 一定是空字符
-		}else{ // 英文字母结尾，【不要】生成新历史
+			this.setCurLine({ ...aLines[iCurLine], text: sText });
+			this.setState({ sTyped }); // 进入判断 sTyped 一定是空字符
+		} else { // 英文字母结尾，【不要】生成新历史
 			const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 			aLines[iCurLine].text = sText;
-			this.setState({aSteps, sTyped});
+			this.setState({ aSteps, sTyped });
 		}
 		this.getMatchedWords(sTyped);
 	}
@@ -338,7 +358,7 @@ export default class {
 		this.goLine(idx);
 		document.querySelectorAll('textarea')[0].focus();
 	}
-	
+
 	// ▼插入选中的单词
 	toInset(idx) {
 		console.log('插入----', idx);
