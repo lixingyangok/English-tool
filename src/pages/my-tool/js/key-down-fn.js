@@ -132,54 +132,54 @@ export default class {
 				start: idx, end: idx, long: 0, fAveHeight: iCurHeight,
 			});
 			if (!oLast) continue;
-			oLast.iDistanceToNext = (idx - oLast.end) / iPerSecPx; //到下一步的距离
+			oLast.iGapToNext = (idx - oLast.end) / iPerSecPx; //到下一步的距离
 		}
 		return aSection;
 	}
 	// ▼处理尾部
-	fixTail(aWaveArr, iOldEnd, iPerSecPx, iAddition, iDistanceToNext){
+	fixTail(aWaveArr, iOldEnd, iPerSecPx, iAddition, iGapToNext){
 		const iSupplement = (()=>{
 			for (let idx = 0; idx < iPerSecPx; idx++) { //在1秒范围内进行判断
 				const iOneStepPx = 10;
 				const iSum = aWaveArr.slice(idx, idx + iOneStepPx).reduce((result, cur)=>{
 					return result + cur;
 				});
-				if (iSum / iOneStepPx < 2) return idx;
+				if (iSum / iOneStepPx <= 1.2) return idx;
 			}
 			return false;
 		})();
 		const iResult = (()=>{
-			if (iSupplement && iSupplement < iPerSecPx * 0.6){
-				// console.error('分析数据：', aWaveArr.slice(0, 100));
-				console.error('此后无声：', iSupplement, '补上！');
+			if (iSupplement && iSupplement < iPerSecPx * 1){
+				console.log(`%c补充尾部弱音量部分 ${iSupplement} px`, 'background: yellow; font-weight: bold');
 				return iSupplement + iAddition * 0.7;
 			}
 			return iAddition; //默认补偿值
 		})();
-		const iMaxEnd = iOldEnd + (iDistanceToNext * iPerSecPx - iAddition * 0.5);
+		const iMaxEnd = iOldEnd + (iGapToNext * iPerSecPx - iAddition * 0.5);
 		return Math.min(iOldEnd + iResult, iMaxEnd); //即便补偿，不能越界
 	}
 	// ▼智能断句：1参是上一步的结尾的秒数， 2参是在取得的区间的理想的长度（秒数）
 	figureOut(fEndSec, fLong = 3) {
 		const [iPerSecPx, iWaveHeight, iAddition] = [100, 12, 20]; // 默认每秒宽度值（px），高度阈值，添加在两头的空隙，
 		const aWaveArr = this.getWaveArr(fEndSec, iPerSecPx); //取得波形
-		const aSection = this.getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight).filter(cur => {
-			const isCondition01 = cur.long > 0.3; // 只留下大于x秒的
-			const isCondition02 = cur.long > 0.2 && cur.fAveHeight >= iWaveHeight * 2; //或者声音很大
-			return isCondition01 || isCondition02;
-		});
+		const aSection = this.getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight);
 		const { start, end } = (() => {
-			if (!aSection[0]) return {start: 0, end: aWaveArr.length};
 			const [oFirst, oSecond] = aSection;
+			if (!oFirst) return {start: 0, end: aWaveArr.length};
 			const start = Math.max(0, oFirst.start - iAddition);
-			let {end, iDistanceToNext=1} = (()=>{
-				if (oFirst.long >= fLong || oFirst.iDistanceToNext > 1.5 || !oSecond) { //长度已达标 || 第二选择太远了 || 没有第二选择
-					return oFirst;
+			let {end, iGapToNext} = (()=>{
+				const isFirstBetter = oFirst.long >= fLong || oFirst.iGapToNext > 1.2 || !oSecond;
+				const idx = isFirstBetter ? 0 : 1;
+				console.log('选择-', idx);
+				const [oChosen, oNextOne] = [aSection[idx], aSection[idx+1]];
+				if (oNextOne && oNextOne.long <= 1 && oNextOne.iGapToNext > 1 && oChosen.iGapToNext < 1) {
+					console.log(`%c追加临近数据${oNextOne.long}秒`, 'background: pink; font-weight: bold');
+					return oNextOne; // 下一段存在 && 很短 && 离下一段远 && 离我近
 				}
-				return oSecond;
+				return oChosen;
 			})();
-			if (oSecond){
-				end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iDistanceToNext);
+			if (iGapToNext){ // 如果有下一个，修饰尾部
+				end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iGapToNext);
 			}
 			return {start, end};
 		})();
