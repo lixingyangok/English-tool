@@ -65,7 +65,7 @@ export default class extends MyClass{
 				})}
 			</cpnt.Ul>
 			{/* ▼弹出窗口 */}
-			<Modal title="新增" okText="保存" cancelText="关闭"
+			<Modal title="资源信息" okText="保存" cancelText="关闭"
 				visible={visible}
 				onOk={()=>this.oForm.current.submit()}
 				onCancel={()=>this.setState({visible: false})}

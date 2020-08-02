@@ -5,24 +5,15 @@
  */ 
 
 export default class{
+	// ▼初始化
 	async init(){
 		const myDb = window.myDb = new window.Dexie("myDb");
 		myDb.version(1).stores({stories: '++id, name'});
 		myDb.version(2).stores({sections: '++id, idx, parent'});
-		const oStoryTB = myDb.stories; // tb = table
+		const oStoryTB = myDb.stories; // TB = table
 		const oSectionTB = myDb.sections;
-		const aStories = await oStoryTB.toArray(); //所有故事
-		this.setState({oSectionTB, oStoryTB, aStories});
-		// 增
-		// oStoryTB.add({name:'张三', note: new Date()*1});
-		// 删
-		// oStoryTB.delete(1); //删除id是1的数据
-		// 改
-		// oStoryTB.put({id: 2, name: '新名字'}); //全量更新
-		// oStoryTB.update(oForm.id, newVal); //增量更新
-		// 查
-		// let aAfterAHalf = await oStoryTB.where('id').above(aAllItems.length/2).toArray(); //id大于9
-		// let aAim = await oStoryTB.where('id').equals(99).toArray();
+		const aStories = await oStoryTB.toArray(); //查询所有故事
+		this.setState({oStoryTB, oSectionTB, aStories});
 	}
 	// ▼查询故事下的章节
 	async getSctToStory(iStoryId){
@@ -36,10 +27,6 @@ export default class{
 		await Promise.all(arr);
 		this.setState({aStories});
 	}
-	async toUpdata(){
-		const aStories = await this.state.oStoryTB.toArray(); //所有表
-		this.setState({aStories});
-	}
 	async toDel(id){
 		const {oSectionTB, oStoryTB} = this.state;
 		await oSectionTB.where('parent').equals(id).delete();
@@ -48,7 +35,7 @@ export default class{
 		this.getSctToStory();
 	}
 	// ▼提交表单
-	onSave(oForm) {
+	async onSave(oForm) {
 		const {oStoryTB} = this.state;
 		const sTime = new Date().format("yyyy-MM-dd hh:mm:ss");
 		oForm.modifyData = sTime;
@@ -60,8 +47,9 @@ export default class{
 			oForm.aWords = [];
 			oStoryTB.add(oForm);
 		}
-		this.toUpdata();
 		this.setState({visible: false});
+		await this.init();
+		this.getSctToStory();
 	}
 	// ▼开窗口
 	async showModal(oFormData){
@@ -82,4 +70,14 @@ export default class{
 	}
 }
 
-
+// 数据操作方法示例
+// 增
+// oStoryTB.add({name:'张三', note: new Date()*1});
+// 删
+// oStoryTB.delete(1); //删除id是1的数据
+// 改
+// oStoryTB.put({id: 2, name: '新名字'}); //全量更新
+// oStoryTB.update(oForm.id, newVal); //增量更新
+// 查
+// let aAfterAHalf = await oStoryTB.where('id').above(aAllItems.length/2).toArray(); //id大于9
+// let aAim = await oStoryTB.where('id').equals(99).toArray();
