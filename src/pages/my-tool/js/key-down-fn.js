@@ -172,13 +172,15 @@ export default class {
 			if (!aSection[0]) return {start: 0, end: aWaveArr.length};
 			const [oFirst, oSecond] = aSection;
 			const start = Math.max(0, oFirst.start - iAddition);
-			let {end, iDistanceToNext} = (()=>{
+			let {end, iDistanceToNext=1} = (()=>{
 				if (oFirst.long >= fLong || oFirst.iDistanceToNext > 1.5 || !oSecond) { //长度已达标 || 第二选择太远了 || 没有第二选择
 					return oFirst;
 				}
 				return oSecond;
 			})();
-			end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iDistanceToNext);
+			if (oSecond){
+				end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iDistanceToNext);
+			}
 			return {start, end};
 		})();
 		return this.fixTime({

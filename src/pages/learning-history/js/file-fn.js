@@ -63,15 +63,16 @@ export default class {
 	async upDateSection(oSct, aFiles) {
 		const [audioFile, srtFile] = aFiles;
 		const aLines = srtFile ? await fileToTimeLines(srtFile) : oSct.aLines;
+		if (audioFile) message.success('查询到媒体文件，正在保存');
 		const oSection = {
 			aLines,
 			srtFile: srtFile || oSct.srtFile,
 			audioFile: audioFile || oSct.audioFile,
 		};
-		this.state.oSectionTB.update(oSct.id, oSection);
+		await this.state.oSectionTB.update(oSct.id, oSection);
 		await this.getSctToStory(oSct.parent);
 		audioFile && this.getSectionBuffer(oSct);
-		message.success('保存完成');
+		message.success('保存完成，正在解析波形数据');
 	}
 	// 给章节添加buffer
 	// 参数：故事，章节所在索引，章节对象
@@ -87,6 +88,7 @@ export default class {
 		const buffer = await fileToBuffer(oSct.audioFile, true);
 		this.setState({aStories: getStories(false, buffer)});
 		this.state.oSectionTB.update(oSct.id, {buffer});
+		message.success('波形数据解析完成');
 	}
 	// ▼删除某章节
 	toDelSection(oSct){

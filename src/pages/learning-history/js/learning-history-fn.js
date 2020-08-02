@@ -5,7 +5,7 @@
  */ 
 
 export default class{
-	// ▼初始化
+	// ▼初始化，即查询【故事数据】
 	async init(){
 		const myDb = window.myDb = new window.Dexie("myDb");
 		myDb.version(1).stores({stories: '++id, name'});
@@ -15,7 +15,7 @@ export default class{
 		const aStories = await oStoryTB.toArray(); //查询所有故事
 		this.setState({oStoryTB, oSectionTB, aStories});
 	}
-	// ▼查询故事下的章节
+	// ▼更新故事下的【章节数据】
 	async getSctToStory(iStoryId){
 		const {aStories, oSectionTB} = this.state;
 	 	const arr = aStories.map(async (cur)=>{ //遍历每个故事
