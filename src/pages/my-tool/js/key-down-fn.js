@@ -3,17 +3,18 @@ import keyMap from './key-map.js';
 export default class {
 	getFn(keyStr) {
 		const type01 = { //单键系列
-			'`': () => this.toPlay(true), //播放
+			'`': () => this.toPlay(true), //播放后半句
 			'Tab': () => this.toPlay(), //播放
 			'Prior': () => this.previousAndNext(-1),
 			'Next': () => this.previousAndNext(1),
 			'F1': () => this.cutHere('start'),
 			'F2': () => this.cutHere('end'),
+			// TODO 添加一个放弃当前句的功能
 		};
 		const type02 = { // ctrl 系列
 			'ctrl + d': () => this.toDel(), //删除
 			'ctrl + z': () => this.setHistory(-1), //撤销
-			'ctrl + s': () => this.toSaveInDb(), //保存到浏览器
+			'ctrl + s': () => this.toSaveInDb(), //保存到浏览器（字幕）
 			'ctrl + j': () => this.putTogether('prior'), // 合并上一句
 			'ctrl + k': () => this.putTogether('next'), // 合并下一句
 			...{ //+shift
@@ -25,17 +26,13 @@ export default class {
 			},
 		};
 		const type03 = { // alt 系列
-			'alt + j': () => this.previousAndNext(-1),
-			'alt + k': () => this.previousAndNext(1),
-			'alt + l': () => this.goLastLine(), // 跳到最后一句 l = last
-			'alt + ,': () => this.zoomWave({ deltaY: 1 }), //波形横向缩放
-			'alt + .': () => this.zoomWave({ deltaY: -1 }), //波形横向缩放
-			'alt + u': () => this.fixRegion('start', -0.07), //起点向左
-			'alt + i': () => this.fixRegion('start', 0.07), //起点向右
-			'alt + n': () => this.fixRegion('end', -0.07), //终点向左
-			'alt + m': () => this.fixRegion('end', 0.07), //终点向右
-			'alt + ]': () => this.chooseMore(), //扩选
-			'alt + number': number => this.toInset(number - 1), //取词
+			...{ //修改选区系列
+				'alt + ]': () => this.chooseMore(), //扩选
+				'alt + u': () => this.fixRegion('start', -0.07), //起点向左
+				'alt + i': () => this.fixRegion('start', 0.07), //起点向右
+				'alt + n': () => this.fixRegion('end', -0.07), //终点向左
+				'alt + m': () => this.fixRegion('end', 0.07), //终点向右
+			},
 			...{ // +shift
 				'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
 				'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
@@ -44,6 +41,12 @@ export default class {
 				'alt + shift + d': () => this.saveWord(), //保存单词到DB
 				'alt + shift + c': () => this.toStop(), //停止播放
 			},
+			'alt + j': () => this.previousAndNext(-1),
+			'alt + k': () => this.previousAndNext(1),
+			'alt + l': () => this.goLastLine(), // 跳到最后一句 l = last
+			'alt + ,': () => this.zoomWave({deltaY: 1}), //波形横向缩放
+			'alt + .': () => this.zoomWave({deltaY: -1}), //波形横向缩放
+			'alt + number': number => this.toInset(number - 1), //取词
 		}
 		const fnLib = { ...type01, ...type02, ...type03 };
 		let fn = fnLib[keyStr];
@@ -249,20 +252,19 @@ export default class {
 		}
 		this.message.success('保存成功');
 	}
-	// ▼微调区域（1参可能是 start、end
+	// ▼微调区域（1参可能是 start、end。2参是调整步幅
 	fixRegion(sKey, iDirection) {
 		const { iCurLine, aLines } = this.getCurStep(true);
 		const oOld = aLines[iCurLine];
-		// const oOld = this.getCurLine();
 		const previous = aLines[iCurLine - 1];
 		const next = aLines[iCurLine + 1];
 		let fNewVal = oOld[sKey] + iDirection;
 		if (fNewVal < 0) fNewVal = 0;
 		if (previous && fNewVal < previous.end) {
-			fNewVal = previous.end + 0.05;
+			fNewVal = previous.end;
 		}
 		if (next && fNewVal > next.start) {
-			fNewVal = next.start - 0.05;
+			fNewVal = next.start;
 		}
 		this.setTime(sKey, fNewVal);
 	}
@@ -379,6 +381,6 @@ export default class {
 		const oCurLine = this.getCurLine();
 		const newEnd = this.figureOut(oCurLine.end, 0.35).end;
 		this.setTime('end', newEnd);
+		this.goToCurLine();
 	}
 }
-
