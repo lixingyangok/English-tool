@@ -31,13 +31,12 @@ export async  function fileToBuffer(oFile, isWantFakeBuffer=false){
 	Object.assign(new FileReader(), {
 		onload: async evt => {
             const arrayBuffer = evt.currentTarget.result;
-			console.log('转：audiobuffer ★★');
-			console.time('转：audiobuffer ★★');
 			let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-			const buffer = await audioContext.decodeAudioData(arrayBuffer);
-			console.timeEnd('转：audiobuffer ★★');
+			console.time('转：audiobuffer');
+			let buffer = await audioContext.decodeAudioData(arrayBuffer);
+			console.timeEnd('转：audiobuffer');
 			audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
-			if (isWantFakeBuffer) return resolveFn(getFaleBuffer(buffer));
+			if (isWantFakeBuffer) buffer = getFaleBuffer(buffer);
 			resolveFn(buffer);
 		},
 	}).readAsArrayBuffer(oFile);
@@ -81,7 +80,7 @@ export function fileToStrings(oFile) {
 	return oPromise;
 }
 
-function  getFaleBuffer(buffer){
+export function getFaleBuffer(buffer){
 	const buffer_ = { //原始数据
 		duration: buffer.duration,
 		length: buffer.length, // === buffer.getChannelData(0).length
@@ -93,10 +92,13 @@ function  getFaleBuffer(buffer){
         aChannelData_: [],
         sDuration_: secToStr(buffer.duration).split(',')[0],
         oChannelDataBlob_: (()=>{
+			console.time('转：Blob');
             const aChannelData = Int8Array.from( // int8的取值范围 -128 到 127
                 buffer.getChannelData(0).map(xx => xx * (xx > 0 ? 127 : 128)),
-            );
-            return new Blob([aChannelData], {type: 'text/plain'});
+			);
+			const result = new Blob([aChannelData], {type: 'text/plain'});
+			console.timeEnd('转：Blob');
+            return result;
         })(),
 	};
 }

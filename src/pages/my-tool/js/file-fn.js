@@ -5,7 +5,6 @@
  */
 import {downloadString, fileToStrings} from 'assets/js/pure-fn.js';
 
-
 export default class {
 	// ▼拖入文件
 	pushFiles(ev) {

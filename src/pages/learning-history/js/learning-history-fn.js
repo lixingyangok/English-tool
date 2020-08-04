@@ -59,12 +59,12 @@ export default class{
 		if (!oForm) return;
 		if (oFormData) oForm.setFieldsValue(oFormData);
 		else oForm.resetFields();
-	};
+	}
 	// ▼去听写
 	goTool(oStory, oSct){
 		if (!oStory || !oSct) return this.message.info('数据不完整');
+		if (!oSct.audioFile) return this.message.info('没有音频文件，请导入');
 		if (oSct.isLoading) return this.message.info('请等待初始化完成');
-		// ▼没字幕也能跳转，从头开始听写
 		const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
 		this.props.history.push(sPath);
 	}

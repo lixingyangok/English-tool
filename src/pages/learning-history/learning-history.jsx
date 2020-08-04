@@ -2,6 +2,8 @@ import React from 'react';
 import TheFn from './js/learning-history-fn.js';
 import * as cpnt from './style/learning-history.js';
 import FileFn from './js/file-fn.js';
+import {message} from 'antd';
+
 
 // ▼组件库
 import {
@@ -13,6 +15,7 @@ const MyClass = window.mix(
 );
 
 export default class extends MyClass{
+	message = message;
 	oForm = React.createRef();
 	state = {
 		visible: false, //窗口显示
@@ -158,10 +161,5 @@ export default class extends MyClass{
 	async componentDidMount(){
 		await this.init();
 		this.getSctToStory();
-		const pushFiles = this.pushFiles.bind(this);
-		document.addEventListener("drop", pushFiles);		// ▼拖动释放
-		document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
-		document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
-		document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
 	}
 }

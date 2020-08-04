@@ -3,29 +3,15 @@
  * @LastEditors: 李星阳
  * @Description: 
  */
-import {message} from 'antd';
-import {fileToTimeLines, fileToBuffer} from 'assets/js/pure-fn.js';
+import {fileToTimeLines, fileToBuffer, getFaleBuffer} from 'assets/js/pure-fn.js';
 
 export default class {
-	// ▼拖入文件
-	pushFiles(ev) {
-		ev.preventDefault();
-		ev.stopPropagation();
-		console.clear();
-		console.log(ev);
-		console.log(ev.path); //落点
-		console.log(ev.dataTransfer);
-		console.log(ev.dataTransfer.files);
-		if (ev.type !== 'drop') return;
-		// const aFiles = this.getCorrectFile(ev.dataTransfer.files);
-	}
-	// ▼input导入文件到某个故事
-	// 通过第3个参数判断是新增还是修改
+	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
 	toImport(ev, oStory, oSct) {
 		const { target } = ev;
 		if (!target.files.length) return;
 		const aFiles = this.getCorrectFile(target.files);
-		if (!aFiles.length) return;
+		if (!aFiles.find(Boolean)) return this.message.error('没有合适的文件');
 		if (oSct) {
 			this.upDateSection(oSct, aFiles);
 		}else{
@@ -39,13 +25,14 @@ export default class {
 		const audioFile = aFiles.find(({ type }) => {
 			return ['audio/mpeg', 'video/mp4'].includes(type);
 		});
-		console.log(audioFile);
 		const srtFile = aFiles.find(({ name }) => name.split('.').pop() === 'srt');
+		console.log('媒体文件：', audioFile);
 		return [audioFile, srtFile];
 	}
 	// ▼保存章节
 	async saveSection(oStory, aFiles) {
 		const [audioFile, srtFile] = aFiles;
+		if (audioFile) this.message.success('检测到媒体文件，正在保存');
 		const oSection = {
 			idx: 0,
 			aLines: await fileToTimeLines(srtFile),
@@ -57,26 +44,38 @@ export default class {
 		const id = await this.state.oSectionTB.add(oSection);
 		await this.getSctToStory(oStory.id);
 		audioFile && this.getSectionBuffer({...oSection, id});
-		message.success('保存完成');
+		this.message.success('媒体文件保存完成' + (audioFile ? '，正在解析波形数据' : '')); //放在最后
 	}
 	// ▼【更新】章节
 	async upDateSection(oSct, aFiles) {
 		const [audioFile, srtFile] = aFiles;
 		const aLines = srtFile ? await fileToTimeLines(srtFile) : oSct.aLines;
-		if (audioFile) message.success('查询到媒体文件，正在保存');
+		const {srtFile: srtFileOld, audioFile: audioFileOld} = oSct;
+		if (audioFile) {
+			this.message.success('检测到媒体文件，正在保存');
+			this.setState({ //用于更新视图把旧文件清除掉
+				aStories: this.state.aStories.map(cur=>{
+					if(cur.id !== oSct.parent) return cur;
+					const oTarget = cur.aSections.find(item => item.id === oSct.id);
+					oTarget.audioFile = audioFile;
+					oTarget.buffer = undefined;
+					return cur;
+				}),
+			});
+		}
 		const oSection = {
 			aLines,
-			srtFile: srtFile || oSct.srtFile,
-			audioFile: audioFile || oSct.audioFile,
+			srtFile: srtFile || srtFileOld,
+			audioFile: audioFile || audioFileOld,
 		};
 		await this.state.oSectionTB.update(oSct.id, oSection);
 		await this.getSctToStory(oSct.parent);
 		audioFile && this.getSectionBuffer(oSct);
-		message.success('保存完成，正在解析波形数据');
+		this.message.success('媒体文件保存完成' + (audioFile ? '，正在解析波形数据' : '')); //放在最后
 	}
 	// 给章节添加buffer
-	// 参数：故事，章节所在索引，章节对象
 	async getSectionBuffer(oSct){
+		if (!oSct.audioFile) return this.message.error('没有音频文件，无法初始化');
 		const getStories = (isLoading, buffer) => this.state.aStories.map(cur=>{
 			if (cur.id === oSct.parent)  Object.assign(
 				cur.aSections.find(item=>item.id === oSct.id),
@@ -85,10 +84,13 @@ export default class {
 			return cur;
 		});
 		this.setState({aStories: getStories(true, {})});
-		const buffer = await fileToBuffer(oSct.audioFile, true);
+		let buffer = await fileToBuffer(oSct.audioFile);
+		this.message.success('解析完成，正在保存波形数据');
+		await new Promise(resolve=>setTimeout(resolve, 700));
+		buffer = getFaleBuffer(buffer);
 		this.setState({aStories: getStories(false, buffer)});
-		this.state.oSectionTB.update(oSct.id, {buffer});
-		message.success('波形数据解析完成');
+		await this.state.oSectionTB.update(oSct.id, {buffer});
+		this.message.success('波形数据保存完成');
 	}
 	// ▼删除某章节
 	toDelSection(oSct){
