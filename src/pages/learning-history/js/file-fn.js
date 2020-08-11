@@ -23,7 +23,7 @@ export default class {
 	getCorrectFile(oFiles) {
 		const aFiles = [...oFiles];
 		const audioFile = aFiles.find(({ type }) => {
-			return ['audio/mpeg', 'video/mp4'].includes(type);
+			return type.startsWith('audio/') || type.startsWith('video/');
 		});
 		const srtFile = aFiles.find(({ name }) => name.split('.').pop() === 'srt');
 		console.log('媒体文件：', audioFile);
@@ -44,7 +44,7 @@ export default class {
 		const id = await this.state.oSectionTB.add(oSection);
 		await this.getSctToStory(oStory.id);
 		audioFile && this.getSectionBuffer({...oSection, id});
-		this.message.success('媒体文件保存完成' + (audioFile ? '，正在解析波形数据' : '')); //放在最后
+		this.message.success('保存完成' + (audioFile ? '，正在解析波形数据' : '')); //放在最后
 	}
 	// ▼【更新】章节
 	async upDateSection(oSct, aFiles) {
@@ -71,7 +71,7 @@ export default class {
 		await this.state.oSectionTB.update(oSct.id, oSection);
 		await this.getSctToStory(oSct.parent);
 		audioFile && this.getSectionBuffer(oSct);
-		this.message.success('媒体文件保存完成' + (audioFile ? '，正在解析波形数据' : '')); //放在最后
+		this.message.success('保存完成' + (audioFile ? '，正在解析波形数据' : '')); //放在最后
 	}
 	// 给章节添加buffer
 	async getSectionBuffer(oSct){
