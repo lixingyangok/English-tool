@@ -8,17 +8,16 @@ export default class {
 	// ▼跳至某行
 	async goLine(idx, oNewLine, doNotSave) {
 		const oWaveWrap = this.oWaveWrap.current;
-		const {scrollLeft, offsetWidth} = oWaveWrap;
+		const {offsetWidth} = oWaveWrap;
 		const {fPerSecPx} = this.state;
-		const {start, end, long} = oNewLine || this.getCurLine(idx);
-		oWaveWrap.scrollLeft = (() => {
-			if ((start * fPerSecPx > scrollLeft) && (end * fPerSecPx < scrollLeft + offsetWidth)) return scrollLeft;
-			// ▲【起点】在可视区内 && 【终点】也在可视区内， 返回旧值（不滚动）
+		const {start, long} = oNewLine || this.getCurLine(idx);
+		const iTopVal = (() => {
 			const startPx = fPerSecPx * start;
 			const restPx = offsetWidth - long * fPerSecPx;
 			if (restPx <= 0) return startPx - 100; //100表示起点距离左边100
 			return startPx - restPx / 2;
 		})();
+		this.goThere(oWaveWrap, 'Left', iTopVal);
 		// ▲波形定位，▼下方句子定位
 		const oSententList = this.oSententList.current;
 		const {offsetHeight, scrollTop, children} = oSententList;
@@ -191,6 +190,22 @@ export default class {
 		const end = ~~((scrollLeft + offsetWidth) / fPerSecPx + 1);
 		return [start > 0 ? start : 0, end];
 	}
-
+	goThere(oDom, sDirection, iNewVal){
+		clearInterval(this.state.scrollTimer);
+		const sType = `scroll${sDirection}`;
+		const iOldVal = oDom[sType];
+		if (iOldVal === iNewVal) return;
+		const [iTakeTime, iTimes] = [400, 30]; //走完全程耗时, x毫秒走一步
+		const iOneStep = ~~((iNewVal - iOldVal) / (iTakeTime / iTimes));
+		const scrollTimer = setInterval(()=>{
+			let iAimTo = oDom[sType] + iOneStep;
+			if (iNewVal > iOldVal ? iAimTo >= iNewVal : iAimTo <= iNewVal){
+				iAimTo = iNewVal;
+				clearInterval(scrollTimer);
+			}
+			oDom[sType] = iAimTo;
+		}, iTimes);
+		this.setState({scrollTimer});
+	}
 }
 

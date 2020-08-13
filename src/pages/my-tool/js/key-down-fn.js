@@ -9,7 +9,7 @@ export default class {
 			'Next': () => this.previousAndNext(1),
 			'F1': () => this.cutHere('start'),
 			'F2': () => this.cutHere('end'),
-			// TODO 添加一个放弃当前句的功能
+			'F3': () => this.giveUpThisOne(),
 		};
 		const type02 = { // ctrl 系列
 			'ctrl + d': () => this.toDel(), //删除
@@ -101,6 +101,12 @@ export default class {
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
+	// ▼抛弃当前行，
+	giveUpThisOne(){
+		const oCurLine = this.getCurLine();
+		const oNextLine = this.figureOut(oCurLine.end); //返回下一行的数据
+		this.setCurLine(oNextLine);
+	}
 	// ▼提供【波形数组】用于断句
 	getWaveArr(fEndSec, iPerSecPx) {
 		const { aPeaks } = this.getPeaks(
@@ -137,19 +143,19 @@ export default class {
 		return aSection;
 	}
 	// ▼处理尾部
-	fixTail(aWaveArr, iOldEnd, iPerSecPx, iAddition, iGapToNext){
-		const iSupplement = (()=>{
+	fixTail(aWaveArr, iOldEnd, iPerSecPx, iAddition, iGapToNext) {
+		const iSupplement = (() => {
 			for (let idx = 0; idx < iPerSecPx; idx++) { //在1秒范围内进行判断
 				const iOneStepPx = 10;
-				const iSum = aWaveArr.slice(idx, idx + iOneStepPx).reduce((result, cur)=>{
+				const iSum = aWaveArr.slice(idx, idx + iOneStepPx).reduce((result, cur) => {
 					return result + cur;
 				});
 				if (iSum / iOneStepPx <= 1.2) return idx;
 			}
 			return false;
 		})();
-		const iResult = (()=>{
-			if (iSupplement && iSupplement < iPerSecPx * 1){
+		const iResult = (() => {
+			if (iSupplement && iSupplement < iPerSecPx * 1) {
 				console.log(`%c补充尾部弱音量部分 ${iSupplement} px`, 'background: yellow; font-weight: bold');
 				return iSupplement + iAddition * 0.7;
 			}
@@ -165,23 +171,23 @@ export default class {
 		const aSection = this.getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight);
 		const { start, end } = (() => {
 			const [oFirst, oSecond] = aSection;
-			if (!oFirst) return {start: 0, end: aWaveArr.length};
+			if (!oFirst) return { start: 0, end: aWaveArr.length };
 			const start = Math.max(0, oFirst.start - iAddition);
-			let {end, iGapToNext} = (()=>{
+			let { end, iGapToNext } = (() => {
 				const isFirstBetter = oFirst.long >= fLong || oFirst.iGapToNext > 1.2 || !oSecond;
 				const idx = isFirstBetter ? 0 : 1;
 				console.log('选择-', idx);
-				const [oChosen, oNextOne] = [aSection[idx], aSection[idx+1]];
+				const [oChosen, oNextOne] = [aSection[idx], aSection[idx + 1]];
 				if (oNextOne && oNextOne.long <= 1 && oNextOne.iGapToNext > 1 && oChosen.iGapToNext < 1) {
 					console.log(`%c追加临近数据${oNextOne.long}秒`, 'background: pink; font-weight: bold');
 					return oNextOne; // 下一段存在 && 很短 && 离下一段远 && 离我近
 				}
 				return oChosen;
 			})();
-			if (iGapToNext){ // 如果有下一个，修饰尾部
+			if (iGapToNext) { // 如果有下一个，修饰尾部
 				end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iGapToNext);
 			}
-			return {start, end};
+			return { start, end };
 		})();
 		return this.fixTime({
 			start: fEndSec + (start / iPerSecPx),

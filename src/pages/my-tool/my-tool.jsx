@@ -55,6 +55,7 @@ export default class Tool extends MyClass {
 		aMatched: [], //与当前输入匹配到的单词
 		visible: false,
 		aWordsDBState: [],
+		scrollTimer: null,
 	};
 	constructor(props) {
 		super(props);
@@ -289,12 +290,18 @@ export default class Tool extends MyClass {
 			oStoryTB.get(storyId*1),
 			oSectionTB.get(sctId*1),
 		]);
-		console.log(oSct);
 		if (!oStory || !oSct) return;
-		const buffer = {
-			...oSct.buffer,
-			aChannelData_: await oSct.buffer.oChannelDataBlob_.arrayBuffer().then(res=>new Int8Array(res)),
-		};
+		const aChannelData_ = await (async ()=>{
+			const theBlob = oSct.buffer.oChannelDataBlob_;
+			if (!theBlob.arrayBuffer) return;
+			const res = await theBlob.arrayBuffer();
+			return new Int8Array(res);
+		})();
+		if (!aChannelData_) {
+			this.setState({loading: false});
+			return alert('浏览器无法解析音频数据');
+		}
+		const buffer = {...oSct.buffer, aChannelData_};
 		const [{aWords=[]}, loading] = [oStory, false];
 		const fileSrc = URL.createObjectURL(oSct.audioFile);
 		if (oSct.aLines.length) aSteps.last_.aLines = oSct.aLines; //字幕
