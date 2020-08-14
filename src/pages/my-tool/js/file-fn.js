@@ -6,17 +6,6 @@
 import {downloadString, fileToStrings} from 'assets/js/pure-fn.js';
 
 export default class {
-	// ▼拖入文件
-	pushFiles(ev) {
-		ev.preventDefault();
-		ev.stopPropagation();
-		console.clear();
-		console.log(ev);
-		console.log(ev.dataTransfer);
-		console.log(ev.dataTransfer.files);
-		if (ev.type !== 'drop') return;
-		this.getCorrectFile(ev.dataTransfer.files);
-	}
 	// ▼input导入文件
 	toImport(ev) {
 		const {target} = ev;

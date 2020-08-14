@@ -269,12 +269,7 @@ export default class Tool extends MyClass {
 		oAudio.addEventListener( //注册滚轮事件
 			"mousewheel", ev => this.changeVideoSize(ev), // {passive: false},
 		);
-		const pushFiles = this.pushFiles.bind(this);
 		document.onkeydown = this.keyDowned.bind(this);
-		document.addEventListener("drop", pushFiles);		// ▼拖动释放
-		document.addEventListener("dragleave", pushFiles);	// ▼拖动离开（未必会执行
-		document.addEventListener("dragenter", pushFiles);	// ▼拖动进入
-		document.addEventListener("dragover", pushFiles);	// ▼拖动进行中
 	}
 	// ▼销毁前
 	componentWillUnmount(){
