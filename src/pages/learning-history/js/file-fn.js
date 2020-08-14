@@ -10,59 +10,79 @@ export default class {
 	toImport(ev, oStory, oSct) {
 		const { target } = ev;
 		if (!target.files.length) return;
-		const aFiles = this.getCorrectFile(target.files);
-		if (!aFiles.find(Boolean)) return this.message.error('没有合适的文件');
+		const aTwoTypeFiles = this.getCorrectFile(target.files);
+		const hasAudioFile = aTwoTypeFiles[0].length;
+		if (!oSct && !hasAudioFile) { //如果在新建 && 没有音频 -> 即使有字幕也不导入
+			return this.message.error('没有媒体文件');
+		}
+		hasAudioFile && this.message.success('检测到媒体文件，正在保存');
 		if (oSct) {
-			this.upDateSection(oSct, aFiles);
+			this.upDateSection(oSct, [aTwoTypeFiles[0][0], aTwoTypeFiles[1][0]]);
 		}else{
-			this.saveSection(oStory, aFiles);
+			this.saveSection(oStory, aTwoTypeFiles);
 		}
 		target.value = '';
 	}
 	// ▼过滤出正确的文件
 	getCorrectFile(oFiles) {
-		const aFiles = [...oFiles];
-		const audioFile = aFiles.find(({ type }) => {
-			return type.startsWith('audio/') || type.startsWith('video/');
-		});
-		const srtFile = aFiles.find(({ name }) => name.split('.').pop() === 'srt');
-		console.log('媒体文件：', audioFile);
-		return [audioFile, srtFile];
+		const aTwoTypeFiles = [...oFiles].reduce((aResult, curFile)=>{
+			const {type, name} = curFile;
+			if (name.includes('.') && (type.startsWith('audio/') || type.startsWith('video/'))) {
+				aResult[0].push(curFile);
+			}else if (name.endsWith('.srt')) {
+				aResult[1].push(curFile);
+			}
+			return aResult;
+		}, [[], []]);
+		console.log('文件：', aTwoTypeFiles[0], aTwoTypeFiles[1]);
+		return aTwoTypeFiles;
 	}
 	// ▼保存章节
 	async saveSection(oStory, aFiles) {
 		const [audioFile, srtFile] = aFiles;
-		if (audioFile) this.message.success('检测到媒体文件，正在保存');
-		const oSection = {
-			idx: 0,
-			aLines: await fileToTimeLines(srtFile),
-			parent: oStory.id,
-			srtFile: srtFile || undefined,
-			audioFile: audioFile || undefined,
-			buffer: undefined,
-		};
-		const id = await this.state.oSectionTB.add(oSection);
-		await this.getSctToStory(oStory.id);
-		audioFile && this.getSectionBuffer({...oSection, id});
-		this.message.success('保存完成' + (audioFile ? '，正在解析波形数据' : '')); //放在最后
+		const aMakeSections = audioFile.map(async curFile=>{
+			const aLines = await (async () => {
+				const sCurFileName = curFile.name.split('.').slice(0,-1).join('.');
+				const matchedSrtFile = srtFile.find(cur => cur.name.startsWith(sCurFileName));
+				if (!matchedSrtFile) return [];
+				return await fileToTimeLines(matchedSrtFile);
+			})();
+			return {
+				idx: 0,
+				aLines,
+				parent: oStory.id,
+				audioFile: curFile,
+				buffer: undefined,
+				srtFile: undefined, //字幕文件好像没用
+			};
+		});
+		const aSections = await Promise.all(aMakeSections);
+		const idArr = [];
+		for (const curSct of aSections) {
+			const id = await this.state.oSectionTB.add(curSct);
+			idArr.push(id);
+		}
+		await this.getSctToStory(oStory.id); //更新故事下的章节
+		idArr.forEach((id, idx)=>{
+			this.getSectionBuffer({...aSections[idx], id});
+		});
+		this.message.success('保存完成，正在解析波形数据'); //放在最后？
 	}
 	// ▼【更新】章节
 	async upDateSection(oSct, aFiles) {
 		const [audioFile, srtFile] = aFiles;
-		const aLines = srtFile ? await fileToTimeLines(srtFile) : oSct.aLines;
-		const {srtFile: srtFileOld, audioFile: audioFileOld} = oSct;
 		if (audioFile) {
-			this.message.success('检测到媒体文件，正在保存');
-			this.setState({ //用于更新视图把旧文件清除掉
-				aStories: this.state.aStories.map(cur=>{
-					if(cur.id !== oSct.parent) return cur;
-					const oTarget = cur.aSections.find(item => item.id === oSct.id);
-					oTarget.audioFile = audioFile;
-					oTarget.buffer = undefined;
-					return cur;
-				}),
+			const aStories = this.state.aStories.map(cur => {
+				if (cur.id !== oSct.parent) return cur;
+				const oTarget = cur.aSections.find(item => item.id === oSct.id);
+				oTarget.audioFile = audioFile;
+				oTarget.buffer = undefined;
+				return cur;
 			});
+			this.setState({aStories}); // 先更新视图，即把旧文件清除掉
 		}
+		const {srtFile: srtFileOld, audioFile: audioFileOld} = oSct;
+		const aLines = srtFile ? await fileToTimeLines(srtFile) : oSct.aLines;
 		const oSection = {
 			aLines,
 			srtFile: srtFile || srtFileOld,
