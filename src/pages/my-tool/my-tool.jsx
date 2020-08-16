@@ -6,6 +6,7 @@ import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
 import wordsDbFn from './js/words-db.js';
+import figureOutRegion from './js/figure-out-region.js';
 import Nav from './children/menu/menu.jsx';
 import {Modal, Button, Upload, message} from 'antd';
 
@@ -13,7 +14,9 @@ const { TextArea } = Input;
 const { confirm } = Modal;
 
 const MyClass = window.mix(
-	React.Component, coreFn, keyDownFn, MouseFn, fileFn, wordsDbFn,
+	React.Component,
+	coreFn, keyDownFn, MouseFn, fileFn, wordsDbFn,
+	figureOutRegion,
 );
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
@@ -260,15 +263,15 @@ export default class Tool extends MyClass {
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	// ▼以下是生命周期
 	async componentDidMount() {
-		this.cleanCanvas();
 		const oWaveWrap = this.oWaveWrap.current;
 		const oAudio = this.oAudio.current;
-		oWaveWrap.addEventListener( //注册滚轮事件
+		oWaveWrap.addEventListener( //在【波形图】上滚轮
 			"mousewheel", ev => this.wheelOnWave(ev), {passive: false},
 		);
-		oAudio.addEventListener( //注册滚轮事件
-			"mousewheel", ev => this.changeVideoSize(ev), // {passive: false},
+		oAudio.addEventListener( //在【视频】在滚轮
+			"mousewheel", ev => this.changeVideoSize(ev),
 		);
+		this.cleanCanvas();
 		document.onkeydown = this.keyDowned.bind(this);
 	}
 	// ▼销毁前
@@ -301,6 +304,7 @@ export default class Tool extends MyClass {
 		const fileSrc = URL.createObjectURL(oSct.audioFile);
 		if (oSct.aLines.length) aSteps.last_.aLines = oSct.aLines; //字幕
 		this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords, loading});
+		this.giveUpThisOne(0);
 		this.bufferToPeaks();
 	}
 	// ▼音频数据转换波峰数据

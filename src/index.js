@@ -29,7 +29,7 @@ Object.defineProperties(window, {
 Object.defineProperties(Object.prototype, { // eslint-disable-line
 	dc_: { // deep copy = 深拷贝
 		get: function () {
-			console.time('%c克隆耗时■■■');
+			// console.time('%c克隆耗时■■■');
 			function toClone(source) {
 				const isNeed = source && typeof source == 'object' && source instanceof Object;
 				if (!isNeed) return source; //不处理值类型，即忽略非数组、非对象
@@ -45,7 +45,7 @@ Object.defineProperties(Object.prototype, { // eslint-disable-line
 				catch (err) {console.error('拷贝没成功', err)}
 				return JSON.parse(JSON.stringify(this));
 			})();
-			console.timeEnd('%c克隆耗时■■■');
+			// console.timeEnd('%c克隆耗时■■■');
 			return result;
 		},
 	},
