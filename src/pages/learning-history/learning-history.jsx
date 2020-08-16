@@ -4,17 +4,18 @@ import * as cpnt from './style/learning-history.js';
 import FileFn from './js/file-fn.js';
 import {message} from 'antd';
 
-
 // ▼组件库
 import {
-	Modal, Form, Input, Button, Typography, Popconfirm
+	Modal, Form, Input, Button, Typography, Popconfirm, Menu, Dropdown,
 } from 'antd';
+
 
 const MyClass = window.mix(
 	React.Component, TheFn, FileFn,
 );
 
 export default class extends MyClass{
+	Modal = Modal;
 	message = message;
 	oForm = React.createRef();
 	state = {
@@ -57,8 +58,13 @@ export default class extends MyClass{
 								/>
 							</label>
 							<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
+							<Popconfirm placement="topRight" okText="清空" cancelText="取消"
+								title="清空不可恢复，是否清空？" onConfirm={()=>this.toDel(cur.id)}
+							>
+								<Button size='small'>清空</Button>
+							</Popconfirm>
 							<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-								title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id)}
+								title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id, true)}
 							>
 								<Button size='small'>删除</Button>
 							</Popconfirm>
@@ -104,23 +110,18 @@ export default class extends MyClass{
 						{(oSct.audioFile || {}).name || '无音频'}
 					</h3>
 					<cpnt.BtnWrapInTrack className="btns">
-						<Button type="link" onClick={()=>this.getSectionBuffer(oSct)}>
-							初始化
-						</Button>
-						<label className="ant-btn ant-btn-link">
-							<span>导入</span>
-							<input type="file" style={{display: 'none'}} multiple="multiple"
-								onChange={ev=>this.toImport(ev, oStory, oSct)}
-							/>
-						</label>
 						<Button type="link" onClick={()=>this.goTool(oStory, oSct)} >
 							听写
 						</Button>
-						<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-							title="删除不可恢复，是否删除？" onConfirm={()=>this.toDelSection(oSct)}
-						>
-							<Button type="link">删除</Button>
-						</Popconfirm>
+						<Dropdown overlay={this.getMenu(oSct)} placement="bottomLeft" arrow>
+							<Button type="link">
+								操作&nbsp;<i className="fa fa-angle-down"/>
+							</Button>
+						</Dropdown>
+						<input type="file" multiple="multiple" style={{display: 'none'}}
+							onChange={ev=>this.toImport(ev, oStory, oSct)}
+							id={`sct-${oSct.id}`}
+						/>
 					</cpnt.BtnWrapInTrack>
 					{this.getTrackInfo(oSct)}
 				</li>
@@ -156,6 +157,22 @@ export default class extends MyClass{
 				<dd>{aLines.length}句</dd>
 			</cpnt.InfoWrap>
 		</>
+	}
+	getMenu(oSct){
+		return <Menu>
+			<Menu.Item onClick={()=>this.getSectionBuffer(oSct)}>
+				初始化
+			</Menu.Item>
+			<Menu.Item onClick={()=>this.importToSct(oSct)}>
+				导入文件
+			</Menu.Item>
+			<Menu.Item onClick={()=>this.toExport(oSct)}>
+				导出字幕
+			</Menu.Item>
+			<Menu.Item onClick={()=>this.toDelSection(oSct)}>
+				删除
+			</Menu.Item>
+		</Menu>
 	}
 	// ▼生命周期
 	async componentDidMount(){

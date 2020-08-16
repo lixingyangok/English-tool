@@ -3,7 +3,7 @@
  * @LastEditors: 李星阳
  * @Description: 
  */
-import {fileToTimeLines, fileToBuffer, getFaleBuffer} from 'assets/js/pure-fn.js';
+import {fileToTimeLines, fileToBuffer, getFaleBuffer, downloadString} from 'assets/js/pure-fn.js';
 
 export default class {
 	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
@@ -114,20 +114,25 @@ export default class {
 	}
 	// ▼删除某章节
 	toDelSection(oSct){
-		this.state.oSectionTB.delete(oSct.id);
-		this.getSctToStory();
+		const onOk = ()=>{
+			this.state.oSectionTB.delete(oSct.id);
+			this.getSctToStory();
+		};
+	 	this.Modal.confirm({
+			title: `是否确认删除?`,
+			content: `正在删除：${oSct.audioFile.name}`,
+			cancelText: '取消',
+			okText: '确认',
+			onOk,
+		});
 	}
-	// ▼导出文件
-	toExport() {
-		const { aLines } = this.getCurStep();
-		const aStr = aLines.map(({ start_, end_, text }, idx) => {
+	// ▼导出字幕文件
+	toExport(oSct) {
+		const aStr = oSct.aLines.map(({start_, end_, text}, idx) => {
 			return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
-		}).join('\n');
-		const blob = new Blob([aStr]);
-		Object.assign(document.createElement('a'), {
-			download: `字幕文件-${new Date() * 1}.srt`,
-			href: URL.createObjectURL(blob),
-		}).click();
+		});
+		const fileName = oSct.audioFile.name.split('.').slice(0, -1).join('.');
+		downloadString(aStr.join('\n'), fileName, 'srt');
 	}
 };
 

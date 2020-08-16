@@ -27,13 +27,16 @@ export default class{
 		await Promise.all(arr);
 		this.setState({aStories});
 	}
-	async toDel(id){
+	async toDel(id, isCompletelyDelete){
 		const {oSectionTB, oStoryTB} = this.state;
 		await oSectionTB.where('parent').equals(id).delete();
-		await oStoryTB.delete(id);
+		if (isCompletelyDelete) {
+			await oStoryTB.delete(id);
+		}
 		await this.init();
 		this.getSctToStory();
 	}
+	
 	// ▼提交表单
 	async onSave(oForm) {
 		const {oStoryTB} = this.state;
@@ -67,6 +70,11 @@ export default class{
 		if (oSct.isLoading) return this.message.info('请等待初始化完成');
 		const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
 		this.props.history.push(sPath);
+	}
+	importToSct(oSct){
+		console.log('oSct', oSct);
+		const dom = document.getElementById(`sct-${oSct.id}`);
+		dom.click();
 	}
 }
 

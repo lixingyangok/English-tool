@@ -108,7 +108,7 @@ export default class Tool extends MyClass {
 					<cpnt.WaveBox>
 						<canvas height={iCanvasHeight} ref={this.oCanvas}/>
 						<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
-							<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration}px`}}
+							<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
 								onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
 							>
 								{this.getMarkBar(this.state)}
