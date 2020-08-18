@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-08-16 18:35:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2020-08-16 19:39:21
+ * @LastEditTime: 2020-08-18 20:59:19
  * @Description: 
  */
 
@@ -90,7 +90,7 @@ export default class {
 		})();
 		return this.fixTime({
 			start: fEndSec + (start / iPerSecPx),
-			end: fEndSec + (end / iPerSecPx),
+			end: Math.min(fEndSec + (end / iPerSecPx), this.state.buffer.duration + 0.9),
 		});
 	}
 }

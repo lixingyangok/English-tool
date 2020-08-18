@@ -82,7 +82,7 @@ export default class {
 		const iCurLineNew = iCurLine + iDirection;
 		const newLine = (() => {
 			if (aLines[iCurLineNew]) return false; //有数据，不用新增
-			if ((buffer.duration - aLines[iCurLine].end) < 1) return null; //临近终点不新增
+			if ((buffer.duration - aLines[iCurLine].end) < 0.1) return null; //临近终点不新增
 			return this.figureOut(aLines.last_.end); //返回下一行的数据
 		})();
 		if (newLine === null) return this.message.error(`已经到头了`);
