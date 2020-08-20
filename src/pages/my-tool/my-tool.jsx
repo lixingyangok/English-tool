@@ -302,9 +302,12 @@ export default class Tool extends MyClass {
 		const buffer = {...oSct.buffer, aChannelData_};
 		const [{aWords=[]}, loading] = [oStory, false];
 		const fileSrc = URL.createObjectURL(oSct.audioFile);
-		if (oSct.aLines.length) aSteps.last_.aLines = oSct.aLines; //字幕
+		if (oSct.aLines.length) {
+			aSteps.last_.aLines = oSct.aLines; //字幕
+		} else {
+			this.giveUpThisOne(0);
+		}
 		this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords, loading});
-		this.giveUpThisOne(0);
 		this.bufferToPeaks();
 	}
 	// ▼音频数据转换波峰数据

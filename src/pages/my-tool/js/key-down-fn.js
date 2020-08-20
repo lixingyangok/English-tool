@@ -257,7 +257,10 @@ export default class {
 		const newIdx = isToLeft ? iCurLine : iCurLine + 1;
 		const oNewLine = this.fixTime({
 			start: isToLeft ? (oAim.end || 0) : end,
-			end: isToLeft ? start : (oAim.start || end + 10),
+			end: (
+				isToLeft ? start 
+				: Math.min(oAim.start || end + 10, this.state.buffer.duration + 0.5)
+			),
 		});
 		if (oNewLine.start === oNewLine.end) return;
 		oCurStepDc.aLines.splice(newIdx, 0, oNewLine);
