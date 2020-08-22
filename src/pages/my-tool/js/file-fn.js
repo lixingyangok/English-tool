@@ -48,7 +48,6 @@ export default class {
 	// buffer.numberOfChannels  // 通道数：整形
 	// ▼计算波峰波谷（纯函数）
 	getPeaks(buffer, iPerSecPx, left=0, iCanvasWidth=500) {
-		// console.time('getPeaks 耗时');
 		const aChannel = buffer.aChannelData_ || buffer.getChannelData(0);
 		const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
 		const aPeaks = [];
@@ -69,7 +68,6 @@ export default class {
 			idx++;
 		}
 		const fPerSecPx = buffer.length / sampleSize / buffer.duration;
-		// console.timeEnd('getPeaks 耗时');
 		return {aPeaks, fPerSecPx};
 	}
 	// ▼从文件得到 buffer 数据
