@@ -190,7 +190,9 @@ export default class {
 		const end = ~~((scrollLeft + offsetWidth) / fPerSecPx + 1);
 		return [start > 0 ? start : 0, end];
 	}
+	// ▼动画滚动事件
 	goThere(oDom, sDirection, iNewVal){
+		console.log('动画滚动');
 		clearInterval(this.state.scrollTimer);
 		const sType = `scroll${sDirection}`;
 		const iOldVal = oDom[sType];

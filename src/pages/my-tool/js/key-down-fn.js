@@ -1,5 +1,6 @@
 import keyMap from './key-map.js';
 
+
 export default class {
 	getFn(keyStr) {
 		const type01 = { //单键系列
@@ -17,7 +18,7 @@ export default class {
 			'ctrl + s': () => this.toSaveInDb(), //保存到浏览器（字幕）
 			'ctrl + j': () => this.putTogether('prior'), // 合并上一句
 			'ctrl + k': () => this.putTogether('next'), // 合并下一句
-			...{ //+shift
+			...{ // +shift
 				'ctrl + Enter': () => this.toPlay(), //播放
 				'ctrl + shift + Enter': () => this.toPlay(true), //播放
 				'ctrl + shift + z': () => this.setHistory(1), //恢复
