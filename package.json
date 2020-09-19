@@ -7,6 +7,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "antd": "^4.3.0",
+    "axios": "^0.20.0",
     "localforage": "^1.7.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -26,12 +27,18 @@
   "eslintConfig": {
     "extends": "react-app",
     "globals": {
+      "axios": true,
       "mix": true,
       "lf": true
     },
     "env": {
+      "axios": true,
       "mix": true,
       "lf": true
+    },
+    "rules":{
+      "react/jsx-no-undef": 0,
+      "no-undef": 0
     }
   },
   "browserslist": {

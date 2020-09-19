@@ -9,6 +9,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { mix } from './common/common.js';
 import lf from 'localforage';
+import axios from 'common/lib/js/ajax.js';
 // ▼样式
 // import 'assets/style/normalize.css';
 import 'assets/style/reset.css';
@@ -19,6 +20,10 @@ Object.defineProperties(window, {
 	mix: {
 		writable: false,
 		value: mix,
+	},
+	axios: {
+		writable: false,
+		value: axios,
 	},
 	lf: {
 		writable: false,

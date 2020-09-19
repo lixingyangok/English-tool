@@ -1,12 +1,20 @@
-
+/*
+ * @Author: 李星阳
+ * @Date: 2020-06-30 11:39:59
+ * @LastEditors: 李星阳
+ * @LastEditTime: 2020-09-18 20:15:42
+ * @Description: 
+ */
+const CompressionWebpackPlugin = require('compression-webpack-plugin');
+const customizeCra = require('customize-cra');
 const {
   override,
   overrideDevServer,
   // addLessLoader,
   // addPostcssPlugins,
   // fixBabelImports,
-} = require('customize-cra');
-const CompressionWebpackPlugin = require('compression-webpack-plugin');
+} = customizeCra;
+
 
 // 打包配置
 const addCustomize = () => config => {
@@ -31,17 +39,18 @@ const addCustomize = () => config => {
 const devServerConfig = () => config => {
   return {
     ...config,
-    // 服务开启gzip
+    open: true, //配置自动启动浏览器
+		port: 1234, //默认端口
     compress: true,
-    // proxy: {
-    //   '/api': {
-    //     target: 'xxx',
-    //     changeOrigin: true,
-    //     pathRewrite: {
-    //       '^/api': '/api',
-    //     },
-    //   }
-    // }
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': '/api',
+        },
+      }
+    }
   }
 }
 
