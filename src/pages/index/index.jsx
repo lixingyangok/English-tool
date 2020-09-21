@@ -1,5 +1,5 @@
 import React from 'react';
-import { Result, Button } from 'antd';
+import { Result, Button, Input } from 'antd';
 import * as cpnt from "./style/index.js";
 
 
@@ -9,11 +9,10 @@ export default  class IndexPage extends React.Component {
 			account: '',
 			password: '',
 		},
-		session: "没登录",
+		logInfo: {},
 	}
 	render(){
-		// const {session} = this.state;
-		const { session } = this.state;
+		const { logInfo } = this.state;
 		return <div className="center-box" >
 			<br/>
 			<br/>
@@ -23,18 +22,28 @@ export default  class IndexPage extends React.Component {
 				extra={<Button type="primary">Back Home</Button>}
 			/>
 			<div>
-				{session}
+				{(()=>{
+					if (!logInfo.account) return '未登录';
+					return `用户：${logInfo.account}  --  登录于：${logInfo.loginAt}`;
+				})()}
 			</div>
 			<cpnt.LoginBox>
 				<input name="account" onChange={ev => this.inputChanged(ev)}/>
 				<input name="password" onChange={ev => this.inputChanged(ev)}/>
-				<button onClick={()=>this.toLogIn()} >
+				<button onClick={()=>this.toLogIn()}>
 					登录
 				</button>
-				<button onClick={()=>this.logOut()} >
+				<button onClick={()=>this.logOut()}>
 					退出
 				</button>
 			</cpnt.LoginBox>
+			<br/>
+			<br/>
+			<br/>
+			<Input.Search placeholder="请输入"
+				enterButton="添加"
+				onSearch={value => console.log(value)}
+			/>
 			<footer className="be-center">
 				网站备案/许可证号：陕ICP备20008324号
 			</footer>
@@ -62,8 +71,9 @@ export default  class IndexPage extends React.Component {
 	}
 	async getSession(){
 		const res = await window.axios.get('/user/session');
+		if (!res) return;
 		this.setState({
-			session: res,
+			logInfo: res,
 		});
 	}
 }
