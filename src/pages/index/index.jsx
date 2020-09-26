@@ -1,9 +1,14 @@
 import React from 'react';
 import { Result, Button, Input } from 'antd';
 import * as cpnt from "./style/index.js";
+import indexFn from './js/index.js';
 
 
-export default  class IndexPage extends React.Component {
+const MyClass = window.mix(
+	React.Component, indexFn,
+);
+
+export default class IndexPage extends MyClass {
 	state = {
 		loginForm: {
 			account: '',
@@ -42,7 +47,7 @@ export default  class IndexPage extends React.Component {
 			<br/>
 			<Input.Search placeholder="请输入"
 				enterButton="添加"
-				onSearch={value => console.log(value)}
+				onSearch={value => this.saveTodo(value)}
 			/>
 			<footer className="be-center">
 				网站备案/许可证号：陕ICP备20008324号
@@ -51,30 +56,6 @@ export default  class IndexPage extends React.Component {
 	}
 	async componentDidMount(){
 		this.getSession();
-	}
-	inputChanged({target}){
-		// console.log('ev', target)
-		const {loginForm} = this.state;
-		loginForm[target.name] = target.value;
-		this.setState({loginForm});
-	}
-	async toLogIn(){
-		const {loginForm} = this.state;
-		await window.axios.post('/user/login', {
-			...loginForm,
-		});
-		this.getSession();
-	}
-	async logOut(){
-		await window.axios.get('/user/logout');
-		this.getSession();
-	}
-	async getSession(){
-		const res = await window.axios.get('/user/session');
-		if (!res) return;
-		this.setState({
-			logInfo: res,
-		});
 	}
 }
 
