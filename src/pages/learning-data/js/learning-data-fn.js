@@ -34,6 +34,13 @@ export default class{
 		this.setState({visible: false});
 		this.init();
 	}
+	
+	// ▼删除一条
+	async delOneStory(thisOne) {
+		const res = await window.axios.delete('/story/' + thisOne.ID);
+		if (!res) return;
+		this.init();
+	}
 
 	// ▼更新故事下的【章节数据】
 	async getSctToStory(iStoryId){
@@ -117,6 +124,7 @@ export const columns = [{
 	render: (thisOne) => {
 		function showIt(){
 			console.log('打印', thisOne);
+			console.log('this', this);
 		};
 		return <Button size="small" onClick={showIt} >
 			删除

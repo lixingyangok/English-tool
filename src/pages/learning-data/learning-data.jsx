@@ -1,8 +1,8 @@
 import React from 'react';
-import TheFn, {columns} from './js/learning-data-fn.js';
+import TheFn from './js/learning-data-fn.js';
 import * as cpnt from './style/learning-data.js';
 import FileFn from './js/file-fn.js';
-import {message, Table} from 'antd';
+import {message, Table, Space} from 'antd';
 // import { Table, Tag, Space } from 'antd';
 
 // ▼组件库
@@ -36,7 +36,21 @@ export default class extends MyClass{
 					新增
 				</Button>
 			</cpnt.BtnBar>
-			<Table columns={columns} dataSource={aStory} />
+			{/* columns={columns}  */}
+			<Table dataSource={aStory} >
+				<Table.Column title="名称" dataIndex="storyName" key="storyName" />
+				<Table.Column title="创建时间" dataIndex="CreatedAt" key="CreatedAt" />
+				<Table.Column title="备注" dataIndex="note" key="note" />
+				<Table.Column title="操作" key="ID"
+					render={thisOne => (
+						<Space size="middle">
+							<a onClick={() => this.delOneStory(thisOne)} >
+								删除
+							</a>
+						</Space>
+					)}
+				/>
+			</Table>
 			{/* 分界 */}
 			<cpnt.Empty_ visible={aStory.length ? 0 : 1}
 				image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
