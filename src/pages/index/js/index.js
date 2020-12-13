@@ -7,9 +7,11 @@ export default class {
 	}
 	async toLogIn(){
 		const {loginForm} = this.state;
-		await window.axios.post('/user/login', {
-			...loginForm,
-		});
+		if (!loginForm.account || !loginForm.password) {
+			loginForm.account = window.store.get('account') || '';
+			loginForm.password = window.store.get('password') || '';
+		}
+		await window.axios.post('/user/login', loginForm);
 		this.getSession();
 	}
 	async logOut(){

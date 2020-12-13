@@ -11,6 +11,10 @@ export const aNavData = [{
   path: '/learning-history',
   component: React.lazy(() => import('pages/learning-history/learning-history.jsx')),
 },{
+  name: '学习资料',
+  path: '/learning-data',
+  component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
+},{
   name: '自习室',
   path: '/practicing',
   // target:'_blank',
@@ -19,6 +23,15 @@ export const aNavData = [{
   name: '关于',
   path: '/about',
   component: React.lazy(() => import('pages/about/about.jsx')),
+},{
+  name: '关于11',
+  path: '/about22',
+  component: () => <div>123</div>,
+  children: [{
+    name: '二级1',
+  },{
+    name: '二级1',
+  }],
 }];
 
 export default function () {
@@ -27,6 +40,7 @@ export default function () {
   // if (isPracticing) {
   //   return <div></div>;
   // }
+
   return <cpnt.Nav className="center-box02">
     <em className="logo" >
       哈哈学习 Hahaxuexi.com
