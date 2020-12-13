@@ -28,7 +28,9 @@ export default class IndexPage extends MyClass {
 			/>
 			<div>
 				{(()=>{
-					if (!logInfo.account) return '未登录';
+					if (!logInfo.account) return (
+						`未登录 - ${logInfo.requestAt}`
+					);
 					return `用户：${logInfo.account}  --  登录于：${logInfo.loginAt}`;
 				})()}
 			</div>

@@ -57,7 +57,7 @@ Object.defineProperties(Object.prototype, { // eslint-disable-line
 });
 
 Object.defineProperties(Array.prototype, { // eslint-disable-line
-	last_: { // 取末位
+	last_: { // 取数组末位
 		get: function () {
 			return this[this.length - 1] || null;
 		},
@@ -84,6 +84,12 @@ Date.prototype.format = function (fmt) {  // eslint-disable-line
 	}
 	return fmt;
 }
+
+window.axios.get('/user/session').then(res=>{
+	window.store.set('userInfo', (
+		res && res.account ? res : {}
+	));
+})
 
 ReactDOM.render(
 	// <React.StrictMode>

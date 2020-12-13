@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-06-30 11:39:59
  * @LastEditors: 李星阳
- * @LastEditTime: 2020-09-18 20:15:42
+ * @LastEditTime: 2020-12-13 15:26:26
  * @Description: 
  */
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
@@ -37,22 +37,21 @@ const addCustomize = () => config => {
 
 // 跨域配置
 const devServerConfig = () => config => {
+  const proxy = {
+    '/api': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      pathRewrite: {'^/api': '/api'},
+    },
+  };
   return {
     ...config,
-    open: true, //配置自动启动浏览器
+    proxy,
+    open: true, //自动打开
 		port: 1234, //默认端口
     compress: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': '/api',
-        },
-      }
-    }
-  }
-}
+  };
+};
 
 module.exports = {
   webpack: override(
