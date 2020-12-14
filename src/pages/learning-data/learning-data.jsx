@@ -2,12 +2,11 @@ import React from 'react';
 import TheFn from './js/learning-data-fn.js';
 import * as cpnt from './style/learning-data.js';
 import FileFn from './js/file-fn.js';
-import {message, Table, Space} from 'antd';
-// import { Table, Tag, Space } from 'antd';
 
 // ▼组件库
 import {
 	Modal, Form, Input, Button, Typography, Popconfirm, Menu, Dropdown,
+	message, Table, Space,
 } from 'antd';
 
 const MyClass = window.mix(
@@ -17,7 +16,7 @@ const MyClass = window.mix(
 export default class extends MyClass{
 	Modal = Modal;
 	message = message;
-	oForm = React.createRef();
+	oForm = React.createRef(); //窗口中的表单
 	state = {
 		visible: false, //窗口显示
 		aStories: [],
@@ -43,10 +42,13 @@ export default class extends MyClass{
 				<Table.Column title="备注" dataIndex="note" key="note" />
 				<Table.Column title="操作" key="ID"
 					render={thisOne => (
-						<Space size="middle">
-							<a onClick={() => this.delOneStory(thisOne)} >
-								删除
-							</a>
+						<Space>
+							<Button size='small' onClick={()=>this.showModal(thisOne)}>修改</Button>
+							<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+								title="确定删除？" onConfirm={()=>this.delOneStory(thisOne)}
+							>
+								<Button size='small'>删除</Button>
+							</Popconfirm>
 						</Space>
 					)}
 				/>
@@ -108,7 +110,7 @@ export default class extends MyClass{
 					<Form.Item label="备注" name="note">
 						<Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }}/>
 					</Form.Item>
-					<Form.Item name="id2" hidden={true}>
+					<Form.Item name="ID" hidden={true}>
 						<Input/>
 					</Form.Item>
 				</Form>

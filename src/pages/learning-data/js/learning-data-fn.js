@@ -24,12 +24,13 @@ export default class{
 	}
 	// ▼提交表单
 	async onSave(oForm) {
-		Object.entries(oForm).forEach(([key,val]) => {
-			if (oForm[key] == undefined) oForm[key] = '';
+		Object.entries(oForm).forEach(([key, val]) => {
+			if (val === undefined) oForm[key] = '';
 		});
-		console.log('表单', oForm);
+		// console.log('表单', oForm);
 		if (!oForm.storyName) return;
-		const res = await window.axios.post('/story', oForm);
+		const method = oForm.ID ? 'put' : 'post';
+		const res = await window.axios[method]('/story', oForm);
 		if (!res) return;
 		this.setState({visible: false});
 		this.init();
@@ -41,6 +42,18 @@ export default class{
 		if (!res) return;
 		this.init();
 	}
+
+	// ▼开窗口（新建/修改）
+	async showModal(oFormData){
+		this.setState({visible: true});
+		await new Promise(fn => setTimeout(fn, 100));
+		const oForm = this.oForm.current;
+		if (!oForm) return;
+		if (oFormData) oForm.setFieldsValue(oFormData);
+		else oForm.resetFields();
+	}
+	
+	// --------------------------------------------------------------------
 
 	// ▼更新故事下的【章节数据】
 	async getSctToStory(iStoryId){
@@ -65,15 +78,7 @@ export default class{
 	}
 	
 
-	// ▼开窗口
-	async showModal(oFormData){
-		this.setState({visible: true});
-		await new Promise(fn => setTimeout(fn, 100));
-		let oForm = this.oForm.current;
-		if (!oForm) return;
-		if (oFormData) oForm.setFieldsValue(oFormData);
-		else oForm.resetFields();
-	}
+
 	// ▼去听写
 	goTool(oStory, oSct){
 		if (!oStory || !oSct) return this.message.info('数据不完整');
