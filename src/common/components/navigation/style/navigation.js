@@ -5,11 +5,12 @@
  */ 
 import styled from "styled-components";
 
+const navHeight = '55px';
 export const Nav = styled.nav`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 55px;
+  height: ${navHeight};
   line-height: 55px;
   background: #24292e;
   color: white;
@@ -26,14 +27,40 @@ export const Ul = styled.ul`
 
 export const Li = styled.li`
   list-style: none;
-  a{
+  position: relative;
+  &:hover{
+    ul{
+      display: block;
+    }
+  }
+  & > a{
     color: white;
     padding: 0.5em 1.5em;
   }
-  .active{
+  a.active{
     background: black;
     font-weight: bold;
     /* color: #1890ff; */
+    color: yellow;
+  }
+  ul{
+    width: 100%;
+    background: #24292e;
+    position: absolute;
+    top: ${navHeight};
+    left: 0;
+    display: none;
+    z-index: 2;
+  }
+  li{
+    padding: 0 1em;
+    line-height: 43px;
+    a{
+      display: block;
+    }
+  }
+  li:hover{
+    background: black;
     color: yellow;
   }
 `;

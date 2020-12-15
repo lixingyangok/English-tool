@@ -2,6 +2,16 @@ import React from "react";
 import {NavLink, /* useLocation */} from "react-router-dom";
 import * as cpnt from './style/navigation.js';
 
+export const learningData = [{
+  name: '列表',
+  path: '/list',
+  component: React.lazy(() => import('pages/learning-data/list.jsx')),
+},{
+  name: '专题',
+  path: '/item',
+  component: React.lazy(() => import('pages/learning-data/children/item/item.jsx')),
+}];
+
 export const aNavData = [{
   name: '首页',
   path: '/index',
@@ -14,6 +24,7 @@ export const aNavData = [{
   name: '学习资料',
   path: '/learning-data',
   component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
+  children: learningData,
 },{
   name: '自习室',
   path: '/practicing',
@@ -29,8 +40,10 @@ export const aNavData = [{
   component: () => <div>123</div>,
   children: [{
     name: '二级1',
+    path: '/about',
   },{
-    name: '二级1',
+    name: '二级2',
+    path: '/about',
   }],
 }];
 
@@ -40,17 +53,31 @@ export default function () {
   // if (isPracticing) {
   //   return <div></div>;
   // }
-
+  const getUl = function (parent, children){
+    if (!children) return null;
+    return <ul>
+      {children.map((oneLi, idx)=>{
+        return <li key={idx} >
+          <NavLink to={parent.path + oneLi.path} target={oneLi.target || ''} >
+            {oneLi.name}
+          </NavLink>
+        </li>
+      })}
+    </ul>
+  }
   return <cpnt.Nav className="center-box02">
     <em className="logo" >
       哈哈学习 Hahaxuexi.com
     </em>
     <cpnt.Ul  >
       {aNavData.map((cur,idx)=>{
+        const {children, path} = cur;
+        const aim = children ? children[0].path : path;
         return <cpnt.Li key={idx}>
-          <NavLink to={cur.path} target={cur.target || ''} >
+          <NavLink to={aim} target={cur.target || ''} >
             {cur.name}
           </NavLink>
+          {getUl(cur, children)}
         </cpnt.Li>
       })}
     </cpnt.Ul>

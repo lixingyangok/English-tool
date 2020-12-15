@@ -16,8 +16,8 @@ function App() {
       <Switch>
         <Redirect exact from="/" to="/index" ></Redirect>
         {aNavData.map((cur,idx)=>{
-          return <Route key={idx}
-            path={cur.path} component={cur.component}
+          return <Route key={idx} path={cur.path} 
+            component={cur.component}
           />
         })}
       </Switch>
