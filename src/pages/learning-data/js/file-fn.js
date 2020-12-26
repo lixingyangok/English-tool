@@ -4,25 +4,50 @@
  * @Description: 
  */
 import {fileToTimeLines, fileToBuffer, getFaleBuffer, downloadString} from 'assets/js/pure-fn.js';
+// import axios from 'axios';
+// const $ = window.$;
+const axios = window.axios;
 
 export default class {
 	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
-	toImport(ev, oStory, oSct) {
+	async toImport(ev, oStory) {
 		const { target } = ev;
 		if (!target.files.length) return;
-		const aTwoTypeFiles = this.getCorrectFile(target.files);
-		const hasAudioFile = aTwoTypeFiles[0].length;
-		if (!oSct && !hasAudioFile) { //如果在新建 && 没有音频 -> 即使有字幕也不导入
-			return this.message.error('没有媒体文件');
+		const {url, data} = {
+			url: 'http://upload-z2.qiniup.com',
+			data: (()=>{
+				const oFormData = new FormData();
+				oFormData.append('token', this.state.token);
+				oFormData.append('file', target.files[0]);
+				return oFormData;
+			})(),
 		}
-		hasAudioFile && this.message.success('检测到媒体文件，正在保存');
-		if (oSct) {
-			this.upDateSection(oSct, [aTwoTypeFiles[0][0], aTwoTypeFiles[1][0]]);
-		}else{
-			this.saveSection(oStory, aTwoTypeFiles);
-		}
+		// $.ajax({
+		// 	url, data, method: 'POST',
+		// 	processData: false,  // 不处理数据
+		// 	contentType: false,   // 不设置内容类型 - 'multipart/form-data'
+		// });
+		// const res = axios.post(url, data);
+		console.log('axios', axios);
+		const res = axios(url, {
+			// data,
+			data: !data || {
+				'token': this.state.token,
+				'file': target.files[0],
+			},
+			method: 'POST',
+		}, {
+			headers:{'Content-Type': 'multipart/form-data', Accept: '*/*'},
+			withCredentials: false, 
+		});
+		if (!res) return;
 		target.value = '';
+		console.log('文件信息', res);
+		// console.log('添加了一个文件到：', oStory);
 	}
+
+	// 新旧分界------------------
+	
 	// ▼过滤出正确的文件
 	getCorrectFile(oFiles) {
 		const aTwoTypeFiles = [...oFiles].reduce((aResult, curFile)=>{

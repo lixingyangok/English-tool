@@ -2,6 +2,7 @@ import React from 'react';
 import TheFn from './js/learning-data-fn.js';
 import * as cpnt from './style/learning-data.js';
 import FileFn from './js/file-fn.js';
+import ListFn from './js/list-fn.js';
 
 // ▼组件库
 import {
@@ -10,7 +11,7 @@ import {
 } from 'antd';
 
 const MyClass = window.mix(
-	React.Component, TheFn, FileFn,
+	React.Component, TheFn, FileFn, ListFn,
 );
 
 export default class extends MyClass{
@@ -24,9 +25,10 @@ export default class extends MyClass{
 		oSectionTB: {},
 		// -----------------------------------------
 		aStory: [], //数据列表
+		token: '',
 	}
 	render(){
-		const {aStories, visible, aStory} = this.state;
+		const {aStories, visible, aStory, token} = this.state;
 		aStory.forEach((cur, idx)=>cur.key=idx);
 		return <cpnt.Outter className='center-box'>
 			<cpnt.BtnBar>
@@ -35,12 +37,22 @@ export default class extends MyClass{
 					新增
 				</Button>
 			</cpnt.BtnBar>
+			<p>上传token = {token}</p>
 			{/* columns={columns}  */}
 			<Table dataSource={aStory} >
 				<Table.Column title="名称" dataIndex="storyName" key="storyName" />
 				<Table.Column title="创建时间" dataIndex="CreatedAt" key="CreatedAt" />
 				<Table.Column title="备注" dataIndex="note" key="note" />
-				<Table.Column title="备注" dataIndex="note" key="note" />
+				<Table.Column title="文件" key="key"
+					render={thisOne=>(<>
+						<label className="ant-btn ant-btn-sm">
+							导入文件 {/* multiple="multiple" */}
+							<input type="file" style={{display: 'none'}}
+								onChange={ev=>this.toImport(ev, thisOne)}
+							/>
+						</label>
+					</>)}
+				/>
 				<Table.Column title="操作" key="ID" width={220}
 					render={thisOne => (
 						<Space>
@@ -205,6 +217,5 @@ export default class extends MyClass{
 	// ▼生命周期
 	async componentDidMount(){
 		await this.init();
-		this.getSctToStory();
 	}
 }
