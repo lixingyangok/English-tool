@@ -25,9 +25,13 @@ export const BtnBar = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    em{
+    border-bottom: solid 1px #aaa;
+    padding: 0 0 10px;
+    margin: 0 0 10px;
+    h1{
         font-size: 20px;
         font-weight: bold;
+        margin: 0;
     }
 `;
 

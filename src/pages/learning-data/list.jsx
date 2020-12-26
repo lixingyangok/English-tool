@@ -23,14 +23,14 @@ export default class extends MyClass{
 		oStoryTB: {},
 		oSectionTB: {},
 		// -----------------------------------------
-		aStory: [],
+		aStory: [], //数据列表
 	}
 	render(){
 		const {aStories, visible, aStory} = this.state;
 		aStory.forEach((cur, idx)=>cur.key=idx);
 		return <cpnt.Outter className='center-box'>
 			<cpnt.BtnBar>
-				<em>历史记录</em>
+				<h1>资料列表</h1>
 				<Button type="primary" onClick={()=>this.showModal()}>
 					新增
 				</Button>
@@ -40,9 +40,13 @@ export default class extends MyClass{
 				<Table.Column title="名称" dataIndex="storyName" key="storyName" />
 				<Table.Column title="创建时间" dataIndex="CreatedAt" key="CreatedAt" />
 				<Table.Column title="备注" dataIndex="note" key="note" />
-				<Table.Column title="操作" key="ID"
+				<Table.Column title="备注" dataIndex="note" key="note" />
+				<Table.Column title="操作" key="ID" width={220}
 					render={thisOne => (
 						<Space>
+							<Button size='small' type="primary" onClick={()=>this.showModal(thisOne)}>
+								听写
+							</Button>
 							<Button size='small' onClick={()=>this.showModal(thisOne)}>修改</Button>
 							<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 								title="确定删除？" onConfirm={()=>this.delOneStory(thisOne)}
