@@ -7,7 +7,7 @@ import ListFn from './js/list-fn.js';
 // ▼组件库
 import {
 	Modal, Form, Input, Button, Typography, Popconfirm, Menu, Dropdown,
-	message, Table, Space, Spin,
+	message, Table, Spin,
 } from 'antd';
 
 const MyClass = window.mix(
@@ -40,31 +40,50 @@ export default class extends MyClass{
 				</cpnt.BtnBar>
 				<Table dataSource={aStory} >
 					<Table.Column title="名称" dataIndex="storyName" key="storyName" />
-					<Table.Column title="创建时间" dataIndex="CreatedAt" key="CreatedAt" />
-					<Table.Column title="备注" dataIndex="note" key="note" />
-					<Table.Column title="文件" key="key"
+					<Table.Column title="信息" key="CreatedAt" width={290}
 						render={thisOne=>(<>
-							<label className="ant-btn ant-btn-sm">
-								导入文件 {/* multiple="multiple" */}
-								<input type="file" style={{display: 'none'}}
-									onChange={ev=>this.toImport(ev, thisOne)}
-								/>
-							</label>
+							<p>创建于：{thisOne.CreatedAt}</p>
+							<p>备注：{thisOne.note}</p>
 						</>)}
 					/>
-					<Table.Column title="操作" key="ID" width={220}
+					<Table.Column title="文件" key="key"
+						render={
+							thisOne => <>
+								{(thisOne.aMedia_ || []).map((oneMedia,idx) => {
+									return <p key={idx}>
+										{oneMedia.fileName}
+										<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+											title="确定删除？" onConfirm={()=>this.delOneMedia(oneMedia)}
+										>
+											<Button size='small' type="link">删除</Button>
+										</Popconfirm>
+									</p>
+								})}
+							</>
+						}
+					/>
+					<Table.Column title="操作" key="ID" width={170}
 						render={thisOne => (
-							<Space>
-								<Button size='small' type="primary" onClick={()=>this.showModal(thisOne)}>
-									听写
+							<>
+								<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
+									开始听写
 								</Button>
-								<Button size='small' onClick={()=>this.showModal(thisOne)}>修改</Button>
+								<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
+									修改
+								</Button>
+								<br/>
+								<label className="ant-btn ant-btn-link ant-btn-sm">
+									导入文件 {/* multiple="multiple" */}
+									<input type="file" style={{display: 'none'}}
+										onChange={ev=>this.toImport(ev, thisOne)}
+									/>
+								</label>
 								<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 									title="确定删除？" onConfirm={()=>this.delOneStory(thisOne)}
 								>
-									<Button size='small'>删除</Button>
+									<Button size='small' type="link">删除</Button>
 								</Popconfirm>
-							</Space>
+							</>
 						)}
 					/>
 				</Table>

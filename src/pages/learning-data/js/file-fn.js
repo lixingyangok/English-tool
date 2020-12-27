@@ -39,7 +39,22 @@ export default class FileList {
 		if (!uploadRes) return showError('保存文件id未成功');
 		console.log('uploadRes', uploadRes);
 	}
-
+	// ▼查询故事下的文件
+	async getMediaForOneStory(oStory){
+		const res = await axios.get('/media/' + oStory.ID);
+		if (!res) return;
+		const aStory = this.state.aStory.map(cur=>{
+			if (cur.ID === oStory.ID) cur.aMedia_ = res;
+			return cur;
+		});
+		this.setState({aStory});
+	}
+	// ▼删除一个文件
+	async delOneMedia(oneMedia){
+		const res = await axios.delete('/media/' + oneMedia.ID);
+		if (!res) return;
+		this.message.success("删除成功");
+	}
 	// 新旧分界------------------
 	
 	// ▼过滤出正确的文件

@@ -13,6 +13,9 @@ export default class{
 		const res = await window.axios.get('/story');
 		if (!res) return;
 		this.setState({ aStory: res });
+		res.forEach(cur=>{
+			this.getMediaForOneStory(cur);
+		});
 	}
 	// ▼提交表单，提交一个故事
 	async onSave(oForm) {

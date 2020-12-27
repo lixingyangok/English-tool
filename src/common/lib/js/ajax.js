@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-09-18 20:44:43
  * @LastEditors: 李星阳
- * @LastEditTime: 2020-12-26 20:57:14
+ * @LastEditTime: 2020-12-27 14:56:31
  * @Description: 
  */
 import axios from 'axios';
@@ -26,7 +26,7 @@ myAxios.interceptors.request.use(config => {
 		config.data = dataToFormData(config.data);
 	}
 	config.timeout = mySitting.timeout || config.timeout; // 特定接口加长延时
-	console.log('config设置\n', config);
+	// console.log('config设置\n', config);
 	return config;
 }, error => {
 	return Promise.reject(error);
@@ -34,6 +34,7 @@ myAxios.interceptors.request.use(config => {
 
 // ▼响应拦截器
 myAxios.interceptors.response.use(response => {
+	console.log('response', response);
 	return response.data;
 });
 
