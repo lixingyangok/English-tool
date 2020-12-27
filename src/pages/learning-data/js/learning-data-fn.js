@@ -13,10 +13,6 @@ export default class{
 		const res = await window.axios.get('/story');
 		if (!res) return;
 		this.setState({ aStory: res });
-		// 分界-----------------------------
-		const res02 = await window.axios.get('/test/gettoken');
-		if (!res02) return;
-		this.setState({ token: res02.token });
 	}
 	// ▼提交表单，提交一个故事
 	async onSave(oForm) {

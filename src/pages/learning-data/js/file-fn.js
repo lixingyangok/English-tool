@@ -4,46 +4,40 @@
  * @Description: 
  */
 import {fileToTimeLines, fileToBuffer, getFaleBuffer, downloadString} from 'assets/js/pure-fn.js';
-// import axios from 'axios';
-// const $ = window.$;
 const axios = window.axios;
 
-export default class {
+export default class FileList {
 	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
 	async toImport(ev, oStory) {
 		const { target } = ev;
-		if (!target.files.length) return;
-		const {url, data} = {
-			url: 'http://upload-z2.qiniup.com',
-			data: (()=>{
-				const oFormData = new FormData();
-				oFormData.append('token', this.state.token);
-				oFormData.append('file', target.files[0]);
-				return oFormData;
-			})(),
+		const showError = this.message.error;
+		const file = target.files[0];
+		if (!file || !/^(video\/|audio\/).+/.test(file.type) ) {
+			target.value = '';
+			return showError('只能上传音频/视频');
 		}
-		// $.ajax({
-		// 	url, data, method: 'POST',
-		// 	processData: false,  // 不处理数据
-		// 	contentType: false,   // 不设置内容类型 - 'multipart/form-data'
-		// });
-		// const res = axios.post(url, data);
-		console.log('axios', axios);
-		const res = axios(url, {
-			// data,
-			data: !data || {
-				'token': this.state.token,
-				'file': target.files[0],
-			},
-			method: 'POST',
-		}, {
-			headers:{'Content-Type': 'multipart/form-data', Accept: '*/*'},
-			withCredentials: false, 
+		this.setState({loading: true});
+		const tokenRes = await axios.get('/test/gettoken');
+		if (!tokenRes) {
+			this.setState({loading: false});
+			return showError('查询token未成功');
+		}
+		const fileRes = await axios.post('http://upload-z2.qiniup.com', {
+			file,
+			fname: file.name,
+			token: tokenRes.token,
 		});
-		if (!res) return;
+		this.setState({loading: false});
 		target.value = '';
-		console.log('文件信息', res);
-		// console.log('添加了一个文件到：', oStory);
+		if (!fileRes) return showError('保存文件未成功');
+		const uploadRes = await axios.post('/media', {
+			storyId: oStory.ID,
+			fileId: fileRes.key,
+			fileName: file.name,
+			fileSize: file.size,
+		});
+		if (!uploadRes) return showError('保存文件id未成功');
+		console.log('uploadRes', uploadRes);
 	}
 
 	// 新旧分界------------------

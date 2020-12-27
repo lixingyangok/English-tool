@@ -7,7 +7,7 @@ import ListFn from './js/list-fn.js';
 // ▼组件库
 import {
 	Modal, Form, Input, Button, Typography, Popconfirm, Menu, Dropdown,
-	message, Table, Space,
+	message, Table, Space, Spin,
 } from 'antd';
 
 const MyClass = window.mix(
@@ -25,112 +25,112 @@ export default class extends MyClass{
 		oSectionTB: {},
 		// -----------------------------------------
 		aStory: [], //数据列表
-		token: '',
+		loading: false,
 	}
 	render(){
-		const {aStories, visible, aStory, token} = this.state;
+		const {aStories, visible, aStory, loading} = this.state;
 		aStory.forEach((cur, idx)=>cur.key=idx);
 		return <cpnt.Outter className='center-box'>
-			<cpnt.BtnBar>
-				<h1>资料列表</h1>
-				<Button type="primary" onClick={()=>this.showModal()}>
-					新增
-				</Button>
-			</cpnt.BtnBar>
-			<p>上传token = {token}</p>
-			{/* columns={columns}  */}
-			<Table dataSource={aStory} >
-				<Table.Column title="名称" dataIndex="storyName" key="storyName" />
-				<Table.Column title="创建时间" dataIndex="CreatedAt" key="CreatedAt" />
-				<Table.Column title="备注" dataIndex="note" key="note" />
-				<Table.Column title="文件" key="key"
-					render={thisOne=>(<>
-						<label className="ant-btn ant-btn-sm">
-							导入文件 {/* multiple="multiple" */}
-							<input type="file" style={{display: 'none'}}
-								onChange={ev=>this.toImport(ev, thisOne)}
-							/>
-						</label>
-					</>)}
-				/>
-				<Table.Column title="操作" key="ID" width={220}
-					render={thisOne => (
-						<Space>
-							<Button size='small' type="primary" onClick={()=>this.showModal(thisOne)}>
-								听写
-							</Button>
-							<Button size='small' onClick={()=>this.showModal(thisOne)}>修改</Button>
-							<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-								title="确定删除？" onConfirm={()=>this.delOneStory(thisOne)}
-							>
-								<Button size='small'>删除</Button>
-							</Popconfirm>
-						</Space>
-					)}
-				/>
-			</Table>
-			{/* 分界 */}
-			<cpnt.Empty_ visible={aStory.length ? 0 : 1}
-				image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
-				description="暂无数据，请新增"
-			/>
-			<cpnt.Ul visible={aStories.length}>
-				{aStories.map((cur, idx)=>{
-					return <cpnt.OneItem key={idx}>
-						<Typography.Title className='my-title' level={4}>
-							{cur.name}
-						</Typography.Title>
-						<div className="info-bar" >
-							<span>创建日期：{cur.createDate}</span>
-							&emsp;&emsp;&emsp;
-							<span>修改日期：{cur.modifyData}</span>
-							&emsp;&emsp;&emsp;
-							<span>备注：{cur.note || '暂无'}</span>
-						</div>
-						<div className="btn-wrap">
+			<Spin spinning={loading}>
+				<cpnt.BtnBar>
+					<h1>资料列表</h1>
+					<Button type="primary" onClick={()=>this.showModal()}>
+						新增
+					</Button>
+				</cpnt.BtnBar>
+				<Table dataSource={aStory} >
+					<Table.Column title="名称" dataIndex="storyName" key="storyName" />
+					<Table.Column title="创建时间" dataIndex="CreatedAt" key="CreatedAt" />
+					<Table.Column title="备注" dataIndex="note" key="note" />
+					<Table.Column title="文件" key="key"
+						render={thisOne=>(<>
 							<label className="ant-btn ant-btn-sm">
-								导入文件
-								<input type="file" style={{display: 'none'}} multiple="multiple"
-									onChange={ev=>this.toImport(ev, cur)}
+								导入文件 {/* multiple="multiple" */}
+								<input type="file" style={{display: 'none'}}
+									onChange={ev=>this.toImport(ev, thisOne)}
 								/>
 							</label>
-							<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
-							<Popconfirm placement="topRight" okText="清空" cancelText="取消"
-								title="清空不可恢复，是否清空？" onConfirm={()=>this.toDel(cur.id)}
-							>
-								<Button size='small'>清空</Button>
-							</Popconfirm>
-							<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-								title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id, true)}
-							>
-								<Button size='small'>删除</Button>
-							</Popconfirm>
-						</div>
-						{this.getSectionList(cur)}
-					</cpnt.OneItem>
-				})}
-			</cpnt.Ul>
-			{/* ▼弹出窗口 */}
-			<Modal title="资源信息" okText="保存" cancelText="关闭"
-				visible={visible}
-				onOk={()=>this.oForm.current.submit()}
-				onCancel={()=>this.setState({visible: false})}
-			>
-				<Form name="basic" initialValues={{}}
-					{...{labelCol: {span: 4}, wrapperCol: {span: 19}}}
-					ref={this.oForm} onFinish={obj=>this.onSave(obj)}
+						</>)}
+					/>
+					<Table.Column title="操作" key="ID" width={220}
+						render={thisOne => (
+							<Space>
+								<Button size='small' type="primary" onClick={()=>this.showModal(thisOne)}>
+									听写
+								</Button>
+								<Button size='small' onClick={()=>this.showModal(thisOne)}>修改</Button>
+								<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+									title="确定删除？" onConfirm={()=>this.delOneStory(thisOne)}
+								>
+									<Button size='small'>删除</Button>
+								</Popconfirm>
+							</Space>
+						)}
+					/>
+				</Table>
+				{/* 分界 */}
+				<cpnt.Empty_ visible={aStory.length ? 0 : 1}
+					image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
+					description="暂无数据，请新增"
+				/>
+				<cpnt.Ul visible={aStories.length}>
+					{aStories.map((cur, idx)=>{
+						return <cpnt.OneItem key={idx}>
+							<Typography.Title className='my-title' level={4}>
+								{cur.name}
+							</Typography.Title>
+							<div className="info-bar" >
+								<span>创建日期：{cur.createDate}</span>
+								&emsp;&emsp;&emsp;
+								<span>修改日期：{cur.modifyData}</span>
+								&emsp;&emsp;&emsp;
+								<span>备注：{cur.note || '暂无'}</span>
+							</div>
+							<div className="btn-wrap">
+								<label className="ant-btn ant-btn-sm">
+									导入文件
+									<input type="file" style={{display: 'none'}} multiple="multiple"
+										onChange={ev=>this.toImport(ev, cur)}
+									/>
+								</label>
+								<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
+								<Popconfirm placement="topRight" okText="清空" cancelText="取消"
+									title="清空不可恢复，是否清空？" onConfirm={()=>this.toDel(cur.id)}
+								>
+									<Button size='small'>清空</Button>
+								</Popconfirm>
+								<Popconfirm placement="topRight" okText="删除" cancelText="取消"
+									title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id, true)}
+								>
+									<Button size='small'>删除</Button>
+								</Popconfirm>
+							</div>
+							{this.getSectionList(cur)}
+						</cpnt.OneItem>
+					})}
+				</cpnt.Ul>
+				{/* ▼弹出窗口 */}
+				<Modal title="资源信息" okText="保存" cancelText="关闭"
+					visible={visible}
+					onOk={()=>this.oForm.current.submit()}
+					onCancel={()=>this.setState({visible: false})}
 				>
-					<Form.Item label="名称" name="storyName" rules={[{ required: true, message: 'Please input' }]} >
-						<Input/>
-					</Form.Item>
-					<Form.Item label="备注" name="note">
-						<Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }}/>
-					</Form.Item>
-					<Form.Item name="ID" hidden={true}>
-						<Input/>
-					</Form.Item>
-				</Form>
-			</Modal>
+					<Form name="basic" initialValues={{}}
+						{...{labelCol: {span: 4}, wrapperCol: {span: 19}}}
+						ref={this.oForm} onFinish={obj=>this.onSave(obj)}
+					>
+						<Form.Item label="名称" name="storyName" rules={[{ required: true, message: 'Please input' }]} >
+							<Input/>
+						</Form.Item>
+						<Form.Item label="备注" name="note">
+							<Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }}/>
+						</Form.Item>
+						<Form.Item name="ID" hidden={true}>
+							<Input/>
+						</Form.Item>
+					</Form>
+				</Modal>
+			</Spin>
 		</cpnt.Outter>
 	}
 	// ▲render

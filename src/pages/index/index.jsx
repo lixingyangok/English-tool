@@ -7,17 +7,18 @@ import indexFn from './js/index.js';
 const MyClass = window.mix(
 	React.Component, indexFn,
 );
+const isTesting = location.host.startsWith('localhost:');
 
 export default class IndexPage extends MyClass {
 	state = {
 		loginForm: {
-			account: '',
-			password: '',
+			account: isTesting ? 'abc' : '',
+			password: isTesting ? 'a123' : '',
 		},
 		logInfo: {},
 	}
 	render(){
-		const { logInfo } = this.state;
+		const { logInfo, loginForm } = this.state;
 		return <div className="center-box" >
 			<br/>
 			<br/>
@@ -35,8 +36,8 @@ export default class IndexPage extends MyClass {
 				})()}
 			</div>
 			<cpnt.LoginBox>
-				<input name="account" onChange={ev => this.inputChanged(ev)}/>
-				<input name="password" onChange={ev => this.inputChanged(ev)}/>
+				<input name="account" value={loginForm.account} onChange={ev => this.inputChanged(ev)}/>
+				<input name="password" value={loginForm.password} onChange={ev => this.inputChanged(ev)}/>
 				<button onClick={()=>this.toLogIn()}>
 					登录
 				</button>
