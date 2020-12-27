@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-09-18 20:44:43
  * @LastEditors: 李星阳
- * @LastEditTime: 2020-12-27 14:56:31
+ * @LastEditTime: 2020-12-27 19:01:46
  * @Description: 
  */
 import axios from 'axios';
@@ -34,7 +34,7 @@ myAxios.interceptors.request.use(config => {
 
 // ▼响应拦截器
 myAxios.interceptors.response.use(response => {
-	console.log('response', response);
+	// console.log('response', response);
 	return response.data;
 });
 

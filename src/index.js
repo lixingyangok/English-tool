@@ -85,11 +85,11 @@ Date.prototype.format = function (fmt) {  // eslint-disable-line
 	return fmt;
 }
 
-window.axios.get('/user/session').then(res=>{
-	window.store.set('userInfo', (
-		res && res.account ? res : {}
-	));
-})
+// window.axios.get('/user/session').then(res=>{
+// 	window.store.set('userInfo', (
+// 		res && res.account ? res : {}
+// 	));
+// })
 
 ReactDOM.render(
 	// <React.StrictMode>

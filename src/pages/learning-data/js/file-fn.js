@@ -4,7 +4,10 @@
  * @Description: 
  */
 import {fileToTimeLines, fileToBuffer, getFaleBuffer, downloadString} from 'assets/js/pure-fn.js';
+var URLSafeBase64 = require('urlsafe-base64');
 const axios = window.axios;
+
+console.log('URLSafeBase64', URLSafeBase64);
 
 export default class FileList {
 	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
@@ -17,7 +20,7 @@ export default class FileList {
 			return showError('只能上传音频/视频');
 		}
 		this.setState({loading: true});
-		const tokenRes = await axios.get('/test/gettoken');
+		const tokenRes = await axios.get('/qn/gettoken');
 		if (!tokenRes) {
 			this.setState({loading: false});
 			return showError('查询token未成功');
@@ -51,9 +54,34 @@ export default class FileList {
 	}
 	// ▼删除一个文件
 	async delOneMedia(oneMedia){
-		const res = await axios.delete('/media/' + oneMedia.ID);
-		if (!res) return;
-		this.message.success("删除成功");
+		// const tokenRes = await axios.get('/qn/gettoken02');
+		// if (!tokenRes) {
+		// 	return this.message.error('查询token未成功');
+		// }
+		// console.log('tokenRes', tokenRes);
+		const EncodedEntryURI = 123 || URLSafeBase64.decode(`my-room-01:${oneMedia.fileId}`);
+		// const res01 = 
+		await axios.delete('http://rs.qbox.me/delete/' + EncodedEntryURI, {}, {
+			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+			Authorization:  'Qiniu <AccessToken>',
+			Accept: '*/*',
+			'Access-Control-Allow-Origin': 'http://foo.example',
+			'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type',
+			headers: {
+				// 'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Origin': 'http://foo.example',
+				'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+				'Access-Control-Allow-Headers': 'Content-Type',
+				'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+				Authorization:  'Qiniu <AccessToken>',
+				Accept: '*/*',
+			},
+		});
+		// if (res01) return;
+		// const res = await axios.delete('/media/' + oneMedia.ID);
+		// if (!res) return;
+		// this.message.success("删除成功");
 	}
 	// 新旧分界------------------
 	
