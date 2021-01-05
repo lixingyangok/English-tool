@@ -12,10 +12,12 @@ export default class{
 	async init(){
 		const res = await window.axios.get('/story');
 		if (!res) return;
-		this.setState({ aStory: res });
 		res.forEach(cur=>{
+			cur.aMedia_ = [];
+			cur.needToUploadArr_ = [];
 			this.getMediaForOneStory(cur);
 		});
+		this.setState({ aStory: res });
 	}
 	// ▼提交表单，提交一个故事
 	async onSave(oForm) {

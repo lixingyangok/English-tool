@@ -3,13 +3,82 @@
  * @LastEditors: 李星阳
  * @Description: 
  */
-import {fileToTimeLines, fileToBuffer, getFaleBuffer, downloadString} from 'assets/js/pure-fn.js';
-var URLSafeBase64 = require('urlsafe-base64');
+import {
+	fileToTimeLines, fileToBuffer,
+	getFaleBuffer, downloadString,
+} from 'assets/js/pure-fn.js';
 const axios = window.axios;
-
-console.log('URLSafeBase64', URLSafeBase64);
+// var URLSafeBase64 = require('urlsafe-base64');
+// console.log('URLSafeBase64', URLSafeBase64);
 
 export default class FileList {
+	// ▼把有效文件过滤出来，如：媒体文件、字幕
+	getFileAndName(files=[]){
+		const resultFileArr = [...files].filter(cur=>{
+			const hasPoint = cur.name.includes('.');
+			const isSrt = cur.name.endsWith('.srt');
+			const isMedia = /^(audio|video)\/.+/.test(cur.type);
+			const rightOne = hasPoint && (isSrt  || isMedia);
+			if (rightOne) cur.name_ = cur.name.slice( 0, 
+				cur.name.lastIndexOf('.'),
+			);
+			return rightOne;
+		});
+		if (!resultFileArr.length) return [];
+		const nameArr = (() => {
+			const nameArr = files.map(cur => {
+				const lastIndex = cur.name.lastIndexOf('.');
+				return cur.name.slice( 0, lastIndex );
+			});
+			return [...new Set(nameArr)];
+		})();
+		return [resultFileArr, nameArr];
+	}
+	// ▼分割2类文件
+	getTwoKindsFilesArr(targetFiles=[]){
+		return [...targetFiles].reduce((aResult, curFile)=>{
+			const {type, name} = curFile;
+			const lastIndex = name.lastIndexOf('.');
+			if (lastIndex === -1) return aResult;
+			curFile.name_ = name.slice(0, lastIndex); // 保存去除后缀的名字
+			if (/^(audio|video)\/.+/.test(type)) {
+				aResult[0].push(curFile);
+			}else if (name.endsWith('.srt')) {
+				aResult[1].push(curFile);
+			}
+			return aResult;
+		}, [[], []]);
+	}
+	// ▼
+	toCheckFile(ev, oStory){
+		const [mediaArr, subtitleArr] = this.getTwoKindsFilesArr(ev.target.files);
+		ev.target.value = ''; // 清空
+		if (!mediaArr.length) return;
+		// ▼把文件整理成列表用于显示
+		const needToUploadArr = mediaArr.map(curMediaFile=>{ 
+			const {name} = curMediaFile;
+			const forQiNiu = { // 用于七牛
+				file: curMediaFile,
+				fname: name,
+				token: '', //真值后补
+			};
+			const forOwnDB = { // 用于自已的服务器
+				storyId: oStory.ID,
+				fileName: name,
+				fileSize: curMediaFile.size,
+				fileId: '', //真值后补
+				subtitleFile: subtitleArr.find(cur=>cur.name === name) || '',
+			};
+			return {file: curMediaFile, forQiNiu, forOwnDB};
+		});
+		this.setState({
+			aStory: this.state.aStory.map(cur=>{
+				if (cur.ID === oStory.ID) cur.needToUploadArr_ = needToUploadArr;
+				return cur;
+			}),
+		});
+		console.log('needToUploadArr', needToUploadArr);
+	}
 	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
 	async toImport(ev, oStory) {
 		const { target } = ev;
@@ -20,7 +89,7 @@ export default class FileList {
 			return showError('只能上传音频/视频');
 		}
 		this.setState({loading: true});
-		const tokenRes = await axios.get('/qn/gettoken');
+		const tokenRes = await axios.get('/qiniu/gettoken');
 		if (!tokenRes) {
 			this.setState({loading: false});
 			return showError('查询token未成功');
@@ -33,72 +102,40 @@ export default class FileList {
 		this.setState({loading: false});
 		target.value = '';
 		if (!fileRes) return showError('保存文件未成功');
-		const uploadRes = await axios.post('/media', {
+		const uploadRes = await axios.post('/media', { //保存媒体记录
 			storyId: oStory.ID,
 			fileId: fileRes.key,
 			fileName: file.name,
 			fileSize: file.size,
 		});
-		if (!uploadRes) return showError('保存文件id未成功');
-		console.log('uploadRes', uploadRes);
+		if (!uploadRes) return showError('保存媒体记录未成功');
+		this.getMediaForOneStory(oStory)
 	}
 	// ▼查询故事下的文件
-	async getMediaForOneStory(oStory){
+	async getMediaForOneStory(oStory){ 
 		const res = await axios.get('/media/' + oStory.ID);
 		if (!res) return;
 		const aStory = this.state.aStory.map(cur=>{
-			if (cur.ID === oStory.ID) cur.aMedia_ = res;
+			if (cur.ID === oStory.ID) cur.aMedia_ = res || [];
 			return cur;
 		});
 		this.setState({aStory});
 	}
 	// ▼删除一个文件
-	async delOneMedia(oneMedia){
-		// const tokenRes = await axios.get('/qn/gettoken02');
-		// if (!tokenRes) {
-		// 	return this.message.error('查询token未成功');
-		// }
-		// console.log('tokenRes', tokenRes);
-		const EncodedEntryURI = 123 || URLSafeBase64.decode(`my-room-01:${oneMedia.fileId}`);
-		// const res01 = 
-		await axios.delete('http://rs.qbox.me/delete/' + EncodedEntryURI, {}, {
-			'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-			Authorization:  'Qiniu <AccessToken>',
-			Accept: '*/*',
-			'Access-Control-Allow-Origin': 'http://foo.example',
-			'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-			'Access-Control-Allow-Headers': 'Content-Type',
-			headers: {
-				// 'Access-Control-Allow-Origin': '*',
-				'Access-Control-Allow-Origin': 'http://foo.example',
-				'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-				'Access-Control-Allow-Headers': 'Content-Type',
-				'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-				Authorization:  'Qiniu <AccessToken>',
-				Accept: '*/*',
+	async delOneMedia(oStory, oneMedia){
+		const res = await axios.delete('/media/', {
+			params: {
+				mediaId: oneMedia.ID,
+				fileId: oneMedia.fileId,
 			},
 		});
-		// if (res01) return;
-		// const res = await axios.delete('/media/' + oneMedia.ID);
-		// if (!res) return;
-		// this.message.success("删除成功");
+		if (!res) return this.message.error('删除文件未成功');
+		this.getMediaForOneStory(oStory);
 	}
+	
 	// 新旧分界------------------
 	
-	// ▼过滤出正确的文件
-	getCorrectFile(oFiles) {
-		const aTwoTypeFiles = [...oFiles].reduce((aResult, curFile)=>{
-			const {type, name} = curFile;
-			if (name.includes('.') && (type.startsWith('audio/') || type.startsWith('video/'))) {
-				aResult[0].push(curFile);
-			}else if (name.endsWith('.srt')) {
-				aResult[1].push(curFile);
-			}
-			return aResult;
-		}, [[], []]);
-		console.log('文件：', aTwoTypeFiles[0], aTwoTypeFiles[1]);
-		return aTwoTypeFiles;
-	}
+
 	// ▼保存章节
 	async saveSection(oStory, aFiles) {
 		const [audioFile, srtFile] = aFiles;

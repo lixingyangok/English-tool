@@ -24,8 +24,9 @@ export default class extends MyClass{
 		oStoryTB: {},
 		oSectionTB: {},
 		// -----------------------------------------
-		aStory: [], //数据列表
+		aStory: [], // 故事列表
 		loading: false,
+		needToUploadArr: [], // 待上传列表
 	}
 	render(){
 		const {aStories, visible, aStory, loading} = this.state;
@@ -39,45 +40,52 @@ export default class extends MyClass{
 					</Button>
 				</cpnt.BtnBar>
 				<Table dataSource={aStory} >
-					<Table.Column title="名称" dataIndex="storyName" key="storyName" />
-					<Table.Column title="信息" key="CreatedAt" width={290}
+					<Table.Column title="名称" dataIndex="storyName" key="storyName" width={160}/>
+					<Table.Column title="信息" key="CreatedAt" width={295}
 						render={thisOne=>(<>
 							<p>创建于：{thisOne.CreatedAt}</p>
 							<p>备注：{thisOne.note}</p>
 						</>)}
 					/>
 					<Table.Column title="文件" key="key"
-						render={
-							thisOne => <>
-								{(thisOne.aMedia_ || []).map((oneMedia,idx) => {
-									return <p key={idx}>
-										{oneMedia.fileName}
-										<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-											title="确定删除？" onConfirm={()=>this.delOneMedia(oneMedia)}
-										>
-											<Button size='small' type="link">删除</Button>
-										</Popconfirm>
-									</p>
-								})}
-							</>
-						}
+						render={thisOne => <>
+							{thisOne.aMedia_.map((oneMedia,idx) => {
+								return <p key={idx}>
+									{oneMedia.fileName}
+									<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
+										开始听写
+									</Button>
+									<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+										title="确定删除？"
+										onConfirm={()=>this.delOneMedia(thisOne, oneMedia)}
+									>
+										<Button size='small' type="link">删除</Button>
+									</Popconfirm>
+								</p>
+							})}
+							{thisOne.aMedia_.length ? '' : '暂无文件'}
+							{thisOne.needToUploadArr_.length ? '\n==========' : ''}
+							{thisOne.needToUploadArr_.map((oneItem,idx) => {
+								return <p key={idx}>
+									{oneItem.file.name}
+								</p>
+							})}
+						</>}
 					/>
 					<Table.Column title="操作" key="ID" width={170}
 						render={thisOne => (
 							<>
-								<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
-									开始听写
-								</Button>
-								<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
-									修改
-								</Button>
-								<br/>
 								<label className="ant-btn ant-btn-link ant-btn-sm">
-									导入文件 {/* multiple="multiple" */}
-									<input type="file" style={{display: 'none'}}
-										onChange={ev=>this.toImport(ev, thisOne)}
+									导入文件
+									<input type="file" multiple="multiple" style={{display: 'none'}}
+										onChange={ev => this.toCheckFile(ev, thisOne)}
 									/>
 								</label>
+								<br/>
+								<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
+									修改信息
+								</Button>
+								<br/>
 								<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 									title="确定删除？" onConfirm={()=>this.delOneStory(thisOne)}
 								>
