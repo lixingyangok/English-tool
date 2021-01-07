@@ -15,6 +15,46 @@ export const Outter = styled.article`
     }
 `;
 
+const paddingPxVal = 20;
+export const StoryUl = styled.ul`
+    display: block;
+`;
+
+export const oneStory = styled.li`
+    padding: ${paddingPxVal}px;
+    margin: 0 0 20px;
+    border: solid 1px #ccc;
+    position: relative;
+    .story-name{
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .btn-wrap{
+        position: absolute;
+        top: ${paddingPxVal}px;
+        right: ${paddingPxVal}px;
+    }
+    .story-info{
+        color: #999;
+        span + span{
+            margin-left: 25px;
+        }
+    }
+`;
+
+export const filesWaitToUpload = styled.ul`
+    display: flex;
+    flex-flow: row wrap;
+    margin: 0 -15px 0 0 ;
+    li{
+        width: calc(50% - 15px);
+        margin: 0 0 15px;
+        background: #eee;
+        margin: 0 15px 15px 0;
+        padding: 1em;
+    }
+`;
+
 export const H1 = styled.h1`
     font-size: 28px;
     margin: 35px 0 20px;
@@ -32,14 +72,6 @@ export const BtnBar = styled.div`
         font-size: 20px;
         font-weight: bold;
         margin: 0;
-    }
-`;
-
-export const Ul = styled.ul`
-    margin: 5px 0 0;
-    /* display: ${props => props.visible ? 'block' : 'none' }; */
-    li:last-child{
-        border-bottom-width: 1px;
     }
 `;
 

@@ -6,8 +6,8 @@ import ListFn from './js/list-fn.js';
 
 // ▼组件库
 import {
-	Modal, Form, Input, Button, Typography, Popconfirm, Menu, Dropdown,
-	message, Table, Spin,
+	Modal, Form, Input, Button, Popconfirm, Menu,
+	message, Spin,
 } from 'antd';
 
 const MyClass = window.mix(
@@ -20,7 +20,7 @@ export default class extends MyClass{
 	oForm = React.createRef(); //窗口中的表单
 	state = {
 		visible: false, //窗口显示
-		aStories: [],
+		// aStories: [],
 		oStoryTB: {},
 		oSectionTB: {},
 		// -----------------------------------------
@@ -29,7 +29,7 @@ export default class extends MyClass{
 		needToUploadArr: [], // 待上传列表
 	}
 	render(){
-		const {aStories, visible, aStory, loading} = this.state;
+		const {visible, aStory, loading} = this.state;
 		aStory.forEach((cur, idx)=>cur.key=idx);
 		return <cpnt.Outter className='center-box'>
 			<Spin spinning={loading}>
@@ -39,103 +39,57 @@ export default class extends MyClass{
 						新增
 					</Button>
 				</cpnt.BtnBar>
-				<Table dataSource={aStory} >
-					<Table.Column title="名称" dataIndex="storyName" key="storyName" width={160}/>
-					<Table.Column title="信息" key="CreatedAt" width={295}
-						render={thisOne=>(<>
-							<p>创建于：{thisOne.CreatedAt}</p>
-							<p>备注：{thisOne.note}</p>
-						</>)}
-					/>
-					<Table.Column title="文件" key="key"
-						render={thisOne => <>
-							{thisOne.aMedia_.map((oneMedia,idx) => {
+				<cpnt.StoryUl>
+					{aStory.map((oCurStory,idx)=>{
+						const myLi = <cpnt.oneStory key={idx}>
+							<h1 className="story-name">{oCurStory.storyName}</h1>
+							<div className="btn-wrap">
+								<label className="ant-btn ant-btn-link ant-btn-sm">
+									导入文件
+									<input type="file" multiple="multiple" style={{display: 'none'}}
+										onChange={ev => this.toCheckFile(ev, oCurStory)}
+									/>
+								</label>
+								<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
+									修改信息
+								</Button>
+								<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+									title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
+								>
+									<Button size='small' type="link">删除</Button>
+								</Popconfirm>
+							</div>
+							<p className="story-info" >
+								<span>创建于：{oCurStory.CreatedAt}</span>
+								<span>备注：{oCurStory.note}</span>
+							</p>
+							{oCurStory.aMedia_.map((oneMedia,idx) => {
 								return <p key={idx}>
 									{oneMedia.fileName}
-									<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
+									<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
 										开始听写
 									</Button>
 									<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 										title="确定删除？"
-										onConfirm={()=>this.delOneMedia(thisOne, oneMedia)}
+										onConfirm={()=>this.delOneMedia(oCurStory, oneMedia)}
 									>
 										<Button size='small' type="link">删除</Button>
 									</Popconfirm>
 								</p>
 							})}
-							{thisOne.aMedia_.length ? '' : '暂无文件'}
-							{thisOne.needToUploadArr_.length ? '\n==========' : ''}
-							{thisOne.needToUploadArr_.map((oneItem,idx) => {
-								return <p key={idx}>
-									{oneItem.file.name}
-								</p>
-							})}
-						</>}
-					/>
-					<Table.Column title="操作" key="ID" width={170}
-						render={thisOne => (
-							<>
-								<label className="ant-btn ant-btn-link ant-btn-sm">
-									导入文件
-									<input type="file" multiple="multiple" style={{display: 'none'}}
-										onChange={ev => this.toCheckFile(ev, thisOne)}
-									/>
-								</label>
-								<br/>
-								<Button size='small' type="link" onClick={()=>this.showModal(thisOne)}>
-									修改信息
-								</Button>
-								<br/>
-								<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-									title="确定删除？" onConfirm={()=>this.delOneStory(thisOne)}
-								>
-									<Button size='small' type="link">删除</Button>
-								</Popconfirm>
-							</>
-						)}
-					/>
-				</Table>
+							{oCurStory.aMedia_.length ? '' : '暂无已经上传的文件'}
+							{this.showTheFileListReadyForUpload(
+								oCurStory.needToUploadArr_, oCurStory,
+							)}
+						</cpnt.oneStory>
+						return myLi;
+					})}
+				</cpnt.StoryUl>
 				{/* 分界 */}
 				<cpnt.Empty_ visible={aStory.length ? 0 : 1}
 					image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
 					description="暂无数据，请新增"
 				/>
-				<cpnt.Ul visible={aStories.length}>
-					{aStories.map((cur, idx)=>{
-						return <cpnt.OneItem key={idx}>
-							<Typography.Title className='my-title' level={4}>
-								{cur.name}
-							</Typography.Title>
-							<div className="info-bar" >
-								<span>创建日期：{cur.createDate}</span>
-								&emsp;&emsp;&emsp;
-								<span>修改日期：{cur.modifyData}</span>
-								&emsp;&emsp;&emsp;
-								<span>备注：{cur.note || '暂无'}</span>
-							</div>
-							<div className="btn-wrap">
-								<label className="ant-btn ant-btn-sm">
-									导入文件
-									<input type="file" style={{display: 'none'}} multiple="multiple"
-										onChange={ev=>this.toImport(ev, cur)}
-									/>
-								</label>
-								<Button size='small' onClick={()=>this.showModal(cur)}>修改</Button>
-								<Popconfirm placement="topRight" okText="清空" cancelText="取消"
-									title="清空不可恢复，是否清空？" onConfirm={()=>this.toDel(cur.id)}
-								>
-									<Button size='small'>清空</Button>
-								</Popconfirm>
-								<Popconfirm placement="topRight" okText="删除" cancelText="取消"
-									title="删除不可恢复，是否删除？" onConfirm={()=>this.toDel(cur.id, true)}
-								>
-									<Button size='small'>删除</Button>
-								</Popconfirm>
-							</div>
-							{this.getSectionList(cur)}
-						</cpnt.OneItem>
-					})}
-				</cpnt.Ul>
 				{/* ▼弹出窗口 */}
 				<Modal title="资源信息" okText="保存" cancelText="关闭"
 					visible={visible}
@@ -162,39 +116,6 @@ export default class extends MyClass{
 	}
 	// ▲render
 	// -------------分界-----------------
-	// ▼章节列表
-	getSectionList(oStory){
-		const {aSections=[]} = oStory;
-		if (!aSections.length){
-			return <cpnt.Empty_ visible={1} description="暂无数据，请导入文件"
-				image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
-			/>
-		}
-		return <cpnt.SectionList>
-			{aSections.map((oSct, idx)=>{
-				return <li key={idx}>
-					<h3 title={(oSct.audioFile || {}).name}>
-						{(oSct.audioFile || {}).name || '无音频'}
-					</h3>
-					<cpnt.BtnWrapInTrack className="btns">
-						<Button type="link" onClick={()=>this.goTool(oStory, oSct)} >
-							听写
-						</Button>
-						<Dropdown overlay={this.getMenu(oSct)} placement="bottomLeft" arrow>
-							<Button type="link">
-								操作&nbsp;<i className="fa fa-angle-down"/>
-							</Button>
-						</Dropdown>
-						<input type="file" multiple="multiple" style={{display: 'none'}}
-							onChange={ev=>this.toImport(ev, oStory, oSct)}
-							id={`sct-${oSct.id}`}
-						/>
-					</cpnt.BtnWrapInTrack>
-					{this.getTrackInfo(oSct)}
-				</li>
-			})}
-		</cpnt.SectionList>
-	}
 	// ▼章节信息
 	getTrackInfo(oSct){
 		const {
@@ -240,6 +161,28 @@ export default class extends MyClass{
 				删除
 			</Menu.Item>
 		</Menu>
+	}
+	showTheFileListReadyForUpload(aFiles, oStory){
+		if (!aFiles.length) return <div>
+			没有待上传的文件
+		</div>
+		const ul = <cpnt.filesWaitToUpload>
+			{aFiles.map((cur, idx)=>{
+				const {file, forOwnDB} = cur;
+				return <li key={idx}>
+					音频：{file.name}
+					<br/>
+					字幕：{forOwnDB.subtitleFile ? forOwnDB.subtitleFile.name : '无字幕文件'}
+					<br/>
+					<Button type="primary" size="small"
+						onClick={()=>this.toUpload(cur)}
+					>
+						上传
+					</Button>
+				</li>
+			})}
+		</cpnt.filesWaitToUpload>
+		return ul;
 	}
 	// ▼生命周期
 	async componentDidMount(){

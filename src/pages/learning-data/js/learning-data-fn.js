@@ -4,8 +4,8 @@
  * @Description: 
  */ 
 
-import React from 'react';
-import {Button} from 'antd';
+// import React from 'react';
+// import {Button} from 'antd';
 
 export default class{
 	// ▼初始化，即查询【故事数据】
@@ -47,7 +47,6 @@ export default class{
 		if (oFormData) oForm.setFieldsValue(oFormData);
 		else oForm.resetFields();
 	}
-	
 	// --------------------------------------------------------------------
 	uploadMedia(oStory){
 		console.log('oStory', oStory);
@@ -59,25 +58,3 @@ export default class{
 	}
 }
 
-
-export const columns = [{
-	title: '名称',
-	dataIndex: 'storyName',
-}, {
-	title: '创建时间',
-	dataIndex: 'CreatedAt',
-}, {
-	title: '备注',
-	dataIndex: 'note',
-},{
-	title: '操作',
-	render: (thisOne) => {
-		function showIt(){
-			console.log('打印', thisOne);
-			console.log('this', this);
-		};
-		return <Button size="small" onClick={showIt} >
-			删除
-		</Button>
-	},
-}];

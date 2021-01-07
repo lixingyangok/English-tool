@@ -12,28 +12,6 @@ const axios = window.axios;
 // console.log('URLSafeBase64', URLSafeBase64);
 
 export default class FileList {
-	// ▼把有效文件过滤出来，如：媒体文件、字幕
-	getFileAndName(files=[]){
-		const resultFileArr = [...files].filter(cur=>{
-			const hasPoint = cur.name.includes('.');
-			const isSrt = cur.name.endsWith('.srt');
-			const isMedia = /^(audio|video)\/.+/.test(cur.type);
-			const rightOne = hasPoint && (isSrt  || isMedia);
-			if (rightOne) cur.name_ = cur.name.slice( 0, 
-				cur.name.lastIndexOf('.'),
-			);
-			return rightOne;
-		});
-		if (!resultFileArr.length) return [];
-		const nameArr = (() => {
-			const nameArr = files.map(cur => {
-				const lastIndex = cur.name.lastIndexOf('.');
-				return cur.name.slice( 0, lastIndex );
-			});
-			return [...new Set(nameArr)];
-		})();
-		return [resultFileArr, nameArr];
-	}
 	// ▼分割2类文件
 	getTwoKindsFilesArr(targetFiles=[]){
 		return [...targetFiles].reduce((aResult, curFile)=>{
@@ -49,14 +27,14 @@ export default class FileList {
 			return aResult;
 		}, [[], []]);
 	}
-	// ▼
+	// ▼把2类文件组织成列表显示出来
 	toCheckFile(ev, oStory){
 		const [mediaArr, subtitleArr] = this.getTwoKindsFilesArr(ev.target.files);
 		ev.target.value = ''; // 清空
 		if (!mediaArr.length) return;
 		// ▼把文件整理成列表用于显示
-		const needToUploadArr = mediaArr.map(curMediaFile=>{ 
-			const {name} = curMediaFile;
+		const needToUploadArr = mediaArr.map(curMediaFile => { 
+			const {name, name_} = curMediaFile;
 			const forQiNiu = { // 用于七牛
 				file: curMediaFile,
 				fname: name,
@@ -67,7 +45,7 @@ export default class FileList {
 				fileName: name,
 				fileSize: curMediaFile.size,
 				fileId: '', //真值后补
-				subtitleFile: subtitleArr.find(cur=>cur.name === name) || '',
+				subtitleFile: subtitleArr.find(cur=>cur.name_ === name_) || '',
 			};
 			return {file: curMediaFile, forQiNiu, forOwnDB};
 		});
@@ -80,36 +58,33 @@ export default class FileList {
 		console.log('needToUploadArr', needToUploadArr);
 	}
 	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
-	async toImport(ev, oStory) {
-		const { target } = ev;
+	async toUpload(oFileInfo) {
+		const {forQiNiu, forOwnDB} = oFileInfo;
 		const showError = this.message.error;
-		const file = target.files[0];
-		if (!file || !/^(video\/|audio\/).+/.test(file.type) ) {
-			target.value = '';
-			return showError('只能上传音频/视频');
-		}
 		this.setState({loading: true});
+		// ▼ 先从七牛 sdk 取一个 token 值
 		const tokenRes = await axios.get('/qiniu/gettoken');
 		if (!tokenRes) {
 			this.setState({loading: false});
 			return showError('查询token未成功');
 		}
+		// ▼ 再上传媒体到七牛
 		const fileRes = await axios.post('http://upload-z2.qiniup.com', {
-			file,
-			fname: file.name,
+			...forQiNiu,
 			token: tokenRes.token,
 		});
-		this.setState({loading: false});
-		target.value = '';
-		if (!fileRes) return showError('保存文件未成功');
+		if (!fileRes) {
+			this.setState({loading: false});
+			return showError('保存文件未成功');
+		}
+		// ▼再上传到自已的服务器
 		const uploadRes = await axios.post('/media', { //保存媒体记录
-			storyId: oStory.ID,
+			...forOwnDB,
 			fileId: fileRes.key,
-			fileName: file.name,
-			fileSize: file.size,
 		});
 		if (!uploadRes) return showError('保存媒体记录未成功');
-		this.getMediaForOneStory(oStory)
+		this.setState({loading: false});
+		// this.getMediaForOneStory(oStory); //
 	}
 	// ▼查询故事下的文件
 	async getMediaForOneStory(oStory){ 
