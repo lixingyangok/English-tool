@@ -1,5 +1,5 @@
 import React from 'react';
-import TheFn from './js/learning-data-fn.js';
+import TheFn from './js/story-list-fn.js';
 import * as cpnt from './style/learning-data.js';
 import FileFn from './js/file-fn.js';
 import ListFn from './js/list-fn.js';

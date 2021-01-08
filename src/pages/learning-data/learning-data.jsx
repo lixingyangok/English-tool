@@ -13,6 +13,7 @@ import {learningData} from 'common/components/navigation/navigation.jsx';
 // 	message, Table, Space,
 // } from 'antd';
 
+// 这是路由页★★★★★★★★★★★★★★
 export default function (){
 	const getPath = url => `/learning-data${url}`;
 	return <Suspense fallback={Loading}>

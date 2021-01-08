@@ -5,7 +5,7 @@ import * as cpnt from './style/navigation.js';
 export const learningData = [{
   name: '列表',
   path: '/list',
-  component: React.lazy(() => import('pages/learning-data/list.jsx')),
+  component: React.lazy(() => import('pages/learning-data/story-list.jsx')),
 },{
   name: '专题',
   path: '/item',
