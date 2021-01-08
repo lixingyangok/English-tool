@@ -2,7 +2,6 @@ import React from 'react';
 import TheFn from './js/story-list-fn.js';
 import * as cpnt from './style/learning-data.js';
 import FileFn from './js/file-fn.js';
-import ListFn from './js/list-fn.js';
 
 // ▼组件库
 import {
@@ -11,7 +10,7 @@ import {
 } from 'antd';
 
 const MyClass = window.mix(
-	React.Component, TheFn, FileFn, ListFn,
+	React.Component, TheFn, FileFn,
 );
 
 export default class extends MyClass{
