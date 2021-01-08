@@ -1,7 +1,7 @@
 /*
  * @Author: 李星阳
  * @LastEditors: 李星阳
- * @Description: 
+ * @Description: 处理文件上传、下载
  */
 import {
 	fileToTimeLines, fileToBuffer,
@@ -34,20 +34,26 @@ export default class FileList {
 		if (!mediaArr.length) return;
 		// ▼把文件整理成列表用于显示
 		const needToUploadArr = mediaArr.map(curMediaFile => { 
-			const {name, name_} = curMediaFile;
-			const forQiNiu = { // 用于七牛
+			const oResult = {file: curMediaFile};
+			oResult.mediaFile = { // 用于七牛
 				file: curMediaFile,
-				fname: name,
+				fileName: curMediaFile.name,
 				token: '', //真值后补
 			};
-			const forOwnDB = { // 用于自已的服务器
+			const oSubtitle = subtitleArr.find(cur=>cur.name_ === curMediaFile.name_);
+			oResult.subtitleFile = !oSubtitle ? null : {
+				file: oSubtitle,
+				fileName: oSubtitle.name,
+				token: '', //真值后补
+			}
+			oResult.forOwnDB = { // 用于自已的服务器
 				storyId: oStory.ID,
-				fileName: name,
+				fileName: curMediaFile.name,
 				fileSize: curMediaFile.size,
 				fileId: '', //真值后补
-				subtitleFile: subtitleArr.find(cur=>cur.name_ === name_) || '',
+				subtitleFileId: '', //真值后补
 			};
-			return {file: curMediaFile, forQiNiu, forOwnDB};
+			return oResult;
 		});
 		this.setState({
 			aStory: this.state.aStory.map(cur=>{
@@ -69,18 +75,27 @@ export default class FileList {
 			return showError('查询token未成功');
 		}
 		// ▼ 再上传媒体到七牛
-		const fileRes = await axios.post('http://upload-z2.qiniup.com', {
-			...forQiNiu,
+		const fileRes01 = await axios.post('http://upload-z2.qiniup.com', {
+			...oFileInfo.mediaFile,
 			token: tokenRes.token,
 		});
-		if (!fileRes) {
+		if (!fileRes01) {
 			this.setState({loading: false});
-			return showError('保存文件未成功');
+			return showError('保存媒体文件未成功');
+		}
+		// ▼ 再上传字幕到七牛
+		let fileRes02 = true; // true表示没文件不用上传
+		if (oFileInfo.subtitleFile) {
+			fileRes02 = await axios.post('http://upload-z2.qiniup.com', {
+				...oFileInfo.subtitleFile,
+				token: tokenRes.token,
+			});
 		}
 		// ▼再上传到自已的服务器
 		const uploadRes = await axios.post('/media', { //保存媒体记录
 			...forOwnDB,
-			fileId: fileRes.key,
+			fileId: fileRes01.key,
+			subtitleFileId: fileRes02.key,
 		});
 		if (!uploadRes) return showError('保存媒体记录未成功');
 		this.setState({loading: false});
