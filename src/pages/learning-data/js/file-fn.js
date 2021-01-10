@@ -57,24 +57,22 @@ export default class FileList {
 			};
 			return oResult;
 		});
-		this.setState({
-			aStory: this.state.aStory.map(cur=>{
-				if (cur.ID === oStory.ID) cur.needToUploadArr_ = needToUploadArr;
-				return cur;
-			}),
+		const aStory = this.state.aStory.map(cur=>{
+			if (cur.ID === oStory.ID) cur.needToUploadArr_ = needToUploadArr;
+			return cur;
 		});
+		this.setState({aStory});
 		// console.log('needToUploadArr', needToUploadArr);
 	}
-	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
-	async toUpload(oFileInfo, oStory) {
+	// ▼上传一个媒体文件+字幕
+	async toUpload(oStory, oFileInfo, iFileIdx) {
 		this.setState({loading: true}); // 开始loading
-		// ▼ 先从七牛 sdk 取一个 token 值
 		const tokenRes = await axios.get('/qiniu/gettoken');
 		if (!tokenRes) {
 			this.setState({loading: false});
 			return this.message.error('查询token未成功');
 		}
-		// ▼ 再上传媒体到七牛
+		// ▼ 上传媒体到七牛
 		const fileRes01 = await axios.post('http://upload-z2.qiniup.com', {
 			...oFileInfo.mediaFile,
 			token: tokenRes.token,
@@ -98,10 +96,19 @@ export default class FileList {
 			fileId: fileRes01.key,
 			subtitleFileId: fileRes02 ? fileRes02.key : '',
 		});
+		this.setState({loading: false}); // 无论如何关闭loading
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
-		this.setState({loading: false});
 		this.message.success('上传成功');
-		this.getMediaForOneStory(oStory); //
+		this.deleteOneCandidate(oStory, iFileIdx)
+		this.getMediaForOneStory(oStory); //刷新
+	}
+	// ▼删除一个候选上传文件
+	deleteOneCandidate(oStory, iFileIdx){
+		const aStory = this.state.aStory.map(cur=>{
+			if (cur.ID === oStory.ID) oStory.needToUploadArr_.splice(iFileIdx, 1);
+			return cur;
+		});
+		this.setState({aStory});
 	}
 	// ▼查询故事下的文件
 	async getMediaForOneStory(oStory){ 

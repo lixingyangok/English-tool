@@ -5,7 +5,7 @@ import FileFn from './js/file-fn.js';
 
 // ▼组件库
 import {
-	Modal, Form, Input, Button, Popconfirm, Menu,
+	Modal, Form, Input, Button, Popconfirm, Space,
 	message, Spin,
 } from 'antd';
 
@@ -62,21 +62,7 @@ export default class extends MyClass{
 								<span>创建于：{oCurStory.CreatedAt}</span>
 								<span>备注：{oCurStory.note}</span>
 							</p>
-							{oCurStory.aMedia_.map((oneMedia,idx) => {
-								return <p key={idx}>
-									{oneMedia.fileName}
-									<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
-										开始听写
-									</Button>
-									<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-										title="确定删除？"
-										onConfirm={()=>this.delOneMedia(oCurStory, oneMedia)}
-									>
-										<Button size='small' type="link">删除</Button>
-									</Popconfirm>
-								</p>
-							})}
-							{oCurStory.aMedia_.length ? '' : '暂无已经上传的文件'}
+							{this.showFilesOfOneStory(oCurStory.aMedia_)}
 							{this.showTheFileListReadyForUpload(
 								oCurStory.needToUploadArr_, oCurStory,
 							)}
@@ -115,71 +101,55 @@ export default class extends MyClass{
 	}
 	// ▲render
 	// -------------分界-----------------
-	// ▼章节信息
-	getTrackInfo(oSct){
-		const {
-			audioFile, aLines=[],
-			buffer={}, srtFile={},
-			isLoading=false,
-		} = oSct;
-		const size = audioFile ? (audioFile.size / 1024 / 1024).toFixed(2) : '0';
-		const {duration=0} = buffer || {};
-		const nowState = (()=>{
-			if (duration) return <span><i className="fas fa-check-circle green"></i></span>;
-			if (isLoading) return <span><i className="fas fa-spinner fa-spin yellow"></i></span>;
-			return <span><i className="fas fa-exclamation-circle red"></i></span>;
-		})();
-		return <>
-			<cpnt.InfoBar>
-				体积：{size}MB&emsp;&emsp;
-				时长：{buffer.sDuration_ || '未知'}&emsp;&emsp;
-				初始化：{nowState}
-			</cpnt.InfoBar>
-			<cpnt.InfoWrap>
-				<dt>字幕：</dt>
-				<dd>
-					{srtFile.name || '暂无'}
-				</dd>
-				<dt>总数：</dt>
-				<dd>{aLines.length}句</dd>
-			</cpnt.InfoWrap>
-		</>
-	}
-	getMenu(oSct){
-		return <Menu>
-			<Menu.Item onClick={()=>this.getSectionBuffer(oSct)}>
-				初始化
-			</Menu.Item>
-			<Menu.Item onClick={()=>this.importToSct(oSct)}>
-				导入文件
-			</Menu.Item>
-			<Menu.Item onClick={()=>this.toExport(oSct)}>
-				导出字幕
-			</Menu.Item>
-			<Menu.Item onClick={()=>this.toDelSection(oSct)}>
-				删除
-			</Menu.Item>
-		</Menu>
-	}
-	showTheFileListReadyForUpload(aFiles, oStory){
-		if (!aFiles.length) return <div>
-			没有待上传的文件
-		</div>
-		const ul = <cpnt.filesWaitToUpload>
-			{aFiles.map((cur, idx)=>{
-				const {file, forOwnDB} = cur;
-				return <li key={idx}>
-					音频：{file.name}
-					<br/>
-					字幕：{forOwnDB.subtitleFile ? forOwnDB.subtitleFile.name : '无字幕文件'}
-					<br/>
-					<Button type="primary" size="small"
-						onClick={()=>this.toUpload(cur, oStory)}
-					>
-						上传
+	// ▼陈列【已经上传】的文件
+	showFilesOfOneStory(aFiles, oStory){
+		if (!aFiles.length) return '暂无文件';
+		const myLiArr = aFiles.map((curFile, idx)=>{
+			return <li key={idx}>
+				音频：{curFile.fileName}<br/>
+				字幕：{curFile.subtitleFileName || '元'}<br/>
+				<Space className="media-btn-wrap" >
+					<Button type="primary" size="small">
+						听写
 					</Button>
-				</li>
-			})}
+					<Button size="small">
+						下载
+					</Button>
+					<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+						title="确定删除？"
+						onConfirm={()=>this.delOneMedia(oStory, curFile)}
+					>
+						<Button size="small">删除</Button>
+					</Popconfirm>
+				</Space>
+			</li>
+		});
+		const ul = <cpnt.fileList>{myLiArr}</cpnt.fileList>
+		return ul;
+	}
+	// ▼陈列【待上传】的文件
+	showTheFileListReadyForUpload(aFiles, oStory){
+		if (!aFiles.length) return null;
+		const myLiArr = aFiles.map((cur, idx)=>{
+			const {file, subtitleFile} = cur;
+			return <li key={idx}>
+				音频：{file.name}<br/>
+				字幕：{subtitleFile ? subtitleFile.fileName : '-'}<br/>
+				<Button type="primary" size="small"
+					onClick={()=>this.toUpload(oStory, cur, idx)}
+				>
+					上传
+				</Button>
+				&nbsp;
+				<Button type="primary" size="small"
+					onClick={()=>this.deleteOneCandidate(oStory, idx)}
+				>
+					删除
+				</Button>
+			</li>
+		});
+		const ul = <cpnt.filesWaitToUpload>
+			{myLiArr}
 		</cpnt.filesWaitToUpload>
 		return ul;
 	}

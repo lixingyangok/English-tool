@@ -42,17 +42,26 @@ export const oneStory = styled.li`
     }
 `;
 
-export const filesWaitToUpload = styled.ul`
+export const fileList = styled.ul`
     display: flex;
+    justify-content: space-between;
     flex-flow: row wrap;
-    margin: 0 -15px 0 0 ;
+    margin: 0;
     li{
-        width: calc(50% - 15px);
+        width: calc(50% - 15px / 2);
         margin: 0 0 15px;
         background: #eee;
-        margin: 0 15px 15px 0;
+        margin: 0 0 15px 0;
         padding: 1em;
     }
+    .media-btn-wrap{
+        margin: 8px 0 0;
+    }
+`;
+
+export const filesWaitToUpload = styled(fileList)`
+    border-top: solid 1px #ccc;
+    padding-top: 15px;
 `;
 
 export const H1 = styled.h1`
