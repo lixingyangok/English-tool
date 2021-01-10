@@ -174,7 +174,7 @@ export default class extends MyClass{
 					字幕：{forOwnDB.subtitleFile ? forOwnDB.subtitleFile.name : '无字幕文件'}
 					<br/>
 					<Button type="primary" size="small"
-						onClick={()=>this.toUpload(cur)}
+						onClick={()=>this.toUpload(cur, oStory)}
 					>
 						上传
 					</Button>
