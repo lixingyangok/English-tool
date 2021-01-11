@@ -102,7 +102,7 @@ export default class FileList {
 		this.deleteOneCandidate(oStory, iFileIdx)
 		this.getMediaForOneStory(oStory); //刷新
 	}
-	// ▼删除一个候选上传文件
+	// ▼删除一个【待上传】的文件
 	deleteOneCandidate(oStory, iFileIdx){
 		const aStory = this.state.aStory.map(cur=>{
 			if (cur.ID === oStory.ID) oStory.needToUploadArr_.splice(iFileIdx, 1);
@@ -110,7 +110,7 @@ export default class FileList {
 		});
 		this.setState({aStory});
 	}
-	// ▼查询故事下的文件
+	// ▼查询某个故事下的文件
 	async getMediaForOneStory(oStory){ 
 		const res = await axios.get('/media/' + oStory.ID);
 		if (!res) return;
@@ -120,7 +120,7 @@ export default class FileList {
 		});
 		this.setState({aStory});
 	}
-	// ▼删除一个文件
+	// ▼删除一个已上传的文件
 	async delOneMedia(oStory, oneMedia){
 		const res = await axios.delete('/media/', {
 			params: {
@@ -132,10 +132,21 @@ export default class FileList {
 		if (!res) return this.message.error('删除文件未成功');
 		this.getMediaForOneStory(oStory);
 	}
+	// ▼下载一个媒体&字幕
+	async downloadOneMedia(oStory, oneMedia){
+		const filePath = 'http://qn.hahaxuexi.com/' + oneMedia.fileId;
+		const res = await axios.get(filePath, {
+			responseType: "blob",
+		});
+		const mediaFile = new File( [res], oneMedia.fileName, {
+			type: res.type,
+		});
+		console.log('mediaFile\n', mediaFile);
+		this.saveOneMedia(oStory, oneMedia, mediaFile)
+	}
 	
 	// 新旧分界------------------
 	
-
 	// ▼保存章节
 	async saveSection(oStory, aFiles) {
 		const [audioFile, srtFile] = aFiles;

@@ -2,6 +2,7 @@ import React from 'react';
 import TheFn from './js/story-list-fn.js';
 import * as cpnt from './style/learning-data.js';
 import FileFn from './js/file-fn.js';
+import FileToDb from './js/file-to-db.js';
 
 // ▼组件库
 import {
@@ -10,7 +11,7 @@ import {
 } from 'antd';
 
 const MyClass = window.mix(
-	React.Component, TheFn, FileFn,
+	React.Component, TheFn, FileFn, FileToDb,
 );
 
 export default class extends MyClass{
@@ -20,9 +21,9 @@ export default class extends MyClass{
 	state = {
 		visible: false, //窗口显示
 		// aStories: [],
-		oStoryTB: {},
-		oSectionTB: {},
 		// -----------------------------------------
+		oStoryTB: {}, // 本地故事列表
+		mediasTB: {}, // 本地媒体列表
 		aStory: [], // 故事列表
 		loading: false,
 		needToUploadArr: [], // 待上传列表
@@ -111,7 +112,7 @@ export default class extends MyClass{
 					<Button type="primary" size="small">
 						听写
 					</Button>
-					<Button size="small">
+					<Button size="small" onClick={()=>this.downloadOneMedia(oStory, curFile)}>
 						下载
 					</Button>
 					<Popconfirm placement="topRight" okText="确定" cancelText="取消"
@@ -156,5 +157,6 @@ export default class extends MyClass{
 	// ▼生命周期
 	async componentDidMount(){
 		await this.init();
+		this.dbInit();
 	}
 }

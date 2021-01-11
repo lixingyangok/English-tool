@@ -118,7 +118,7 @@ export default class {
 			this.state.oSectionTB.delete(oSct.id);
 			this.getSctToStory();
 		};
-	 	this.Modal.confirm({
+		this.Modal.confirm({
 			title: `是否确认删除?`,
 			content: `正在删除：${oSct.audioFile.name}`,
 			cancelText: '取消',
