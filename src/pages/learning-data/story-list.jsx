@@ -62,10 +62,8 @@ export default class extends MyClass{
 								<span>创建于：{oCurStory.CreatedAt}</span>
 								<span>备注：{oCurStory.note}</span>
 							</p>
-							{this.showFilesOfOneStory(oCurStory.aMedia_)}
-							{this.showTheFileListReadyForUpload(
-								oCurStory.needToUploadArr_, oCurStory,
-							)}
+							{this.showFilesOfOneStory(oCurStory)}
+							{this.showTheFileListReadyForUpload(oCurStory)}
 						</cpnt.oneStory>
 						return myLi;
 					})}
@@ -102,7 +100,8 @@ export default class extends MyClass{
 	// ▲render
 	// -------------分界-----------------
 	// ▼陈列【已经上传】的文件
-	showFilesOfOneStory(aFiles, oStory){
+	showFilesOfOneStory(oStory){
+		const aFiles = oStory.aMedia_;
 		if (!aFiles.length) return '暂无文件';
 		const myLiArr = aFiles.map((curFile, idx)=>{
 			return <li key={idx}>
@@ -128,7 +127,8 @@ export default class extends MyClass{
 		return ul;
 	}
 	// ▼陈列【待上传】的文件
-	showTheFileListReadyForUpload(aFiles, oStory){
+	showTheFileListReadyForUpload(oStory){
+		const aFiles = oStory.needToUploadArr_;
 		if (!aFiles.length) return null;
 		const myLiArr = aFiles.map((cur, idx)=>{
 			const {file, subtitleFile} = cur;
