@@ -18,12 +18,12 @@ export default function (){
 	const getPath = url => `/learning-data${url}`;
 	return <Suspense fallback={Loading}>
 		<Switch>
-			<Redirect exact from="/learning-data" to="/learning-data/list" />
 			{learningData.map((cur,idx)=>{
 				return <Route key={idx} path={getPath(cur.path)} 
 					component={cur.component}
 				/>
 			})}
+			<Redirect exact from="/learning-data" to="/learning-data/list" />
 		</Switch>
 	</Suspense>
 }

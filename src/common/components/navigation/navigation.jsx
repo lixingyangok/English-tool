@@ -72,7 +72,8 @@ export default function () {
     <cpnt.Ul  >
       {aNavData.map((cur,idx)=>{
         const {children, path} = cur;
-        const aim = children ? children[0].path : path;
+        // const aim = children ? children[0].path : path;
+        const aim = path;
         return <cpnt.Li key={idx}>
           <NavLink to={aim} target={cur.target || ''} >
             {cur.name}
