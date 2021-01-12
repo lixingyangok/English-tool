@@ -142,7 +142,9 @@ export default class FileList {
 			type: res.type,
 		});
 		console.log('mediaFile\n', mediaFile);
-		this.saveOneMedia(oStory, oneMedia, mediaFile)
+		this.saveOneMedia(oStory, {
+			...oneMedia, mediaFile,
+		});
 	}
 	
 	// 新旧分界------------------
