@@ -14,6 +14,8 @@ export const Nav = styled.nav`
   line-height: 55px;
   background: #24292e;
   color: white;
+  position: relative;
+  z-index: 2;
   .logo{
     font-size: 18px;
     font-weight: bold;
@@ -60,7 +62,7 @@ export const Li = styled.li`
     }
   }
   li:hover{
-    background: black;
+    background: #072d54;
     color: yellow;
   }
 `;

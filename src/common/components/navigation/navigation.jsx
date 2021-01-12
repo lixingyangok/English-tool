@@ -7,10 +7,11 @@ export const learningData = [{
   path: '/list',
   component: React.lazy(() => import('pages/learning-data/story-list.jsx')),
 },{
-  name: '专题',
+  name: '自习室',
   path: '/item',
-  component: React.lazy(() => import('pages/learning-data/children/item/item.jsx')),
+  component: React.lazy(() => import('pages/my-tool-02/my-tool.jsx')),
 }];
+
 
 export const aNavData = [{
   name: '首页',
