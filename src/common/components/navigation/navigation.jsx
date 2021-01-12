@@ -22,15 +22,15 @@ export const aNavData = [{
   path: '/learning-history',
   component: React.lazy(() => import('pages/learning-history/learning-history.jsx')),
 },{
-  name: '学习资料',
-  path: '/learning-data',
-  component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
-  children: learningData,
-},{
   name: '自习室',
   path: '/practicing',
   // target:'_blank',
   component: React.lazy(() => import('pages/my-tool/my-tool.jsx')),
+},{
+  name: '学习资料',
+  path: '/learning-data',
+  component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
+  children: learningData,
 },{
   name: '关于',
   path: '/about',

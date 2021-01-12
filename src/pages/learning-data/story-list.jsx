@@ -109,7 +109,7 @@ export default class extends MyClass{
 				音频：{curFile.fileName}<br/>
 				字幕：{curFile.subtitleFileName || '元'}<br/>
 				<Space className="media-btn-wrap" >
-					<Button type="primary" size="small">
+					<Button type="primary" size="small" onClick={()=>this.goTool(curFile)}>
 						听写
 					</Button>
 					<Button size="small" onClick={()=>this.downloadOneMedia(oStory, curFile)}>
