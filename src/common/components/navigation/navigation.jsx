@@ -8,15 +8,19 @@ export const learningData = [{
   component: React.lazy(() => import('pages/learning-data/story-list.jsx')),
 },{
   name: '自习室',
-  path: '/item',
+  path: '/practicing',
   component: React.lazy(() => import('pages/my-tool-02/my-tool.jsx')),
 }];
-
 
 export const aNavData = [{
   name: '首页',
   path: '/index',
   component: React.lazy(() => import('pages/index/index.jsx')),
+},{
+  name: '学习资料',
+  path: '/learning-data',
+  component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
+  children: learningData,
 },{
   name: '书柜',
   path: '/learning-history',
@@ -26,11 +30,6 @@ export const aNavData = [{
   path: '/practicing',
   // target:'_blank',
   component: React.lazy(() => import('pages/my-tool/my-tool.jsx')),
-},{
-  name: '学习资料',
-  path: '/learning-data',
-  component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
-  children: learningData,
 },{
   name: '关于',
   path: '/about',

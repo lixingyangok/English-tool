@@ -47,14 +47,14 @@ export default class{
 		if (oFormData) oForm.setFieldsValue(oFormData);
 		else oForm.resetFields();
 	}
-	// ▼去听写
-	goTool(curFile){
-		console.log('文件curFile', curFile);
-		// if (!oStory || !oSct) return this.message.info('数据不完整');
-		// if (!oSct.audioFile) return this.message.info('没有音频文件，请导入');
-		// if (oSct.isLoading) return this.message.info('请等待初始化完成');
-		// const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
-		// this.props.history.push(sPath);
+	// ▼跳到听写
+	goToolPage(oStory, oMedia){
+		this.saveOneStory(oStory); // 先保存到DB
+		// console.log('故事oStory', oStory);
+		// console.log('文件oMedia', oMedia);
+		const sPath = `/learning-data/practicing`;
+		const query = `?storyId=${oStory.ID}&mediaId=${oMedia.ID}`;
+		this.props.history.push(sPath + query);
 	}
 	// ▼旧的方法 --------------------------------------------------------------------
 	uploadMedia(oStory){

@@ -23,7 +23,7 @@ export default class extends MyClass{
 		// aStories: [],
 		// -----------------------------------------
 		oStoryTB: {}, // 本地故事列表
-		mediasTB: {}, // 本地媒体列表
+		mediaTB: {}, // 本地媒体列表
 		aStory: [], // 故事列表
 		loading: false,
 		needToUploadArr: [], // 待上传列表
@@ -102,27 +102,28 @@ export default class extends MyClass{
 	// -------------分界-----------------
 	// ▼陈列【已经上传】的文件
 	showFilesOfOneStory(oStory){
-		const aFiles = oStory.aMedia_;
-		if (!aFiles.length) return '暂无文件';
-		const myLiArr = aFiles.map((curFile, idx)=>{
-			return <li key={idx}>
-				音频：{curFile.fileName}<br/>
-				字幕：{curFile.subtitleFileName || '元'}<br/>
+		const aMedia_ = oStory.aMedia_;
+		if (!aMedia_.length) return '暂无文件';
+		const myLiArr = aMedia_.map((oMedia, idx)=>{
+			const oneLi= <li key={idx}>
+				音频：{oMedia.fileName}<br/>
+				字幕：{oMedia.subtitleFileName || '元'}<br/>
 				<Space className="media-btn-wrap" >
-					<Button type="primary" size="small" onClick={()=>this.goTool(curFile)}>
+					<Button type="primary" size="small" onClick={()=>this.goToolPage(oStory, oMedia)}>
 						听写
 					</Button>
-					<Button size="small" onClick={()=>this.downloadOneMedia(oStory, curFile)}>
+					<Button size="small" onClick={()=>this.downloadOneMedia(oStory, oMedia)}>
 						下载
 					</Button>
 					<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 						title="确定删除？"
-						onConfirm={()=>this.delOneMedia(oStory, curFile)}
+						onConfirm={()=>this.delOneMedia(oStory, oMedia)}
 					>
 						<Button size="small">删除</Button>
 					</Popconfirm>
 				</Space>
-			</li>
+			</li>;
+			return oneLi;
 		});
 		const ul = <cpnt.fileList>{myLiArr}</cpnt.fileList>
 		return ul;

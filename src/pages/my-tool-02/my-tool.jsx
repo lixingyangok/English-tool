@@ -21,7 +21,7 @@ const MyClass = window.mix(
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
 export default class Tool extends MyClass {
-	message= message;
+	message = message;
 	confirm = confirm;
 	oAudio = React.createRef();
 	oCanvas = React.createRef();
@@ -48,8 +48,8 @@ export default class Tool extends MyClass {
 		}],
 		iCurStep: 0, //当前步骤
 		oTarget: {}, // 故事信息如：故事id、章节id
-		oStoryTB: {}, // 表-存故事
-		oSectionTB: {}, // 表-存章节
+		trainingDB: {}, // 表-存故事 - 原来的oStoryTB
+		oMediaTB: {}, // 表-存媒体
 		oWordsDB: {}, //词库
 		oStory: {}, // DB中的【故事】
 		oSct: {}, // DB中的【章节】
@@ -61,10 +61,9 @@ export default class Tool extends MyClass {
 		scrollTimer: null,
 	};
 	constructor(props) {
-		// 地址栏收到：?storyId=1&sctId=9
 		super(props);
 		const oTarget = (()=>{
-			const {search} = props.location;
+			const {search} = props.location; // ?storyId=1&mediaId=9
 			if (!search) return {};
 			return search.slice(1).split('&').reduce((result, cur)=>{
 				const [key, val] = cur.split('=');
@@ -73,16 +72,16 @@ export default class Tool extends MyClass {
 		})();
 		console.log('页面加载了：oTarget', oTarget);
 		const loading = !!oTarget.storyId; //有id就loading
-		const [oStoryTB, oSectionTB, oWordsDB] = (()=>{
-			const theDB = new window.Dexie("myDb");
+		const [storyTB, oMediaTB, oWordsDB] = (()=>{
 			const oWordsDB = new window.Dexie("wordsDB");
-			theDB.version(1).stores({stories: '++id, name'});
-			theDB.version(2).stores({sections: '++id, idx, parent'});
-			return [theDB.stories, theDB.sections, oWordsDB];
+			const trainingDB = new window.Dexie("trainingDB");
+			trainingDB.version(1).stores({story: '++id, ID, name, storyId'});
+			trainingDB.version(2).stores({media: '++id, ID, fileId, ownerStoryId'});
+			return [trainingDB.story, trainingDB.media, oWordsDB];
 		})();
 		Object.assign(
 			this.state,
-			{oStoryTB, oSectionTB, oTarget, loading, oWordsDB},
+			{storyTB, oMediaTB, oTarget, loading, oWordsDB},
 		);
 		if (oTarget.storyId) this.init(oTarget);
 		this.checkWordsDB(oWordsDB);
@@ -284,32 +283,66 @@ export default class Tool extends MyClass {
 		document.onkeydown = null; // xx=>xx;
 	}
 	// ▼主要方法等
-	async init({storyId, sctId}){
-		const {oStoryTB, oSectionTB, aSteps} = this.state;
-		const [oStory, oSct] = await Promise.all([
-			oStoryTB.get(storyId*1),
-			oSectionTB.get(sctId*1),
+	async init({storyId, mediaId}){
+		const {storyTB, oMediaTB, } = this.state; // aSteps
+		const [oStory, oMedia] = await Promise.all([
+			storyTB.where('ID').equals(storyId*1).first(),
+			oMediaTB.where('ID').equals(mediaId*1).first(),
 		]);
-		if (!oStory || !oSct) return;
-		const aChannelData_ = await (async ()=>{
-			const theBlob = oSct.buffer.oChannelDataBlob_;
-			if (!theBlob.arrayBuffer) return;
-			const res = await theBlob.arrayBuffer();
-			return new Int8Array(res);
-		})();
-		if (!aChannelData_) {
-			this.setState({loading: false});
-			return alert('浏览器无法解析音频数据');
+		if (!oStory) return;
+		console.log('故事：');
+		console.log(oStory, oMedia);
+		if (!oMedia){
+			const oMidaInfo = oStory.aMedia_.find(cur=>{
+				return cur.ID == mediaId * 1;
+			});
+			this.downLoadMedia(oMidaInfo);
 		}
-		const buffer = {...oSct.buffer, aChannelData_};
-		const [{aWords=[]}, loading] = [oStory, false];
-		const fileSrc = URL.createObjectURL(oSct.audioFile);
-		const iAlines = oSct.aLines.length;
-		if (iAlines) aSteps.last_.aLines = oSct.aLines; //字幕
-		this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords, loading});
-		this.bufferToPeaks();
-		iAlines || this.giveUpThisOne(0);
+		// const aChannelData_ = await (async ()=>{
+		// 	const theBlob = oSct.buffer.oChannelDataBlob_;
+		// 	if (!theBlob.arrayBuffer) return;
+		// 	const res = await theBlob.arrayBuffer();
+		// 	return new Int8Array(res);
+		// })();
+		// if (!aChannelData_) {
+		// 	this.setState({loading: false});
+		// 	return alert('浏览器无法解析音频数据');
+		// }
+		// const buffer = {...oSct.buffer, aChannelData_};
+		// const [{aWords=[]}, loading] = [oStory, false];
+		// const fileSrc = URL.createObjectURL(oSct.audioFile);
+		// const iAlines = oSct.aLines.length;
+		// if (iAlines) aSteps.last_.aLines = oSct.aLines; //字幕
+		// this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords, loading});
+		// this.bufferToPeaks();
+		// iAlines || this.giveUpThisOne(0);
 	}
+	async downLoadMedia(oMidaInfo){
+		console.log('oMidaInfo', oMidaInfo);
+		const filePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.fileId;
+		const res = await window.axios.get(filePath, {
+			responseType: "blob",
+		});
+		if (!res) return;
+		const mediaFile = new File([res], oMidaInfo.fileName, {
+			type: res.type,
+		});
+		console.log('mediaFile\n', mediaFile);
+		// this.saveOneMedia(oStory, {
+		// 	...oMidaInfo, mediaFile,
+		// });
+	}
+	async saveOneMedia(oStory, oneMedia){
+		const {mediaTB} = this.state;
+		oneMedia.ownerStoryId = oStory.ID;
+		const collection  = await mediaTB.where('fileId').equals(oneMedia.fileId);
+		const oFirst = await collection.first();
+		if (!oFirst) return mediaTB.add(oneMedia);
+		mediaTB.put({
+			...oFirst, ...oneMedia,
+		});
+	}
+	// ▼旧的
 	// ▼音频数据转换波峰数据
 	bufferToPeaks(perSecPx_) {
 		const oWaveWrap = this.oWaveWrap.current;
