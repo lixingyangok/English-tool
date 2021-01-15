@@ -116,3 +116,20 @@ export function downloadString(aStr, fileName='文本文件', suffix='txt'){
 		href: URL.createObjectURL(blob),
     }).click();
 }
+
+// ▼有后台功能之后的新方法---------------------------
+
+// ▼ 从File对象读取文字
+export function getStrFromFile(oFile) {
+	if (!oFile.type.startsWith('text/')) return '';
+	let resolveFn;
+	const oPromise = new Promise(resolve => resolveFn = resolve);
+	const oReader = Object.assign(new FileReader(), {
+		onload() {
+			resolveFn(this.result);
+		},
+	});
+	oReader.readAsText(oFile);
+	return oPromise;
+}
+

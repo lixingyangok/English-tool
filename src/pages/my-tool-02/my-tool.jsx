@@ -292,9 +292,9 @@ export default class Tool extends MyClass {
 		if (!oStory) return;
 		console.log('故事：');
 		console.log(oStory, oMedia);
-		if (!oMedia){
+		if (!oMedia){ // 如果找不到对应的故事
 			const oMidaInfo = oStory.aMedia_.find(cur=>{
-				return cur.ID == mediaId * 1;
+				return cur.ID === mediaId * 1;
 			});
 			this.downLoadMedia(oMidaInfo);
 		}
@@ -317,6 +317,7 @@ export default class Tool extends MyClass {
 		// this.bufferToPeaks();
 		// iAlines || this.giveUpThisOne(0);
 	}
+	// ▼下载音频字幕，然后保存
 	async downLoadMedia(oMidaInfo){
 		console.log('oMidaInfo', oMidaInfo);
 		const filePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.fileId;
@@ -328,10 +329,28 @@ export default class Tool extends MyClass {
 			type: res.type,
 		});
 		console.log('mediaFile\n', mediaFile);
+		const subtitleFilePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.subtitleFileId;
+		const res02 = await window.axios.get(subtitleFilePath, {
+			responseType: "blob",
+		});
+		if (!res02) return;
+		// var file=document.getElementById("file").file[0];
+		// var reader=new FileReader();
+		// //将文件以文本形式读入页面
+		// read.readAsText(file);
+		// reader.οnlοad=function(f)
+		// {
+		// 	var result=document.getElementById("result");
+		// 	//在页面上显示读入文本
+		// 	result.innerHTML=this.result;
+		// }
+
+		console.log('subtitleFile\n', res02);
 		// this.saveOneMedia(oStory, {
 		// 	...oMidaInfo, mediaFile,
 		// });
 	}
+	// ▼保存媒体的方法
 	async saveOneMedia(oStory, oneMedia){
 		const {mediaTB} = this.state;
 		oneMedia.ownerStoryId = oStory.ID;

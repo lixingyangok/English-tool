@@ -12,60 +12,67 @@ const axios = window.axios;
 // console.log('URLSafeBase64', URLSafeBase64);
 
 export default class FileList {
-	// ▼将选中的2类文件分类，并返回
-	getTwoKindsFilesArr(targetFiles=[]){
-		return [...targetFiles].reduce((aResult, curFile)=>{
+	// ▼将选中的文件整理，配对，返回
+	toMatchFiles(targetFiles=[]){
+		const [resultArr, subtitleObj] = [...targetFiles].reduce((aResult, curFile)=>{
 			const {type, name} = curFile;
 			const lastIndex = name.lastIndexOf('.');
 			if (lastIndex === -1) return aResult;
 			curFile.name_ = name.slice(0, lastIndex); // 保存去除后缀的名字
 			if (/^(audio|video)\/.+/.test(type)) {
-				aResult[0].push(curFile);
+				aResult[0].push({
+					file: curFile, oSubtitleFile: null,
+				});
 			}else if (name.endsWith('.srt')) {
-				aResult[1].push(curFile);
+				aResult[1][curFile.name_] = curFile;
 			}
 			return aResult;
-		}, [[], []]);
+		}, [[], {}]);
+		resultArr.forEach(cur=>{
+			cur.oSubtitleFile = subtitleObj[cur.name_];
+		});
+		return resultArr;
+	}
+	// ▼将配对完成的文件补充一些信息，用于显示
+	getFileArrToShow(aListForShow, oStoryID){
+		if (!(aListForShow || {}).length) return [];
+		aListForShow.forEach(oItem => { // 用于显示和上传的表格
+			const {file, oSubtitleFile} = oItem;
+			oItem.mediaFile = { // 用于七牛
+				file: file,
+				fileName: file.name,
+			};
+			if (oSubtitleFile) oItem.oSubtitleInfo = { // 用于七牛
+				file: null, // 后面会填充一个 Blob
+				fileName: oSubtitleFile.name,
+			}
+			oItem.forOwnDB = { // 用于自已的服务器
+				storyId: oStoryID,
+				fileId: '', //媒体文件id-真值后补
+				fileName: file.name,
+				fileSize: file.size,
+				subtitleFileId: '', //字幕文件-真值后补
+				subtitleFileName: oSubtitleFile ? oSubtitleFile.name : '',
+				subtitleFileSize: oSubtitleFile ? oSubtitleFile.size : 0,
+			};
+		});
+		return aListForShow;
 	}
 	// ▼把2类文件组织成列表显示出来，用于准备上传
 	toCheckFile(ev, oStory){
-		const [mediaArr, subtitleArr] = this.getTwoKindsFilesArr(ev.target.files);
+		const aListForShow = this.toMatchFiles(ev.target.files);
+		const needToUploadArr = this.getFileArrToShow(aListForShow, oStory.id);
 		ev.target.value = ''; // 清空
-		if (!mediaArr.length) return;
-		// ▼把文件整理成列表用于显示
-		const needToUploadArr = mediaArr.map(curMediaFile => { 
-			const oResult = {file: curMediaFile};
-			oResult.mediaFile = { // 用于七牛
-				file: curMediaFile,
-				fileName: curMediaFile.name,
-				token: '', //真值后补
-			};
-			const oSubtitle = subtitleArr.find(cur=>cur.name_ === curMediaFile.name_); // 需要字幕文件
-			if (oSubtitle) oResult.subtitleFile = { // 用于七牛
-				file: oSubtitle,
-				fileName: oSubtitle.name,
-				token: '', //真值后补
-			}
-			oResult.forOwnDB = { // 用于自已的服务器
-				storyId: oStory.ID,
-				fileId: '', //媒体文件id-真值后补
-				fileName: curMediaFile.name,
-				fileSize: curMediaFile.size,
-				subtitleFileId: '', //字幕文件-真值后补
-				subtitleFileName: oSubtitle ? oSubtitle.name : '',
-				subtitleFileSize: oSubtitle ? oSubtitle.size : 0,
-			};
-			return oResult;
-		});
+		if (!needToUploadArr.length) return; //没有媒体文件就返回
 		const aStory = this.state.aStory.map(cur=>{
 			if (cur.ID === oStory.ID) cur.needToUploadArr_ = needToUploadArr;
 			return cur;
 		});
 		this.setState({aStory});
-		// console.log('needToUploadArr', needToUploadArr);
 	}
 	// ▼上传一个媒体文件+字幕
 	async toUpload(oStory, oFileInfo, iFileIdx) {
+		// if (1) return; //测试
 		this.setState({loading: true}); // 开始loading
 		const tokenRes = await axios.get('/qiniu/gettoken');
 		if (!tokenRes) {
@@ -83,9 +90,9 @@ export default class FileList {
 		}
 		// ▼ 再上传字幕到七牛
 		let fileRes02 = false; // false表示不用上传，或上传不成功
-		if (oFileInfo.subtitleFile) {
+		if (oFileInfo.oSubtitleInfo) {
 			fileRes02 = await axios.post('http://upload-z2.qiniup.com', {
-				...oFileInfo.subtitleFile,
+				...oFileInfo.oSubtitleInfo,
 				token: tokenRes.token,
 			});
 			if (!fileRes02) this.message.error('字幕上传未成功');
