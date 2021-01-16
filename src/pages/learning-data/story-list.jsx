@@ -20,8 +20,6 @@ export default class extends MyClass{
 	oForm = React.createRef(); //窗口中的表单
 	state = {
 		visible: false, //窗口显示
-		// aStories: [],
-		// -----------------------------------------
 		oStoryTB: {}, // 本地故事列表TB
 		mediaTB: {}, // 本地媒体列表TB
 		aStory: [], // 故事列表

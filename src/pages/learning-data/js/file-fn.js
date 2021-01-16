@@ -65,7 +65,7 @@ export default class FileList {
 	// ▼把2类文件组织成列表显示出来，用于准备上传
 	toCheckFile(ev, oStory){
 		const aListForShow = this.toMatchFiles(ev.target.files);
-		const aQueuerList = this.getFileArrToShow(aListForShow, oStory.id);
+		const aQueuerList = this.getFileArrToShow(aListForShow, oStory.ID);
 		ev.target.value = ''; // 清空
 		if (!aQueuerList.length) return; //没有媒体文件就返回
 		const oQueuer = Object.assign(this.state.oQueuer, {
@@ -97,7 +97,6 @@ export default class FileList {
 	}
 	// ▼上传一个媒体文件+字幕
 	async toUpload(oStory, oFileInfo, iFileIdx) {
-		// if (1) return; //测试
 		this.setState({loading: true}); // 开始loading
 		const tokenRes = await axios.get('/qiniu/gettoken');
 		if (!tokenRes) {
@@ -131,7 +130,7 @@ export default class FileList {
 		this.setState({loading: false}); // 无论如何关闭loading
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
 		this.message.success('上传成功');
-		this.deleteOneCandidate(oStory, iFileIdx)
+		this.deleteOneCandidate(oStory.ID, iFileIdx)
 		this.getMediaForOneStory(oStory); //刷新
 	}
 	// ▼删除一个【待上传】的文件
