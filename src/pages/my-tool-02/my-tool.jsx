@@ -284,13 +284,13 @@ export default class Tool extends MyClass {
 	}
 	// ▼主要方法等
 	async init({storyId, mediaId}){
+		console.log('init()');
 		const {storyTB, oMediaTB, } = this.state; // aSteps
 		const [oStory, oMedia] = await Promise.all([
 			storyTB.where('ID').equals(storyId*1).first(),
 			oMediaTB.where('ID').equals(mediaId*1).first(),
 		]);
 		if (!oStory) return;
-		console.log('故事：');
 		console.log(oStory, oMedia);
 		if (!oMedia){ // 如果找不到对应的故事
 			const oMidaInfo = oStory.aMedia_.find(cur=>{
@@ -328,12 +328,13 @@ export default class Tool extends MyClass {
 		const mediaFile = new File([res], oMidaInfo.fileName, {
 			type: res.type,
 		});
-		console.log('mediaFile\n', mediaFile);
+		console.log('媒体文件\n', mediaFile);
 		const subtitleFilePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.subtitleFileId;
 		const res02 = await window.axios.get(subtitleFilePath, {
-			responseType: "blob",
+			// responseType: "blob",
 		});
 		if (!res02) return;
+		console.log('字幕\n', res02);
 		// var file=document.getElementById("file").file[0];
 		// var reader=new FileReader();
 		// //将文件以文本形式读入页面
@@ -344,8 +345,6 @@ export default class Tool extends MyClass {
 		// 	//在页面上显示读入文本
 		// 	result.innerHTML=this.result;
 		// }
-
-		console.log('subtitleFile\n', res02);
 		// this.saveOneMedia(oStory, {
 		// 	...oMidaInfo, mediaFile,
 		// });

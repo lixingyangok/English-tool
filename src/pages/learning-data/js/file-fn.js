@@ -87,7 +87,7 @@ export default class FileList {
 			if (!res) return;
 			curFile.loadingStr = false;
 			curFile.oSubtitleInfo.file = new Blob(
-				[JSON.stringify(res)], {type: 'text/plain'},
+				[JSON.stringify(res)], {type: 'text/plain;charset=utf-8'}, //
 			);
 			const oQueuer = Object(this.state.oQueuer, {
 				[oStoryId]: aQueuerList,
