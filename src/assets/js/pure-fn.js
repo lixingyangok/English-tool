@@ -70,7 +70,7 @@ export function fixTime(oTarget){
 	return oTarget;
 }
 
-// ▼文件转字符
+// ▼【文件】转字符
 export function fileToStrings(oFile) {
 	let resolveFn = xx => xx;
 	const oPromise = new Promise(resolve => resolveFn = resolve);
@@ -120,16 +120,15 @@ export function downloadString(aStr, fileName='文本文件', suffix='txt'){
 // ▼有后台功能之后的新方法---------------------------
 
 // ▼ 从File对象读取文字
-export function getStrFromFile(oFile) {
-	if (!oFile.type.startsWith('text/')) return '';
-	let resolveFn;
-	const oPromise = new Promise(resolve => resolveFn = resolve);
-	const oReader = Object.assign(new FileReader(), {
-		onload() {
-			resolveFn(this.result);
-		},
-	});
-	oReader.readAsText(oFile);
-	return oPromise;
-}
+// export function getStrFromFile(oFile) {
+// 	let resolveFn;
+// 	const oPromise = new Promise(resolve => resolveFn = resolve);
+// 	const oReader = Object.assign(new FileReader(), {
+// 		onload() {
+// 			resolveFn(this.result);
+// 		},
+// 	});
+// 	oReader.readAsText(oFile);
+// 	return oPromise;
+// }
 

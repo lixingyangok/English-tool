@@ -14,7 +14,6 @@ export default class{
 		if (!res) return;
 		res.forEach(cur=>{
 			cur.aMedia_ = [];
-			cur.needToUploadArr_ = [];
 			this.getMediaForOneStory(cur);
 		});
 		this.setState({ aStory: res });

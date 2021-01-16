@@ -22,11 +22,11 @@ export default class extends MyClass{
 		visible: false, //窗口显示
 		// aStories: [],
 		// -----------------------------------------
-		oStoryTB: {}, // 本地故事列表
-		mediaTB: {}, // 本地媒体列表
+		oStoryTB: {}, // 本地故事列表TB
+		mediaTB: {}, // 本地媒体列表TB
 		aStory: [], // 故事列表
+		oQueuer: {}, // 排队上传的媒体
 		loading: false,
-		needToUploadArr: [], // 待上传列表
 	}
 	render(){
 		const {visible, aStory, loading} = this.state;
@@ -130,13 +130,22 @@ export default class extends MyClass{
 	}
 	// ▼陈列【待上传】的文件
 	showTheFileListReadyForUpload(oStory){
-		const aFiles = oStory.needToUploadArr_;
+		const aFiles = this.state.oQueuer[oStory.ID] || [];
 		if (!aFiles.length) return null;
+		function getSubtitleInfo(oneMedia){
+			if (oneMedia.loadingStr) return <span>
+				正在加载字幕 <i className="fas fa-spinner fa-spin yellow"></i>
+			</span>;
+			if (oneMedia.oSubtitleFile) return <span>
+				{oneMedia.oSubtitleFile.name}
+			</span>;
+			return <span>无字幕</span>;
+		}
 		const myLiArr = aFiles.map((cur, idx)=>{
-			const {file, subtitleFile} = cur;
-			return <li key={idx}>
+			const {file} = cur;
+			const oLi = <li key={idx}>
 				音频：{file.name}<br/>
-				字幕：{subtitleFile ? subtitleFile.fileName : '-'}<br/>
+				字幕：{getSubtitleInfo(cur)}<br/>
 				<Button type="primary" size="small"
 					onClick={()=>this.toUpload(oStory, cur, idx)}
 				>
@@ -144,11 +153,12 @@ export default class extends MyClass{
 				</Button>
 				&nbsp;
 				<Button type="primary" size="small"
-					onClick={()=>this.deleteOneCandidate(oStory, idx)}
+					onClick={()=>this.deleteOneCandidate(oStory.ID, idx)}
 				>
 					删除
 				</Button>
-			</li>
+			</li>;
+			return oLi;
 		});
 		const ul = <cpnt.filesWaitToUpload>
 			{myLiArr}
