@@ -110,9 +110,12 @@ export default class extends MyClass{
 					<Button type="primary" size="small" onClick={()=>this.goToolPage(oStory, oMedia)}>
 						听写
 					</Button>
-					<Button size="small" onClick={()=>this.downloadOneMedia(oStory, oMedia)}>
-						下载
-					</Button>
+					<label className="ant-btn ant-btn-sm">
+						导入文件
+						<input type="file" multiple="multiple" style={{display: 'none'}}
+							onChange={ev => this.toCheckFile(ev, oStory, oMedia)}
+						/>
+					</label>
 					<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 						title="确定删除？"
 						onConfirm={()=>this.delOneMedia(oStory, oMedia)}
@@ -140,10 +143,11 @@ export default class extends MyClass{
 			return <span>无字幕</span>;
 		}
 		const myLiArr = aFiles.map((cur, idx)=>{
-			const {file} = cur;
+			const {file, oCoverTo} = cur;
 			const oLi = <li key={idx}>
 				音频：{file.name}<br/>
 				字幕：{getSubtitleInfo(cur)}<br/>
+				覆盖目标：{oCoverTo ? oCoverTo.fileName : '无'}<br/>
 				<Button type="primary" size="small"
 					onClick={()=>this.toUpload(oStory, cur, idx)}
 				>
