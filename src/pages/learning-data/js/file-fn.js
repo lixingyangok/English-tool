@@ -156,7 +156,7 @@ export default class FileList {
 		const key = oMedia[fileId] || '';
 		const [token, file] = await Promise.all([
 			this.getQiniuToken(key),
-			iType == 0 ? oFile : fileToBlobForUpload(oFile),
+			iType === 0 ? oFile : fileToBlobForUpload(oFile),
 		]);
 		if (!token) return;
 		const sUrl = 'http://upload-z2.qiniup.com';
