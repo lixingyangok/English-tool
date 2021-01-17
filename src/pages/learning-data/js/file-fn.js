@@ -140,6 +140,31 @@ export default class FileList {
 		this.deleteOneCandidate(oStory.ID, iFileIdx); //删除【排除文件】
 		this.getMediaForOneStory(oStory); //刷新【已上传】文件
 	}
+	// ▼替换一条数据的媒体/字幕
+	async upLoadOne(ev, oStory, oMedia, iType){
+		const [oFile] = ev.target.files;
+		if (!oFile || (iType !== 0 && iType !== 1)) return;
+		if (iType === 0 && /^(audio|video)\/.+/.test(oFile.type) === false) {
+			return this.message.warning('选择正确的媒体文件');
+		}else if (iType === 1 && oFile.name.endsWith('.srt') === false) {
+			return this.message.warning('选择字幕的媒体文件');
+		}
+		console.log('旧文件', oMedia);
+		console.log('新文件', oFile);
+		const keyName = ['fileId', 'subtitleFileId'][iType];
+		const key = oMedia[keyName] || '';
+		const token = this.getQiniuToken(key);
+		if (!token) return;
+		const file = await fileToTimeLines(oFile);
+		const sUrl = 'http://upload-z2.qiniup.com';
+		const fileRes = await axios.post(sUrl, { // 上传媒体到七牛
+			key, token, file,
+			fileName: oFile.name,
+		});
+		if (!fileRes) return;
+		// console.log('ev, oStory, oMedia, iType');
+		// console.log(ev, oStory, oMedia, iType);
+	}
 	// ▼删除一个【待上传】的文件
 	deleteOneCandidate(oStoryID, iFileIdx){
 		const {oQueuer} = this.state;
@@ -181,6 +206,8 @@ export default class FileList {
 		}
 		return tokenRes.token;
 	}
+
+	
 	// ▼下载一个媒体&字幕
 	// async downloadOneMedia(oStory, oneMedia){
 	// 	const filePath = 'http://qn.hahaxuexi.com/' + oneMedia.fileId;
