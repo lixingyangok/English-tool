@@ -6,6 +6,7 @@
 import {
 	fileToTimeLines, 
 	downloadString, 
+	fileToBlobForUpload,
 	// fileToBuffer,
 	//getStrFromFile,
 	// getFaleBuffer, 
@@ -149,21 +150,28 @@ export default class FileList {
 		}else if (iType === 1 && oFile.name.endsWith('.srt') === false) {
 			return this.message.warning('选择字幕的媒体文件');
 		}
-		console.log('旧文件', oMedia);
-		console.log('新文件', oFile);
-		const keyName = ['fileId', 'subtitleFileId'][iType];
-		const key = oMedia[keyName] || '';
-		const token = this.getQiniuToken(key);
+		const fileId = ['fileId', 'subtitleFileId'][iType];
+		const fileName = ['fileName', 'subtitleFileName'][iType];
+		const fileSize = ['fileSize', 'subtitleFileSize'][iType];
+		const key = oMedia[fileId] || '';
+		const [token, file] = await Promise.all([
+			this.getQiniuToken(key),
+			iType == 0 ? oFile : fileToBlobForUpload(oFile),
+		]);
 		if (!token) return;
-		const file = await fileToTimeLines(oFile);
 		const sUrl = 'http://upload-z2.qiniup.com';
 		const fileRes = await axios.post(sUrl, { // 上传媒体到七牛
 			key, token, file,
 			fileName: oFile.name,
 		});
 		if (!fileRes) return;
-		// console.log('ev, oStory, oMedia, iType');
-		// console.log(ev, oStory, oMedia, iType);
+		const res = await axios.put('/media/update-file', {
+			ID: oMedia.ID,
+			[fileName]: oFile.name,
+			[fileSize]: oFile.size,
+		});
+		if (!res) return;
+		this.getMediaForOneStory(oStory); //刷新【已上传】文件
 	}
 	// ▼删除一个【待上传】的文件
 	deleteOneCandidate(oStoryID, iFileIdx){

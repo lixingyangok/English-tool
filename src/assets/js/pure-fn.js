@@ -119,6 +119,15 @@ export function downloadString(aStr, fileName='文本文件', suffix='txt'){
 
 // ▼有后台功能之后的新方法---------------------------
 
+export async function fileToBlobForUpload(oFile){
+	const res = await fileToTimeLines(oFile);
+	const oBlob = new Blob(
+		[JSON.stringify(res || [])],
+		{type: 'application/json;charset=utf-8'}, //
+	);
+	return oBlob;
+}
+
 // ▼ 从File对象读取文字
 // export function getStrFromFile(oFile) {
 // 	let resolveFn;
