@@ -48,7 +48,7 @@ export default class{
 	}
 	// ▼跳到听写
 	goToolPage(oStory, oMedia){
-		this.saveOneStory(oStory); // 先保存到DB
+		// this.saveOneStory(oStory); // 先保存到DB
 		// console.log('故事oStory', oStory);
 		// console.log('文件oMedia', oMedia);
 		const sPath = `/learning-data/practicing`;

@@ -5,6 +5,7 @@ import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
 import fileFn from './js/file-fn.js';
+import initFn from './js/init-fn.js';
 import wordsDbFn from './js/words-db.js';
 import figureOutRegion from './js/figure-out-region.js';
 import Nav from './children/menu/menu.jsx';
@@ -16,7 +17,7 @@ const { confirm } = Modal;
 const MyClass = window.mix(
 	React.Component,
 	coreFn, keyDownFn, MouseFn, fileFn, wordsDbFn,
-	figureOutRegion,
+	figureOutRegion, initFn,
 );
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
@@ -48,9 +49,9 @@ export default class Tool extends MyClass {
 		}],
 		iCurStep: 0, //当前步骤
 		oTarget: {}, // 故事信息如：故事id、章节id
-		trainingDB: {}, // 表-存故事 - 原来的oStoryTB
-		oMediaTB: {}, // 表-存媒体
 		oWordsDB: {}, //词库
+		storyTB: {}, // 表-存故事 - 原来的oStoryTB
+		oMediaTB: {}, // 表-存媒体
 		oStory: {}, // DB中的【故事】
 		oSct: {}, // DB中的【章节】
 		sTyped: '', //已经输入的，用于搜索
@@ -62,15 +63,7 @@ export default class Tool extends MyClass {
 	};
 	constructor(props) {
 		super(props);
-		const oTarget = (()=>{
-			const {search} = props.location; // ?storyId=1&mediaId=9
-			if (!search) return {};
-			return search.slice(1).split('&').reduce((result, cur)=>{
-				const [key, val] = cur.split('=');
-				return {...result, [key]: val};
-			}, {});
-		})();
-		console.log('页面加载了：oTarget', oTarget);
+		const oTarget = this.getSearchOjb(props.location);
 		const loading = !!oTarget.storyId; //有id就loading
 		const [storyTB, oMediaTB, oWordsDB] = (()=>{
 			const oWordsDB = new window.Dexie("wordsDB");
@@ -79,11 +72,11 @@ export default class Tool extends MyClass {
 			trainingDB.version(2).stores({media: '++id, ID, fileId, ownerStoryId'});
 			return [trainingDB.story, trainingDB.media, oWordsDB];
 		})();
-		Object.assign(
-			this.state,
-			{storyTB, oMediaTB, oTarget, loading, oWordsDB},
-		);
-		if (oTarget.storyId) this.init(oTarget);
+		Object.assign(this.state, {
+			oWordsDB, storyTB, oMediaTB,
+			oTarget, loading,
+		});
+		oTarget.storyId && this.init(oTarget);
 		this.checkWordsDB(oWordsDB);
 	}
 	render() {
@@ -281,97 +274,5 @@ export default class Tool extends MyClass {
 		// ReactDOM.unmountComponentAtNode(document.getElementById("tool"));
 		this.setState = (state, callback) => null;
 		document.onkeydown = null; // xx=>xx;
-	}
-	// ▼主要方法等
-	async init({storyId, mediaId}){
-		console.log('init()');
-		const {storyTB, oMediaTB, } = this.state; // aSteps
-		const [oStory, oMedia] = await Promise.all([
-			storyTB.where('ID').equals(storyId*1).first(),
-			oMediaTB.where('ID').equals(mediaId*1).first(),
-		]);
-		if (!oStory) return;
-		console.log(oStory, oMedia);
-		if (!oMedia){ // 如果找不到对应的故事
-			const oMidaInfo = oStory.aMedia_.find(cur=>{
-				return cur.ID === mediaId * 1;
-			});
-			this.downLoadMedia(oMidaInfo);
-		}
-		// const aChannelData_ = await (async ()=>{
-		// 	const theBlob = oSct.buffer.oChannelDataBlob_;
-		// 	if (!theBlob.arrayBuffer) return;
-		// 	const res = await theBlob.arrayBuffer();
-		// 	return new Int8Array(res);
-		// })();
-		// if (!aChannelData_) {
-		// 	this.setState({loading: false});
-		// 	return alert('浏览器无法解析音频数据');
-		// }
-		// const buffer = {...oSct.buffer, aChannelData_};
-		// const [{aWords=[]}, loading] = [oStory, false];
-		// const fileSrc = URL.createObjectURL(oSct.audioFile);
-		// const iAlines = oSct.aLines.length;
-		// if (iAlines) aSteps.last_.aLines = oSct.aLines; //字幕
-		// this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords, loading});
-		// this.bufferToPeaks();
-		// iAlines || this.giveUpThisOne(0);
-	}
-	// ▼下载音频字幕，然后保存
-	async downLoadMedia(oMidaInfo){
-		console.log('oMidaInfo', oMidaInfo);
-		const filePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.fileId;
-		const res = await window.axios.get(filePath, {
-			responseType: "blob",
-		});
-		if (!res) return;
-		const mediaFile = new File([res], oMidaInfo.fileName, {
-			type: res.type,
-		});
-		console.log('媒体文件\n', mediaFile);
-		const subtitleFilePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.subtitleFileId;
-		const res02 = await window.axios.get(subtitleFilePath, {
-			// responseType: "blob",
-		});
-		if (!res02) return;
-		console.log('字幕\n', res02);
-		// var file=document.getElementById("file").file[0];
-		// var reader=new FileReader();
-		// //将文件以文本形式读入页面
-		// read.readAsText(file);
-		// reader.οnlοad=function(f)
-		// {
-		// 	var result=document.getElementById("result");
-		// 	//在页面上显示读入文本
-		// 	result.innerHTML=this.result;
-		// }
-		// this.saveOneMedia(oStory, {
-		// 	...oMidaInfo, mediaFile,
-		// });
-	}
-	// ▼保存媒体的方法
-	async saveOneMedia(oStory, oneMedia){
-		const {mediaTB} = this.state;
-		oneMedia.ownerStoryId = oStory.ID;
-		const collection  = await mediaTB.where('fileId').equals(oneMedia.fileId);
-		const oFirst = await collection.first();
-		if (!oFirst) return mediaTB.add(oneMedia);
-		mediaTB.put({
-			...oFirst, ...oneMedia,
-		});
-	}
-	// ▼旧的
-	// ▼音频数据转换波峰数据
-	bufferToPeaks(perSecPx_) {
-		const oWaveWrap = this.oWaveWrap.current;
-		const {offsetWidth, scrollLeft} = oWaveWrap || {};
-		const {buffer, iPerSecPx} = this.state;
-		if (!buffer || !oWaveWrap) return;
-		const obackData = this.getPeaks(
-			buffer, (perSecPx_ || iPerSecPx), scrollLeft, offsetWidth,
-		);
-		this.setState({ ...obackData });
-		this.toDraw();
-		return obackData.aPeaks;
 	}
 }
