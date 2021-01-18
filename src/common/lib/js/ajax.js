@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-09-18 20:44:43
  * @LastEditors: 李星阳
- * @LastEditTime: 2020-12-27 19:01:46
+ * @LastEditTime: 2021-01-18 20:56:02
  * @Description: 
  */
 import axios from 'axios';
@@ -21,7 +21,7 @@ const setting = {}; // 保存每次请求的设定
 myAxios.interceptors.request.use(config => {
 	if (config.url.startsWith('/')) config.url = '/api' + config.url;
 	const mySitting = setting[config.url] || {};
-	// 将参数转 form 格式数据
+	// 将参数转 formData 格式数据
 	if (['put', 'post', 'patch'].includes(config.method)) {
 		config.data = dataToFormData(config.data);
 	}
@@ -34,7 +34,9 @@ myAxios.interceptors.request.use(config => {
 
 // ▼响应拦截器
 myAxios.interceptors.response.use(response => {
-	// console.log('response', response);
+	console.log('response\n', response);
+	const {params={}, data=new FormData()} = response.config;
+	if (params.getAll_ || data.get('getAll_')) return response;
 	return response.data;
 });
 

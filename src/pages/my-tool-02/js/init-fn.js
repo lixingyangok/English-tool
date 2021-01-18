@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-17 21:06:07
+ * @LastEditTime: 2021-01-18 19:05:39
  * @Description: 
  */
 const axios = window.axios;
@@ -37,28 +37,37 @@ export default class {
 	}
 	// ▼ 按媒体 id 查询媒体信息
 	// ▼ 2参是本地的媒体数据
-	async getMedia(mediaId, oMedia={}){
+	async getMedia(mediaId, oMediaFromTB={}){
 		const {oMediaTB} = this.state; // aSteps,
-		const media = await axios.get('/media/one-media/' + mediaId);
+		const oMediaInfo = await axios.get('/media/one-media/' + mediaId);
 		// console.log('查询得到媒体信息', media);
 		const promiseArr = await Promise.all([
-			oMedia.mediaFile_ || axios.get('http://qn.hahaxuexi.com/' + media.fileId, {responseType: "blob"}),
-			axios.get(`http://qn.hahaxuexi.com/${media.subtitleFileId}?ts=${new Date() * 1}`), // ts= timestamp
+			oMediaFromTB.mediaFile_ || axios.get(
+				'http://qn.hahaxuexi.com/' + oMediaInfo.fileId,
+				{responseType: "blob"},
+			),
+			axios.get(
+				`http://qn.hahaxuexi.com/${oMediaInfo.subtitleFileId}`, 
+				{params: {ts: new Date() * 1, getAll_: true }},
+			),
 		]);
-		// console.log(promiseArr[0]);
-		// console.log(promiseArr[1]);
-		if (oMedia.id) { // 有本地故事数据
+		const {data, headers} = promiseArr[1];
+		const lastModifiedTs = new Date(headers['last-modified']).toLocaleString();
+		const lastModifiedStr = new Date(headers['last-modified']).getTime();
+		console.log(lastModifiedTs, '\n');
+		console.log(lastModifiedStr, '\n');
+		if (oMediaFromTB.id) { // 有本地故事数据
 			oMediaTB.put({
-				...media,
+				...oMediaInfo,
 				mediaFile_: promiseArr[0],
-				subtitleFile_: promiseArr[1],
-				id: oMedia.id,
+				subtitleFile_: data,
+				id: oMediaFromTB.id,
 			}); //全量更新
 		}else{
 			oMediaTB.add({
-				...media,
+				...oMediaInfo,
 				mediaFile_: promiseArr[0],
-				subtitleFile_: promiseArr[1],
+				subtitleFile_: data,
 			});
 		}
 	}

@@ -128,6 +128,36 @@ export async function fileToBlobForUpload(oFile){
 	return oBlob;
 }
 
+// ▼得到时间信息
+export function getTimeInfo(val, sType, oAim){
+	if (sType !=='f' && sType!=='s') return {};
+	const oTime = new Date(val);
+	const [key1, key2] = ({
+		f: ['fileModifyStr', 'fileModifyTs'],
+		s: ['subtitleFileModifyStr', 'subtitleFileModifyTs'],
+	}[sType]);
+	const oResult = {
+		[key1]: oTime.toString(),
+		[key2]: oTime.getTime(),
+	};
+	if (oAim) Object.assign(oAim, oResult)
+	return oResult;
+}
+
+// ▼查询七牛token
+export async function getQiniuToken(keyToOverwrite=''){
+	const sUrl = '/qiniu/gettoken';
+	const res = await window.axios.get(sUrl, {
+		params: {keyToOverwrite},
+	});
+	if (!res || !res.token) {
+		
+		this.message.error('查询token未成功');
+		return false;
+	}
+	return res.token;
+}
+
 // ▼ 从File对象读取文字
 // export function getStrFromFile(oFile) {
 // 	let resolveFn;
