@@ -19,16 +19,16 @@ export default class {
 		this.getSession();
 	}
 	async getSession(){
-		const res = await window.axios.get('/user/session');
-		this.setState({logInfo: res || {}});
+		const {data} = await window.axios.get('/user/session');
+		this.setState({logInfo: data || {}});
 	}
 	// ---------------------
 	async saveTodo(val){
 		console.log('提交', val)
-		const res = await window.axios.post('/todolist', {
+		const {data} = await window.axios.post('/todolist', {
 			val,
 		});
-		console.log('返回', res);
+		console.log('返回', {data});
 	}
 }
 

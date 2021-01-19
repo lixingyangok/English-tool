@@ -13,7 +13,7 @@ import {
 	//getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
-const axios = window.axios;
+const {axios} = window;
 // var URLSafeBase64 = require('urlsafe-base64');
 // console.log('URLSafeBase64', URLSafeBase64);
 
@@ -105,10 +105,10 @@ export default class FileList {
 	// ▼上传一个媒体文件+字幕
 	async toUpload(oStory, oFileInfo, iFileIdx) {
 		this.setState({loading: true}); // 开始loading
-		const sUrl = 'http://upload-z2.qiniup.com?getAll_=true';
+		const sUrl = 'http://upload-z2.qiniup.com';
 		const {oCoverTo={}, oSubtitleInfo, mediaFile} = oFileInfo;
 		const oTimeInfo = {};
-		let token = await getQiniuToken(oCoverTo.fileId, 'f');
+		let token = await getQiniuToken(oCoverTo.fileId);
 		if (!token) return this.setState({loading: false}); // 关闭loading;
 		const {data: fileRes01, headers} = await axios.post(sUrl, { // 上传媒体到七牛
 			token, ...mediaFile,
@@ -118,21 +118,21 @@ export default class FileList {
 			this.setState({loading: false});
 			return this.message.error('保存媒体文件未成功');
 		}
-		getTimeInfo(headers['last-modified'], 'f', oTimeInfo);
+		getTimeInfo(null, 'f', oTimeInfo);
 		// ▲上传媒体到七牛 ▼再上传字幕到七牛
 		let fileRes02 = false; // false表示不用上传，或上传不成功
 		if (oSubtitleInfo) {
-			token = await getQiniuToken(oCoverTo.subtitleFileId, 's');
+			token = await getQiniuToken(oCoverTo.subtitleFileId);
 			if (!token) return this.setState({loading: false}); // 关闭loading;
 			const {data: fileRes02, headers} = await axios.post(sUrl, {
 				token, ...oSubtitleInfo,
 				...(oCoverTo.subtitleFileId ? {key: oCoverTo.subtitleFileId} : null),
 			});
 			if (!fileRes02) return this.message.error('字幕上传未成功');
-			getTimeInfo(headers['last-modified'], 's', oTimeInfo);
+			getTimeInfo(null, 's', oTimeInfo);
 		}
 		// ▼再上传到自已的服务器
-		const uploadRes = await axios.post('/media', { // 保存媒体记录
+		const {data: uploadRes} = await axios.post('/media', { // 保存媒体记录
 			...oFileInfo.forOwnDB,
 			...oTimeInfo,
 			fileId: fileRes01.key,
@@ -169,14 +169,13 @@ export default class FileList {
 		const {data, headers} = await axios.post(sUrl, { // 上传媒体到七牛
 			key, token, file,
 			fileName: oFile.name,
-			// getAll_: true,
 		});
-		// if (!data) return;
+		if (!data) return;
 		const res = await axios.put('/media/update-file', {
 			ID: oMedia.ID,
 			[fileName]: oFile.name,
 			[fileSize]: oFile.size,
-			// ...getTimeInfo(headers['last-modified'], ['f', 's'][iType]),
+			...getTimeInfo(headers['last-modified'], ['f', 's'][iType]),
 		});
 		if (!res) return;
 		this.getMediaForOneStory(oStory); //刷新【已上传】文件
@@ -190,7 +189,7 @@ export default class FileList {
 	}
 	// ▼查询某个故事下的文件
 	async getMediaForOneStory(oStory){ 
-		const res = await axios.get('/media/' + oStory.ID);
+		const {data: res} = await axios.get('/media/' + oStory.ID);
 		if (!res) return;
 		const aStory = this.state.aStory.map(cur=>{
 			if (cur.ID === oStory.ID) cur.aMedia_ = res || [];
@@ -200,7 +199,7 @@ export default class FileList {
 	}
 	// ▼删除一个已上传的文件
 	async delOneMedia(oStory, oneMedia){
-		const res = await axios.delete('/media/', {
+		const {data: res} = await axios.delete('/media/', {
 			params: {
 				mediaId: oneMedia.ID,
 				fileId: oneMedia.fileId,
@@ -214,7 +213,7 @@ export default class FileList {
 	// ▼下载一个媒体&字幕
 	// async downloadOneMedia(oStory, oneMedia){
 	// 	const filePath = 'http://qn.hahaxuexi.com/' + oneMedia.fileId;
-	// 	const res = await axios.get(filePath, {
+	// 	const {data: res} = await axios.get(filePath, {
 	// 		responseType: "blob",
 	// 	});
 	// 	const mediaFile = new File( [res], oneMedia.fileName, {
@@ -237,5 +236,3 @@ export default class FileList {
 		downloadString(aStr.join('\n'), fileName, 'srt');
 	}
 };
-
-

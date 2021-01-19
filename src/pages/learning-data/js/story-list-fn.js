@@ -6,11 +6,12 @@
 
 // import React from 'react';
 // import {Button} from 'antd';
+const {axios} = window;
 
 export default class{
 	// ▼初始化，即查询【故事数据】
 	async init(){
-		const res = await window.axios.get('/story');
+		const {data: res} = await axios.get('/story');
 		if (!res) return;
 		res.forEach(cur=>{
 			cur.aMedia_ = [];
@@ -26,14 +27,14 @@ export default class{
 		// console.log('表单', oForm);
 		if (!oForm.storyName) return;
 		const method = oForm.ID ? 'put' : 'post';
-		const res = await window.axios[method]('/story', oForm);
+		const {data: res} = await axios[method]('/story', oForm);
 		if (!res) return;
 		this.setState({visible: false});
 		this.init();
 	}
 	// ▼删除一个故事
 	async delOneStory(thisOne) {
-		const res = await window.axios.delete('/story/' + thisOne.ID);
+		const {data: res} = await axios.delete('/story/' + thisOne.ID);
 		if (!res) return;
 		this.init();
 	}

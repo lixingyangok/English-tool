@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-18 19:05:39
+ * @LastEditTime: 2021-01-19 19:29:40
  * @Description: 
  */
 const axios = window.axios;
@@ -22,7 +22,7 @@ export default class {
 	async init({storyId, mediaId}){
 		console.log('init()');
 		const {storyTB, oMediaTB} = this.state; // aSteps,
-		const [oStoryInfo, oStoryFromTB, oMedia] = await Promise.all([
+		const [{data:oStoryInfo}, oStoryFromTB, oMedia] = await Promise.all([
 			axios.get('/story/' + storyId),
 			storyTB.where('ID').equals(storyId*1).first(),
 			oMediaTB.where('ID').equals(mediaId*1).first(),
@@ -39,8 +39,7 @@ export default class {
 	// ▼ 2参是本地的媒体数据
 	async getMedia(mediaId, oMediaFromTB={}){
 		const {oMediaTB} = this.state; // aSteps,
-		const oMediaInfo = await axios.get('/media/one-media/' + mediaId);
-		// console.log('查询得到媒体信息', media);
+		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
 		const promiseArr = await Promise.all([
 			oMediaFromTB.mediaFile_ || axios.get(
 				'http://qn.hahaxuexi.com/' + oMediaInfo.fileId,
@@ -48,7 +47,7 @@ export default class {
 			),
 			axios.get(
 				`http://qn.hahaxuexi.com/${oMediaInfo.subtitleFileId}`, 
-				{params: {ts: new Date() * 1, getAll_: true }},
+				{params: {ts: new Date() * 1}},
 			),
 		]);
 		const {data, headers} = promiseArr[1];
@@ -59,7 +58,7 @@ export default class {
 		if (oMediaFromTB.id) { // 有本地故事数据
 			oMediaTB.put({
 				...oMediaInfo,
-				mediaFile_: promiseArr[0],
+				mediaFile_: oMediaFromTB.mediaFile_ || promiseArr[0].data,
 				subtitleFile_: data,
 				id: oMediaFromTB.id,
 			}); //全量更新
@@ -102,7 +101,7 @@ export default class {
 	async downLoadMedia(oMidaInfo){
 		console.log('收到参数oMidaInfo', oMidaInfo);
 		const filePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.fileId;
-		const res = await window.axios.get(filePath, {
+		const {data: res} = await window.axios.get(filePath, {
 			responseType: "blob",
 		});
 		if (!res) return;
@@ -111,9 +110,7 @@ export default class {
 		});
 		console.log('媒体文件\n', mediaFile);
 		const subtitleFilePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.subtitleFileId;
-		const res02 = await window.axios.get(subtitleFilePath, {
-			// responseType: "blob",
-		});
+		const {data:res02} = await window.axios.get(subtitleFilePath);
 		if (!res02) return;
 		console.log('字幕\n', res02);
 		// var file=document.getElementById("file").file[0];
