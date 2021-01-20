@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-19 19:29:40
+ * @LastEditTime: 2021-01-20 20:16:20
  * @Description: 
  */
 const axios = window.axios;
@@ -18,58 +18,63 @@ export default class {
 		}, {});
 		return oResult;
 	}
-	// ▼主要方法等
+	// ▼初始化的方法
 	async init({storyId, mediaId}){
 		console.log('init()');
 		const {storyTB, oMediaTB} = this.state; // aSteps,
 		const [{data:oStoryInfo}, oStoryFromTB, oMedia] = await Promise.all([
-			axios.get('/story/' + storyId),
-			storyTB.where('ID').equals(storyId*1).first(),
-			oMediaTB.where('ID').equals(mediaId*1).first(),
+			axios.get('/story/' + storyId), // 故事信息
+			storyTB.where('ID').equals(storyId*1).first(), //故事信息【本地】
+			oMediaTB.where('ID').equals(mediaId*1).first(), // 媒体数据【本地】
 		]);
 		if (!oStoryInfo) return; // 查不到故事故事，返回
-		if (oStoryFromTB) { // 有本地故事数据
+		if (oStoryFromTB) { // 更新本地故事数据
 			storyTB.put({...oStoryInfo, id: oStoryFromTB.id}); //全量更新
 		}else{
 			storyTB.add(oStoryInfo);
 		}
 		this.getMedia(mediaId, oMedia);
 	}
-	// ▼ 按媒体 id 查询媒体信息
+	// ▼ 按媒体 id 查询媒体信息、并保存
 	// ▼ 2参是本地的媒体数据
 	async getMedia(mediaId, oMediaFromTB={}){
-		const {oMediaTB} = this.state; // aSteps,
 		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
-		const promiseArr = await Promise.all([
-			oMediaFromTB.mediaFile_ || axios.get(
-				'http://qn.hahaxuexi.com/' + oMediaInfo.fileId,
+		if (!oMediaInfo) return; // 查不到媒体信息
+		const {id, fileModifyTs, subtitleFileModifyTs} = oMediaFromTB; // 本地媒体信息
+		let [mediaFile_, subtitleFile_] = []; // 最终的媒体文件、字幕文件
+		if (id && (oMediaInfo.fileModifyTs === fileModifyTs)) { // 媒体文件一样
+			mediaFile_ = oMediaFromTB.mediaFile_;
+		}
+		if (id && (oMediaInfo.subtitleFileModifyTs === subtitleFileModifyTs)) { // 字幕文件一样
+			subtitleFile_ = oMediaFromTB.subtitleFile_;
+		}
+		if (mediaFile_ && subtitleFile_) {
+			return console.log('本地有数据');
+		}
+		const [p01, p02] = await Promise.all([
+			mediaFile_ || axios.get( // 媒体文件
+				`http://qn.hahaxuexi.com/${oMediaInfo.fileId}`,
 				{responseType: "blob"},
 			),
-			axios.get(
+			subtitleFile_ || axios.get( // 字幕文件
 				`http://qn.hahaxuexi.com/${oMediaInfo.subtitleFileId}`, 
 				{params: {ts: new Date() * 1}},
 			),
 		]);
-		const {data, headers} = promiseArr[1];
-		const lastModifiedTs = new Date(headers['last-modified']).toLocaleString();
-		const lastModifiedStr = new Date(headers['last-modified']).getTime();
-		console.log(lastModifiedTs, '\n');
-		console.log(lastModifiedStr, '\n');
-		if (oMediaFromTB.id) { // 有本地故事数据
-			oMediaTB.put({
-				...oMediaInfo,
-				mediaFile_: oMediaFromTB.mediaFile_ || promiseArr[0].data,
-				subtitleFile_: data,
-				id: oMediaFromTB.id,
-			}); //全量更新
+		const dataToDB = {
+			...oMediaInfo,
+			mediaFile_: mediaFile_ || p01.data,
+			subtitleFile_: subtitleFile_ || p02.data,
+			...(id ? {id} : null),
+		};
+		const {oMediaTB} = this.state; // aSteps,
+		if (id) { // 有本地故事数据
+			oMediaTB.put(dataToDB);
 		}else{
-			oMediaTB.add({
-				...oMediaInfo,
-				mediaFile_: promiseArr[0],
-				subtitleFile_: data,
-			});
+			oMediaTB.add(dataToDB);
 		}
 	}
+	
 	async init123({storyId, mediaId}){
 		// console.log("故事\n", oStory, '媒体\n', oMedia);
 		// if (!oMedia){ // 如果找不到对应的故事
