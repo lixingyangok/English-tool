@@ -107,10 +107,9 @@ export default class FileList {
 		this.setState({loading: true}); // 开始loading
 		const sUrl = 'http://upload-z2.qiniup.com';
 		const {oCoverTo={}, oSubtitleInfo, mediaFile} = oFileInfo;
-		const oTimeInfo = {};
-		let token = await getQiniuToken(oCoverTo.fileId);
+		let [token, oTime] = await getQiniuToken(oCoverTo.fileId);
 		if (!token) return this.setState({loading: false}); // 关闭loading;
-		const {data: fileRes01, headers} = await axios.post(sUrl, { // 上传媒体到七牛
+		const {data: fileRes01} = await axios.post(sUrl, { // 上传媒体到七牛
 			token, ...mediaFile,
 			...(oCoverTo.fileId ? {key: oCoverTo.fileId} : null),
 		});
@@ -118,18 +117,18 @@ export default class FileList {
 			this.setState({loading: false});
 			return this.message.error('保存媒体文件未成功');
 		}
-		getTimeInfo(null, 'f', oTimeInfo);
+		const oTimeInfo = getTimeInfo(oTime, 'f');
 		// ▲上传媒体到七牛 ▼再上传字幕到七牛
 		let fileRes02 = false; // false表示不用上传，或上传不成功
-		if (oSubtitleInfo) {
-			token = await getQiniuToken(oCoverTo.subtitleFileId);
+		if (oSubtitleInfo) { // 如果字幕文件存在
+			[token, oTime] = await getQiniuToken(oCoverTo.subtitleFileId);
 			if (!token) return this.setState({loading: false}); // 关闭loading;
-			const {data: fileRes02, headers} = await axios.post(sUrl, {
+			const {data: fileRes02} = await axios.post(sUrl, {
 				token, ...oSubtitleInfo,
 				...(oCoverTo.subtitleFileId ? {key: oCoverTo.subtitleFileId} : null),
 			});
 			if (!fileRes02) return this.message.error('字幕上传未成功');
-			getTimeInfo(null, 's', oTimeInfo);
+			getTimeInfo(oTime, 's', oTimeInfo);
 		}
 		// ▼再上传到自已的服务器
 		const {data: uploadRes} = await axios.post('/media', { // 保存媒体记录
@@ -160,22 +159,23 @@ export default class FileList {
 		const fileName = ['fileName', 'subtitleFileName'][iType];
 		const fileSize = ['fileSize', 'subtitleFileSize'][iType];
 		const key = oMedia[fileId] || '';
-		const [token, file] = await Promise.all([
-			getQiniuToken(key),
-			iType === 0 ? oFile : fileToBlobForUpload(oFile),
+		const [[token, oTime], file] = await Promise.all([
+			getQiniuToken(key), //token值
+			iType === 0 ? oFile : fileToBlobForUpload(oFile), //媒体或字幕文件
 		]);
 		if (!token) return;
 		const sUrl = 'http://upload-z2.qiniup.com';
-		const {data, headers} = await axios.post(sUrl, { // 上传媒体到七牛
-			key, token, file,
+		const {data} = await axios.post(sUrl, { // 上传媒体到七牛
+			token, file, 
 			fileName: oFile.name,
+			...(key ? {key} : {}),
 		});
 		if (!data) return;
-		const res = await axios.put('/media/update-file', {
+		const {data: res} = await axios.put('/media/update-file', {
 			ID: oMedia.ID,
 			[fileName]: oFile.name,
 			[fileSize]: oFile.size,
-			...getTimeInfo(headers['last-modified'], ['f', 's'][iType]),
+			...getTimeInfo(oTime, ['f', 's'][iType]),
 		});
 		if (!res) return;
 		this.getMediaForOneStory(oStory); //刷新【已上传】文件

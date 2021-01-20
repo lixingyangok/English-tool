@@ -129,9 +129,8 @@ export async function fileToBlobForUpload(oFile){
 }
 
 // ▼得到时间信息
-export function getTimeInfo(val, sType, oAim){
+export function getTimeInfo(oTime, sType, oAim){
 	if (sType !=='f' && sType!=='s') return {};
-	const oTime = new Date(val || undefined);
 	const [key1, key2] = ({
 		f: ['fileModifyStr', 'fileModifyTs'],
 		s: ['subtitleFileModifyStr', 'subtitleFileModifyTs'],
@@ -147,14 +146,15 @@ export function getTimeInfo(val, sType, oAim){
 // ▼查询七牛token
 export async function getQiniuToken(keyToOverwrite=''){
 	const sUrl = '/qiniu/gettoken';
-	const {data} = await window.axios.get(sUrl, {
+	const {data, headers} = await window.axios.get(sUrl, {
 		params: {keyToOverwrite},
 	});
 	if (!data || !data.token) {
 		this.message.error('查询token未成功');
 		return false;
 	}
-	return data.token;
+	const oTime = new Date(headers.date);
+	return [data.token, oTime];
 }
 
 // ▼ 从File对象读取文字
