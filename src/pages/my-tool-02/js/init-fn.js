@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-20 20:16:20
+ * @LastEditTime: 2021-01-20 20:45:13
  * @Description: 
  */
 const axios = window.axios;
@@ -20,7 +20,6 @@ export default class {
 	}
 	// ▼初始化的方法
 	async init({storyId, mediaId}){
-		console.log('init()');
 		const {storyTB, oMediaTB} = this.state; // aSteps,
 		const [{data:oStoryInfo}, oStoryFromTB, oMedia] = await Promise.all([
 			axios.get('/story/' + storyId), // 故事信息
@@ -49,7 +48,8 @@ export default class {
 			subtitleFile_ = oMediaFromTB.subtitleFile_;
 		}
 		if (mediaFile_ && subtitleFile_) {
-			return console.log('本地有数据');
+			this.setState({loading: false});
+			return console.log('本地【有】数据');
 		}
 		const [p01, p02] = await Promise.all([
 			mediaFile_ || axios.get( // 媒体文件
@@ -73,75 +73,7 @@ export default class {
 		}else{
 			oMediaTB.add(dataToDB);
 		}
-	}
-	
-	async init123({storyId, mediaId}){
-		// console.log("故事\n", oStory, '媒体\n', oMedia);
-		// if (!oMedia){ // 如果找不到对应的故事
-		// 	const oMidaInfo = oStory.aMedia_.find(cur=>{
-		// 		return cur.ID === mediaId * 1;
-		// 	});
-		// 	this.downLoadMedia(oMidaInfo);
-		// }
-		// const aChannelData_ = await (async ()=>{
-		// 	const theBlob = oSct.buffer.oChannelDataBlob_;
-		// 	if (!theBlob.arrayBuffer) return;
-		// 	const res = await theBlob.arrayBuffer();
-		// 	return new Int8Array(res);
-		// })();
-		// if (!aChannelData_) {
-		// 	this.setState({loading: false});
-		// 	return alert('浏览器无法解析音频数据');
-		// }
-		// const buffer = {...oSct.buffer, aChannelData_};
-		// const [{aWords=[]}, loading] = [oStory, false];
-		// const fileSrc = URL.createObjectURL(oSct.audioFile);
-		// const iAlines = oSct.aLines.length;
-		// if (iAlines) aSteps.last_.aLines = oSct.aLines; //字幕
-		// this.setState({fileSrc, buffer, aSteps, oStory, oSct, aWords, loading});
-		// this.bufferToPeaks();
-		// iAlines || this.giveUpThisOne(0);
-	}
-	// ▼下载音频字幕，然后保存
-	async downLoadMedia(oMidaInfo){
-		console.log('收到参数oMidaInfo', oMidaInfo);
-		const filePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.fileId;
-		const {data: res} = await window.axios.get(filePath, {
-			responseType: "blob",
-		});
-		if (!res) return;
-		const mediaFile = new File([res], oMidaInfo.fileName, {
-			type: res.type,
-		});
-		console.log('媒体文件\n', mediaFile);
-		const subtitleFilePath = 'http://qn.hahaxuexi.com/' + oMidaInfo.subtitleFileId;
-		const {data:res02} = await window.axios.get(subtitleFilePath);
-		if (!res02) return;
-		console.log('字幕\n', res02);
-		// var file=document.getElementById("file").file[0];
-		// var reader=new FileReader();
-		// //将文件以文本形式读入页面
-		// read.readAsText(file);
-		// reader.οnlοad=function(f)
-		// {
-		// 	var result=document.getElementById("result");
-		// 	//在页面上显示读入文本
-		// 	result.innerHTML=this.result;
-		// }
-		// this.saveOneMedia(oStory, {
-		// 	...oMidaInfo, mediaFile,
-		// });
-	}
-	// ▼保存媒体的方法
-	async saveOneMedia(oStory, oneMedia){
-		const {mediaTB} = this.state;
-		oneMedia.ownerStoryId = oStory.ID;
-		const collection  = await mediaTB.where('fileId').equals(oneMedia.fileId);
-		const oFirst = await collection.first();
-		if (!oFirst) return mediaTB.add(oneMedia);
-		mediaTB.put({
-			...oFirst, ...oneMedia,
-		});
+		this.setState({loading: false});
 	}
 	// ▼音频数据转换波峰数据
 	bufferToPeaks(perSecPx_) {

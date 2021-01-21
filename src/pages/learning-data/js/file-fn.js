@@ -118,7 +118,7 @@ export default class FileList {
 			return this.message.error('保存媒体文件未成功');
 		}
 		const oTimeInfo = getTimeInfo(oTime, 'f');
-		const fileRes02 = (()=>{
+		const fileRes02 = await (async ()=>{
 			if (!oSubtitleInfo) return false; // 没有字幕文件
 			[token, oTime] = await getQiniuToken(oCoverTo.subtitleFileId);
 			if (!token) {
