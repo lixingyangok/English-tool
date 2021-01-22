@@ -87,5 +87,5 @@ export default class{
 // oStoryTB.put({id: 2, name: '新名字'}); //全量更新
 // oStoryTB.update(oForm.id, newVal); //增量更新
 // 查
-// let aAfterAHalf = await oStoryTB.where('id').above(aAllItems.length/2).toArray(); //id大于9
+// let aAfterAHalf = await oStoryTB.where('id').above(aAllItems.length/2).first(); //id大于9
 // let aAim = await oStoryTB.where('id').equals(99).toArray();

@@ -28,17 +28,16 @@ export async  function fileToBuffer(oFile, isWantFakeBuffer=false){
 	if (!oFile) return {};
 	let resolveFn = xx => xx;
 	const promise = new Promise(resolve => resolveFn = resolve);
+	const onload = async evt => {
+		const arrayBuffer = evt.currentTarget.result;
+		let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		let buffer = await audioContext.decodeAudioData(arrayBuffer);
+		audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
+		if (isWantFakeBuffer) buffer = getFaleBuffer(buffer);
+		resolveFn(buffer);
+	};
 	Object.assign(new FileReader(), {
-		onload: async evt => {
-            const arrayBuffer = evt.currentTarget.result;
-			let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-			console.time('转：audiobuffer');
-			let buffer = await audioContext.decodeAudioData(arrayBuffer);
-			console.timeEnd('转：audiobuffer');
-			audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
-			if (isWantFakeBuffer) buffer = getFaleBuffer(buffer);
-			resolveFn(buffer);
-		},
+		onload,
 	}).readAsArrayBuffer(oFile);
 	return promise;
 }

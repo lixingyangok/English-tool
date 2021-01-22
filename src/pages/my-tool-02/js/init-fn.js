@@ -2,9 +2,15 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-20 20:45:13
+ * @LastEditTime: 2021-01-22 20:19:46
  * @Description: 
  */
+import {
+	// fileToTimeLines,
+	fileToBuffer,
+	getFaleBuffer,
+	// downloadString,
+} from 'assets/js/pure-fn.js';
 const axios = window.axios;
 
 export default class {
@@ -32,11 +38,11 @@ export default class {
 		}else{
 			storyTB.add(oStoryInfo);
 		}
-		this.getMedia(mediaId, oMedia);
+		this.getMediaFromDb(mediaId, oMedia);
 	}
 	// ▼ 按媒体 id 查询媒体信息、并保存
 	// ▼ 2参是本地的媒体数据
-	async getMedia(mediaId, oMediaFromTB={}){
+	async getMediaFromDb(mediaId, oMediaFromTB={}){
 		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
 		if (!oMediaInfo) return; // 查不到媒体信息
 		const {id, fileModifyTs, subtitleFileModifyTs} = oMediaFromTB; // 本地媒体信息
@@ -47,10 +53,26 @@ export default class {
 		if (id && (oMediaInfo.subtitleFileModifyTs === subtitleFileModifyTs)) { // 字幕文件一样
 			subtitleFile_ = oMediaFromTB.subtitleFile_;
 		}
-		if (mediaFile_ && subtitleFile_) {
-			this.setState({loading: false});
-			return console.log('本地【有】数据');
+		if (!mediaFile_ || !subtitleFile_) {
+			return this.getMediaFromNet({ // 从网络获取
+				id, oMediaInfo,
+				mediaFile_, subtitleFile_,
+			});
 		}
+		console.log('本地【有】数据');
+		const {aSteps} = this.state; // aSteps,
+		aSteps.last_.aLines = subtitleFile_;
+		this.setState({
+			loading: false,
+			fileSrc: URL.createObjectURL(mediaFile_),
+			buffer: oMediaFromTB.oBuffer,
+			aSteps,
+		});
+		this.bufferToPeaks();
+	}
+	// ▼到网络查询媒体数据
+	async getMediaFromNet(ooo){
+		const {oMediaInfo, id, mediaFile_, subtitleFile_} = ooo;
 		const [p01, p02] = await Promise.all([
 			mediaFile_ || axios.get( // 媒体文件
 				`http://qn.hahaxuexi.com/${oMediaInfo.fileId}`,
@@ -67,13 +89,37 @@ export default class {
 			subtitleFile_: subtitleFile_ || p02.data,
 			...(id ? {id} : null),
 		};
+		const {oMediaTB, aSteps} = this.state; // aSteps,
+		const sMethod = id ? 'put' : 'add';
+		const idInTb = await oMediaTB[sMethod](dataToDB);
+		const buffer = await this.getSectionBuffer(idInTb);
+		aSteps.last_.aLines = subtitleFile_;
+		this.setState({
+			loading: false,
+			fileSrc: URL.createObjectURL(mediaFile_), 
+			buffer,
+			aSteps,
+		});
+		this.bufferToPeaks();
+	}
+	// 给章节添加buffer
+	async getSectionBuffer(iMediaIdInTb){
 		const {oMediaTB} = this.state; // aSteps,
-		if (id) { // 有本地故事数据
-			oMediaTB.put(dataToDB);
-		}else{
-			oMediaTB.add(dataToDB);
-		}
-		this.setState({loading: false});
+		const oMediaInTb = await oMediaTB.where('id').equals(iMediaIdInTb).first();
+		let oBuffer = await fileToBuffer(oMediaInTb.mediaFile_);
+		this.message.success('解析完成，正在保存波形数据');
+		oBuffer = getFaleBuffer(oBuffer);
+		oBuffer.aChannelData_ = await (async ()=>{
+			const theBlob = oBuffer.oChannelDataBlob_;
+			if (!theBlob.arrayBuffer) return;
+			const res = await theBlob.arrayBuffer();
+			return new Int8Array(res);
+		})();
+		oMediaTB.update(
+			iMediaIdInTb, {...oMediaInTb, oBuffer},
+		);
+		this.message.success('波形数据保存完成');
+		return oBuffer;
 	}
 	// ▼音频数据转换波峰数据
 	bufferToPeaks(perSecPx_) {
