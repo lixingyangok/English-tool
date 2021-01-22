@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-22 20:19:46
+ * @LastEditTime: 2021-01-22 20:50:09
  * @Description: 
  */
 import {
@@ -59,20 +59,21 @@ export default class {
 				mediaFile_, subtitleFile_,
 			});
 		}
-		console.log('本地【有】数据');
+		this.message.success('已加载本地数据');
 		const {aSteps} = this.state; // aSteps,
-		aSteps.last_.aLines = subtitleFile_;
+		aSteps.last_.aLines = subtitleFile_ || [];
 		this.setState({
-			loading: false,
-			fileSrc: URL.createObjectURL(mediaFile_),
-			buffer: oMediaFromTB.oBuffer,
 			aSteps,
+			loading: false,
+			oMediaInfo: oMediaFromTB,
+			buffer: oMediaFromTB.oBuffer,
+			fileSrc: URL.createObjectURL(mediaFile_),
 		});
 		this.bufferToPeaks();
 	}
 	// ▼到网络查询媒体数据
 	async getMediaFromNet(ooo){
-		const {oMediaInfo, id, mediaFile_, subtitleFile_} = ooo;
+		let {oMediaInfo, id, mediaFile_, subtitleFile_} = ooo;
 		const [p01, p02] = await Promise.all([
 			mediaFile_ || axios.get( // 媒体文件
 				`http://qn.hahaxuexi.com/${oMediaInfo.fileId}`,
@@ -83,18 +84,22 @@ export default class {
 				{params: {ts: new Date() * 1}},
 			),
 		]);
+		[mediaFile_, subtitleFile_] = [
+			mediaFile_ || p01.data,
+			subtitleFile_ || p02.data || [],
+		];
 		const dataToDB = {
-			...oMediaInfo,
-			mediaFile_: mediaFile_ || p01.data,
-			subtitleFile_: subtitleFile_ || p02.data,
+			...oMediaInfo, mediaFile_, subtitleFile_,
 			...(id ? {id} : null),
 		};
-		const {oMediaTB, aSteps} = this.state; // aSteps,
+		const {oMediaTB, aSteps} = this.state;
 		const sMethod = id ? 'put' : 'add';
 		const idInTb = await oMediaTB[sMethod](dataToDB);
 		const buffer = await this.getSectionBuffer(idInTb);
 		aSteps.last_.aLines = subtitleFile_;
+		oMediaInfo.id = idInTb;
 		this.setState({
+			oMediaInfo,
 			loading: false,
 			fileSrc: URL.createObjectURL(mediaFile_), 
 			buffer,
@@ -104,7 +109,7 @@ export default class {
 	}
 	// 给章节添加buffer
 	async getSectionBuffer(iMediaIdInTb){
-		const {oMediaTB} = this.state; // aSteps,
+		const {oMediaTB} = this.state;
 		const oMediaInTb = await oMediaTB.where('id').equals(iMediaIdInTb).first();
 		let oBuffer = await fileToBuffer(oMediaInTb.mediaFile_);
 		this.message.success('解析完成，正在保存波形数据');

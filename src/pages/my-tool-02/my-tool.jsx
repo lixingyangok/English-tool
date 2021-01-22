@@ -51,7 +51,6 @@ export default class Tool extends MyClass {
 		oTarget: {}, // 故事信息如：故事id、章节id
 		oWordsDB: {}, //词库
 		storyTB: {}, // 表-存故事 - 原来的oStoryTB
-		oMediaTB: {}, // 表-存媒体
 		oStory: {}, // DB中的【故事】
 		oSct: {}, // DB中的【章节】
 		sTyped: '', //已经输入的，用于搜索
@@ -60,6 +59,9 @@ export default class Tool extends MyClass {
 		visible: false,
 		aWordsDBState: [],
 		scrollTimer: null,
+		// ▼新版
+		oMediaInfo: {}, 
+		oMediaTB: {}, // 表-存媒体信息
 	};
 	constructor(props) {
 		super(props);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Result, Button, Input } from 'antd';
+import { Result } from 'antd';
 import * as cpnt from "./style/index.js";
 import indexFn from './js/index.js';
 
@@ -23,18 +23,17 @@ export default class IndexPage extends MyClass {
 			<br/>
 			<br/>
 			<Result status="403"
-				title="这是首页"
-				subTitle="欢迎来到“哈哈学习”，你能来这里，说明你智商蛮可以！"
-				extra={<Button type="primary">Back Home</Button>}
+				title="开始学习吧"
+				subTitle123="欢迎来到“哈哈学习”，你能来这里，说明你智商蛮可以！"
 			/>
-			<div>
+			<cpnt.LoginBox>
 				{(()=>{
 					if (!logInfo.account) return (
 						`未登录 - ${logInfo.requestAt}`
 					);
 					return `用户：${logInfo.account}  --  登录于：${logInfo.loginAt}`;
 				})()}
-			</div>
+			</cpnt.LoginBox>
 			<cpnt.LoginBox>
 				<input name="account" value={loginForm.account} onChange={ev => this.inputChanged(ev)}/>
 				<input name="password" value={loginForm.password} onChange={ev => this.inputChanged(ev)}/>
@@ -48,11 +47,6 @@ export default class IndexPage extends MyClass {
 			<br/>
 			<br/>
 			<br/>
-			<Input.Search placeholder="请输入"
-				enterButton="添加"
-				onSearch={value => this.saveTodo(value)}
-			/>
-			
 			<footer className="be-center">
 				网站备案/许可证号：陕ICP备20008324号
 			</footer>

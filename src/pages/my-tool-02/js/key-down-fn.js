@@ -157,13 +157,12 @@ export default class {
 	}
 	// ▼保存字幕到浏览器
 	async toSaveInDb() {
-		const { fileName, oTarget, oSectionTB, oSct } = this.state;
-		const { storyId, sctId } = oTarget;
-		const { aLines } = this.getCurStep();
-		if (storyId && sctId) { //有本地数据
-			await oSectionTB.update(oSct.id, { aLines }); //增量更新
+		const { fileName, oMediaTB, oMediaInfo: {id} } = this.state;
+		const { aLines: subtitleFile_ } = this.getCurStep();
+		if (id) { //有本地数据, //增量更新
+			oMediaTB.update(id, {subtitleFile_});
 		} else if (fileName) {
-			await window.lf.setItem(fileName, aLines);
+			window.lf.setItem(fileName, subtitleFile_);
 		} else {
 			return;
 		}
