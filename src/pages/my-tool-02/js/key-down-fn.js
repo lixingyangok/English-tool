@@ -306,4 +306,7 @@ export default class {
 		this.setTime('end', newEnd);
 		this.goToCurLine();
 	}
+	uploadToCloud(){
+		console.log('上传');
+	}
 }
