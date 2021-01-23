@@ -93,7 +93,7 @@ export default class FileList {
 			if (!res) return;
 			curFile.loadingStr = false;
 			curFile.oSubtitleInfo.file = new Blob(
-				[JSON.stringify(res)],
+				[JSON.stringify(res)], // [res] 行不通
 				{type: 'application/json;charset=utf-8'}, //
 			);
 			const oQueuer = Object(this.state.oQueuer, {

@@ -1,5 +1,10 @@
 import keyMap from './key-map.js';
 
+import {
+	getQiniuToken,
+	getTimeInfo,
+} from 'assets/js/pure-fn.js';
+const axios = window.axios;
 
 export default class {
 	getFn(keyStr) {
@@ -306,7 +311,29 @@ export default class {
 		this.setTime('end', newEnd);
 		this.goToCurLine();
 	}
-	uploadToCloud(){
-		console.log('上传');
+	async uploadToCloud(){
+		const {aSteps, iCurStep, oMediaInfo} =  this.state;
+		const file = new Blob(
+			[JSON. stringify(aSteps[iCurStep].aLines)],
+			{type: 'application/json;charset=utf-8'},
+		);
+		const key = oMediaInfo.subtitleFileId || '';
+		const [token, oTime] = await getQiniuToken(key);
+		if (!token) return;
+		const sUrl = 'http://upload-z2.qiniup.com';
+		const {data} = await axios.post(sUrl, { // 上传媒体到七牛
+			token, file,
+			fileName: oMediaInfo.subtitleFileName,
+			...(key ? {key} : {}),
+		});
+		if (!data) return;
+		const {data: res} = await axios.put('/media/update-file', {
+			ID: oMediaInfo.ID,
+			subtitleFileSize: file.size,
+			...getTimeInfo(oTime, 's'),
+		});
+		if (!res) return;
+		this.message.success('上传成功');
+		// this.getMediaForOneStory(oStory); //刷新【已上传】文件
 	}
 }
