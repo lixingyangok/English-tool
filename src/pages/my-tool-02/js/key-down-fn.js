@@ -164,8 +164,10 @@ export default class {
 	async toSaveInDb() {
 		const { fileName, oMediaTB, oMediaInfo: {id} } = this.state;
 		const { aLines: subtitleFile_ } = this.getCurStep();
+		const [,oTime] = await getQiniuToken();
+		const changeTs_ = oTime.getTime();
 		if (id) { //有本地数据, //增量更新
-			oMediaTB.update(id, {subtitleFile_});
+			oMediaTB.update(id, {subtitleFile_, changeTs_});
 		} else if (fileName) {
 			window.lf.setItem(fileName, subtitleFile_);
 		} else {
@@ -311,17 +313,18 @@ export default class {
 		this.setTime('end', newEnd);
 		this.goToCurLine();
 	}
-	// ▼保存字幕
+	// ▼保存字幕到云（上传字幕）
 	async uploadToCloud(){
-		const {aSteps, iCurStep, oMediaInfo} =  this.state;
-		const {subtitleFileId, subtitleFileName, fileName} = oMediaInfo;
+		const {aSteps, iCurStep, oMediaInfo, oMediaTB} =  this.state;
+		const {subtitleFileId, subtitleFileName, fileName, id} = oMediaInfo;
+		const subtitleFile_ = aSteps[iCurStep].aLines;
 		const sName = (()=>{
 			if (subtitleFileName) return subtitleFileName;
 			const idx = fileName.lastIndexOf('.');
 			return fileName.slice(0, idx) + '.srt';
 		})();
 		const file = new Blob(
-			[JSON.stringify(aSteps[iCurStep].aLines)],
+			[JSON.stringify(subtitleFile_)],
 			{type: 'application/json;charset=utf-8'},
 		);
 		const key = subtitleFileId || '';
@@ -336,12 +339,15 @@ export default class {
 		if (!data) return;
 		const {data: res} = await axios.put('/media/update-file', {
 			ID: oMediaInfo.ID,
-			subtitleFileSize: file.size,
+			subtitleFileId: data.key,
 			subtitleFileName: sName,
+			subtitleFileSize: file.size,
 			...getTimeInfo(oTime, 's'),
 		});
 		if (!res) return;
+		oMediaTB.update(id, {
+			subtitleFile_, changeTs_: oTime.getTime(),
+		});
 		this.message.success('上传成功');
-		// this.getMediaForOneStory(oStory); //刷新【已上传】文件
 	}
 }

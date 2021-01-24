@@ -50,8 +50,6 @@ export default class Tool extends MyClass {
 		iCurStep: 0, //当前步骤
 		oTarget: {}, // 故事信息如：故事id、章节id
 		oWordsDB: {}, //词库
-		storyTB: {}, // 表-存故事 - 原来的oStoryTB
-		oStory: {}, // DB中的【故事】
 		oSct: {}, // DB中的【章节】
 		sTyped: '', //已经输入的，用于搜索
 		aWords: [], //DB中的【单词】
@@ -59,9 +57,14 @@ export default class Tool extends MyClass {
 		visible: false,
 		aWordsDBState: [],
 		scrollTimer: null,
-		// ▼新版
-		oMediaInfo: {}, 
+		// ▼新版--------------------------------
+		storyTB: {}, // DB表
 		oMediaTB: {}, // 表-存媒体信息
+		oStory: {}, // 故事信息
+		oMediaInfo: {}, // 媒体信息
+		oMediaInTB: {}, // 媒体信息在TB中
+		// oSubtitleInfo: {}, // 
+		changeTs: 0,
 	};
 	constructor(props) {
 		super(props);
@@ -88,62 +91,65 @@ export default class Tool extends MyClass {
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
+		const MediaAndWave = <cpnt.MediaAndWave>
+			<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
+				<video src={fileSrc} name="controls"
+					ref={this.oAudio} className="video"
+				/>
+				<p className="subtitle" data-text={aLines[iCurLine].text}>
+					{aLines[iCurLine].text}
+				</p>
+			</cpnt.VideoWrap>
+			<div className="right">
+				<cpnt.WaveBox>
+					<canvas height={iCanvasHeight} ref={this.oCanvas}/>
+					<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
+						<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
+							onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
+						>
+							{this.getMarkBar(this.state)}
+							{this.getRegions(this.state)}
+						</cpnt.LongBar>
+					</cpnt.WaveWrap>
+				</cpnt.WaveBox>
+				<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
+				{this.getInfoBar(this.state)}
+				<cpnt.HistoryBar>
+					{aSteps.map((cur,idx)=>{
+						return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
+					})}
+				</cpnt.HistoryBar>
+				<cpnt.TextareaWrap>
+					<TextArea id="myTextArea" ref={this.oTextArea}
+						value={aLines[iCurLine].text}
+						onChange={ev => this.valChanged(ev)}
+						onKeyDown={ev => this.enterKeyDown(ev)}
+					/>
+				</cpnt.TextareaWrap>
+				{this.getWordsList(this.state)}
+			</div>
+		</cpnt.MediaAndWave>
+		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
+		const SentenceWrap = <cpnt.SentenceWrap ref={this.oSententList}>
+			{aLines.map((cur, idx) => {
+				return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
+					key={idx} onClick={() => this.goLine(idx)}
+				>
+					<i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
+						{idx + 1}
+					</i>
+					<span className="time">
+						<em>{cur.start_}</em>&nbsp;-&nbsp;<em>{cur.end_}</em>
+					</span>
+					<p className="the-text" >{cur.text}</p>
+				</li>;
+			})}
+		</cpnt.SentenceWrap>
+		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
 		const resultHTML = <cpnt.Container>
 			<Spin spinning={loading} size="large"/>
-			<cpnt.MediaAndWave>
-				<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
-					<video src={fileSrc} name="controls"
-						ref={this.oAudio} className="video"
-					/>
-					<p className="subtitle" data-text={aLines[iCurLine].text}>
-						{aLines[iCurLine].text}
-					</p>
-				</cpnt.VideoWrap>
-				<div className="right">
-					<cpnt.WaveBox>
-						<canvas height={iCanvasHeight} ref={this.oCanvas}/>
-						<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
-							<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
-								onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
-							>
-								{this.getMarkBar(this.state)}
-								{this.getRegions(this.state)}
-							</cpnt.LongBar>
-						</cpnt.WaveWrap>
-					</cpnt.WaveBox>
-					<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
-					{this.getInfoBar(this.state)}
-					<cpnt.HistoryBar>
-						{aSteps.map((cur,idx)=>{
-							return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
-						})}
-					</cpnt.HistoryBar>
-					<cpnt.TextareaWrap>
-						<TextArea id="myTextArea" ref={this.oTextArea}
-							value={aLines[iCurLine].text}
-							onChange={ev => this.valChanged(ev)}
-							onKeyDown={ev => this.enterKeyDown(ev)}
-						/>
-					</cpnt.TextareaWrap>
-					{this.getWordsList(this.state)}
-				</div>
-			</cpnt.MediaAndWave>
-			{/* 分界 */}
-			<cpnt.SentenceWrap ref={this.oSententList}>
-				{aLines.map((cur, idx) => {
-					return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
-						key={idx} onClick={() => this.goLine(idx)}
-					>
-						<i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
-							{idx + 1}
-						</i>
-						<span className="time">
-							<em>{cur.start_}</em>&nbsp;-&nbsp;<em>{cur.end_}</em>
-						</span>
-						<p className="the-text" >{cur.text}</p>
-					</li>;
-				})}
-			</cpnt.SentenceWrap>
+			{MediaAndWave}
+			{SentenceWrap}
 			{this.getDialog(this.state)}
 		</cpnt.Container>;
 		return resultHTML;
@@ -158,17 +164,16 @@ export default class Tool extends MyClass {
 			const second = nowSec < 60 ? nowSec : nowSec % 60;
 			const is10Times = nowSec % 10 === 0;
 			const className = 'one-second ' + (is10Times ? 'ten-times' : '');
-			myArr.push(
-				<span className={className} key={nowSec} style={{left: nowSec * fPerSecPx + "px"}}>
-					<b className="mark"/>
-					{(()=>{
-						if (minute && second === 0) return `${minute}'0`; //分钟
-						if (fPerSecPx > 100) return `${minute}'${second}`;
-						if (fPerSecPx > 50) return `${second}`;
-						if (is10Times) return `${minute}'${second}`; //如果每秒太窄-仅在几十秒的时候显示
-					})()}
-				</span>
-			);
+			const oneSpan = <span className={className} key={nowSec} style={{left: nowSec * fPerSecPx + "px"}}>
+				<b className="mark"/>
+				{(()=>{
+					if (minute && second === 0) return `${minute}'0`; //分钟
+					if (fPerSecPx > 100) return `${minute}'${second}`;
+					if (fPerSecPx > 50) return `${second}`;
+					if (is10Times) return `${minute}'${second}`; //如果每秒太窄-仅在几十秒的时候显示
+				})()}
+			</span>
+			myArr.push(oneSpan);
 			nowSec++;
 		}
 		return <cpnt.MarkWrap>{myArr}</cpnt.MarkWrap>;
@@ -195,16 +200,38 @@ export default class Tool extends MyClass {
 		return <cpnt.RegionWrap>{oPointer}{myArr}</cpnt.RegionWrap>
 	}
 	// ▼故事信息等
-	getInfoBar({oStory, oSct, buffer, iPerSecPx, aSteps, iCurStep}){ 
+	getInfoBar(oState){ 
+		const { // oSct 废弃了
+			oStory, oMediaInfo, changeTs,
+			buffer, iPerSecPx, aSteps, iCurStep,
+		} = oState;
 		const oCurStep = aSteps[iCurStep];
-		if (!Object.keys(oSct).length) return;
-		const {audioFile={}} = oSct;
+		const {subtitleFileModifyTs: sTs} = oMediaInfo;
+		const tip = (()=>{
+			if (!sTs) return '无云端字幕';
+			if (changeTs===sTs) return '新旧相等';
+			if (changeTs > sTs) return '本地字幕新';
+			return '云端字幕新';
+		})();
 		return <cpnt.InfoBar>
-			<span>故事：{oStory.name}</span>
-			<span>音频：{audioFile.name}</span>
-			<span>时长：{buffer.sDuration_}</span>
-			<span>共计：{oCurStep.aLines.length || 0}句</span>
-			<span>每秒：{iPerSecPx}px</span>
+			<span>
+				故事：<em>{oStory.storyName}</em>
+			</span>
+			<span>
+				章节：<em>{oMediaInfo.fileName}</em>
+			</span>
+			<span>
+				时长：<em>{buffer.sDuration_}</em>
+			</span>
+			<span>
+				共计：<em>{oCurStep.aLines.length || 0}句</em>
+			</span>
+			<span>
+				每秒：<em>{iPerSecPx}px</em>
+			</span>
+			<span>
+				字幕：<em>{tip}</em>
+			</span>
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词

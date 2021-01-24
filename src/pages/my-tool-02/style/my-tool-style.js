@@ -303,17 +303,21 @@ export const Words = styled.div`
 `;
 
 export const InfoBar = styled.div`
-	font-size: 14px;
 	padding: 15px 0 0;
 	overflow: hidden;
 	white-space: nowrap;
 	span{
-		margin-right: 1.8em;
+		font-size: 14px;
+		margin-right: 1.5em;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		max-width: 15em;
 		display: inline-block;
+		color: #999;
+	}
+	em{
+		color: #333;
 	}
 `;
 
