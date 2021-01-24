@@ -311,25 +311,33 @@ export default class {
 		this.setTime('end', newEnd);
 		this.goToCurLine();
 	}
+	// ▼保存字幕
 	async uploadToCloud(){
 		const {aSteps, iCurStep, oMediaInfo} =  this.state;
+		const {subtitleFileId, subtitleFileName, fileName} = oMediaInfo;
+		const sName = (()=>{
+			if (subtitleFileName) return subtitleFileName;
+			const idx = fileName.lastIndexOf('.');
+			return fileName.slice(0, idx) + '.srt';
+		})();
 		const file = new Blob(
 			[JSON.stringify(aSteps[iCurStep].aLines)],
 			{type: 'application/json;charset=utf-8'},
 		);
-		const key = oMediaInfo.subtitleFileId || '';
+		const key = subtitleFileId || '';
 		const [token, oTime] = await getQiniuToken(key);
 		if (!token) return;
 		const sUrl = 'http://upload-z2.qiniup.com';
 		const {data} = await axios.post(sUrl, { // 上传媒体到七牛
 			token, file,
-			fileName: oMediaInfo.subtitleFileName,
+			fileName: sName,
 			...(key ? {key} : {}),
 		});
 		if (!data) return;
 		const {data: res} = await axios.put('/media/update-file', {
 			ID: oMediaInfo.ID,
 			subtitleFileSize: file.size,
+			subtitleFileName: sName,
 			...getTimeInfo(oTime, 's'),
 		});
 		if (!res) return;

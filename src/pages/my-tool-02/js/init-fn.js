@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-24 16:14:52
+ * @LastEditTime: 2021-01-24 16:23:30
  * @Description: 
  */
 import {
@@ -24,7 +24,7 @@ export default class {
 		}, {});
 		return oResult;
 	}
-	// ▼初始化的方法
+	// ▼初始化的方法（查询故事信息并保存）
 	async init({storyId, mediaId}){
 		const {storyTB, oMediaTB} = this.state; // aSteps,
 		const [{data:oStoryInfo}, oStoryFromTB, oMediaFromTB] = await Promise.all([
@@ -45,7 +45,7 @@ export default class {
 		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
 		if (!oMediaInfo) return; // 查不到媒体信息
 		const {aSteps, oFirstLine} = this.state;
-		const {subtitleFile_ = ([oFirstLine.dc_])} = oMediaFromTB; // 先加载本地字幕
+		const {subtitleFile_ = [oFirstLine.dc_]} = oMediaFromTB; // 先加载本地字幕
 		const {
 			buffer, // 媒体buffer
 			mediaFile_, // 媒体文件
@@ -103,7 +103,8 @@ export default class {
 			oMediaFromTB: {id},
 			oMediaInfo, mediaFile_, buffer,
 		} = oData;
-		const subtitleFile_ = this.state.aSteps.last_.aLines;
+		const {aSteps, oMediaTB} = this.state;
+		const subtitleFile_ = aSteps.last_.aLines;
 		const oBuffer = Object.entries(buffer).reduce((result, [key, val])=>{
 			if (key === 'aChannelData_') {
 				result[key] = [];
@@ -118,13 +119,13 @@ export default class {
 			...oMediaInfo, mediaFile_, subtitleFile_, oBuffer,
 			...(id ? {id} : null),
 		};
-		this.state.oMediaTB[id ? 'put' : 'add'](dataToDB);
+		oMediaInfo.id = await oMediaTB[id ? 'put' : 'add'](dataToDB);
+		this.setState(oMediaInfo);
 	}
 	setSubtitle({oMediaInfo, oMediaFromTB}){
 		const {subtitleFileModifyTs} = oMediaInfo;
 		const {subtitleFileModifyTs: sTs} = oMediaFromTB;
 		if (sTs >= subtitleFileModifyTs) return; // 本地字幕为最新，返回
-		
 	}
 	// ▼音频数据转换波峰数据
 	bufferToPeaks(perSecPx_) {
