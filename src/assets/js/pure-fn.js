@@ -85,35 +85,35 @@ export function getFaleBuffer(buffer){
 		length: buffer.length, // === buffer.getChannelData(0).length
 		sampleRate: buffer.sampleRate,
 		numberOfChannels: buffer.numberOfChannels,
-    }
-    return { //补充数据
-        ...buffer_,
-        aChannelData_: [],
-        sDuration_: secToStr(buffer.duration).split(',')[0],
-        oChannelDataBlob_: (()=>{
+	}
+	return { //补充数据
+		...buffer_,
+		aChannelData_: [],
+		sDuration_: secToStr(buffer.duration).split(',')[0],
+		oChannelDataBlob_: (()=>{
 			console.time('转：Blob');
-            const aChannelData = Int8Array.from( // int8的取值范围 -128 到 127
-                buffer.getChannelData(0).map(xx => xx * (xx > 0 ? 127 : 128)),
+			const aChannelData = Int8Array.from( // int8的取值范围 -128 到 127
+				buffer.getChannelData(0).map(xx => xx * (xx > 0 ? 127 : 128)),
 			);
 			const result = new Blob([aChannelData], {type: 'text/plain'});
 			console.timeEnd('转：Blob');
-            return result;
-        })(),
+			return result;
+		})(),
 	};
 }
 
 export async function getChannelDataFromBlob(oBlob){
-    const arrayBuffer = await oBlob.arrayBuffer();
-    const aInt8Array = new Int8Array(arrayBuffer);
-    return aInt8Array;
+	const arrayBuffer = await oBlob.arrayBuffer();
+	const aInt8Array = new Int8Array(arrayBuffer);
+	return aInt8Array;
 }
 
 export function downloadString(aStr, fileName='文本文件', suffix='txt'){
 	const blob = new Blob([aStr]);
-    Object.assign(document.createElement('a'), {
+	Object.assign(document.createElement('a'), {
 		download: `${fileName}.${suffix}`,
 		href: URL.createObjectURL(blob),
-    }).click();
+	}).click();
 }
 
 // ▼有后台功能之后的新方法---------------------------
@@ -154,6 +154,24 @@ export async function getQiniuToken(keyToOverwrite=''){
 	}
 	const oTime = new Date(headers.date);
 	return [data.token, oTime];
+}
+
+
+export function getFakeBuffer(buffer){
+	const buffer_ = { // ★原始数据
+		duration: buffer.duration,
+		length: buffer.length, // === buffer.getChannelData(0).length
+		sampleRate: buffer.sampleRate,
+		numberOfChannels: buffer.numberOfChannels,
+	}
+	return { // ★补充数据
+		...buffer_,
+		aChannelData_: Int8Array.from( // int8的取值范围 -128 到 127
+			buffer.getChannelData(0).map(xx => xx * (xx > 0 ? 127 : 128)),
+		),
+		sDuration_: secToStr(buffer.duration).split(',')[0],
+		oChannelDataBlob_: null,
+	};
 }
 
 // ▼ 从File对象读取文字

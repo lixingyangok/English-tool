@@ -2,12 +2,13 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-24 12:08:35
+ * @LastEditTime: 2021-01-24 13:42:42
  * @Description: 
  */
 import {
 	fileToBuffer,
 	getFaleBuffer,
+	getFakeBuffer,
 } from 'assets/js/pure-fn.js';
 const axios = window.axios;
 
@@ -25,7 +26,7 @@ export default class {
 	// ▼初始化的方法
 	async init({storyId, mediaId}){
 		const {storyTB, oMediaTB} = this.state; // aSteps,
-		const [{data:oStoryInfo}, oStoryFromTB, oMedia] = await Promise.all([
+		const [{data:oStoryInfo}, oStoryFromTB, oMediaFromTB] = await Promise.all([
 			axios.get('/story/' + storyId), // 故事信息
 			storyTB.where('ID').equals(storyId*1).first(), //故事信息【本地】
 			oMediaTB.where('ID').equals(mediaId*1).first(), // 媒体数据【本地】
@@ -36,42 +37,87 @@ export default class {
 		}else{
 			storyTB.add(oStoryInfo);
 		}
-		this.getMediaFromDb(mediaId, oMedia);
+		this.setMedia(mediaId, oMediaFromTB);
 	}
-	// ▼ 按媒体 id 查询媒体信息、并保存
-	// ▼ 2参是本地的媒体数据
-	async getMediaFromDb(mediaId, oMediaFromTB={}){
+	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
+	async setMedia(mediaId, oMediaFromTB={}){
 		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
 		if (!oMediaInfo) return; // 查不到媒体信息
-		const {subtitleFile_, fileModifyTs: fTs} = oMediaFromTB; // 本地媒体信息
+		const {fileModifyTs: fTs, subtitleFile_} = oMediaFromTB; // 本地媒体信息
 		const isSame = fTs && (fTs === oMediaInfo.fileModifyTs); // 媒体文件一样
 		const mediaFile_ = await (async ()=>{
-			if (isSame) return oMediaFromTB.mediaFile_; // 值相同取本地媒体
+			if (isSame) {
+				this.message.success('正在加载【本地】媒体文件');
+				return oMediaFromTB.mediaFile_; // 值相同取本地媒体
+			}
+			this.message.success('正在加载【云端】媒体文件');
 			const qiNiuUrl = 'http://qn.hahaxuexi.com/';
-			const params = {ts: new Date() * 1};
-			return axios.get(`${qiNiuUrl}${fileId}`,  // 返回新数据
-				{responseType: "blob", params},
+			const {data} = await axios.get(`${qiNiuUrl}${oMediaInfo.fileId}`,  // 返回新数据
+				{responseType: "blob", params: {ts: new Date() * 1}},
 			);
+			return data;
 		})();
-		// this.message.success('已加载本地数据');
-
-		// if (!mediaFile_ || !subtitleFile_) {
-		// 	return this.getMediaFromNet({ // 从网络获取
-		// 		oMediaInfo, oMediaFromTB, // id, mediaFile_, subtitleFile_,
-		// 	});
-		// }
-		// this.message.success('已加载本地数据');
+		this.message.success('媒体文件已经加载');
+		const buffer = await (async ()=>{
+			if (isSame) return oMediaFromTB.oBuffer;
+			const oBuffer = await fileToBuffer(mediaFile_);
+			return getFakeBuffer(oBuffer);
+		})();
 		const {aSteps} = this.state;
-		aSteps.last_.aLines = subtitleFile_ || [];
+		// ▼优先加载本地字幕
+		aSteps.last_.aLines = subtitleFile_ || [this.state.oFirstLine]; 
 		this.setState({
 			aSteps,
+			buffer,
 			loading: false,
-			oMediaInfo: oMediaFromTB,
-			buffer: oMediaFromTB.oBuffer,
+			oMediaInfo: {...oMediaInfo, ...oMediaFromTB},
 			fileSrc: URL.createObjectURL(mediaFile_),
 		});
+		this.setSubtitle({oMediaInfo, oMediaFromTB})
 		this.bufferToPeaks();
 	}
+	saveMediaToTb(){
+		const {oMediaTB} = this.state;
+		const dataToDB = {
+			...oMediaInfo, mediaFile_, subtitleFile_,
+			...(id ? {id} : null),
+		};
+		oMediaInfo.id = await oMediaTB[id ? 'put' : 'add'](dataToDB);
+	}
+	setSubtitle({oMediaInfo, oMediaFromTB}){
+		const {subtitleFileModifyTs} = oMediaInfo;
+		const {subtitleFileModifyTs: sTs} = oMediaFromTB;
+		if (sTs >= subtitleFileModifyTs) return; // 本地字幕为最新，返回
+		
+	}
+	// ▼音频数据转换波峰数据
+	bufferToPeaks(perSecPx_) {
+		const oWaveWrap = this.oWaveWrap.current;
+		const {offsetWidth, scrollLeft} = oWaveWrap || {};
+		const {buffer, iPerSecPx} = this.state;
+		if (!buffer || !oWaveWrap) return;
+		const obackData = this.getPeaks(
+			buffer, (perSecPx_ || iPerSecPx), scrollLeft, offsetWidth,
+		);
+		this.setState({ ...obackData });
+		this.toDraw();
+		return obackData.aPeaks;
+	}
+}
+
+
+
+
+
+
+
+const c01 = class {
+	// if (!mediaFile_ || !subtitleFile_) {
+	// 	return this.getMediaFromNet({ // 从网络获取
+	// 		oMediaInfo, oMediaFromTB, // id, mediaFile_, subtitleFile_,
+	// 	});
+	// }
+	// this.message.success('已加载本地数据');
 	// ▼到网络查询媒体数据
 	async getMediaFromNet({oMediaInfo, oMediaFromTB}){
 		const {id} = oMediaFromTB;
@@ -94,6 +140,25 @@ export default class {
 		});
 		this.bufferToPeaks();
 		needToSetFirstLine && this.giveUpThisOne(0);
+	}
+	// 给章节添加buffer TODO:废弃？
+	async getSectionBuffer(iMediaIdInTb){
+		const {oMediaTB} = this.state;
+		const oMediaInTb = await oMediaTB.where('id').equals(iMediaIdInTb).first();
+		let oBuffer = await fileToBuffer(oMediaInTb.mediaFile_);
+		this.message.success('解析完成，正在保存波形数据');
+		oBuffer = getFaleBuffer(oBuffer);
+		oBuffer.aChannelData_ = await (async ()=>{
+			const theBlob = oBuffer.oChannelDataBlob_;
+			if (!theBlob.arrayBuffer) return;
+			const res = await theBlob.arrayBuffer();
+			return new Int8Array(res);
+		})();
+		oMediaTB.update(
+			iMediaIdInTb, {...oMediaInTb, oBuffer},
+		);
+		this.message.success('波形数据保存完成');
+		return oBuffer;
 	}
 	getPromiseArr({oMediaInfo, oMediaFromTB}){
 		const qiNiuUrl = 'http://qn.hahaxuexi.com/';
@@ -128,36 +193,6 @@ export default class {
 		if (fTsFromTB && fTsFromTB === fTsFromNet) return;
 		console.log('网上字幕和本地字幕不同步');
 	}
-	// 给章节添加buffer
-	async getSectionBuffer(iMediaIdInTb){
-		const {oMediaTB} = this.state;
-		const oMediaInTb = await oMediaTB.where('id').equals(iMediaIdInTb).first();
-		let oBuffer = await fileToBuffer(oMediaInTb.mediaFile_);
-		this.message.success('解析完成，正在保存波形数据');
-		oBuffer = getFaleBuffer(oBuffer);
-		oBuffer.aChannelData_ = await (async ()=>{
-			const theBlob = oBuffer.oChannelDataBlob_;
-			if (!theBlob.arrayBuffer) return;
-			const res = await theBlob.arrayBuffer();
-			return new Int8Array(res);
-		})();
-		oMediaTB.update(
-			iMediaIdInTb, {...oMediaInTb, oBuffer},
-		);
-		this.message.success('波形数据保存完成');
-		return oBuffer;
-	}
-	// ▼音频数据转换波峰数据
-	bufferToPeaks(perSecPx_) {
-		const oWaveWrap = this.oWaveWrap.current;
-		const {offsetWidth, scrollLeft} = oWaveWrap || {};
-		const {buffer, iPerSecPx} = this.state;
-		if (!buffer || !oWaveWrap) return;
-		const obackData = this.getPeaks(
-			buffer, (perSecPx_ || iPerSecPx), scrollLeft, offsetWidth,
-		);
-		this.setState({ ...obackData });
-		this.toDraw();
-		return obackData.aPeaks;
-	}
 }
+
+if (0) console.log(c01);
