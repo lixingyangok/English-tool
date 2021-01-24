@@ -331,6 +331,7 @@ export default class {
 		const key = subtitleFileId || '';
 		const [token, oTime] = await getQiniuToken(key);
 		if (!token) return;
+		const changeTs = oTime.getTime();
 		const sUrl = 'http://upload-z2.qiniup.com';
 		const {data} = await axios.post(sUrl, { // 上传媒体到七牛
 			token, file,
@@ -347,8 +348,10 @@ export default class {
 		});
 		if (!res) return;
 		oMediaTB.update(id, {
-			subtitleFile_, changeTs_: oTime.getTime(),
+			subtitleFile_, changeTs_: changeTs,
 		});
+		oMediaInfo.subtitleFileModifyTs = changeTs;
+		this.setState({changeTs});
 		this.message.success('上传成功');
 	}
 }
