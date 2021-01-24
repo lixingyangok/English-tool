@@ -2,13 +2,14 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-24 13:42:42
+ * @LastEditTime: 2021-01-24 16:14:52
  * @Description: 
  */
 import {
 	fileToBuffer,
 	getFaleBuffer,
 	getFakeBuffer,
+	getChannelDataFromBlob,
 } from 'assets/js/pure-fn.js';
 const axios = window.axios;
 
@@ -43,10 +44,36 @@ export default class {
 	async setMedia(mediaId, oMediaFromTB={}){
 		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
 		if (!oMediaInfo) return; // 查不到媒体信息
-		const {fileModifyTs: fTs, subtitleFile_} = oMediaFromTB; // 本地媒体信息
-		const isSame = fTs && (fTs === oMediaInfo.fileModifyTs); // 媒体文件一样
+		const {aSteps, oFirstLine} = this.state;
+		const {subtitleFile_ = ([oFirstLine.dc_])} = oMediaFromTB; // 先加载本地字幕
+		const {
+			buffer, // 媒体buffer
+			mediaFile_, // 媒体文件
+			needUpDateDB, // 值为true表示需要更新DB
+		} = await this.getMediaAndButter({oMediaInfo, oMediaFromTB});
+		aSteps.last_.aLines = subtitleFile_; 
+		this.setState({
+			aSteps,
+			buffer,
+			loading: false,
+			oMediaInfo: oMediaInfo, // {...oMediaInfo, ...oMediaFromTB},
+			fileSrc: URL.createObjectURL(mediaFile_),
+		});
+		this.bufferToPeaks();
+		oMediaFromTB.subtitleFile_ || this.giveUpThisOne(0); // 智能处理第一句
+		this.setSubtitle({oMediaInfo, oMediaFromTB}); // 查询字幕
+		needUpDateDB && this.saveMediaToTb({ // 保存
+			oMediaInfo, oMediaFromTB,
+			mediaFile_, buffer, // subtitleFile_, 
+		});
+	}
+	// ▼取得媒体文件、和buffer
+	async getMediaAndButter({oMediaInfo, oMediaFromTB}){
+		let {fileModifyTs: fTs, subtitleFile_, oBuffer} = oMediaFromTB; // 本地媒体信息
+		const isSame = fTs && (fTs === oMediaInfo.fileModifyTs); // 两地媒体文件一致
+		let needUpDateDB = !subtitleFile_; // 值为true表示需要更新DB
 		const mediaFile_ = await (async ()=>{
-			if (isSame) {
+			if (isSame && oMediaFromTB.mediaFile_) {
 				this.message.success('正在加载【本地】媒体文件');
 				return oMediaFromTB.mediaFile_; // 值相同取本地媒体
 			}
@@ -55,34 +82,43 @@ export default class {
 			const {data} = await axios.get(`${qiNiuUrl}${oMediaInfo.fileId}`,  // 返回新数据
 				{responseType: "blob", params: {ts: new Date() * 1}},
 			);
+			needUpDateDB = true;
 			return data;
 		})();
-		this.message.success('媒体文件已经加载');
 		const buffer = await (async ()=>{
-			if (isSame) return oMediaFromTB.oBuffer;
-			const oBuffer = await fileToBuffer(mediaFile_);
-			return getFakeBuffer(oBuffer);
+			if (isSame && oBuffer) {
+				const oBlob = oBuffer.oChannelDataBlob_;
+				oBuffer.aChannelData_ = await getChannelDataFromBlob(oBlob);
+				return oBuffer;
+			}
+			this.message.success('正在读取媒体波形');
+			const oResult = await fileToBuffer(mediaFile_);
+			needUpDateDB = true;
+			return getFakeBuffer(oResult);
 		})();
-		const {aSteps} = this.state;
-		// ▼优先加载本地字幕
-		aSteps.last_.aLines = subtitleFile_ || [this.state.oFirstLine]; 
-		this.setState({
-			aSteps,
-			buffer,
-			loading: false,
-			oMediaInfo: {...oMediaInfo, ...oMediaFromTB},
-			fileSrc: URL.createObjectURL(mediaFile_),
-		});
-		this.setSubtitle({oMediaInfo, oMediaFromTB})
-		this.bufferToPeaks();
+		return {mediaFile_, buffer, needUpDateDB};
 	}
-	saveMediaToTb(){
-		const {oMediaTB} = this.state;
+	async saveMediaToTb(oData){
+		const {
+			oMediaFromTB: {id},
+			oMediaInfo, mediaFile_, buffer,
+		} = oData;
+		const subtitleFile_ = this.state.aSteps.last_.aLines;
+		const oBuffer = Object.entries(buffer).reduce((result, [key, val])=>{
+			if (key === 'aChannelData_') {
+				result[key] = [];
+			}else if (key === 'oChannelDataBlob_'){
+				result[key] = new Blob([buffer.aChannelData_], {type: 'text/plain'});
+			}else{
+				result[key] = val;
+			}
+			return result;
+		}, {});
 		const dataToDB = {
-			...oMediaInfo, mediaFile_, subtitleFile_,
+			...oMediaInfo, mediaFile_, subtitleFile_, oBuffer,
 			...(id ? {id} : null),
 		};
-		oMediaInfo.id = await oMediaTB[id ? 'put' : 'add'](dataToDB);
+		this.state.oMediaTB[id ? 'put' : 'add'](dataToDB);
 	}
 	setSubtitle({oMediaInfo, oMediaFromTB}){
 		const {subtitleFileModifyTs} = oMediaInfo;
