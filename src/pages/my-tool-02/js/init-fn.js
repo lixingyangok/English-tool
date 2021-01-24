@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-22 20:50:09
+ * @LastEditTime: 2021-01-24 10:22:57
  * @Description: 
  */
 import {
@@ -45,18 +45,17 @@ export default class {
 	async getMediaFromDb(mediaId, oMediaFromTB={}){
 		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
 		if (!oMediaInfo) return; // 查不到媒体信息
-		const {id, fileModifyTs, subtitleFileModifyTs} = oMediaFromTB; // 本地媒体信息
+		const {id, fileModifyTs: fTs, subtitleFileModifyTs: sTs} = oMediaFromTB; // 本地媒体信息
 		let [mediaFile_, subtitleFile_] = []; // 最终的媒体文件、字幕文件
-		if (id && (oMediaInfo.fileModifyTs === fileModifyTs)) { // 媒体文件一样
+		if (id && (oMediaInfo.fileModifyTs === fTs)) { // 媒体文件一样
 			mediaFile_ = oMediaFromTB.mediaFile_;
 		}
-		if (id && (oMediaInfo.subtitleFileModifyTs === subtitleFileModifyTs)) { // 字幕文件一样
+		if (id && sTs && (oMediaInfo.subtitleFileModifyTs === sTs)) { // 字幕文件一样
 			subtitleFile_ = oMediaFromTB.subtitleFile_;
 		}
 		if (!mediaFile_ || !subtitleFile_) {
 			return this.getMediaFromNet({ // 从网络获取
-				id, oMediaInfo,
-				mediaFile_, subtitleFile_,
+				oMediaInfo, oMediaFromTB, // id, mediaFile_, subtitleFile_,
 			});
 		}
 		this.message.success('已加载本地数据');
@@ -72,40 +71,55 @@ export default class {
 		this.bufferToPeaks();
 	}
 	// ▼到网络查询媒体数据
-	async getMediaFromNet(ooo){
-		let {oMediaInfo, id, mediaFile_, subtitleFile_} = ooo;
-		const [p01, p02] = await Promise.all([
-			mediaFile_ || axios.get( // 媒体文件
-				`http://qn.hahaxuexi.com/${oMediaInfo.fileId}`,
-				{responseType: "blob"},
-			),
-			subtitleFile_ || axios.get( // 字幕文件
-				`http://qn.hahaxuexi.com/${oMediaInfo.subtitleFileId}`, 
-				{params: {ts: new Date() * 1}},
-			),
-		]);
-		[mediaFile_, subtitleFile_] = [
-			mediaFile_ || p01.data,
-			subtitleFile_ || p02.data || [],
-		];
+	async getMediaFromNet({oMediaInfo, oMediaFromTB}){
+		const qiNiuUrl = 'http://qn.hahaxuexi.com/';
+		const params = {ts: new Date() * 1};
+		const {fileId, subtitleFileId} = oMediaInfo;
+		const {id, fileModifyTs: fTs, subtitleFileModifyTs: sTs} = oMediaFromTB;
+		let {mediaFile_, subtitleFile_} = oMediaFromTB;
+		let needToSetFirstLine = false;
+		const a01 = (()=>{
+			const isNew = fTs >= oMediaInfo.fileModifyTs; //本地文件是新的
+			if (mediaFile_ && isNew) return {data: mediaFile_}; // 返回旧数据
+			return axios.get(`${qiNiuUrl}${fileId}`,  // 返回新数据
+				{responseType: "blob", params},
+			);
+		})();
+		const a02 = (() => {
+			const data = [this.state.oFirstLine];
+			if (!subtitleFile_) { // 没有旧文件
+				if (!oMediaInfo.subtitleFileId) {
+					needToSetFirstLine = true;
+					return {data};
+				}
+				return axios.get(`${qiNiuUrl}${subtitleFileId}`, // 字幕文件 
+					{params},
+				);
+			}
+			if (!sTs){
+				needToSetFirstLine = true;
+				return {data};
+			}
+			const isSame = sTs === oMediaInfo.subtitleFileModifyTs; //本地文件是新的
+			if (isSame) return {data: subtitleFile_};
+		})();
+		const [p01, p02] = await Promise.all([a01, a02]);
+		[mediaFile_, subtitleFile_] = [p01.data, p02.data];
 		const dataToDB = {
 			...oMediaInfo, mediaFile_, subtitleFile_,
 			...(id ? {id} : null),
 		};
 		const {oMediaTB, aSteps} = this.state;
-		const sMethod = id ? 'put' : 'add';
-		const idInTb = await oMediaTB[sMethod](dataToDB);
-		const buffer = await this.getSectionBuffer(idInTb);
 		aSteps.last_.aLines = subtitleFile_;
-		oMediaInfo.id = idInTb;
+		oMediaInfo.id = await oMediaTB[id ? 'put' : 'add'](dataToDB);
+		const buffer = await this.getSectionBuffer(oMediaInfo.id);
 		this.setState({
-			oMediaInfo,
 			loading: false,
-			fileSrc: URL.createObjectURL(mediaFile_), 
-			buffer,
-			aSteps,
+			oMediaInfo, buffer, aSteps,
+			fileSrc: URL.createObjectURL(mediaFile_),
 		});
 		this.bufferToPeaks();
+		needToSetFirstLine && this.giveUpThisOne(0);
 	}
 	// 给章节添加buffer
 	async getSectionBuffer(iMediaIdInTb){

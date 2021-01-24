@@ -314,7 +314,7 @@ export default class {
 	async uploadToCloud(){
 		const {aSteps, iCurStep, oMediaInfo} =  this.state;
 		const file = new Blob(
-			[JSON. stringify(aSteps[iCurStep].aLines)],
+			[JSON.stringify(aSteps[iCurStep].aLines)],
 			{type: 'application/json;charset=utf-8'},
 		);
 		const key = oMediaInfo.subtitleFileId || '';

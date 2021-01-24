@@ -150,11 +150,10 @@ export default class extends MyClass{
 			return <span>无字幕</span>;
 		}
 		const myLiArr = aFiles.map((cur, idx)=>{
-			const {file, oCoverTo} = cur;
+			const {file} = cur;
 			const oLi = <li key={idx}>
 				音频：{file.name}<br/>
 				字幕：{getSubtitleInfo(cur)}<br/>
-				覆盖目标：{oCoverTo ? oCoverTo.fileName : '无'}<br/>
 				<Button type="primary" size="small"
 					onClick={()=>this.toUpload(oStory, cur, idx)}
 				>
