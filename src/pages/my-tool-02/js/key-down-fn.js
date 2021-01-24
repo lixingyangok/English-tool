@@ -168,6 +168,7 @@ export default class {
 		const changeTs_ = oTime.getTime();
 		if (id) { //有本地数据, //增量更新
 			oMediaTB.update(id, {subtitleFile_, changeTs_});
+			this.setState({changeTs: changeTs_});
 		} else if (fileName) {
 			window.lf.setItem(fileName, subtitleFile_);
 		} else {

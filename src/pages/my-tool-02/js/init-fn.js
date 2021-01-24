@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-24 20:12:19
+ * @LastEditTime: 2021-01-24 20:42:13
  * @Description: 
  */
 
@@ -134,6 +134,7 @@ export default class {
 		this.setState({oMediaInfo});
 		this.setSubtitle({oMediaInfo, oMediaInTB}); // 查询字幕
 	}
+	// ▼加载字幕
 	setSubtitle({oMediaInfo, oMediaInTB}){
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
 		const {changeTs_, subtitleFile_} = oMediaInTB;
@@ -148,36 +149,26 @@ export default class {
 			}
 			return;
 		}
+		// ▼两地相同
 		if (subtitleFile_ && changeTs_ === subtitleFileModifyTs){
 			aSteps.last_.aLines = subtitleFile_;
 			this.setState({aSteps});
-			return this.message.success('两地字幕相同、已加载本地字幕');
-		}
-		if (changeTs_ > subtitleFileModifyTs) {
-			const tail = subtitleFileId ? '网旧' : '网无';
-			this.message.success('【本地】字幕新、' + tail);
-		}else{
-			this.message.success('【网上】字幕新');
 		}
 	}
 	// ▼从云上获取字幕
 	async getSubtitleFromNet(oMediaInfo){
 		const {
 			id, subtitleFileId,
-			subtitleFileModifyTs: changeTs, 
+			subtitleFileModifyTs: changeTs,
 		} = oMediaInfo;
 		const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
 		const params = {ts: new Date() * 1};
 		const {data: subtitleFile_} = await axios.get(qiNiuUrl, {params});
 		if (!subtitleFile_) return;
-		console.log('网上字幕\n', subtitleFile_);
 		const {aSteps, oMediaTB} = this.state;
 		aSteps.last_.aLines = subtitleFile_;
-		this.setState({aSteps, changeTs});
-		console.log('数据id --- ', id);
-		if (!id) return;
-		oMediaTB.update(id, {changeTs, subtitleFile_ }); //增量更新
-		
+		this.setState({aSteps, changeTs, oSubtitleTips: 0});
+		oMediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
 	}
 	// ▼音频数据转换波峰数据
 	bufferToPeaks(perSecPx_) {

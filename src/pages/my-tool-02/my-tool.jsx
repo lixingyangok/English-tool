@@ -63,7 +63,6 @@ export default class Tool extends MyClass {
 		oStory: {}, // 故事信息
 		oMediaInfo: {}, // 媒体信息
 		oMediaInTB: {}, // 媒体信息在TB中
-		// oSubtitleInfo: {}, // 
 		changeTs: 0,
 	};
 	constructor(props) {
@@ -206,12 +205,16 @@ export default class Tool extends MyClass {
 			buffer, iPerSecPx, aSteps, iCurStep,
 		} = oState;
 		const oCurStep = aSteps[iCurStep];
-		const {subtitleFileModifyTs: sTs} = oMediaInfo;
-		const tip = (()=>{
-			if (!sTs) return '无云端字幕';
-			if (changeTs===sTs) return '新旧相等';
-			if (changeTs > sTs) return '本地字幕新';
-			return '云端字幕新';
+		const {subtitleFileModifyTs} = oMediaInfo;
+		const tips = (()=>{
+			if (!changeTs) {
+				if (subtitleFileModifyTs) return '网新，本地无';
+				return '两地无'
+			}
+			if (!subtitleFileModifyTs) return '本地新、网无';
+			if (changeTs === subtitleFileModifyTs ) return '两地相同';
+			if (changeTs > subtitleFileModifyTs ) return '本地新、网旧';
+			return '本地旧、网新';
 		})();
 		return <cpnt.InfoBar>
 			<span>
@@ -230,7 +233,7 @@ export default class Tool extends MyClass {
 				每秒：<em>{iPerSecPx}px</em>
 			</span>
 			<span>
-				字幕：<em>{tip}</em>
+				字幕：<em>{tips}</em>
 			</span>
 		</cpnt.InfoBar>
 	}
