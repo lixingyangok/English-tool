@@ -10,9 +10,12 @@ import {
 	getTimeInfo,
 	getQiniuToken,
 	// fileToBuffer,
-	//getStrFromFile,
+	// getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
+import {Modal} from 'antd';
+const { confirm } = Modal;
+
 const {axios} = window;
 // var URLSafeBase64 = require('urlsafe-base64');
 // console.log('URLSafeBase64', URLSafeBase64);
@@ -152,15 +155,31 @@ export default class FileList {
 		this.deleteOneCandidate(oStory.ID, iFileIdx); //删除【排除文件】
 		this.getMediaForOneStory(oStory); //刷新【已上传】文件
 	}
-	// ▼替换一条数据的媒体/字幕
-	async upLoadOne(ev, oStory, oMedia, iType){
+	// ▼准备上传（覆盖）文件
+	checkForUpload(ev, oStory, oMedia, iType) {
 		const [oFile] = ev.target.files;
+		ev.target.value = ''; // 清空
 		if (!oFile || (iType !== 0 && iType !== 1)) return;
+		const {warning, success} = this.message;
 		if (iType === 0 && /^(audio|video)\/.+/.test(oFile.type) === false) {
-			return this.message.warning('选择正确的媒体文件');
+			return warning('媒体文件不正确');
 		}else if (iType === 1 && oFile.name.endsWith('.srt') === false) {
-			return this.message.warning('选择字幕的媒体文件');
+			return warning('字幕文件不正确');
 		}
+		const onOk = async ()=>{
+			const res = await this.upLoadOne(oFile, oMedia, iType);
+			if (!res) return warning('上传未成功');
+			success('上传成功');
+			this.getMediaForOneStory(oStory); //刷新【已上传】文件
+		};
+		confirm({
+			title: '提示',
+			content: '立即上传？上传后会覆盖旧的文件！',
+			onOk, // onCancel(){},
+		});
+	}
+	// ▼上传（替换）一条数据的媒体/字幕
+	async upLoadOne(oFile, oMedia, iType){
 		const fileId = ['fileId', 'subtitleFileId'][iType];
 		const fileName = ['fileName', 'subtitleFileName'][iType];
 		const fileSize = ['fileSize', 'subtitleFileSize'][iType];
@@ -183,9 +202,7 @@ export default class FileList {
 			[fileSize]: oFile.size,
 			...getTimeInfo(oTime, ['f', 's'][iType]),
 		});
-		if (!res) return;
-		this.getMediaForOneStory(oStory); //刷新【已上传】文件
-		this.message.success('上传成功');
+		return res;
 	}
 	// ▼删除一个【待上传】的文件
 	deleteOneCandidate(oStoryID, iFileIdx){

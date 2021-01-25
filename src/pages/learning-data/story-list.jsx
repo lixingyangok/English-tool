@@ -114,13 +114,13 @@ export default class extends MyClass{
 						替换音/视频
 						<input type="file" accept="audio/*, video/*"
 							style={{display: 'none'}}
-							onChange={ev => this.upLoadOne(ev, oStory, oMedia, 0)}
+							onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
 						/>
 					</label>
 					<label className="ant-btn ant-btn-sm">
 						替换字幕
 						<input type="file" style={{display: 'none'}}
-							onChange={ev => this.upLoadOne(ev, oStory, oMedia, 1)}
+							onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
 						/>
 					</label>
 					<Popconfirm placement="topRight" okText="确定" cancelText="取消"
