@@ -163,5 +163,9 @@ export default class {
 			};
 		});
 	}
+	// ▼对比两地字幕
+	compareSubtitle(){
+		console.log('对比两地字幕', );
+	}
 };
 

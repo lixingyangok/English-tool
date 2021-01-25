@@ -17,25 +17,31 @@ export default class Menu extends React.Component{
 					onChange={ev => commander('toImport', ev)}
 				/>
 			</label>
-			<span className="btn" title="保存到浏览器" 
-				onClick={()=>commander('toSaveInDb')}
-			>
-				<i className="fas fa-save"/>
-			</span>
-			<span className="btn" title="导出到本地" 
-				onClick={()=>commander('toExport')}
-			>
-				<i className="fas fa-download"/>
-			</span>
-			<span className="btn" title="词库"
+			<span className="btn" title="显示词库"
 				onClick={()=>commander('showWordsDialog')}
 			>
 				<i className="fas fa-book"/>
 			</span>
-			<span className="btn" title="上传到去"
+			|
+			<span className="btn" title="保存字幕到浏览器" 
+				onClick={()=>commander('toSaveInDb')}
+			>
+				<i className="fas fa-save"/>
+			</span>
+			<span className="btn" title="导出字幕到本地" 
+				onClick={()=>commander('toExport')}
+			>
+				<i className="fas fa-download"/>
+			</span>
+			<span className="btn" title="上传字幕到云"
 				onClick={()=>commander('uploadToCloud')}
 			>
 				<i className="fas fa-cloud-upload-alt"/>
+			</span>
+			<span className="btn" title="对比两地字幕"
+				onClick={()=>commander('compareSubtitle')}
+			>
+				<i className="fas fa-columns"/>
 			</span>
 		</cpnt.BtnBar>
 		return <cpnt.Header>

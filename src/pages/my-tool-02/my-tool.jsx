@@ -200,21 +200,20 @@ export default class Tool extends MyClass {
 	}
 	// ▼故事信息等
 	getInfoBar(oState){ 
-		const { // oSct 废弃了
+		const {
 			oStory, oMediaInfo, changeTs,
 			buffer, iPerSecPx, aSteps, iCurStep,
 		} = oState;
 		const oCurStep = aSteps[iCurStep];
-		const {subtitleFileModifyTs} = oMediaInfo;
+		const {subtitleFileModifyTs: sTs} = oMediaInfo;
 		const tips = (()=>{
-			if (!changeTs) {
-				if (subtitleFileModifyTs) return '网新，本地无';
-				return '两地无'
-			}
-			if (!subtitleFileModifyTs) return '本地新、网无';
-			if (changeTs === subtitleFileModifyTs ) return '两地相同';
-			if (changeTs > subtitleFileModifyTs ) return '本地新、网旧';
-			return '本地旧、网新';
+			// ▼ 此提示可能不会出现（因为本地会生成默认字幕）
+			if (!changeTs) return sTs ? '网新/本地无' : '两地无'; 
+			// ▲【无】本地文件提示，▼【有】本地文件的情况
+			if (!sTs) return '本地新/网无';
+			if (changeTs === sTs) return '两地相同';
+			if (changeTs > sTs) return '本地新/网旧';
+			return '本地旧/网新';
 		})();
 		return <cpnt.InfoBar>
 			<span>
