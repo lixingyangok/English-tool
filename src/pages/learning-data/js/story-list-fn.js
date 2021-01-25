@@ -34,9 +34,15 @@ export default class{
 	}
 	// ▼删除一个故事
 	async delOneStory(thisOne) {
-		const {data: res} = await axios.delete('/story/' + thisOne.ID);
-		if (!res) return;
+		const {aMedia_, ID} = thisOne;
+		if (aMedia_.length) {
+			return this.message.error('请先删除故事下的章节');
+		}
+		const {data} = await axios.delete('/story/' + ID);
+		if (!data) return;
 		this.init();
+		const {oStoryTB} = this.state;
+		oStoryTB.where('ID').equals(ID).delete();
 	}
 	// ▼打开窗口（新建/修改）
 	async showModal(oFormData){

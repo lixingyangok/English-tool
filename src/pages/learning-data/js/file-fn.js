@@ -214,6 +214,8 @@ export default class FileList {
 		});
 		if (!res) return this.message.error('删除文件未成功');
 		this.getMediaForOneStory(oStory);
+		const {mediaTB} = this.state;
+		mediaTB.where('ID').equals(oneMedia.ID).delete();
 	}
 	
 	// ▼下载一个媒体&字幕
