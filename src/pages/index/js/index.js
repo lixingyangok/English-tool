@@ -1,3 +1,6 @@
+import {message} from 'antd';
+const {axios} = window;
+
 export default class {
 	inputChanged({target}){
 		// console.log('ev', target)
@@ -11,21 +14,27 @@ export default class {
 			loginForm.account = window.store.get('account') || '';
 			loginForm.password = window.store.get('password') || '';
 		}
-		await window.axios.post('/user/login', loginForm);
-		this.getSession();
+		const {data} = await axios.post('/user/login', loginForm);
+		if (data && data.loginAt) {
+			message.success('已登录');
+			return this.getSession();
+		}
+		message.warning('登录未成功');
 	}
 	async logOut(){
-		await window.axios.get('/user/logout');
+		const {data} = await axios.get('/user/logout');
+		if (!data) return;
+		message.success('已退出');
 		this.getSession();
 	}
 	async getSession(){
-		const {data} = await window.axios.get('/user/session');
+		const {data} = await axios.get('/user/session');
 		this.setState({logInfo: data || {}});
 	}
 	// ---------------------
 	async saveTodo(val){
 		console.log('提交', val)
-		const {data} = await window.axios.post('/todolist', {
+		const {data} = await axios.post('/todolist', {
 			val,
 		});
 		console.log('返回', {data});
