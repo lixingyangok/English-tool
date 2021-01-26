@@ -34,7 +34,7 @@ export default class Menu extends React.Component{
 				<i className="fas fa-download"/>
 			</span>
 			<span className="btn" title="上传字幕到云"
-				onClick={()=>commander('uploadToCloud')}
+				onClick={()=>commander('uploadToCloudBefore')}
 			>
 				<i className="fas fa-cloud-upload-alt"/>
 			</span>
