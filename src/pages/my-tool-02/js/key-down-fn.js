@@ -316,6 +316,8 @@ export default class {
 	}
 	// ▼保存字幕到云（上传字幕）
 	async uploadToCloud(){
+		const isSure = window.confirm('上传字幕？');
+		if (!isSure) return;
 		const {aSteps, iCurStep, oMediaInfo, oMediaTB} =  this.state;
 		const {subtitleFileId, subtitleFileName, fileName, id} = oMediaInfo;
 		const subtitleFile_ = aSteps[iCurStep].aLines;
