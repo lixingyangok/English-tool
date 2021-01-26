@@ -31,14 +31,6 @@ export default class {
 		const {data} = await axios.get('/user/session');
 		this.setState({logInfo: data || {}});
 	}
-	// ---------------------
-	async saveTodo(val){
-		console.log('提交', val)
-		const {data} = await axios.post('/todolist', {
-			val,
-		});
-		console.log('返回', {data});
-	}
 }
 
 
