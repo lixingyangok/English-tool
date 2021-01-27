@@ -420,3 +420,34 @@ export const WordsDialog = styled.div`
 		padding: 2em 0 0;
 	}
 `;
+
+export const oneMatchLine = styled.li`
+	display: flex;
+	flex-flow: row nowrap;
+	border-top: solid 1px #ccc;
+	&:last-child{
+		border-bottom: solid 1px #ccc;
+	}
+	&:nth-child(odd){
+		background: #f5f5f5;
+	}
+	&:hover{
+		background: #eee !important;
+	}
+	.idx, .left, .right{
+		display: flex; 
+		padding: 0.5em 1em;
+		align-items: center;
+	}
+	.idx{
+		text-align: center;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+	}
+	.left,
+	.right{
+		width: 50%;
+		border-left: solid 1px #ccc;
+	}
+`;

@@ -63,7 +63,9 @@ export default class Tool extends MyClass {
 		oStory: {}, // 故事信息
 		oMediaInfo: {}, // 媒体信息
 		oMediaInTB: {}, // 媒体信息在TB中
-		changeTs: 0,
+		changeTs: 0, // 字幕修改时间
+		matchDialogVisible: false, // 
+		aSubtitleFromNet: [], //网上字幕
 	};
 	constructor(props) {
 		super(props);
@@ -90,6 +92,7 @@ export default class Tool extends MyClass {
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
+		// ▼ 开始 html
 		const MediaAndWave = <cpnt.MediaAndWave>
 			<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
 				<video src={fileSrc} name="controls"
@@ -150,6 +153,7 @@ export default class Tool extends MyClass {
 			{MediaAndWave}
 			{SentenceWrap}
 			{this.getDialog(this.state)}
+			{this.getMatchDialog(this.state)}
 		</cpnt.Container>;
 		return resultHTML;
 	}
@@ -283,6 +287,27 @@ export default class Tool extends MyClass {
 					{arr.length ? arr : noWrods}
 				</div>
 			</cpnt.WordsDialog>
+		</Modal>;
+	}
+	// ▼字幕对比窗口
+	getMatchDialog(){
+		const { aSteps, iCurStep, aSubtitleFromNet } = this.state;
+		const { aLines } = aSteps[iCurStep];
+		const iMax = Math.max(aSubtitleFromNet.length, aLines.length);
+		const aLi = [...Array(iMax).keys()].map(idx=>{
+			const aa = aLines[idx] || {};
+			const bb = aSubtitleFromNet[idx] || {};
+			return <cpnt.oneMatchLine key={idx}>
+				<span className="idx">{idx+1}</span>
+				<div className="left">{aa.text || ''}</div>
+				<div className="right">{bb.text || ''}</div>
+			</cpnt.oneMatchLine>
+		});
+		return <Modal title="对比窗口" width="96%"
+			visible={this.state.matchDialogVisible} footer={null}
+			onCancel={()=>this.setState({matchDialogVisible: false})}
+		>	
+			<ul>{aLi}</ul>
 		</Modal>;
 	}
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

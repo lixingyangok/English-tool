@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-24 20:42:13
+ * @LastEditTime: 2021-01-27 20:13:13
  * @Description: 
  */
 
@@ -156,15 +156,19 @@ export default class {
 		}
 	}
 	// ▼从云上获取字幕
-	async getSubtitleFromNet(oMediaInfo){
+	async getSubtitleFromNet(forMatch=false){
 		const {
 			id, subtitleFileId,
 			subtitleFileModifyTs: changeTs,
-		} = oMediaInfo;
+		} = this.state.oMediaInfo;
 		const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
 		const params = {ts: new Date() * 1};
 		const {data: subtitleFile_} = await axios.get(qiNiuUrl, {params});
 		if (!subtitleFile_) return;
+		if (forMatch){
+			this.setState({aSubtitleFromNet: subtitleFile_});
+			return;
+		}
 		const {aSteps, oMediaTB} = this.state;
 		aSteps.last_.aLines = subtitleFile_;
 		this.setState({aSteps, changeTs, oSubtitleTips: 0});
