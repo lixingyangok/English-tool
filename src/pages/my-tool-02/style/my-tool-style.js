@@ -425,6 +425,7 @@ export const oneMatchLine = styled.li`
 	display: flex;
 	flex-flow: row nowrap;
 	border-top: solid 1px #ccc;
+	font-size: 16px;
 	&:last-child{
 		border-bottom: solid 1px #ccc;
 	}

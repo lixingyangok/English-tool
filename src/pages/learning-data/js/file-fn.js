@@ -198,6 +198,7 @@ export default class FileList {
 		if (!data) return;
 		const {data: res} = await axios.put('/media/update-file', {
 			ID: oMedia.ID,
+			[fileId]: data.key,
 			[fileName]: oFile.name,
 			[fileSize]: oFile.size,
 			...getTimeInfo(oTime, ['f', 's'][iType]),

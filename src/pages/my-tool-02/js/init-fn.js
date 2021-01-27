@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-27 20:13:13
+ * @LastEditTime: 2021-01-27 21:06:45
  * @Description: 
  */
 
@@ -161,6 +161,7 @@ export default class {
 			id, subtitleFileId,
 			subtitleFileModifyTs: changeTs,
 		} = this.state.oMediaInfo;
+		if (!subtitleFileId) return; //没有字幕就不用查询
 		const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
 		const params = {ts: new Date() * 1};
 		const {data: subtitleFile_} = await axios.get(qiNiuUrl, {params});

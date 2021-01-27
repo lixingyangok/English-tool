@@ -294,16 +294,17 @@ export default class Tool extends MyClass {
 		const { aSteps, iCurStep, aSubtitleFromNet } = this.state;
 		const { aLines } = aSteps[iCurStep];
 		const iMax = Math.max(aSubtitleFromNet.length, aLines.length);
+		const iLong = String(iMax).length;
 		const aLi = [...Array(iMax).keys()].map(idx=>{
 			const aa = aLines[idx] || {};
 			const bb = aSubtitleFromNet[idx] || {};
 			return <cpnt.oneMatchLine key={idx}>
-				<span className="idx">{idx+1}</span>
+				<span className="idx">{String(idx+1).padStart(iLong, '0')}</span>
 				<div className="left">{aa.text || ''}</div>
 				<div className="right">{bb.text || ''}</div>
 			</cpnt.oneMatchLine>
 		});
-		return <Modal title="对比窗口" width="96%"
+		return <Modal title="对比窗口" width="92%"
 			visible={this.state.matchDialogVisible} footer={null}
 			onCancel={()=>this.setState({matchDialogVisible: false})}
 		>	
