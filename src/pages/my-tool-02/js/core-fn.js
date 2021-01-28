@@ -1,3 +1,8 @@
+import {
+	getQiniuToken,
+	getTimeInfo,
+} from 'assets/js/pure-fn.js';
+const axios = window.axios;
 
 export default class {
 	// ▼跳转到当前行（可以删除）因为 goLine 没收到目标行，即跳到当前行
@@ -208,6 +213,104 @@ export default class {
 			oDom[sType] = iAimTo;
 		}, iTimes);
 		this.setState({scrollTimer});
+	}
+	// ▼提示字幕信息
+	getSubtitleInfo(){
+		const {oMediaInfo, changeTs } = this.state;
+		const {subtitleFileModifyTs: sTs} = oMediaInfo;
+		let status = 0;
+		// const getTimeStr = ts => new Date(ts).toLocaleString();
+		// ▼ 此提示可能不会出现（因为本地会生成默认字幕）
+		const tips = (()=>{
+			if (!changeTs) return sTs ? '网新/本地无' : '两地无'; 
+			// ▲【无】本地文件提示，▼【有】本地文件的情况
+			if (!sTs) return '本地新/网无';
+			if (changeTs === sTs) return '两地相同';
+			if (changeTs > sTs) {
+				status = 1;
+				return '本地新/网旧';
+			}
+			status = 1;
+			return '本地旧/网新';
+		})();
+		const sTime = ['', `两次间隔：${this.longTime(changeTs, sTs)}`][status];
+		return [tips, sTime];
+	}
+	longTime(aa, bb){
+		const seconds = Math.abs(aa - bb) / 1000;
+		const [hour, rest] = [seconds / 3600, seconds % 3600];
+		const [mm, ss] = [rest / 60, rest % 60];
+		return parseInt(hour)+":"+parseInt(mm)+":"+parseInt(ss);
+	}
+	// ▼提示是否上传字幕
+	async uploadToCloudBefore(){
+		const onOk = () => {
+			const {aSteps, iCurStep, oMediaInfo} =  this.state;
+			const subtitleFile_ = aSteps[iCurStep].aLines;
+			const file = new Blob(
+				[JSON.stringify(subtitleFile_)],
+				{type: 'application/json;charset=utf-8'},
+			);
+			const [fileName, key] = (()=>{
+				const {subtitleFileName, fileName, subtitleFileId} = oMediaInfo;
+				if (subtitleFileName) return subtitleFileName;
+				const idx = fileName.lastIndexOf('.');
+				const val01 = fileName.slice(0, idx) + '.srt';
+				const val02 = subtitleFileId || '';
+				return [val01, val02];
+			})();
+			this.uploadToCloud({subtitleFile_, file, fileName, key});
+		};
+		this.confirm({
+			title: '提示',
+			content: '立即上传？上传后会覆盖云端的文件！',
+			onOk,
+		});
+	}
+	// ▼保存字幕到云（上传字幕）
+	async uploadToCloud(oParams){
+		const {subtitleFile_, file, fileName, key} = oParams;
+		const {oMediaInfo, oMediaTB} =  this.state;
+		const {id} = oMediaInfo;
+		const [token, oTime] = await getQiniuToken(key);
+		if (!token) return;
+		const changeTs = oTime.getTime();
+		const sUrl = 'http://upload-z2.qiniup.com';
+		const {data} = await axios.post(sUrl, { // 上传媒体到七牛
+			token, file, fileName,
+			...(key ? {key} : {}),
+		});
+		if (!data) return;
+		const {data: res} = await axios.put('/media/update-file', {
+			ID: oMediaInfo.ID,
+			subtitleFileId: data.key,
+			subtitleFileName: fileName,
+			subtitleFileSize: file.size,
+			...getTimeInfo(oTime, 's'),
+		});
+		if (!res) return;
+		oMediaTB.update(id, {
+			subtitleFile_, changeTs_: changeTs,
+		});
+		oMediaInfo.subtitleFileModifyTs = changeTs;
+		this.setState({changeTs, oMediaInfo});
+		this.message.success('上传成功');
+	}
+	beforeUseNetSubtitle(){
+		this.confirm({
+			title: '提示',
+			content: '确定网络字幕？此操作会覆盖本地字幕！',
+			onOk: () => this.useSubtitleFromNet(),
+		});
+	}
+	// ▼使用网络字幕
+	useSubtitleFromNet(subtitleFile_){
+		subtitleFile_ = subtitleFile_ || this.state.aSubtitleFromNet || [];
+		const { aSteps, oMediaTB, oMediaInfo } = this.state;
+		const {id, subtitleFileModifyTs: changeTs} = oMediaInfo;
+		aSteps.last_.aLines = subtitleFile_;
+		this.setState({ aSteps, changeTs });
+		oMediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
 	}
 }
 

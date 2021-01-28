@@ -1,11 +1,6 @@
 import keyMap from './key-map.js';
 
-import {
-	getQiniuToken,
-	getTimeInfo,
-} from 'assets/js/pure-fn.js';
-
-const axios = window.axios;
+import { getQiniuToken } from 'assets/js/pure-fn.js';
 
 export default class {
 	getFn(keyStr) {
@@ -315,58 +310,5 @@ export default class {
 		this.setTime('end', newEnd);
 		this.goToCurLine();
 	}
-	// ▼提示是否上传字幕
-	async uploadToCloudBefore(){
-		const onOk = () => {
-			const {aSteps, iCurStep, oMediaInfo} =  this.state;
-			const subtitleFile_ = aSteps[iCurStep].aLines;
-			const file = new Blob(
-				[JSON.stringify(subtitleFile_)],
-				{type: 'application/json;charset=utf-8'},
-			);
-			const [fileName, key] = (()=>{
-				const {subtitleFileName, fileName, subtitleFileId} = oMediaInfo;
-				if (subtitleFileName) return subtitleFileName;
-				const idx = fileName.lastIndexOf('.');
-				const val01 = fileName.slice(0, idx) + '.srt';
-				const val02 = subtitleFileId || '';
-				return [val01, val02];
-			})();
-			this.uploadToCloud({subtitleFile_, file, fileName, key});
-		};
-		this.confirm({
-			title: '提示',
-			content: '立即上传？上传后会覆盖云端的文件！',
-			onOk,
-		});
-	}
-	// ▼保存字幕到云（上传字幕）
-	async uploadToCloud(oParams){
-		const {subtitleFile_, file, fileName, key} = oParams;
-		const {oMediaInfo, oMediaTB} =  this.state;
-		const {id} = oMediaInfo;
-		const [token, oTime] = await getQiniuToken(key);
-		if (!token) return;
-		const changeTs = oTime.getTime();
-		const sUrl = 'http://upload-z2.qiniup.com';
-		const {data} = await axios.post(sUrl, { // 上传媒体到七牛
-			token, file, fileName,
-			...(key ? {key} : {}),
-		});
-		if (!data) return;
-		const {data: res} = await axios.put('/media/update-file', {
-			ID: oMediaInfo.ID,
-			subtitleFileId: data.key,
-			subtitleFileName: fileName,
-			subtitleFileSize: file.size,
-			...getTimeInfo(oTime, 's'),
-		});
-		if (!res) return;
-		oMediaTB.update(id, {
-			subtitleFile_, changeTs_: changeTs,
-		});
-		oMediaInfo.subtitleFileModifyTs = changeTs;
-		this.setState({changeTs, oMediaInfo});
-		this.message.success('上传成功');
-	}
+	
 }

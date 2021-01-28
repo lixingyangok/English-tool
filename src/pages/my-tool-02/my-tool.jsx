@@ -9,7 +9,7 @@ import initFn from './js/init-fn.js';
 import wordsDbFn from './js/words-db.js';
 import figureOutRegion from './js/figure-out-region.js';
 import Nav from './children/menu/menu.jsx';
-import {Modal, Button, Upload, message} from 'antd';
+import {Modal, Button, Upload, message, Space} from 'antd';
 
 const { TextArea } = Input;
 const { confirm } = Modal;
@@ -205,39 +205,18 @@ export default class Tool extends MyClass {
 	// ▼故事信息等
 	getInfoBar(oState){ 
 		const {
-			oStory, oMediaInfo, changeTs,
+			oStory, oMediaInfo,
 			buffer, iPerSecPx, aSteps, iCurStep,
 		} = oState;
 		const oCurStep = aSteps[iCurStep];
-		const {subtitleFileModifyTs: sTs} = oMediaInfo;
-		const tips = (()=>{
-			// ▼ 此提示可能不会出现（因为本地会生成默认字幕）
-			if (!changeTs) return sTs ? '网新/本地无' : '两地无'; 
-			// ▲【无】本地文件提示，▼【有】本地文件的情况
-			if (!sTs) return '本地新/网无';
-			if (changeTs === sTs) return '两地相同';
-			if (changeTs > sTs) return '本地新/网旧';
-			return '本地旧/网新';
-		})();
+		const [tips01, tips02] = this.getSubtitleInfo();
 		return <cpnt.InfoBar>
-			<span>
-				故事：<em>{oStory.storyName}</em>
-			</span>
-			<span>
-				章节：<em>{oMediaInfo.fileName}</em>
-			</span>
-			<span>
-				时长：<em>{buffer.sDuration_}</em>
-			</span>
-			<span>
-				共计：<em>{oCurStep.aLines.length || 0}句</em>
-			</span>
-			<span>
-				每秒：<em>{iPerSecPx}px</em>
-			</span>
-			<span>
-				字幕：<em>{tips}</em>
-			</span>
+			<span>故事：<em>{oStory.storyName}</em></span>
+			<span>章节：<em>{oMediaInfo.fileName}</em></span>
+			<span>时长：<em>{buffer.sDuration_}</em></span>
+			<span>共计：<em>{oCurStep.aLines.length || 0}句</em></span>
+			<span>每秒：<em>{iPerSecPx}px</em></span>
+			<span>字幕：<em title={tips02}>{tips01}</em></span>
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词
@@ -295,6 +274,16 @@ export default class Tool extends MyClass {
 		const { aLines } = aSteps[iCurStep];
 		const iMax = Math.max(aSubtitleFromNet.length, aLines.length);
 		const iLong = String(iMax).length;
+		const [tips01, tips02] = this.getSubtitleInfo();
+		const btnBar = <Space>
+			<Button type="primary" onClick={()=>this.uploadToCloudBefore()} >
+				上传本地字幕
+			</Button>
+			<Button onClick={()=>this.beforeUseNetSubtitle()} >
+				使用网络字幕
+			</Button>
+			<em>{tips01}，{tips02}</em>
+		</Space>
 		const aLi = [...Array(iMax).keys()].map(idx=>{
 			const aa = aLines[idx] || {};
 			const bb = aSubtitleFromNet[idx] || {};
@@ -305,10 +294,12 @@ export default class Tool extends MyClass {
 			</cpnt.oneMatchLine>
 		});
 		return <Modal title="对比窗口" width="92%"
+			style={{ top: 20,  }}
 			visible={this.state.matchDialogVisible} footer={null}
 			onCancel={()=>this.setState({matchDialogVisible: false})}
 		>	
-			<ul>{aLi}</ul>
+			{btnBar}
+			<cpnt.matchUl>{aLi}</cpnt.matchUl>
 		</Modal>;
 	}
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
