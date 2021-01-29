@@ -253,11 +253,9 @@ export default class {
 			);
 			const [fileName, key] = (()=>{
 				const {subtitleFileName, fileName, subtitleFileId} = oMediaInfo;
-				if (subtitleFileName) return subtitleFileName;
 				const idx = fileName.lastIndexOf('.');
-				const val01 = fileName.slice(0, idx) + '.srt';
-				const val02 = subtitleFileId || '';
-				return [val01, val02];
+				const val01 = subtitleFileName || (fileName.slice(0, idx) + '.srt');
+				return [val01, subtitleFileId || ''];
 			})();
 			this.uploadToCloud({subtitleFile_, file, fileName, key});
 		};
