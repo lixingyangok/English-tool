@@ -1,5 +1,5 @@
 import {message} from 'antd';
-const {axios} = window;
+const {axios, store, location} = window;
 
 export default class {
 	inputChanged({target}){
@@ -10,9 +10,10 @@ export default class {
 	}
 	async toLogIn(){
 		const {loginForm} = this.state;
-		if (!loginForm.account || !loginForm.password) {
-			loginForm.account = window.store.get('account') || '';
-			loginForm.password = window.store.get('password') || '';
+		const testing = location.host.startsWith('localhost');
+		if (testing && (!loginForm.account || !loginForm.password)) {
+			loginForm.account = store.get('account') || '';
+			loginForm.password = store.get('password') || '';
 		}
 		const {data} = await axios.post('/user/login', loginForm);
 		if (data && data.loginAt) {

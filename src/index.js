@@ -15,11 +15,16 @@ import axios from 'common/lib/js/ajax.js';
 import 'assets/style/reset.css';
 import 'assets/style/global.css'
 import 'antd/dist/antd.css';
+const store = require('store');
 
 Object.defineProperties(window, {
 	mix: {
 		writable: false,
 		value: mix,
+	},
+	store: {
+		writable: false,
+		value: store,
 	},
 	axios: {
 		writable: false,

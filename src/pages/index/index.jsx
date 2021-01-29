@@ -7,13 +7,12 @@ import indexFn from './js/index.js';
 const MyClass = window.mix(
 	React.Component, indexFn,
 );
-const isTesting = window.location.host.startsWith('localhost:');
 
 export default class IndexPage extends MyClass {
 	state = {
 		loginForm: {
-			account: isTesting ? 'abc' : '',
-			password: isTesting ? 'a123' : '',
+			account: '',
+			password: '',
 		},
 		logInfo: {},
 	}
