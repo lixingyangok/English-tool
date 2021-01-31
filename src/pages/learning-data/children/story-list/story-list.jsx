@@ -1,8 +1,15 @@
+/*
+ * @Author: 李星阳
+ * @Date: 2020-12-15 21:50:40
+ * @LastEditors: 李星阳
+ * @LastEditTime: 2021-01-31 18:53:50
+ * @Description: 
+ */
+
 import React from 'react';
-import TheFn from './js/story-list-fn.js';
 import * as cpnt from './style/learning-data.js';
+import TheFn from './js/story-list-fn.js';
 import FileFn from './js/file-fn.js';
-import FileToDb from './js/file-to-db.js';
 
 // ▼组件库
 import {
@@ -11,7 +18,7 @@ import {
 } from 'antd';
 
 const MyClass = window.mix(
-	React.Component, TheFn, FileFn, FileToDb,
+	React.Component, TheFn, FileFn,
 );
 
 export default class extends MyClass{

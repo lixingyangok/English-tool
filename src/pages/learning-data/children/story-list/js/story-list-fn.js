@@ -27,6 +27,14 @@ export default class{
 			total: res.total,
 		});
 	}
+	async dbInit(){
+		const trainingDB = new window.Dexie("trainingDB");
+		trainingDB.version(1).stores({story: '++id, ID, name, storyId'});
+		trainingDB.version(2).stores({media: '++id, ID, fileId, ownerStoryId'});
+		const oStoryTB = trainingDB.story;
+		const mediaTB = trainingDB.media;
+		this.setState({oStoryTB, mediaTB});
+	}
 	chnagePage(current){
 		const pageInfo = ({
 			...this.state.pageInfo, current,
