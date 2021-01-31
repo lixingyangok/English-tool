@@ -224,24 +224,6 @@ export default class FileList {
 		const {mediaTB} = this.state;
 		mediaTB.where('ID').equals(oneMedia.ID).delete();
 	}
-	
-	// ▼下载一个媒体&字幕
-	// async downloadOneMedia(oStory, oneMedia){
-	// 	const filePath = 'http://qn.hahaxuexi.com/' + oneMedia.fileId;
-	// 	const {data: res} = await axios.get(filePath, {
-	// 		responseType: "blob",
-	// 	});
-	// 	const mediaFile = new File( [res], oneMedia.fileName, {
-	// 		type: res.type,
-	// 	});
-	// 	console.log('mediaFile\n', mediaFile);
-	// 	this.saveOneMedia(oStory, {
-	// 		...oneMedia, mediaFile,
-	// 	});
-	// }
-	
-	// 新旧分界------------------
-	
 	// ▼导出字幕文件
 	toExport(oSct) {
 		const aStr = oSct.aLines.map(({start_, end_, text}, idx) => {

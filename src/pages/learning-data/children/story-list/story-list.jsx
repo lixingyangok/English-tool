@@ -34,7 +34,7 @@ export default class extends MyClass{
 	render(){
 		const {visible, aStory, loading, pageInfo, total} = this.state;
 		const oneStory = <cpnt.StoryUl>
-			{aStory.map((oCurStory, idx)=>{
+			{aStory.map((oCurStory, idx) => {
 				const myLi = <cpnt.oneStory key={idx}>
 					<h1 className="story-name">{oCurStory.storyName}</h1>
 					<div className="btn-wrap">
@@ -46,6 +46,9 @@ export default class extends MyClass{
 						</label>
 						<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
 							修改信息
+						</Button>
+						<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
+							详情
 						</Button>
 						<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 							title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
