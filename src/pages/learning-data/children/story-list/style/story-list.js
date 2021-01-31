@@ -39,30 +39,7 @@ export const oneStory = styled.li`
 	}
 `;
 
-export const fileList = styled.ul`
-	display: flex;
-	justify-content: space-between;
-	flex-flow: row wrap;
-	margin: 0;
-	li{
-		width: calc(100% / 3 - 0.5px);
-		margin: 0 0 0;
-		padding: 1em;
-		box-shadow: 0px 0px 0px 1px red;
-	}
-	.title{
-		font-size: 14px;
-		margin: 0 0 3px;
-	}
-	.media-btn-wrap{
-		margin: 8px 0 0;
-	}
-`;
 
-export const filesWaitToUpload = styled(fileList)`
-	border-top: solid 1px #ccc;
-	padding-top: 15px;
-`;
 
 export const H1 = styled.h1`
 	font-size: 28px;

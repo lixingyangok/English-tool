@@ -224,7 +224,7 @@ export default class FileList {
 		const {mediaTB} = this.state;
 		mediaTB.where('ID').equals(oneMedia.ID).delete();
 	}
-	// ▼导出字幕文件
+	// ▼导出字幕文件（废弃了？）
 	toExport(oSct) {
 		const aStr = oSct.aLines.map(({start_, end_, text}, idx) => {
 			return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
