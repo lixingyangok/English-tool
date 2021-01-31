@@ -68,7 +68,7 @@ export default class{
 		if (!oStory || !oSct) return this.message.info('数据不完整');
 		if (!oSct.audioFile) return this.message.info('没有音频文件，请导入');
 		if (oSct.isLoading) return this.message.info('请等待初始化完成');
-		const sPath = `/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
+		const sPath = `/local-data/practicing?storyId=${oStory.id}&sctId=${oSct.id}`;
 		this.props.history.push(sPath);
 	}
 	importToSct(oSct){

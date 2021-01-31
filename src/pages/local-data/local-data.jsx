@@ -1,18 +1,18 @@
 import React, {Suspense} from 'react';
 import { Route, Redirect, Switch } from 'react-router-dom';
 import Loading from 'common/components/loading/loading.jsx';
-import {aLearningData} from 'common/components/navigation/navigation.jsx';
+import {aLocalData} from 'common/components/navigation/navigation.jsx';
 
 export default function (){
-	const getPath = url => `/learning-data${url}`;
+	const getPath = url => `/local-data${url}`;
 	return <Suspense fallback={Loading}>
 		<Switch>
-			{aLearningData.map((cur,idx)=>{
+			{aLocalData.map((cur,idx)=>{
 				return <Route key={idx} path={getPath(cur.path)} 
 					component={cur.component}
 				/>
 			})}
-			<Redirect exact from="/learning-data" to="/learning-data/list" />
+			<Redirect exact from="/local-data" to="/local-data/list" />
 		</Switch>
 	</Suspense>
 }
