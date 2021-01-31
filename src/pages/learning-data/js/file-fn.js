@@ -44,11 +44,10 @@ export default class FileList {
 		return aMedia;
 	}
 	// ▼将配对完成的文件补充一些信息，用于显示
-	getFileArrToShow(aListForShow, oStoryID, oMedia){
+	getFileArrToShow(aListForShow, oStoryID){
 		if (!(aListForShow || {}).length) return [];
 		aListForShow.forEach(oItem => { // 用于显示和上传的表格
 			const {file, oSubtitleFile} = oItem;
-			// oItem.oCoverTo = oMedia; // 覆盖目标（可能为空）
 			oItem.mediaFile = { // 用于七牛
 				file: file,
 				fileName: file.name,
