@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 19:37:51
+ * @LastEditTime: 2021-01-31 19:50:26
  * @Description: 
  */
 
@@ -63,12 +63,17 @@ export default class extends MyClass {
 		});
 		return <ul>{aLi}</ul>
 	}
-	render(){
+	getInfoBox(){
 		const {oStory} = this.state;
+		const oHtml = <cpnt.infoBox>
+			{oStory.storyName}
+		</cpnt.infoBox>
+		return oHtml;
+	}
+	render(){
+		// const {oStory} = this.state;
 		const resultHTML = <div className="center-box">
-			<cpnt.infoBox>
-				{oStory.storyName}
-			</cpnt.infoBox>
+			{this.getInfoBox()}
 			<br/>
 			{this.getMediaList()}
 		</div>
