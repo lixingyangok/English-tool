@@ -201,14 +201,10 @@ export default class FileList {
 		this.setState({oQueuer});
 	}
 	// ▼查询某个故事下的文件
-	async getMediaForOneStory(oStory){ 
-		const {data: res} = await axios.get('/media/' + oStory.ID);
-		if (!res) return;
-		const aStory = this.state.aStory.map(cur=>{
-			if (cur.ID === oStory.ID) cur.aMedia_ = res || [];
-			return cur;
-		});
-		this.setState({aStory});
+	async getMediaForOneStory(storyId){ 
+		const {data} = await axios.get('/media/' + storyId);
+		if (!data) return;
+		this.setState({aMedia: data});
 	}
 	// ▼删除一个已上传的文件
 	async delOneMedia(oStory, oneMedia){

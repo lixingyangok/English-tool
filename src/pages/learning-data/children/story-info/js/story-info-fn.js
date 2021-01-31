@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 19:36:40
+ * @LastEditTime: 2021-01-31 20:26:36
  * @Description: 
  */
 const {axios} = window;
@@ -34,17 +34,7 @@ export default class {
 			oStoryTB.add(oStory);
 		}
 	}
-	// ▼查询某个故事下的文件
-	async getMediaForOneStory(storyId){ 
-		const {data} = await axios.get('/media/' + storyId);
-		if (!data) return;
-		console.log('媒体列表\n', data);
-		// const aStory = this.state.aStory.map(cur=>{
-		// 	if (cur.ID === storyId) cur.aMedia_ = res || [];
-		// 	return cur;
-		// });
-		this.setState({aMedia: data});
-	}
+
 	// ▼跳到听写
 	goToolPage(oMedia){
 		const {oStory} = this.state;

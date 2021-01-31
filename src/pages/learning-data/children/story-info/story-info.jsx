@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 20:19:03
+ * @LastEditTime: 2021-01-31 20:30:37
  * @Description: 
  */
 
@@ -27,15 +27,10 @@ export default class extends MyClass {
 		oStoryTB: {}, // 本地故事列表TB
 		oMediaTB: {}, // 本地媒体列表TB
 		loading: false,
-		pageInfo: {
-			current: 1,
-			pageSize: 10,
-		},
-		total: 0,
 		// ▼新
 		oQueuer: {}, // 排队上传的媒体
 		oStory: {}, // 故事信息
-		aMedia: [],
+		aMedia: [], // 媒体列表
 	}
 	constructor(props) {
 		super(props);
@@ -73,10 +68,6 @@ export default class extends MyClass {
 		const aLi = aMedia.map((cur, idx)=>{
 			const oLi = <li key={idx}>
 				<em>{cur.fileName}</em>
-				&emsp;
-				<Button type="text" onClick={()=>this.goToolPage(cur)} >
-					听写
-				</Button>
 			</li>
 			return oLi;
 		});
@@ -84,36 +75,40 @@ export default class extends MyClass {
 	}
 	// ▼陈列【已经上传】的文件
 	showFilesOfOneStory(){
-		const {oStory, aMedia} = this.state.aMedia;
+		const {oStory, aMedia} = this.state;
 		if (!aMedia.length) return '暂无文件';
 		const myLiArr = aMedia.map((oMedia, idx)=>{
+			const btnBar = <Space className="media-btn-wrap" >
+				<Button type="primary" size="small" onClick={()=>this.goToolPage(oMedia)}>
+					听写
+				</Button>
+				<label className="ant-btn ant-btn-sm">
+					替换音/视频
+					<input type="file" accept="audio/*, video/*"
+						style={{display: 'none'}}
+						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
+					/>
+				</label>
+				<br/>
+				<label className="ant-btn ant-btn-sm">
+					替换字幕
+					<input type="file" style={{display: 'none'}}
+						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
+					/>
+				</label>
+				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+					title="确定删除？"
+					onConfirm={()=>this.delOneMedia(oStory, oMedia)}
+				>
+					<Button size="small">删除</Button>
+				</Popconfirm>
+			</Space>
 			const oneLi= <li key={idx}>
 				<h3 className="title ellipsis" >
 					{oMedia.fileName}
 				</h3>
 				字幕：{oMedia.subtitleFileName || '元'}<br/>
-				<Space className="media-btn-wrap" >
-
-					<label className="ant-btn ant-btn-sm">
-						替换音/视频
-						<input type="file" accept="audio/*, video/*"
-							style={{display: 'none'}}
-							onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
-						/>
-					</label>
-					<label className="ant-btn ant-btn-sm">
-						替换字幕
-						<input type="file" style={{display: 'none'}}
-							onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
-						/>
-					</label>
-					<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-						title="确定删除？"
-						onConfirm={()=>this.delOneMedia(oStory, oMedia)}
-					>
-						<Button size="small">删除</Button>
-					</Popconfirm>
-				</Space>
+				{btnBar}
 			</li>;
 			return oneLi;
 		});
