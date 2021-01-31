@@ -48,11 +48,14 @@ export const fileList = styled.ul`
     flex-flow: row wrap;
     margin: 0;
     li{
-        width: calc(50% - 15px / 2);
-        margin: 0 0 15px;
-        background: #eee;
-        margin: 0 0 15px 0;
+        width: calc(100% / 3 - 0.5px);
+        margin: 0 0 0;
         padding: 1em;
+        box-shadow: 0px 0px 0px 1px red;
+    }
+    .title{
+        font-size: 14px;
+        margin: 0 0 3px;
     }
     .media-btn-wrap{
         margin: 8px 0 0;

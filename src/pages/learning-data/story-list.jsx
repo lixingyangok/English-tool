@@ -114,7 +114,9 @@ export default class extends MyClass{
 		if (!aMedia_.length) return '暂无文件';
 		const myLiArr = aMedia_.map((oMedia, idx)=>{
 			const oneLi= <li key={idx}>
-				音频：{oMedia.fileName}<br/>
+				<h3 className="title ellipsis" >
+					{oMedia.fileName}
+				</h3>
 				字幕：{oMedia.subtitleFileName || '元'}<br/>
 				<Space className="media-btn-wrap" >
 					<Button type="primary" size="small" onClick={()=>this.goToolPage(oStory, oMedia)}>

@@ -17,3 +17,8 @@ ol, ul, dl {
 	text-align: center;
 }
 
+.ellipsis{
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
