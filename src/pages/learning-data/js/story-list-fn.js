@@ -11,13 +11,27 @@ const {axios} = window;
 export default class{
 	// ▼初始化，即查询【故事数据】
 	async init(){
-		const {data: res} = await axios.get('/story');
+		// console.log('this.state.pageInfo', this.state.pageInfo);
+		const {data: res} = await axios.get('/story', {
+			params: {
+				...this.state.pageInfo,
+			},
+		});
 		if (!res) return;
-		res.forEach(cur=>{
+		res.rows.forEach(cur=>{
 			cur.aMedia_ = [];
 			this.getMediaForOneStory(cur);
 		});
-		this.setState({ aStory: res });
+		this.setState({
+			aStory: res.rows,
+			total: res.total,
+		});
+	}
+	chnagePage(current){
+		const pageInfo = ({
+			...this.state.pageInfo, current,
+		});
+		this.setState({pageInfo}, this.init);
 	}
 	// ▼提交表单，提交一个故事
 	async onSave(oForm) {
