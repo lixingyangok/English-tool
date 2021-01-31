@@ -11,10 +11,8 @@ import { mix } from './common/common.js';
 import lf from 'localforage';
 import axios from 'common/lib/js/ajax.js';
 // ▼样式
-// import 'assets/style/normalize.css';
-import 'assets/style/reset.css';
-import 'assets/style/global.css'
 import 'antd/dist/antd.css';
+import 'assets/style/global.css'
 const store = require('store');
 
 Object.defineProperties(window, {

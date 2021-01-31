@@ -47,7 +47,8 @@ export default class IndexPage extends MyClass {
 			<br/>
 			<br/>
 			<footer className="be-center">
-				网站备案/许可证号：陕ICP备20008324号
+				网站备案/许可证号：陕ICP备20008324号<br/>
+				联系邮箱：176840078@qq.com
 			</footer>
 		</div>
 	}
