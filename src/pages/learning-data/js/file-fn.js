@@ -109,23 +109,18 @@ export default class FileList {
 		this.setState({loading: true}); // 开始loading
 		const sUrl = 'http://upload-z2.qiniup.com';
 		const {mediaFile, oSubtitleInfo} = oFileInfo;
-		let [token, oTime] = await getQiniuToken();
+		const [token, oTime] = await getQiniuToken();
 		if (!token) return this.setState({loading: false}); // 关闭loading;
-		const {data: fileRes01} = await axios.post(sUrl, { // 上传媒体到七牛
+		const {data: fileRes01} = await axios.post(sUrl, { // 上传【媒体】到七牛
 			token, ...mediaFile,
 		});
-		if (!fileRes01) { //上传失败
+		if (!fileRes01) { // 上传失败
 			this.setState({loading: false});
 			return this.message.error('保存媒体文件未成功');
 		}
 		const oTimeInfo = getTimeInfo(oTime, 'f');
 		const fileRes02 = await (async ()=>{
 			if (!oSubtitleInfo) return false; // 没有字幕文件
-			[token, oTime] = await getQiniuToken();
-			if (!token) {
-				this.setState({loading: false}); // 关闭loading;
-				return false;
-			}
 			const {data} = await axios.post(sUrl, {
 				token, ...oSubtitleInfo,
 			});
