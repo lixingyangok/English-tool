@@ -68,19 +68,18 @@ export default class FileList {
 		});
 	}
 	// ▼把2类文件组织成列表显示出来，用于准备上传
-	toCheckFile(ev, oStory, oMedia){
-		const iMax = oMedia ? 1 : 100;
-		if (ev.target.files.length > iMax * 2) {
-			return this.message.warning(`最多可选“${iMax}对”文件`);
+	toCheckFile(ev, oStory){
+		const iMax = 100;
+		if (ev.target.files.length > iMax) {
+			return this.message.warning(`最多可选“${iMax}个”文件`);
 		}
 		const aListForShow = this.toMatchFiles(ev.target.files);
-		this.getFileArrToShow(aListForShow, oStory.ID, oMedia);
+		this.getFileArrToShow(aListForShow, oStory.ID);
 		ev.target.value = ''; // 清空
 		if (!aListForShow.length) return; //没有媒体文件就返回
 		const oQueuer = Object.assign(this.state.oQueuer, {
 			[oStory.ID]: aListForShow,
 		});
-		console.log('oMedia', oMedia)
 		this.setState({ oQueuer }, ()=>{
 			this.subTitleToBlob(oStory.ID);
 		});
@@ -142,7 +141,7 @@ export default class FileList {
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
 		this.message.success('上传成功');
 		this.deleteOneCandidate(oStory.ID, iFileIdx); //删除【排除文件】
-		this.getMediaForOneStory(oStory); //刷新【已上传】文件
+		this.getMediaForOneStory(oStory.ID); //刷新【已上传】文件
 	}
 	// ▼准备上传（覆盖）文件
 	checkForUpload(ev, oStory, oMedia, iType) {

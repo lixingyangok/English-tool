@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 20:30:37
+ * @LastEditTime: 2021-01-31 20:44:28
  * @Description: 
  */
 
@@ -12,7 +12,7 @@ import * as cpnt from './style/story-info.js';
 import FileFn from './js/file-fn.js';
 
 import {
-	Button, Space, Popconfirm, 
+	Button, Space, Popconfirm, message,
 } from 'antd';
 
 const MyClass = window.mix(
@@ -22,6 +22,7 @@ const MyClass = window.mix(
 );
 
 export default class extends MyClass {
+	message = message;
 	state = {
 		visible: false, //窗口显示
 		oStoryTB: {}, // 本地故事列表TB
@@ -52,26 +53,20 @@ export default class extends MyClass {
 	getInfoBox(){
 		const {oStory} = this.state;
 		const oHtml = <cpnt.infoBox>
-			{oStory.storyName}
-			<br/>
-			<label className="ant-btn ant-btn-link ant-btn-sm">
-				导入文件
-				{/* onChange={ev => this.toCheckFile(ev, oCurStory)} */}
-				<input type="file" multiple="multiple" style={{display: 'none'}}
-				/>
-			</label>
+			<h1>{oStory.storyName}</h1>
+			<div className="story-info">
+				<span>创建于：{oStory.CreatedAt}</span>&emsp;&emsp;
+				{/* ant-btn ant-btn-primary ant-btn-sm */}
+				操作：<label className="btn">
+					导入文件
+					<input type="file" multiple="multiple" style={{display: 'none'}}
+						onChange={ev => this.toCheckFile(ev, oStory)}
+					/>
+				</label>
+			</div>
+			<span>备注：{oStory.note || '无'}</span>&emsp;&emsp;
 		</cpnt.infoBox>
 		return oHtml;
-	}
-	getMediaList(){
-		const {aMedia} = this.state;
-		const aLi = aMedia.map((cur, idx)=>{
-			const oLi = <li key={idx}>
-				<em>{cur.fileName}</em>
-			</li>
-			return oLi;
-		});
-		return <ul>{aLi}</ul>
 	}
 	// ▼陈列【已经上传】的文件
 	showFilesOfOneStory(){
@@ -158,7 +153,6 @@ export default class extends MyClass {
 		const resultHTML = <div className="center-box">
 			{this.getInfoBox()}
 			<br/>
-			{/* {this.getMediaList()} */}
 			{this.showFilesOfOneStory()}
 			{this.showTheFileListReadyForUpload()}
 		</div>
