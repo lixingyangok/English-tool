@@ -48,7 +48,7 @@ export default class FileList {
 		if (!(aListForShow || {}).length) return [];
 		aListForShow.forEach(oItem => { // 用于显示和上传的表格
 			const {file, oSubtitleFile} = oItem;
-			oItem.oCoverTo = oMedia; // 覆盖目标（可能为空）
+			// oItem.oCoverTo = oMedia; // 覆盖目标（可能为空）
 			oItem.mediaFile = { // 用于七牛
 				file: file,
 				fileName: file.name,
@@ -109,12 +109,11 @@ export default class FileList {
 	async toUpload(oStory, oFileInfo, iFileIdx) {
 		this.setState({loading: true}); // 开始loading
 		const sUrl = 'http://upload-z2.qiniup.com';
-		const {oCoverTo={}, mediaFile, oSubtitleInfo} = oFileInfo;
-		let [token, oTime] = await getQiniuToken(oCoverTo.fileId);
+		const {mediaFile, oSubtitleInfo} = oFileInfo;
+		let [token, oTime] = await getQiniuToken();
 		if (!token) return this.setState({loading: false}); // 关闭loading;
 		const {data: fileRes01} = await axios.post(sUrl, { // 上传媒体到七牛
 			token, ...mediaFile,
-			...(oCoverTo.fileId ? {key: oCoverTo.fileId} : null),
 		});
 		if (!fileRes01) { //上传失败
 			this.setState({loading: false});
@@ -123,14 +122,13 @@ export default class FileList {
 		const oTimeInfo = getTimeInfo(oTime, 'f');
 		const fileRes02 = await (async ()=>{
 			if (!oSubtitleInfo) return false; // 没有字幕文件
-			[token, oTime] = await getQiniuToken(oCoverTo.subtitleFileId);
+			[token, oTime] = await getQiniuToken();
 			if (!token) {
 				this.setState({loading: false}); // 关闭loading;
 				return false;
 			}
 			const {data} = await axios.post(sUrl, {
 				token, ...oSubtitleInfo,
-				...(oCoverTo.subtitleFileId ? {key: oCoverTo.subtitleFileId} : null),
 			});
 			if (!data) {
 				this.message.error('字幕上传未成功');
@@ -144,10 +142,7 @@ export default class FileList {
 			...oFileInfo.forOwnDB,
 			...oTimeInfo,
 			fileId: fileRes01.key,
-			subtitleFileId: (()=>{
-				if (fileRes02) return fileRes02.key;
-				return oCoverTo.subtitleFileId || '';
-			})(),
+			subtitleFileId: fileRes02 ? fileRes02.key : '',
 		});
 		this.setState({loading: false}); // 无论如何关闭loading
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
