@@ -20,13 +20,14 @@ export default class{
 		if (!res) return;
 		res.rows.forEach(cur=>{
 			cur.aMedia_ = [];
-			this.getMediaForOneStory(cur);
+			// this.getMediaForOneStory(cur);
 		});
 		this.setState({
 			aStory: res.rows,
 			total: res.total,
 		});
 	}
+	// ▼初始化 DB
 	async dbInit(){
 		const trainingDB = new window.Dexie("trainingDB");
 		trainingDB.version(1).stores({story: '++id, ID, name, storyId'});
@@ -76,22 +77,10 @@ export default class{
 		else oForm.resetFields();
 	}
 	// ▼跳到听写
-	goToolPage(oStory, oMedia){
-		// console.log('故事oStory', oStory);
-		// console.log('文件oMedia', oMedia);
-		const sPath = `/learning-data/practicing`;
-		const query = `?storyId=${oStory.ID}&mediaId=${oMedia.ID}`;
+	goInfoPage(oStory){
+		const sPath = `/learning-data/story-info`;
+		const query = `?storyId=${oStory.ID}`;
 		this.props.history.push(sPath + query);
 	}
-	// ▼旧的方法 --------------------------------------------------------------------
-	uploadMedia(oStory){
-		console.log('oStory', oStory);
-	}
-	importToSct(oSct){
-		console.log('oSct', oSct);
-		const dom = document.getElementById(`sct-${oSct.id}`);
-		dom.click();
-	}
-	
 }
 

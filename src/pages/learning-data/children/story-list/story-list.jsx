@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 18:53:50
+ * @LastEditTime: 2021-01-31 19:33:52
  * @Description: 
  */
 
@@ -40,39 +40,37 @@ export default class extends MyClass{
 	}
 	render(){
 		const {visible, aStory, loading, pageInfo, total} = this.state;
-		const oneStory = <cpnt.StoryUl>
-			{aStory.map((oCurStory, idx) => {
-				const myLi = <cpnt.oneStory key={idx}>
-					<h1 className="story-name">{oCurStory.storyName}</h1>
-					<div className="btn-wrap">
-						<label className="ant-btn ant-btn-link ant-btn-sm">
-							导入文件
-							<input type="file" multiple="multiple" style={{display: 'none'}}
-								onChange={ev => this.toCheckFile(ev, oCurStory)}
-							/>
-						</label>
-						<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
-							修改信息
-						</Button>
-						<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
-							详情
-						</Button>
-						<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-							title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
-						>
-							<Button size='small' type="link">删除</Button>
-						</Popconfirm>
-					</div>
-					<p className="story-info" >
-						<span>创建于：{oCurStory.CreatedAt}</span>
-						<span>备注：{oCurStory.note}</span>
-					</p>
-					{this.showFilesOfOneStory(oCurStory)}
-					{this.showTheFileListReadyForUpload(oCurStory)}
-				</cpnt.oneStory>
-				return myLi;
-			})}
-		</cpnt.StoryUl>
+		const storyInfo = aStory.map((oCurStory, idx) => {
+			const myLi = <cpnt.oneStory key={idx}>
+				<h1 className="story-name">{oCurStory.storyName}</h1>
+				<div className="btn-wrap">
+					<label className="ant-btn ant-btn-link ant-btn-sm">
+						导入文件
+						<input type="file" multiple="multiple" style={{display: 'none'}}
+							onChange={ev => this.toCheckFile(ev, oCurStory)}
+						/>
+					</label>
+					<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
+						修改信息
+					</Button>
+					<Button size='small' type="link" onClick={()=>this.goInfoPage(oCurStory)}>
+						详情页
+					</Button>
+					<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+						title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
+					>
+						<Button size='small' type="link">删除</Button>
+					</Popconfirm>
+				</div>
+				<p className="story-info" >
+					<span>创建于：{oCurStory.CreatedAt}</span>
+					<span>备注：{oCurStory.note}</span>
+				</p>
+				{this.showFilesOfOneStory(oCurStory)}
+				{this.showTheFileListReadyForUpload(oCurStory)}
+			</cpnt.oneStory>
+			return myLi;
+		});
 		const dialog = <Modal title="资源信息" okText="保存" cancelText="关闭"
 			visible={visible}
 			onOk={()=>this.oForm.current.submit()}
@@ -101,7 +99,9 @@ export default class extends MyClass{
 						新增
 					</Button>
 				</cpnt.BtnBar>
-				{oneStory}
+				<cpnt.StoryUl>
+					{storyInfo}
+				</cpnt.StoryUl>
 				<cpnt.Empty_ visible={aStory.length ? 0 : 1}
 					image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
 					description="暂无数据，请新增"
@@ -129,9 +129,7 @@ export default class extends MyClass{
 				</h3>
 				字幕：{oMedia.subtitleFileName || '元'}<br/>
 				<Space className="media-btn-wrap" >
-					<Button type="primary" size="small" onClick={()=>this.goToolPage(oStory, oMedia)}>
-						听写
-					</Button>
+
 					<label className="ant-btn ant-btn-sm">
 						替换音/视频
 						<input type="file" accept="audio/*, video/*"
