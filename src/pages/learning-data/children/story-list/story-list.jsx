@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 20:19:41
+ * @LastEditTime: 2021-02-01 20:13:34
  * @Description: 
  */
 
@@ -76,6 +76,9 @@ export default class extends MyClass{
 					<Input.TextArea autoSize={{ minRows: 3, maxRows: 6 }}/>
 				</Form.Item>
 				<Form.Item name="ID" hidden={true}>
+					<Input/>
+				</Form.Item>
+				<Form.Item name="words" hidden={true}>
 					<Input/>
 				</Form.Item>
 			</Form>

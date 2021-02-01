@@ -17,7 +17,7 @@ export default class{
 				...this.state.pageInfo,
 			},
 		});
-		if (!res) return;
+		if (!res || !res.rows) return;
 		res.rows.forEach(cur=>{
 			cur.aMedia_ = [];
 			// this.getMediaForOneStory(cur);
@@ -47,7 +47,8 @@ export default class{
 		Object.entries(oForm).forEach(([key, val]) => {
 			if (val === undefined) oForm[key] = '';
 		});
-		// console.log('表单', oForm);
+		// oForm.words = '1,2,3';
+		console.log('表单', oForm);
 		if (!oForm.storyName) return;
 		const method = oForm.ID ? 'put' : 'post';
 		const {data: res} = await axios[method]('/story', oForm);
