@@ -201,7 +201,9 @@ export default class FileList {
 	}
 	// ▼查询某个故事下的文件
 	async getMediaForOneStory(storyId){ 
-		const {data} = await axios.get('/media/' + storyId);
+		const {data} = await axios.get('/media/media-list', {
+			params: {storyId},
+		});
 		if (!data) return;
 		this.setState({aMedia: data});
 	}
