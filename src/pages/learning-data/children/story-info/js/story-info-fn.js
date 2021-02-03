@@ -2,10 +2,10 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-03 19:15:01
+ * @LastEditTime: 2021-02-03 20:01:35
  * @Description: 
  */
-const {axios} = window;
+import {getStoryInfo} from 'common/js/learning-api.js';
 
 export default class {
 	// ▼格式化 search
@@ -22,7 +22,7 @@ export default class {
 	async init(storyId){
 		const {oStoryTB} = this.state;
 		const [{data: oStory}, oStoryFromTB] = await Promise.all([
-			axios.get('/story/story-info?storyId=' + storyId), // 故事信息
+			getStoryInfo(storyId), // 故事信息
 			oStoryTB.where('ID').equals(storyId*1).first(), //故事信息【本地】
 		]);
 		if (!oStory) return; // 查不到故事故事，返回

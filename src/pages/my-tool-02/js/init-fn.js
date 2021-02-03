@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-28 20:23:30
+ * @LastEditTime: 2021-02-03 20:01:28
  * @Description: 
  */
 
@@ -11,6 +11,8 @@ import {
 	getFakeBuffer,
 	getChannelDataFromBlob,
 } from 'assets/js/pure-fn.js';
+import {getStoryInfo} from 'common/js/learning-api.js';
+
 const axios = window.axios;
 
 export default class {
@@ -28,7 +30,7 @@ export default class {
 	async init({storyId, mediaId}){
 		const {storyTB, oMediaTB} = this.state; // aSteps,
 		const [{data: oStory}, oStoryFromTB, oMediaInTB] = await Promise.all([
-			axios.get('/story/' + storyId), // 故事信息
+			getStoryInfo(storyId), // 故事信息
 			storyTB.where('ID').equals(storyId*1).first(), //故事信息【本地】
 			oMediaTB.where('ID').equals(mediaId*1).first(), // 媒体数据【本地】
 		]);

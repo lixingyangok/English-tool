@@ -65,17 +65,18 @@ export default class {
 	}
 	// ▼保存生词到DB
 	saveWord() {
-		const { oStoryTB, oStory } = this.state;
 		const sWord = window.getSelection().toString().trim();
-		const aWords = oStory.aWords || [];
-		if ((sWord.length < 2 || sWord.length > 30) || aWords.includes(sWord)) {
-			this.message.error(`已经保存不可重复添加，或单词长度不在合法范围（2-30字母）`);
-			return; //不要重复保存
-		}
-		aWords.push(sWord);
-		oStoryTB.update(oStory.id, { aWords }); //增量更新本地数据
-		this.setState({ aWords });
-		this.message.success(`保存成功`);
+		console.log('词汇', sWord);
+		// const { oStoryTB, oStory } = this.state;
+		// const aWords = oStory.aWords || [];
+		// if ((sWord.length < 2 || sWord.length > 30) || aWords.includes(sWord)) {
+		// 	this.message.error(`已经保存不可重复添加，或单词长度不在合法范围（2-30字母）`);
+		// 	return; //不要重复保存
+		// }
+		// aWords.push(sWord);
+		// oStoryTB.update(oStory.id, { aWords }); //增量更新本地数据
+		// this.setState({ aWords });
+		// this.message.success(`保存成功`);
 	}
 	// ▼删除一个保存的单词
 	delWord(sWord) {
