@@ -4,6 +4,8 @@
  * @Description: 
  */ 
 
+const { axios } = window;
+
 export default class {
 	getAlphabet(){
 		return [...Array(26).keys()].map(cur=>String.fromCharCode(97 + cur));
@@ -65,9 +67,17 @@ export default class {
 	}
 	// ▼保存生词到DB
 	saveWord() {
+		const { oStory } = this.state; //oStoryTB,
 		const sWord = window.getSelection().toString().trim();
-		console.log('词汇', sWord);
-		// const { oStoryTB, oStory } = this.state;
+		if (sWord.includes(',')) {
+			return this.message.error('不能包含英文逗号');
+		}
+		const comma = oStory.words ? ',' : '';
+		const words = `${oStory.words}${comma}${sWord}`;
+		axios.put('/story/set-words', {
+			storyId: oStory.ID,
+			words,
+		});
 		// const aWords = oStory.aWords || [];
 		// if ((sWord.length < 2 || sWord.length > 30) || aWords.includes(sWord)) {
 		// 	this.message.error(`已经保存不可重复添加，或单词长度不在合法范围（2-30字母）`);
