@@ -3,6 +3,13 @@ ol, ul, dl {
 	padding: 0;
 }
 
+em{
+	font-style: normal;
+}
+
+/* ▲标签 */
+/* ▼类名 */
+
 .center-box{
 	/* width: 1170px; */
 	width: 960px;
@@ -22,3 +29,4 @@ ol, ul, dl {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
