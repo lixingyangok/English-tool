@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-04 20:31:52
+ * @LastEditTime: 2021-02-04 22:09:22
  * @Description: 
  */
 
@@ -55,7 +55,8 @@ export default class extends MyClass {
 		const oHtml = <cpnt.infoBox>
 			<h1>{oStory.storyName}</h1>
 			<div className="story-info">
-				<span>创建于：{oStory.CreatedAt}</span>&emsp;&emsp;
+				<span>创建时间：{oStory.CreatedAt}</span>&emsp;&emsp;
+				<span>媒体数量：{oStory.kids}</span>&emsp;&emsp;
 				{/* ant-btn ant-btn-primary ant-btn-sm */}
 				操作：<label className="btn">
 					导入文件

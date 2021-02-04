@@ -33,8 +33,12 @@ export const oneStory = styled.li`
 	}
 	.story-info{
 		color: #999;
+		margin: 0;
+		& + .story-info{
+			margin: 0 0 15px;
+		}
 		span + span{
-			margin-left: 25px;
+			margin-left: 15px;
 		}
 	}
 `;
