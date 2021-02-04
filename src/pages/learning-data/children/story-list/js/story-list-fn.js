@@ -11,17 +11,12 @@ const {axios} = window;
 export default class{
 	// ▼初始化，即查询【故事数据】
 	async init(){
-		// console.log('this.state.pageInfo', this.state.pageInfo);
 		const {data: res} = await axios.get('/story', {
 			params: {
 				...this.state.pageInfo,
 			},
 		});
 		if (!res || !res.rows) return;
-		res.rows.forEach(cur=>{
-			cur.aMedia_ = [];
-			// this.getMediaForOneStory(cur);
-		});
 		this.setState({
 			aStory: res.rows,
 			total: res.total,

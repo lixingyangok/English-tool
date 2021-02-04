@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-01 20:13:34
+ * @LastEditTime: 2021-02-04 20:34:55
  * @Description: 
  */
 
@@ -45,18 +45,17 @@ export default class extends MyClass{
 					<span>创建于：{oCurStory.CreatedAt}</span>
 					<span>备注：{oCurStory.note}</span>
 				</p>
-				<Button size='small' type="link" onClick={()=>this.goInfoPage(oCurStory)}>
+				<Button size='small' type="primary" onClick={()=>this.goInfoPage(oCurStory)}>
 					查看详情
+				</Button>
+				<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
+					修改信息
 				</Button>
 				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 					title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
 				>
 					<Button size='small' type="link">删除</Button>
 				</Popconfirm>
-				<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
-					修改信息
-				</Button>
-				
 			</cpnt.oneStory>
 			return myLi;
 		});

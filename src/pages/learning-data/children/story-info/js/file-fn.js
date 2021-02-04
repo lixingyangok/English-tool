@@ -13,6 +13,7 @@ import {
 	// getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
+import {getMediaByStoryId} from 'common/js/learning-api.js';
 import {Modal} from 'antd';
 const { confirm } = Modal;
 
@@ -201,11 +202,9 @@ export default class FileList {
 	}
 	// ▼查询某个故事下的文件
 	async getMediaForOneStory(storyId){ 
-		const {data} = await axios.get('/media/media-list', {
-			params: {storyId},
-		});
-		if (!data) return;
-		this.setState({aMedia: data});
+		const aMedia = await getMediaByStoryId(storyId);
+		if (!aMedia) return;
+		this.setState({aMedia});
 	}
 	// ▼删除一个已上传的文件
 	async delOneMedia(oStory, oneMedia){

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-03 20:01:35
+ * @LastEditTime: 2021-02-04 20:54:46
  * @Description: 
  */
 import {getStoryInfo} from 'common/js/learning-api.js';
@@ -34,7 +34,6 @@ export default class {
 			oStoryTB.add(oStory);
 		}
 	}
-
 	// ▼跳到听写
 	goToolPage(oMedia){
 		const {oStory} = this.state;
