@@ -53,8 +53,8 @@ export default class{
 	}
 	// ▼删除一个故事
 	async delOneStory(thisOne) {
-		const {aMedia_, ID} = thisOne;
-		if (aMedia_.length) {
+		const {ID, kids} = thisOne;
+		if (kids > 0) {
 			return this.message.error('请先删除故事下的章节');
 		}
 		const {data} = await axios.delete('/story/' + ID);

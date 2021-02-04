@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-04 20:34:55
+ * @LastEditTime: 2021-02-04 22:01:52
  * @Description: 
  */
 
@@ -42,9 +42,10 @@ export default class extends MyClass{
 			const myLi = <cpnt.oneStory key={idx}>
 				<h1 className="story-name">{oCurStory.storyName}</h1>
 				<p className="story-info" >
-					<span>创建于：{oCurStory.CreatedAt}</span>
-					<span>备注：{oCurStory.note}</span>
+					<span>创建时间：{oCurStory.CreatedAt}</span>
+					<span>媒体数量：{oCurStory.kids}</span>
 				</p>
+				<p>备注：{oCurStory.note}</p>
 				<Button size='small' type="primary" onClick={()=>this.goInfoPage(oCurStory)}>
 					查看详情
 				</Button>
