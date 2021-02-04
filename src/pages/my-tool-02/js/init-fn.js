@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-03 20:01:28
+ * @LastEditTime: 2021-02-04 19:34:53
  * @Description: 
  */
 
@@ -35,7 +35,11 @@ export default class {
 			oMediaTB.where('ID').equals(mediaId*1).first(), // 媒体数据【本地】
 		]);
 		if (!oStory) return; // 查不到故事故事，返回
-		this.setState({oStory});
+		const aWords = (()=>{
+			if (!oStory.words) return [];
+			return oStory.words.split(',');
+		})();
+		this.setState({oStory, aWords});
 		if (oStoryFromTB) { // 更新本地故事数据
 			storyTB.put({...oStory, id: oStoryFromTB.id}); //全量更新
 		}else{
@@ -45,7 +49,9 @@ export default class {
 	}
 	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
 	async setMedia(mediaId, oMediaInTB={}){
-		const {data: oMediaInfo} = await axios.get('/media/one-media/' + mediaId);
+		const {data: oMediaInfo} = await axios.get('/media/one-media/', {
+			params: {mediaId},
+		});
 		if (!oMediaInfo) return; // 查不到媒体信息
 		const {aSteps, oFirstLine} = this.state;
 		const {

@@ -49,15 +49,16 @@ export default class Tool extends MyClass {
 		}],
 		iCurStep: 0, //当前步骤
 		oTarget: {}, // 故事信息如：故事id、章节id
-		oWordsDB: {}, //词库
 		oSct: {}, // DB中的【章节】
 		sTyped: '', //已经输入的，用于搜索
-		aWords: [], //DB中的【单词】
 		aMatched: [], //与当前输入匹配到的单词
 		visible: false,
 		aWordsDBState: [],
 		scrollTimer: null,
+		// ▼疑似废弃 ----------
+		oWordsDB: {}, //词库
 		// ▼新版--------------------------------
+		aWords: [], //DB中的【单词】
 		storyTB: {}, // DB表
 		oMediaTB: {}, // 表-存媒体信息
 		oStory: {}, // 故事信息
@@ -256,10 +257,6 @@ export default class Tool extends MyClass {
 					<Button onClick={()=>this.initWordsDB()} type={isWordsDBOK && "primary"}>
 						{isWordsDBOK ? '词库已经初始化' : '初始化单词库'}
 					</Button>
-					<Upload type="primary" beforeUpload={file=>this.beforeUpload(file)} >
-						<Button>导入</Button>
-					</Upload>
-					<Button onClick={()=>this.exportWods()}>导出</Button>
 					<Button onClick={()=>this.cleanWordsList()}>清空</Button>
 				</div>
 				<div className="words-list">

@@ -96,36 +96,6 @@ export default class {
 		const fileName = res.audioFile.name.split('.').slice(0, -1).join('');
 		downloadString(aStr.join('\n'), fileName, 'srt');
 	}
-	// ▼导入词汇
-	async beforeUpload(file){
-		let {oTarget:{storyId}, oStoryTB} = this.state;
-		storyId*=1;
-		const res = await fileToStrings(file);
-		const aWords = res.split(/\s+/).filter(Boolean).sort();
-		const {aWords: aWordsOld} = await oStoryTB.get(storyId);
-		const onOk = () => {
-			oStoryTB.update(storyId, {aWords});
-			this.setState({aWords});
-		}
-		const onCancel = () => {
-			aWords.push(...aWordsOld);
-			oStoryTB.update(storyId, {aWords: [...new Set(aWords)].sort()});
-			this.setState({aWords});
-		};
-		this.confirm({
-			title: '请选择导入形式', 
-			content: `正在导入 ${aWords.length} 个单词，追加到当前词库还是覆盖？`,
-			okText: '覆盖', cancelText: '追加',
-			onOk, onCancel,
-		});
-		return Promise.reject();
-	}
-	// ▼ 导出词汇
-	async exportWods(){
-		const {oTarget:{storyId}, oStoryTB} = this.state;
-		const {name, aWords} = await oStoryTB.get(storyId*1);
-		downloadString(aWords.join('\n'), `${name}-词汇文件`, 'txt');
-	}
 	// ▼以上是字幕部分 ===================================================
 	// ▼文件转字符，然后保存
 	async getSubtitleToSave(oFile, oAudioFile){

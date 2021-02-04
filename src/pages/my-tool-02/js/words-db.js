@@ -4,7 +4,7 @@
  * @Description: 
  */ 
 
-const { axios } = window;
+import {setWrods} from 'common/js/learning-api.js';
 
 export default class {
 	getAlphabet(){
@@ -54,9 +54,9 @@ export default class {
 	// ▼清空词库
 	cleanWordsList(){
 		const onOk = ()=>{
-			let {oTarget:{storyId}, oStoryTB} = this.state;
+			const {oStory} = this.state;
 			this.setState({aWords: []});
-			oStoryTB.update(storyId*1, {aWords: []});
+			setWrods(oStory.ID, []);
 		};
 		this.confirm({
 			title: '清空后不可恢复，欢乐祥瑞清空？', 
@@ -67,33 +67,25 @@ export default class {
 	}
 	// ▼保存生词到DB
 	saveWord() {
-		const { oStory } = this.state; //oStoryTB,
+		const {error} = this.message;
+		const {oStory, aWords} = this.state; //oStoryTB,
 		const sWord = window.getSelection().toString().trim();
-		if (sWord.includes(',')) {
-			return this.message.error('不能包含英文逗号');
+		if (sWord.length < 2 || sWord.length > 30) {
+			return error(`单词长度不在合法范围（2-30字母）`);
 		}
-		const comma = oStory.words ? ',' : '';
-		const words = `${oStory.words}${comma}${sWord}`;
-		axios.put('/story/set-words', {
-			storyId: oStory.ID,
-			words,
-		});
-		// const aWords = oStory.aWords || [];
-		// if ((sWord.length < 2 || sWord.length > 30) || aWords.includes(sWord)) {
-		// 	this.message.error(`已经保存不可重复添加，或单词长度不在合法范围（2-30字母）`);
-		// 	return; //不要重复保存
-		// }
-		// aWords.push(sWord);
-		// oStoryTB.update(oStory.id, { aWords }); //增量更新本地数据
-		// this.setState({ aWords });
-		// this.message.success(`保存成功`);
+		if (sWord.includes(',')) return error('不能包含英文逗号');
+		if (aWords.includes(sWord)) return error(`已经保存不可重复添加`);
+		aWords.push(sWord);
+		this.setState({aWords});
+		setWrods(oStory.ID, aWords);
+		this.message.success(`保存成功`);
 	}
 	// ▼删除一个保存的单词
 	delWord(sWord) {
-		const { oStoryTB, oStory } = this.state;
-		const aWords = this.state.aWords.filter(cur => cur !== sWord);
+		let {oStory, aWords} = this.state;
+		aWords = aWords.filter(cur => cur !== sWord);
 		this.setState({ aWords });
-		oStoryTB.update(oStory.id, { aWords }); //增量更新
+		setWrods(oStory.ID, aWords);
 		this.message.success(`保存成功`);
 	}
 }
