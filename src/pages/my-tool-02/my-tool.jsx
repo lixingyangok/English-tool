@@ -9,7 +9,7 @@ import initFn from './js/init-fn.js';
 import wordsDbFn from './js/words-db.js';
 import figureOutRegion from './js/figure-out-region.js';
 import Nav from './children/menu/menu.jsx';
-import {Modal, Button, Upload, message, Space} from 'antd';
+import {Modal, Button, message, Space} from 'antd';
 
 const { TextArea } = Input;
 const { confirm } = Modal;

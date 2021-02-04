@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 20:44:28
+ * @LastEditTime: 2021-02-04 20:31:52
  * @Description: 
  */
 
@@ -64,7 +64,8 @@ export default class extends MyClass {
 					/>
 				</label>
 			</div>
-			<span>备注：{oStory.note || '无'}</span>&emsp;&emsp;
+			<div>词汇：{(oStory.words || '').replace(/,/g, ', ') || '无'}</div>
+			<div>备注：{oStory.note || '无'}</div>
 		</cpnt.infoBox>
 		return oHtml;
 	}
@@ -152,7 +153,6 @@ export default class extends MyClass {
 		// const {oStory} = this.state;
 		const resultHTML = <div className="center-box">
 			{this.getInfoBox()}
-			<br/>
 			{this.showFilesOfOneStory()}
 			{this.showTheFileListReadyForUpload()}
 		</div>

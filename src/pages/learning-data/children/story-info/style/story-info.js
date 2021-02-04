@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:43:26
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-31 20:43:56
+ * @LastEditTime: 2021-02-04 20:29:52
  * @Description: 
  */
 
@@ -14,7 +14,7 @@ export const infoBox = styled.div`
 	border: solid 1px #ddd;
 	.story-info{
 		color: #666;
-		margin: 5px 0 8px;
+		margin: 5px 0 0;
 	}
 	.btn{
 		color: blue;
