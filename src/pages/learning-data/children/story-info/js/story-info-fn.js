@@ -26,7 +26,7 @@ export default class {
 			oStoryTB.where('ID').equals(storyId*1).first(), //故事信息【本地】
 		]);
 		if (!oStory) return; // 查不到故事故事，返回
-		console.log('故事信息', oStory);
+		// console.log('故事信息', oStory);
 		this.setState({oStory});
 		if (oStoryFromTB) { // 更新本地故事数据
 			oStoryTB.put({...oStory, id: oStoryFromTB.id}); //全量更新

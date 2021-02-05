@@ -10,8 +10,8 @@ export default class {
 	}
 	async toLogIn(){
 		const {loginForm} = this.state;
-		const testing = location.host.startsWith('localhost');
-		if (testing && (!loginForm.account || !loginForm.password)) {
+		// const testing = location.host.startsWith('localhost');
+		if (!loginForm.account || !loginForm.password) {
 			loginForm.account = store.get('account') || '';
 			loginForm.password = store.get('password') || '';
 		}

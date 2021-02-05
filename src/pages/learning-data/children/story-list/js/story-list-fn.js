@@ -61,7 +61,10 @@ export default class{
 		if (!data) return;
 		this.init();
 		const {oStoryTB} = this.state;
-		oStoryTB.where('ID').equals(ID).delete();
+		const oCollection = oStoryTB.where('ID').equals(ID);
+		oCollection.count().then(res=>{
+			res && oCollection.delete();
+		});
 	}
 	// ▼打开窗口（新建/修改）
 	async showModal(oFormData){

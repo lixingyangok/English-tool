@@ -216,9 +216,12 @@ export default class FileList {
 			},
 		});
 		if (!res) return this.message.error('删除文件未成功');
-		this.getMediaForOneStory(oStory);
-		const {mediaTB} = this.state;
-		mediaTB.where('ID').equals(oneMedia.ID).delete();
+		this.getMediaForOneStory(oStory.ID);
+		const {oMediaTB} = this.state;
+		const oCollection = oMediaTB.where('ID').equals(oneMedia.ID);
+		oCollection.count().then(res=>{
+			res && oCollection.delete();
+		});
 	}
 	// ▼导出字幕文件（废弃了？）
 	toExport(oSct) {
