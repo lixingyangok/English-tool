@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-04 22:09:22
+ * @LastEditTime: 2021-02-05 21:07:33
  * @Description: 
  */
 
@@ -86,7 +86,6 @@ export default class extends MyClass {
 						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
 					/>
 				</label>
-				<br/>
 				<label className="ant-btn ant-btn-sm">
 					替换字幕
 					<input type="file" style={{display: 'none'}}

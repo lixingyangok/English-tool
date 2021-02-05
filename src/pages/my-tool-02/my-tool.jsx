@@ -103,6 +103,7 @@ export default class Tool extends MyClass {
 					{aLines[iCurLine].text}
 				</p>
 			</cpnt.VideoWrap>
+			{/* ▲左边视频，▼右侧波形 */}
 			<div className="right">
 				<cpnt.WaveBox>
 					<canvas height={iCanvasHeight} ref={this.oCanvas}/>
@@ -218,6 +219,7 @@ export default class Tool extends MyClass {
 			<span>共计：<em>{oCurStep.aLines.length || 0}句</em></span>
 			<span>每秒：<em>{iPerSecPx}px</em></span>
 			<span>字幕：<em title={tips02}>{tips01}</em></span>
+			<span>★ TODO：返回列表页</span>
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词
