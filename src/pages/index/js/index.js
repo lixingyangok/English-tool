@@ -1,5 +1,5 @@
 import {message} from 'antd';
-const {axios, store, location} = window;
+const {axios, store} = window;
 
 export default class {
 	inputChanged({target}){
