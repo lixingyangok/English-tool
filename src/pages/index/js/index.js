@@ -20,7 +20,7 @@ export default class {
 			message.success('已登录');
 			return this.getSession();
 		}
-		message.warning('登录未成功');
+		message.warning(data);
 	}
 	async logOut(){
 		const {data} = await axios.get('/user/logout');
