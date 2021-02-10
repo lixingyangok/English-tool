@@ -1,3 +1,7 @@
+html{
+	--color: #1890ff;
+}
+
 ol, ul, dl {
 	list-style: none;
 	padding: 0;

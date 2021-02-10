@@ -87,8 +87,7 @@ export default class{
 	}
 	// ▼跳到详情
 	goInfoPage02(oStory){
-		let sUrl = `/learning-page/info`;
-		sUrl += `?storyId=${oStory.ID}`;
+		let sUrl = `/learning-page/${oStory.ID}`;
 		window.open(sUrl, '_blank');
 	}
 }

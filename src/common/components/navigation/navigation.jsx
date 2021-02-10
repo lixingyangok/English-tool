@@ -13,42 +13,35 @@ export const aLearningData = [{
 }, {
 	name: '故事详情',
 	path: '/story-info',
-	hide_: true,
 	component: React.lazy(() => import('pages/learning-data/children/story-info/story-info.jsx')),
 }];
 
-// class A1 extends React.Component{
-// 	constructor(props){
-// 		super(props)
-// 		console.log("props", props);
-// 	}
-// 	render(){
-// 		return <div>{this.props.mark}</div>
-// 	}
-// }
-
-function A2 (props){
-	return <div>A2的参数：{props.mark}</div>
+function MyDiv (props){
+	return <div>MyDiv的参数：{props.mark}</div>
 }
 
 export const aLearningPage = [{
 	name: '列表',
-	path: '/info',
-	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
-	// component: A2, // 可用
-	// component: <A2 mark="123"/>, // 报错
-	component: ()=><A2 mark="123" />, // 可用
+	path: '/list',
+	// component: MyDiv, // 可用
+	// component: ()=><MyDiv mark="123" />, // 可用
+	// component: <MyDiv mark="123"/>, // ★★报错★★
+	component: React.lazy(() => import('pages/learning-page/children/story-info/story-info.jsx')),
 }, {
 	name: '听写',
 	path: '/dictation',
 	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
-	component: ()=><A2 mark="456" />, // 可用
-
+	component: ()=><MyDiv mark="456" />, // 可用
+}, {
+	name: '阅读',
+	path: '/read',
+	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
+	component: ()=><MyDiv mark="abc" />, // 可用
 }, {
 	name: '词汇',
 	path: '/words',
 	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
-	component: ()=><A2 mark="789" />, // 可用
+	component: ()=><MyDiv mark="789" />, // 可用
 }];
 
 export const aLocalData = [{
@@ -61,7 +54,6 @@ export const aLocalData = [{
 	component: React.lazy(() => import('pages/local-data/children/my-tool/my-tool.jsx')),
 }];
 
-
 export const aNavData = [{
 	name: '首页',
 	path: '/index',
@@ -73,7 +65,7 @@ export const aNavData = [{
 	children: aLearningData,
 }, {
 	name: '学习页面',
-	path: '/learning-page',
+	path: '/learning-page/:storyId',
 	hide_: true,
 	component: React.lazy(() => import('pages/learning-page/learning-page.jsx')),
 	children: aLearningPage,
