@@ -16,7 +16,6 @@ function StoryInfo(oStoryInfo){
 
 function TabBar(props){
 	const {storyId, curIdx = 0} = props;
-	console.log("storyId, curIdx\n", storyId, curIdx);
 	const history = useHistory();
 	function callback(idx) {
 		const oTarget = aLearningPage[idx];
