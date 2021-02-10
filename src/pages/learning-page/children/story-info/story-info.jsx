@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-10 16:55:35
+ * @LastEditTime: 2021-02-10 19:39:28
  * @Description: 
  */
 
@@ -14,6 +14,7 @@ import FileFn from './js/file-fn.js';
 import {
 	Button, Space, Popconfirm, message,
 } from 'antd';
+import {MyContext} from 'pages/learning-page/learning-page.jsx';
 
 const MyClass = window.mix(
 	React.Component,
@@ -22,6 +23,8 @@ const MyClass = window.mix(
 );
 
 export default class extends MyClass {
+	static contextType = MyContext;
+	previousContext = null;
 	message = message;
 	state = {
 		visible: false, //窗口显示
@@ -48,11 +51,11 @@ export default class extends MyClass {
 			oStoryTB, oMediaTB, oTarget, loading,
 		});
 		if (!oTarget.storyId) return;
-		this.init(oTarget.storyId);
-		this.getMediaForOneStory(oTarget.storyId);
+		// this.init()
 	}
 	getInfoBox(){
-		const {oStory} = this.state;
+		// const {oStory} = this.state;
+		const oStory = this.context;
 		const oHtml = <cpnt.infoBox>
 			<h1>{oStory.storyName}</h1>
 			<div className="story-info">
@@ -154,7 +157,11 @@ export default class extends MyClass {
 		return ul;
 	}
 	render(){
-		// const {oStory} = this.state;
+		const storyId = this.context.ID;
+		if (this.previousContext !== this.context && storyId) {
+			this.getMediaForOneStory(storyId);
+		}
+		this.previousContext = this.context;
 		const resultHTML = <div className="center-box">
 			{this.getInfoBox()}
 			{this.showFilesOfOneStory()}
@@ -165,6 +172,9 @@ export default class extends MyClass {
 	// ▲render
 	// ▼生命周期
 	async componentDidMount(){
-		console.log('componentDidMount');
+
+	}
+	componentDidUpdate(){
+
 	}
 }

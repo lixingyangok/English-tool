@@ -13,10 +13,10 @@ export const header = styled.header`
 `;
 
 export const storyInfo = styled.div`
-	/* border-bottom: solid 1px #aaa; */
-	padding: 15px 20px 10px;
+	padding: 20px 20px 15px;
 	h1{
-		line-height: 1.1;
+		height: 26px;
+		line-height: 26px;
 		color: white;
 		font-size: 22px;
 		font-weight: bold;

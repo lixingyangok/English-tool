@@ -1,17 +1,22 @@
-import React, {Suspense} from 'react';
-import { Route, Redirect, Switch, useHistory  } from 'react-router-dom';
+import React, {Suspense, useState} from 'react';
+import { Route, Redirect, Switch, useHistory} from 'react-router-dom';
 import Loading from 'common/components/loading/loading.jsx';
 import {aLearningPage} from 'common/components/navigation/navigation.jsx';
 import * as cpnt from './style/learning-page.js';
 import { Tabs } from 'antd';
+import {getStoryInfo} from 'common/js/learning-api.js';
 
-function StoryInfo(){
+export const MyContext = React.createContext('');
+
+function StoryInfo(oStoryInfo){
 	return <cpnt.storyInfo>
-		<h1>故事信息</h1>
+		<h1>{oStoryInfo.storyName}</h1>
 	</cpnt.storyInfo>
 }
 
-function TabBar(storyId){
+function TabBar(props){
+	const {storyId, curIdx = 0} = props;
+	console.log("storyId, curIdx\n", storyId, curIdx);
 	const history = useHistory();
 	function callback(idx) {
 		const oTarget = aLearningPage[idx];
@@ -19,17 +24,15 @@ function TabBar(storyId){
 		history.push(url);
 	}
 	const aPages = aLearningPage.map((cur, idx) => {
-		return <Tabs.TabPane tab={cur.name} key={idx}/>
+		return <Tabs.TabPane tab={cur.name} key={String(idx)}/>
 	});
-	return <cpnt.MyTabs defaultActiveKey="1" onChange={callback}
-		defaultActiveKey={0}
-	>
+	return <cpnt.MyTabs onChange={callback} defaultActiveKey={curIdx}>
 		{aPages}
 	</cpnt.MyTabs>
-	// return Demo;
 }
 
-function getBody(){
+function getBody(oStoryInfo={}){
+	// console.log('收到故事信息：\n', oStoryInfo);
 	const getPath = url => `/learning-page/:storyId${url}`;
 	const bottom = <Suspense fallback={Loading}>
 		<Switch>
@@ -43,18 +46,33 @@ function getBody(){
 			/>
 		</Switch>
 	</Suspense>
-	return bottom;
+	const HTML = <MyContext.Provider value={oStoryInfo}>
+		{bottom}
+	</MyContext.Provider>
+	return HTML;
 }
 
 export default function (props){
-	console.log("路由的信息：\n", props.match.params);
-	const {storyId}=props.match.params;
+	const  [oStoryInfo, setStoryInfo] =  useState({});
+	const {storyId} = props.match.params;
+	const curIdx = (()=>{ // TODO 不准备，应找好办法
+		const iVal = aLearningPage.findIndex(cur=>{
+			return props.location.pathname.includes(cur.path);
+		});
+		return String(iVal);
+	})();
+	React.useEffect(()=>{
+		getStoryInfo(storyId).then(res=>{
+			setStoryInfo(res.data || {})
+		});
+		//return; // xx => console.log('组件卸载了');
+	}, [storyId]);
 	const resultHTML = <cpnt.outer>
 		<cpnt.header>
-			{StoryInfo()}
-			{TabBar(storyId)}
+			{StoryInfo(oStoryInfo)}
+			<TabBar {...{storyId, curIdx}} />
 		</cpnt.header>
-		{getBody()}
+		{getBody(oStoryInfo)}
 	</cpnt.outer>
 	return resultHTML
 }
