@@ -37,6 +37,10 @@ export default class{
 		});
 		this.setState({pageInfo}, this.init);
 	}
+	changeSize(current, pageSize){
+		const pageInfo = ({current, pageSize});
+		this.setState({pageInfo}, this.init);
+	}
 	// ▼提交表单，提交一个故事
 	async onSave(oForm) {
 		Object.entries(oForm).forEach(([key, val]) => {

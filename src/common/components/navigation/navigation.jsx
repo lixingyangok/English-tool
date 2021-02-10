@@ -62,7 +62,7 @@ export default function () {
 	}
 	const theNav = <cpnt.Nav className="center-box02">
 		<em className="logo" >
-			哈哈学习 Hahaxuexi.com
+			哈哈学习
 		</em>
 		<cpnt.Ul>
 			{aNavData.map((cur, idx) => {

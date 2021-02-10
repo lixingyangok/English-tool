@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-04 22:13:29
+ * @LastEditTime: 2021-02-10 11:29:51
  * @Description: 
  */
 
@@ -103,6 +103,7 @@ export default class extends MyClass{
 					pageSize={pageInfo.pageSize}
 					current={pageInfo.current} 
 					onChange={newPage=>this.chnagePage(newPage)}
+					onShowSizeChange={(current, size)=>this.changeSize(current, size)}
 				/>
 				{dialog}
 			</Spin>
