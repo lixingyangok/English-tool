@@ -17,9 +17,38 @@ export const aLearningData = [{
 	component: React.lazy(() => import('pages/learning-data/children/story-info/story-info.jsx')),
 }];
 
+// class A1 extends React.Component{
+// 	constructor(props){
+// 		super(props)
+// 		console.log("props", props);
+// 	}
+// 	render(){
+// 		return <div>{this.props.mark}</div>
+// 	}
+// }
+
+function A2 (props){
+	return <div>A2的参数：{props.mark}</div>
+}
+
 export const aLearningPage = [{
+	name: '列表',
+	path: '/info',
+	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
+	// component: A2, // 可用
+	// component: <A2 mark="123"/>, // 报错
+	component: ()=><A2 mark="123" />, // 可用
+}, {
+	name: '听写',
 	path: '/dictation',
-	component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
+	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
+	component: ()=><A2 mark="456" />, // 可用
+
+}, {
+	name: '词汇',
+	path: '/words',
+	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
+	component: ()=><A2 mark="789" />, // 可用
 }];
 
 export const aLocalData = [{
@@ -79,7 +108,7 @@ export default function () {
 		<cpnt.Ul>
 			{aNavData.map((cur, idx) => {
 				const { children, path, hide_ } = cur;
-				if (hide_) return;
+				if (hide_) return null;
 				// const aim = children ? children[0].path : path;
 				const aim = path;
 				return <cpnt.Li key={idx}>

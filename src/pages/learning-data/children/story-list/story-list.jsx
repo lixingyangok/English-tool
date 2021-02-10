@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-10 11:29:51
+ * @LastEditTime: 2021-02-10 14:24:30
  * @Description: 
  */
 
@@ -48,6 +48,10 @@ export default class extends MyClass{
 				<p className="story-info">备注信息：{oCurStory.note || '无备注'}</p>
 				<Button size='small' type="primary" onClick={()=>this.goInfoPage(oCurStory)}>
 					查看详情
+				</Button>
+				&nbsp;
+				<Button size='small' type="primary" onClick={()=>this.goInfoPage02(oCurStory)}>
+					查看详情02
 				</Button>
 				<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
 					修改信息

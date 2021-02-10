@@ -79,11 +79,17 @@ export default class{
 		if (oFormData) oForm.setFieldsValue(oFormData);
 		else oForm.resetFields();
 	}
-	// ▼跳到听写
+	// ▼跳到详情
 	goInfoPage(oStory){
 		const sPath = `/learning-data/story-info`;
 		const query = `?storyId=${oStory.ID}`;
 		this.props.history.push(sPath + query);
+	}
+	// ▼跳到详情
+	goInfoPage02(oStory){
+		let sUrl = `/learning-page/info`;
+		sUrl += `?storyId=${oStory.ID}`;
+		window.open(sUrl, '_blank');
 	}
 }
 
