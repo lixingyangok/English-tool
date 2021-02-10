@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-05 21:07:33
+ * @LastEditTime: 2021-02-10 11:44:58
  * @Description: 
  */
 
@@ -78,6 +78,9 @@ export default class extends MyClass {
 			const btnBar = <Space className="media-btn-wrap" >
 				<Button type="primary" size="small" onClick={()=>this.goToolPage(oMedia)}>
 					听写
+				</Button>
+				<Button type="primary" size="small" onClick={()=>this.goLearningPage(oMedia)}>
+					听写（新）
 				</Button>
 				<label className="ant-btn ant-btn-sm">
 					替换音/视频

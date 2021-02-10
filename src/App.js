@@ -9,21 +9,28 @@ import Navigation, {aNavData} from './common/components/navigation/navigation.js
 import Loading from 'common/components/loading/loading.jsx';
 
 function App() {
-  return <BrowserRouter>
-    <Navigation/>
-    {/* ▼异步组件父级必须有 Suspense */}
-    <Suspense fallback={Loading}>
-      <Switch>
-        <Redirect exact from="/" to="/index" ></Redirect>
-        {aNavData.map((cur,idx)=>{
-          return <Route key={idx} path={cur.path} 
-            component={cur.component}
-          />
-        })}
-      </Switch>
-    </Suspense>
-  </BrowserRouter>
+	const oNavigation = (()=>{
+		const {pathname} = window.location;
+		if (pathname.startsWith('/learning-page')) return null;
+		return <Navigation/>;
+	})();
+	// ▼ 异步组件父级要包裹 Suspense
+	const oBody = <Suspense fallback={Loading}>
+		<Switch>
+			<Redirect exact from="/" to="/index" ></Redirect>
+			{aNavData.map((cur,idx)=>{
+				return <Route key={idx} path={cur.path} 
+						component={cur.component}
+				/>
+			})}
+		</Switch>
+	</Suspense>;
+	// ▼ 
+	const resultHTML = <BrowserRouter>
+		{oNavigation}
+		{oBody}
+	</BrowserRouter>
+	return resultHTML;
 }
 
 export default App;
-

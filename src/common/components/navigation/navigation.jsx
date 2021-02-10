@@ -17,6 +17,11 @@ export const aLearningData = [{
 	component: React.lazy(() => import('pages/learning-data/children/story-info/story-info.jsx')),
 }];
 
+export const aLearningPage = [{
+	path: '/dictation',
+	component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
+}];
+
 export const aLocalData = [{
 	name: '列表',
 	path: '/list',
@@ -27,6 +32,7 @@ export const aLocalData = [{
 	component: React.lazy(() => import('pages/local-data/children/my-tool/my-tool.jsx')),
 }];
 
+
 export const aNavData = [{
 	name: '首页',
 	path: '/index',
@@ -36,6 +42,12 @@ export const aNavData = [{
 	path: '/learning-data',
 	component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
 	children: aLearningData,
+}, {
+	name: '学习页面',
+	path: '/learning-page',
+	hide_: true,
+	component: React.lazy(() => import('pages/learning-page/learning-page.jsx')),
+	children: aLearningPage,
 }, {
 	name: '本地数据',
 	path: '/local-data',
@@ -66,7 +78,8 @@ export default function () {
 		</em>
 		<cpnt.Ul>
 			{aNavData.map((cur, idx) => {
-				const { children, path } = cur;
+				const { children, path, hide_ } = cur;
+				if (hide_) return;
 				// const aim = children ? children[0].path : path;
 				const aim = path;
 				return <cpnt.Li key={idx}>
