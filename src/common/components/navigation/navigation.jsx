@@ -30,8 +30,7 @@ export const aLearningPage = [{
 }, {
 	name: '听写',
 	path: '/dictation',
-	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
-	component: ()=><MyDiv mark="456" />, // 可用
+	component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
 }, {
 	name: '阅读',
 	path: '/read',
