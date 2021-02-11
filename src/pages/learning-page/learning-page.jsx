@@ -1,10 +1,11 @@
 import React, {Suspense, useState} from 'react';
-import { Route, Redirect, Switch, useHistory} from 'react-router-dom';
+import { Redirect, useHistory} from 'react-router-dom';
 import Loading from 'common/components/loading/loading.jsx';
 import {aLearningPage} from 'common/components/navigation/navigation.jsx';
 import * as cpnt from './style/learning-page.js';
 import { Tabs } from 'antd';
 import {getStoryInfo} from 'common/js/learning-api.js';
+import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 
 export const MyContext = React.createContext('');
 
@@ -35,16 +36,16 @@ function ChildrenPages(props){
 	const {oStoryInfo={}}  = props;
 	const getPath = url => `/learning-page/:storyId${url}`;
 	const bottom = <Suspense fallback={Loading}>
-		<Switch>
+		<CacheSwitch>
 			{aLearningPage.map((cur,idx)=>{
-				return <Route key={idx} path={getPath(cur.path)} 
+				return <CacheRoute key={idx} path={getPath(cur.path)} 
 					component={cur.component}
 				/>
 			})}
 			<Redirect exact from="/learning-page/:storyId"
 				to="/learning-page/:storyId/list" 
 			/>
-		</Switch>
+		</CacheSwitch>
 	</Suspense>
 	const HTML = <MyContext.Provider value={{oStoryInfo}}>
 		{bottom}
