@@ -3,24 +3,25 @@
  * @LastEditors: 李星阳
  * @Description: 
  */
-import {downloadString, fileToStrings} from 'assets/js/pure-fn.js';
+// import {downloadString, fileToStrings} from 'assets/js/pure-fn.js';
+// 注释于：2021.02.11 17:47:19 星期四
 
 export default class {
 	// ▼从文件得到 buffer 数据
-	fileToBuffer(oFile) {
-		const reader = new FileReader();
-		let resolveFn = xx => xx;
-		const promise = new Promise(resolve => resolveFn = resolve);
-		reader.onload = async evt => {
-			const arrayBuffer = evt.currentTarget.result;
-			let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-			const buffer = await audioContext.decodeAudioData(arrayBuffer);
-			resolveFn(buffer);
-			audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
-		};
-		reader.readAsArrayBuffer(oFile);
-		return promise;
-	}
+	// fileToBuffer(oFile) {
+	// 	const reader = new FileReader();
+	// 	let resolveFn = xx => xx;
+	// 	const promise = new Promise(resolve => resolveFn = resolve);
+	// 	reader.onload = async evt => {
+	// 		const arrayBuffer = evt.currentTarget.result;
+	// 		let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+	// 		const buffer = await audioContext.decodeAudioData(arrayBuffer);
+	// 		resolveFn(buffer);
+	// 		audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
+	// 	};
+	// 	reader.readAsArrayBuffer(oFile);
+	// 	return promise;
+	// }
 };
 
 
