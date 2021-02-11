@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 11:02:49
+ * @LastEditTime: 2021-02-11 14:53:24
  * @Description: 
  */
 
@@ -10,11 +10,12 @@ import React from 'react';
 import pageFn from './js/story-info-fn.js';
 import * as cpnt from './style/story-info.js';
 import FileFn from './js/file-fn.js';
-
-import {
-	Button, Space, Popconfirm, message,
-} from 'antd';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
+import {
+	Button, Popconfirm, message, Table, // Tag, Space, 
+} from 'antd';
+
+const { Column } = Table;
 
 const MyClass = window.mix(
 	React.Component,
@@ -73,47 +74,6 @@ export default class extends MyClass {
 		</cpnt.infoBox>
 		return oHtml;
 	}
-	// ▼陈列【已经上传】的文件
-	showFilesOfOneStory(){
-		const {oStory, aMedia} = this.state;
-		if (!aMedia.length) return '暂无文件';
-		const myLiArr = aMedia.map((oMedia, idx)=>{
-			const btnBar = <Space className="media-btn-wrap" >
-				<Button type="primary" size="small" onClick={()=>this.goDictation(oMedia)}>
-					听写
-				</Button>
-				<label className="ant-btn ant-btn-sm">
-					替换音/视频
-					<input type="file" accept="audio/*, video/*"
-						style={{display: 'none'}}
-						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
-					/>
-				</label>
-				<label className="ant-btn ant-btn-sm">
-					替换字幕
-					<input type="file" style={{display: 'none'}}
-						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
-					/>
-				</label>
-				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-					title="确定删除？"
-					onConfirm={()=>this.delOneMedia(oStory, oMedia)}
-				>
-					<Button size="small">删除</Button>
-				</Popconfirm>
-			</Space>
-			const oneLi= <li key={idx}>
-				<h3 className="title ellipsis" >
-					{oMedia.fileName}
-				</h3>
-				字幕：{oMedia.subtitleFileName || '元'}<br/>
-				{btnBar}
-			</li>;
-			return oneLi;
-		});
-		const ul = <cpnt.fileList>{myLiArr}</cpnt.fileList>
-		return ul;
-	}
 	// ▼陈列【待上传】的文件
 	showTheFileListReadyForUpload(){
 		const {oStory} = this.state;
@@ -147,18 +107,67 @@ export default class extends MyClass {
 			</li>;
 			return oLi;
 		});
-		const ul = <cpnt.filesWaitToUpload>
+		const ul = <cpnt.fileList>
 			{myLiArr}
-		</cpnt.filesWaitToUpload>
+		</cpnt.fileList>
 		return ul;
 	}
-
+	getTable(){
+		const {oStory, aMedia} = this.state;
+		const dataForTable = aMedia.map(cur=>{
+			cur.key = cur.ID;
+			return cur;
+		});
+		const getBtn = function(oMedia){
+			const HTML = <>
+				<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
+					听写
+				</Button>
+				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+					title="确定删除？"
+					onConfirm={()=>this.delOneMedia(oStory, oMedia)}
+				>
+					<Button type="text" size="small" danger >删除</Button>
+				</Popconfirm>
+				<br/>
+				<label className="ant-btn ant-btn-text ant-btn-sm">
+					替换音/视频
+					<input type="file" accept="audio/*, video/*"
+						style={{display: 'none'}}
+						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
+					/>
+				</label>
+				<label className="ant-btn ant-btn-text ant-btn-sm">
+					替换字幕
+					<input type="file" style={{display: 'none'}}
+						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
+					/>
+				</label>
+			</>
+			return HTML;
+		}
+		return <Table dataSource={dataForTable} 
+			pagination={{position: ['none', 'none']}}
+		>
+			<Column title="文件" dataIndex="fileName" key="fileName" />
+			<Column title="字幕" dataIndex="subtitleFileName" key="subtitleFileName" />
+			<Column title="修改时间" dataIndex="subtitleFileModifyStr" key="address" />
+			<Column title="Tags" dataIndex="tags" key="tags"
+				render={tags => ( 123 )}
+			/>
+			<Column title="操作" key="action"
+				render={oMedia => getBtn(oMedia)}
+			/>
+		</Table>;
+	}
 	render(){
-		const resultHTML = <div className="center-box">
+		const resultHTML = <cpnt.outer className="">
 			{this.getInfoBox()}
-			{this.showFilesOfOneStory()}
+			{/* ▼废弃？ */}
+			{/* {this.showFilesOfOneStory()} */}
 			{this.showTheFileListReadyForUpload()}
-		</div>
+			{/* {this.getTable()} */}
+		</cpnt.outer>
 		return resultHTML;
 	}
 	// ▲render
