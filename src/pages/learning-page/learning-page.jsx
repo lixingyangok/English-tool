@@ -23,7 +23,7 @@ function TabBar(props){
 	const curIdx = aLearningPage.findIndex(cur=>{
 		return pathname.includes(cur.pathRoot || cur.path);
 	});
-	console.log('新值：', curIdx);
+	// console.log('新值：', curIdx);
 	function callback(idx) {
 		const oTarget = aLearningPage[idx];
 		const url = `/learning-page/${storyId}${oTarget.path}`;

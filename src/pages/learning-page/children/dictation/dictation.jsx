@@ -26,6 +26,7 @@ const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 export default class Tool extends MyClass {
 	static contextType = MyContext;
 	oldContext = null;
+	oldMediaId = null;
 	message = message;
 	confirm = confirm;
 	oAudio = React.createRef();
@@ -87,89 +88,11 @@ export default class Tool extends MyClass {
 		})();
 		Object.assign(this.state, {
 			oWordsDB, storyTB, oMediaTB,
-			loading, mediaId, // oTarget, 
+			loading, // mediaId, // oTarget, 
 		});
 		this.checkWordsDB(oWordsDB);
 	}
-	render() {
-		const {
-			aSteps, iCurStep, iCanvasHeight,
-			fileSrc, fPerSecPx, buffer, loading, oSct,
-		} = this.state;
-		const {aLines, iCurLine} = aSteps[iCurStep];
-		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
-		if (!this.oldContext && this.context){
-			console.log("数据来了:");
-			this.oldContext = this.context;
-			this.init();
-		}
-		// ▼ 开始 html
-		const MediaAndWave = <cpnt.MediaAndWave>
-			<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
-				<video src={fileSrc} name="controls"
-					ref={this.oAudio} className="video"
-				/>
-				<p className="subtitle" data-text={aLines[iCurLine].text}>
-					{aLines[iCurLine].text}
-				</p>
-			</cpnt.VideoWrap>
-			{/* ▲左边视频，▼右侧波形 */}
-			<div className="right">
-				<cpnt.WaveBox>
-					<canvas height={iCanvasHeight} ref={this.oCanvas}/>
-					<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
-						<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
-							onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
-						>
-							{this.getMarkBar(this.state)}
-							{this.getRegions(this.state)}
-						</cpnt.LongBar>
-					</cpnt.WaveWrap>
-				</cpnt.WaveBox>
-				<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
-				{this.getInfoBar(this.state)}
-				<cpnt.HistoryBar>
-					{aSteps.map((cur,idx)=>{
-						return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
-					})}
-				</cpnt.HistoryBar>
-				<cpnt.TextareaWrap>
-					<TextArea id="myTextArea" ref={this.oTextArea}
-						value={aLines[iCurLine].text}
-						onChange={ev => this.valChanged(ev)}
-						onKeyDown={ev => this.enterKeyDown(ev)}
-					/>
-				</cpnt.TextareaWrap>
-				{this.getWordsList(this.state)}
-			</div>
-		</cpnt.MediaAndWave>
-		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
-		const SentenceWrap = <cpnt.SentenceWrap ref={this.oSententList}>
-			{aLines.map((cur, idx) => {
-				return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
-					key={idx} onClick={() => this.goLine(idx)}
-				>
-					<i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
-						{idx + 1}
-					</i>
-					<span className="time">
-						<em>{cur.start_}</em>&nbsp;-&nbsp;<em>{cur.end_}</em>
-					</span>
-					<p className="the-text" >{cur.text}</p>
-				</li>;
-			})}
-		</cpnt.SentenceWrap>
-		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
-		const resultHTML = <cpnt.Container>
-			<Spin spinning={loading} size="large"/>
-			{MediaAndWave}
-			{SentenceWrap}
-			{this.getDialog(this.state)}
-			{this.getMatchDialog(this.state)}
-		</cpnt.Container>;
-		return resultHTML;
-	}
-	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
+	
 	// ▼时间刻度
 	getMarkBar({fPerSecPx}){
 		const myArr = [];
@@ -311,7 +234,101 @@ export default class Tool extends MyClass {
 			<cpnt.matchUl>{aLi}</cpnt.matchUl>
 		</Modal>;
 	}
+	render() {
+		const {
+			aSteps, iCurStep, iCanvasHeight,
+			fileSrc, fPerSecPx, buffer, loading, oSct, mediaId,
+		} = this.state;
+		const {aLines, iCurLine} = aSteps[iCurStep];
+		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
+		if ((this.oldMediaId !== mediaId) && mediaId) {
+			console.log('媒体id变成了------', mediaId);
+			this.oldMediaId = mediaId;
+			this.init();
+		}
+		if (!this.oldContext && this.context){
+			console.log("context数据来了:");
+			this.oldContext = this.context;
+			this.init();
+		}
+		// ▼ 开始 html
+		const MediaAndWave = <cpnt.MediaAndWave>
+			<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
+				<video src={fileSrc} name="controls"
+					ref={this.oAudio} className="video"
+				/>
+				<p className="subtitle" data-text={aLines[iCurLine].text}>
+					{aLines[iCurLine].text}
+				</p>
+			</cpnt.VideoWrap>
+			{/* ▲左边视频，▼右侧波形 */}
+			<div className="right">
+				<cpnt.WaveBox>
+					<canvas height={iCanvasHeight} ref={this.oCanvas}/>
+					<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
+						<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
+							onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
+						>
+							{this.getMarkBar(this.state)}
+							{this.getRegions(this.state)}
+						</cpnt.LongBar>
+					</cpnt.WaveWrap>
+				</cpnt.WaveBox>
+				<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
+				{this.getInfoBar(this.state)}
+				<cpnt.HistoryBar>
+					{aSteps.map((cur,idx)=>{
+						return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
+					})}
+				</cpnt.HistoryBar>
+				<cpnt.TextareaWrap>
+					<TextArea id="myTextArea" ref={this.oTextArea}
+						value={aLines[iCurLine].text}
+						onChange={ev => this.valChanged(ev)}
+						onKeyDown={ev => this.enterKeyDown(ev)}
+					/>
+				</cpnt.TextareaWrap>
+				{this.getWordsList(this.state)}
+			</div>
+		</cpnt.MediaAndWave>
+		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
+		const SentenceWrap = <cpnt.SentenceWrap ref={this.oSententList}>
+			{aLines.map((cur, idx) => {
+				return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
+					key={idx} onClick={() => this.goLine(idx)}
+				>
+					<i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
+						{idx + 1}
+					</i>
+					<span className="time">
+						<em>{cur.start_}</em>&nbsp;-&nbsp;<em>{cur.end_}</em>
+					</span>
+					<p className="the-text" >{cur.text}</p>
+				</li>;
+			})}
+		</cpnt.SentenceWrap>
+		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
+		const resultHTML = <cpnt.Container>
+			<Spin spinning={loading} size="large"/>
+			{MediaAndWave}
+			{SentenceWrap}
+			{this.getDialog(this.state)}
+			{this.getMatchDialog(this.state)}
+		</cpnt.Container>;
+		return resultHTML;
+	}
+	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	static getDerivedStateFromProps(props, state){ // nextProps, prevState
+		console.log( '%c02-A-getDerivedStateFromProps（双重调用【开始更新】', 'background:yellow');
+		const {params={}} = props.match;
+		const mediaId = params.mediaId * 1;
+		if (mediaId && mediaId !== state.mediaId) {
+			console.log('新的媒体id--------', mediaId);
+			return {mediaId};
+		}
+		return null;
+	}
 	// ▼以下是生命周期
 	async componentDidMount() {
 		const oWaveWrap = this.oWaveWrap.current;

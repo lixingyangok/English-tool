@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 09:26:24
+ * @LastEditTime: 2021-02-11 11:24:16
  * @Description: 
  */
 
@@ -34,7 +34,10 @@ export default class {
 	async init(){
 		const oStory = this.context.oStoryInfo;
 		const {storyTB, oMediaTB, mediaId} = this.state; // aSteps,
-		if (!oStory || !mediaId) return;
+		if (!oStory || !mediaId) {
+			console.log("数据不完整：oStory, mediaId\n", oStory, mediaId);
+			return;
+		}
 		const [oStoryFromTB, oMediaInTB] = await Promise.all([
 			storyTB.where('ID').equals(oStory.ID).first(), //故事信息【本地】
 			oMediaTB.where('ID').equals(mediaId*1).first(), // 媒体数据【本地】

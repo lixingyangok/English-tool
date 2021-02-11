@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 09:24:57
+ * @LastEditTime: 2021-02-11 11:02:49
  * @Description: 
  */
 
@@ -164,7 +164,7 @@ export default class extends MyClass {
 	// ▲render
 	// ▼生命周期
 	async componentDidMount(){
-		console.log("componentDidMount");
+		// console.log("componentDidMount");
 		this.oldContext = this.context;
 		const {oStoryInfo} = this.context;
 		if (oStoryInfo.ID) {
@@ -174,7 +174,7 @@ export default class extends MyClass {
 		}
 	}
 	componentDidUpdate(){
-		console.log("componentDidUpdate");
+		// console.log("componentDidUpdate");
 		// console.log("this.context：\n", this.context);
 		const {oldContext, context={}} = this;
 		const {oStoryInfo={}} = context;
