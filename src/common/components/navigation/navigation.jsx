@@ -29,7 +29,8 @@ export const aLearningPage = [{
 	component: React.lazy(() => import('pages/learning-page/children/story-info/story-info.jsx')),
 }, {
 	name: '听写',
-	path: '/dictation',
+	path: '/dictation/:mediaId', //:mediaId',
+	pathRoot: '/dictation',
 	component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
 }, {
 	name: '阅读',

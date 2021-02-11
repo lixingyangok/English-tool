@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-04 19:34:53
+ * @LastEditTime: 2021-02-11 09:26:24
  * @Description: 
  */
 
@@ -11,12 +11,16 @@ import {
 	getFakeBuffer,
 	getChannelDataFromBlob,
 } from 'assets/js/pure-fn.js';
-import {getStoryInfo} from 'common/js/learning-api.js';
 
 const axios = window.axios;
 
 export default class {
-	// ▼格式化 search
+	// ▼查询 mediaId
+	getMediaId(props){
+		const {params={}} = props.match;
+		return params.mediaId * 1;
+	}
+	// ▼格式化 search TODO 废弃？
 	getSearchOjb(oLocation){
 		const sSearch = oLocation.search;
 		if (!sSearch) return {};
@@ -27,14 +31,14 @@ export default class {
 		return oResult;
 	}
 	// ▼初始化的方法（查询故事信息并保存）
-	async init({storyId, mediaId}){
-		const {storyTB, oMediaTB} = this.state; // aSteps,
-		const [{data: oStory}, oStoryFromTB, oMediaInTB] = await Promise.all([
-			getStoryInfo(storyId), // 故事信息
-			storyTB.where('ID').equals(storyId*1).first(), //故事信息【本地】
+	async init(){
+		const oStory = this.context.oStoryInfo;
+		const {storyTB, oMediaTB, mediaId} = this.state; // aSteps,
+		if (!oStory || !mediaId) return;
+		const [oStoryFromTB, oMediaInTB] = await Promise.all([
+			storyTB.where('ID').equals(oStory.ID).first(), //故事信息【本地】
 			oMediaTB.where('ID').equals(mediaId*1).first(), // 媒体数据【本地】
 		]);
-		if (!oStory) return; // 查不到故事故事，返回
 		const aWords = (()=>{
 			if (!oStory.words) return [];
 			return oStory.words.split(',');

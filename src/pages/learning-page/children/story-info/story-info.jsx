@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 08:15:26
+ * @LastEditTime: 2021-02-11 09:24:57
  * @Description: 
  */
 
@@ -38,7 +38,6 @@ export default class extends MyClass {
 	}
 	constructor(props) {
 		super(props);
-		// console.log('路由参数：', props);
 		const oTarget = this.getSearchOjb(props.location);
 		const loading = !!oTarget.storyId; //有id就loading
 		const [oStoryTB, oMediaTB] = (()=>{

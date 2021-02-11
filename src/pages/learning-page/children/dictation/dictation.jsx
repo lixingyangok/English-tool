@@ -10,6 +10,8 @@ import wordsDbFn from './js/words-db.js';
 import figureOutRegion from './js/figure-out-region.js';
 import Nav from './menu/menu.jsx';
 import {Modal, Button, message, Space} from 'antd';
+import {MyContext} from 'pages/learning-page/learning-page.jsx';
+
 
 const { TextArea } = Input;
 const { confirm } = Modal;
@@ -22,6 +24,8 @@ const MyClass = window.mix(
 const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
 
 export default class Tool extends MyClass {
+	static contextType = MyContext;
+	oldContext = null;
 	message = message;
 	confirm = confirm;
 	oAudio = React.createRef();
@@ -48,7 +52,6 @@ export default class Tool extends MyClass {
 			aLines: [oFirstLine.dc_], //字幕
 		}],
 		iCurStep: 0, //当前步骤
-		oTarget: {}, // 故事信息如：故事id、章节id
 		oSct: {}, // DB中的【章节】
 		sTyped: '', //已经输入的，用于搜索
 		aMatched: [], //与当前输入匹配到的单词
@@ -56,6 +59,7 @@ export default class Tool extends MyClass {
 		aWordsDBState: [],
 		scrollTimer: null,
 		// ▼疑似废弃 ----------
+		oTarget: {}, // 故事信息如：故事id、章节id
 		oWordsDB: {}, //词库
 		// ▼新版--------------------------------
 		aWords: [], //DB中的【单词】
@@ -67,11 +71,13 @@ export default class Tool extends MyClass {
 		changeTs: 0, // 字幕修改时间
 		matchDialogVisible: false, // 
 		aSubtitleFromNet: [], //网上字幕
+		mediaId: null, // 媒体id
 	};
 	constructor(props) {
 		super(props);
-		const oTarget = this.getSearchOjb(props.location);
-		const loading = !!oTarget.storyId; //有id就loading
+		const mediaId = this.getMediaId(props);
+		// const oTarget = this.getSearchOjb(props.location);
+		const loading = !!mediaId; //有id就loading
 		const [storyTB, oMediaTB, oWordsDB] = (()=>{
 			const oWordsDB = new window.Dexie("wordsDB");
 			const trainingDB = new window.Dexie("trainingDB");
@@ -81,9 +87,8 @@ export default class Tool extends MyClass {
 		})();
 		Object.assign(this.state, {
 			oWordsDB, storyTB, oMediaTB,
-			oTarget, loading,
+			loading, mediaId, // oTarget, 
 		});
-		oTarget.storyId && this.init(oTarget);
 		this.checkWordsDB(oWordsDB);
 	}
 	render() {
@@ -93,6 +98,11 @@ export default class Tool extends MyClass {
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
+		if (!this.oldContext && this.context){
+			console.log("数据来了:");
+			this.oldContext = this.context;
+			this.init();
+		}
 		// ▼ 开始 html
 		const MediaAndWave = <cpnt.MediaAndWave>
 			<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>

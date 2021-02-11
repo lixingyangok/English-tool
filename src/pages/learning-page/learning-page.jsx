@@ -9,26 +9,34 @@ import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 
 export const MyContext = React.createContext('');
 
-function StoryInfo(oStoryInfo){
+function StoryInfoBar(props){
+	const {oStoryInfo={}} = props;
 	return <cpnt.storyInfo>
 		<h1>{oStoryInfo.storyName}</h1>
 	</cpnt.storyInfo>
 }
 
 function TabBar(props){
-	const {storyId, curIdx = 0} = props;
 	const history = useHistory();
+	const {storyId, pathname} = props;
+	// TODO ▼不准确，应找好办法
+	const curIdx = aLearningPage.findIndex(cur=>{
+		return pathname.includes(cur.pathRoot || cur.path);
+	});
+	console.log('新值：', curIdx);
 	function callback(idx) {
 		const oTarget = aLearningPage[idx];
 		const url = `/learning-page/${storyId}${oTarget.path}`;
 		history.push(url);
 	}
-	const aPages = aLearningPage.map((cur, idx) => {
-		return <Tabs.TabPane tab={cur.name} key={String(idx)}/>
-	});
-	return <cpnt.MyTabs onChange={callback} defaultActiveKey={curIdx}>
-		{aPages}
+	const HTML = <cpnt.MyTabs activeKey={String(curIdx)}
+		onChange={callback} defaultActiveKey={"0"}
+	>
+		{aLearningPage.map((cur, idx) => {
+			return <Tabs.TabPane tab={cur.name} key={String(idx)}/>
+		})}
 	</cpnt.MyTabs>
+	return HTML;
 }
 
 function ChildrenPages(props){
@@ -54,24 +62,20 @@ function ChildrenPages(props){
 }
 
 export default function (props){
-	const  [oStoryInfo, setStoryInfo] =  useState({});
+	const {pathname} = props.location;
 	const {storyId} = props.match.params;
-	const curIdx = (()=>{ // TODO 不准备，应找好办法
-		const iVal = aLearningPage.findIndex(cur=>{
-			return props.location.pathname.includes(cur.path);
-		});
-		return String(iVal);
-	})();
+	const  [oStoryInfo, setStoryInfo] =  useState({});
 	React.useEffect(()=>{
+		// oStoryInfo.ID || 
 		getStoryInfo(storyId).then(res=>{
+			console.log('查询故事信息★')
 			setStoryInfo(res.data || {})
 		});
-		//return; // xx => console.log('组件卸载了');
-	}, [storyId]);
+	}, []); // storyId
 	const resultHTML = <cpnt.outer>
 		<cpnt.header>
-			{StoryInfo(oStoryInfo)}
-			<TabBar {...{storyId, curIdx}} />
+			<StoryInfoBar oStoryInfo={oStoryInfo} />
+			<TabBar {...{storyId, pathname}} />
 		</cpnt.header>
 		<ChildrenPages oStoryInfo={oStoryInfo}/>
 	</cpnt.outer>
