@@ -250,47 +250,44 @@ export default class Tool extends MyClass {
 			this.oldContext = this.context;
 			this.init();
 		}
-		// ▼ 开始 html
-		const MediaAndWave = <cpnt.MediaAndWave>
-			<cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
-				<video src={fileSrc} name="controls"
-					ref={this.oAudio} className="video"
+		const WaveLeft = <cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
+			<video src={fileSrc} name="controls"
+				ref={this.oAudio} className="video"
+			/>
+			<p className="subtitle" data-text={aLines[iCurLine].text}>
+				{aLines[iCurLine].text}
+			</p>
+		</cpnt.VideoWrap>
+		// 左右分界
+		const WaveRight = <div className="right">
+			<cpnt.WaveBox>
+				<canvas height={iCanvasHeight} ref={this.oCanvas}/>
+				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
+					<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
+						onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
+					>
+						{this.getMarkBar(this.state)}
+						{this.getRegions(this.state)}
+					</cpnt.LongBar>
+				</cpnt.WaveWrap>
+			</cpnt.WaveBox>
+			<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
+			{this.getInfoBar(this.state)}
+			<cpnt.HistoryBar>
+				{aSteps.map((cur,idx)=>{
+					return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
+				})}
+			</cpnt.HistoryBar>
+			<cpnt.TextareaWrap>
+				<TextArea id="myTextArea" ref={this.oTextArea}
+					value={aLines[iCurLine].text}
+					onChange={ev => this.valChanged(ev)}
+					onKeyDown={ev => this.enterKeyDown(ev)}
 				/>
-				<p className="subtitle" data-text={aLines[iCurLine].text}>
-					{aLines[iCurLine].text}
-				</p>
-			</cpnt.VideoWrap>
-			{/* ▲左边视频，▼右侧波形 */}
-			<div className="right">
-				<cpnt.WaveBox>
-					<canvas height={iCanvasHeight} ref={this.oCanvas}/>
-					<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
-						<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
-							onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
-						>
-							{this.getMarkBar(this.state)}
-							{this.getRegions(this.state)}
-						</cpnt.LongBar>
-					</cpnt.WaveWrap>
-				</cpnt.WaveBox>
-				<Nav commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
-				{this.getInfoBar(this.state)}
-				<cpnt.HistoryBar>
-					{aSteps.map((cur,idx)=>{
-						return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
-					})}
-				</cpnt.HistoryBar>
-				<cpnt.TextareaWrap>
-					<TextArea id="myTextArea" ref={this.oTextArea}
-						value={aLines[iCurLine].text}
-						onChange={ev => this.valChanged(ev)}
-						onKeyDown={ev => this.enterKeyDown(ev)}
-					/>
-				</cpnt.TextareaWrap>
-				{this.getWordsList(this.state)}
-			</div>
-		</cpnt.MediaAndWave>
-		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
+			</cpnt.TextareaWrap>
+			{this.getWordsList(this.state)}
+		</div>
+		// ▼句子列表
 		const SentenceWrap = <cpnt.SentenceWrap ref={this.oSententList}>
 			{aLines.map((cur, idx) => {
 				return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
@@ -306,10 +303,13 @@ export default class Tool extends MyClass {
 				</li>;
 			})}
 		</cpnt.SentenceWrap>
-		// 分界 ★★★★★★★★★★★★★★★★★★★★★★
+		// ===============================================
 		const resultHTML = <cpnt.Container>
 			<Spin spinning={loading} size="large"/>
-			{MediaAndWave}
+			<cpnt.MediaAndWave>
+				{WaveLeft}
+				{WaveRight}
+			</cpnt.MediaAndWave>
 			{SentenceWrap}
 			{this.getDialog(this.state)}
 			{this.getMatchDialog(this.state)}

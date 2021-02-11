@@ -85,16 +85,17 @@ export default class {
 		reader.readAsArrayBuffer(oFile);
 		return promise;
 	}
-	// ▼导出文件
+	// ▼导出文件 TODO
 	async toExport() {
 		const {aLines} = this.getCurStep();
 		const aStr = aLines.map(({start_, end_, text}, idx) => {
 			return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
 		});
-		const {oTarget:{sctId}, oSectionTB} = this.state;
-		const res = await oSectionTB.get(sctId*1);
-		const fileName = res.audioFile.name.split('.').slice(0, -1).join('');
-		downloadString(aStr.join('\n'), fileName, 'srt');
+		console.log("arr\n", aStr);
+		// const {oTarget:{sctId}, oSectionTB} = this.state;
+		// const res = await oSectionTB.get(sctId*1);
+		// const fileName = res.audioFile.name.split('.').slice(0, -1).join('');
+		downloadString(aStr.join('\n'), 'fileName', 'srt');
 	}
 	// ▼以上是字幕部分 ===================================================
 	// ▼文件转字符，然后保存
@@ -124,8 +125,8 @@ export default class {
 			const [aa, bb] = cur.split(' --> ');
 			const [start, end] = [this.getSeconds(aa), this.getSeconds(bb)];
 			return {
-				start_: aa,
-				end_: bb,
+				// start_: aa,
+				// end_: bb,
 				start,
 				end,
 				long: (end - start).toFixed(2) * 1,

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-10 11:46:34
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 12:39:19
+ * @LastEditTime: 2021-02-11 15:44:23
  * @Description: 
  */
 
@@ -11,7 +11,7 @@ import { Redirect, useHistory} from 'react-router-dom';
 import Loading from 'common/components/loading/loading.jsx';
 import {aLearningPage} from 'common/components/navigation/navigation.jsx';
 import * as cpnt from './style/learning-page.js';
-import { Tabs } from 'antd';
+import {Tabs} from 'antd';
 import {getStoryInfo} from 'common/js/learning-api.js';
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 

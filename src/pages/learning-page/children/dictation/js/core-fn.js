@@ -125,8 +125,8 @@ export default class {
 	// ▼修整某一行
 	fixTime(oTarget) {
 		const { start, end, text } = oTarget;
-		oTarget.start_ = this.secToStr(start);
-		oTarget.end_ = this.secToStr(end);
+		// oTarget.start_ = this.secToStr(start);
+		// oTarget.end_ = this.secToStr(end);
 		oTarget.long = end - start;
 		oTarget.text = text || '';
 		return oTarget;
@@ -246,7 +246,11 @@ export default class {
 	async uploadToCloudBefore(){
 		const onOk = () => {
 			const {aSteps, iCurStep, oMediaInfo} =  this.state;
-			const subtitleFile_ = aSteps[iCurStep].aLines;
+			const subtitleFile_ = aSteps[iCurStep].aLines.map(cur=>{
+				delete cur.start_;
+				delete cur.end_;
+				return cur;
+			});
 			const file = new Blob(
 				[JSON.stringify(subtitleFile_)],
 				{type: 'application/json;charset=utf-8'},

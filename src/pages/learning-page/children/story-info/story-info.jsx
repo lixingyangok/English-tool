@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 14:53:24
+ * @LastEditTime: 2021-02-11 15:51:07
  * @Description: 
  */
 
@@ -118,7 +118,7 @@ export default class extends MyClass {
 			cur.key = cur.ID;
 			return cur;
 		});
-		const getBtn = function(oMedia){
+		const getBtn = oMedia=>{
 			const HTML = <>
 				<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
 					听写
@@ -146,7 +146,7 @@ export default class extends MyClass {
 			</>
 			return HTML;
 		}
-		return <Table dataSource={dataForTable} 
+		return <Table dataSource={dataForTable} bordered
 			pagination={{position: ['none', 'none']}}
 		>
 			<Column title="文件" dataIndex="fileName" key="fileName" />
@@ -166,7 +166,7 @@ export default class extends MyClass {
 			{/* ▼废弃？ */}
 			{/* {this.showFilesOfOneStory()} */}
 			{this.showTheFileListReadyForUpload()}
-			{/* {this.getTable()} */}
+			{this.getTable()}
 		</cpnt.outer>
 		return resultHTML;
 	}

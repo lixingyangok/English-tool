@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Tabs } from 'antd';
 
 export const outer = styled.article`
-	
+
 `;
 
 const sDeepBlue = `#056bca`;
@@ -48,9 +48,11 @@ export const MyTabs = styled(Tabs)`
 		.ant-tabs-tab + .ant-tabs-tab{
 			border-left: solid 1px #ddd;
 		}
-		.ant-tabs-tab-active{
-			background: ${sDeepBlue};
-			color: white;
+	}
+	.ant-tabs-tab-active{
+		background: ${sDeepBlue} !important;
+		.ant-tabs-tab-btn{
+			color: white !important;
 		}
 	}
 `;
