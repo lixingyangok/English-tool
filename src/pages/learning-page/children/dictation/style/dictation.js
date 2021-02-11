@@ -6,8 +6,9 @@ export const iScrollHeight = 15;
 
 export const Container = styled.div`
 	box-sizing: border-box;
-	padding: 20px 20px 0px;
-	height: calc(100vh - 80px);
+	padding: 20px;
+	height: 100%;
+	overflow-y: auto;
 	display: flex;
 	flex-flow: column nowrap;
 	position: relative;

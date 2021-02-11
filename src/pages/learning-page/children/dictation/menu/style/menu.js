@@ -28,10 +28,10 @@ export const Ul = styled.ul`
 `;
 
 export const BtnBar = styled.section`
-	padding: 10px 0;
+	padding: 8px 0;
 	display: flex;
 	.btn{
-		width: 40px;
+		width: 36px;
 		text-align: center;
 		cursor: pointer;
 		&:Hover{
@@ -39,7 +39,7 @@ export const BtnBar = styled.section`
 		}
 	}
 	.fas{
-		font-size: 18px;
+		font-size: 16px;
 		vertical-align: middle;
 	}
 `;

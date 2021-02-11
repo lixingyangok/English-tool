@@ -56,7 +56,10 @@ export const MyTabs = styled(Tabs)`
 `;
 
 export const bodyWrap = styled.section`
-	height: calc(100vh - ${iHeaderHeight});
-	overflow-y: auto;
+	> div{
+		height: calc(100vh - ${iHeaderHeight});
+		overflow-y: hidden;
+	}
+	/* overflow-y: auto; */
 `;
 
