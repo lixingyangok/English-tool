@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
-export const iMarkWrapHeight = 20;
-export const iCanvasHeight = 120;
-export const iScrollHeight = 15;
+export const iMarkWrapHeight = 18;
+export const iCanvasHeight = 115;
+export const iScrollHeight = 12;
 
 export const Container = styled.div`
 	box-sizing: border-box;
