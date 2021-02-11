@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 15:51:07
+ * @LastEditTime: 2021-02-11 17:15:25
  * @Description: 
  */
 
@@ -149,8 +149,15 @@ export default class extends MyClass {
 		return <Table dataSource={dataForTable} bordered
 			pagination={{position: ['none', 'none']}}
 		>
-			<Column title="文件" dataIndex="fileName" key="fileName" />
-			<Column title="字幕" dataIndex="subtitleFileName" key="subtitleFileName" />
+			<Column title="文件" key="fileName" 
+				render={oMedia=>{
+					return <div>
+						<em>{oMedia.fileName}</em><br/>
+						<small style={{color: "#999"}} >{oMedia.subtitleFileName || '无字幕'}</small>
+					</div>
+				}}
+			/>
+			{/* <Column title="字幕" dataIndex="subtitleFileName" key="subtitleFileName" /> */}
 			<Column title="修改时间" dataIndex="subtitleFileModifyStr" key="address" />
 			<Column title="Tags" dataIndex="tags" key="tags"
 				render={tags => ( 123 )}

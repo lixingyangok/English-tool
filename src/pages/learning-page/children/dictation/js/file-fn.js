@@ -88,8 +88,10 @@ export default class {
 	// ▼导出文件 TODO
 	async toExport() {
 		const {aLines} = this.getCurStep();
-		const aStr = aLines.map(({start_, end_, text}, idx) => {
-			return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
+		const {secToStr} = this;
+		const aStr = aLines.map(({start, end, text}, idx) => {
+			const [startTime, endTime] = [secToStr(start), secToStr(end)];
+			return `${idx + 1}\n${startTime} --> ${endTime}\n${text}\n`;
 		});
 		console.log("arr\n", aStr);
 		// const {oTarget:{sctId}, oSectionTB} = this.state;
@@ -125,8 +127,6 @@ export default class {
 			const [aa, bb] = cur.split(' --> ');
 			const [start, end] = [this.getSeconds(aa), this.getSeconds(bb)];
 			return {
-				// start_: aa,
-				// end_: bb,
 				start,
 				end,
 				long: (end - start).toFixed(2) * 1,

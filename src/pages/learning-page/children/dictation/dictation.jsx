@@ -288,6 +288,7 @@ export default class Tool extends MyClass {
 			{this.getWordsList(this.state)}
 		</div>
 		// ▼句子列表
+		const {secToStr} = this;
 		const SentenceWrap = <cpnt.SentenceWrap ref={this.oSententList}>
 			{aLines.map((cur, idx) => {
 				return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
@@ -297,7 +298,7 @@ export default class Tool extends MyClass {
 						{idx + 1}
 					</i>
 					<span className="time">
-						<em>{cur.start_}</em>&nbsp;-&nbsp;<em>{cur.end_}</em>
+						<em>{secToStr(cur.start)}</em>&nbsp;-&nbsp;<em>{secToStr(cur.end)}</em>
 					</span>
 					<p className="the-text" >{cur.text}</p>
 				</li>;
