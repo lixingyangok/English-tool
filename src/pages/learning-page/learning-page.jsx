@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-10 11:46:34
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 15:44:23
+ * @LastEditTime: 2021-02-11 19:46:36
  * @Description: 
  */
 
@@ -77,7 +77,6 @@ export default function (props){
 	const  [oStoryInfo, setStoryInfo] =  useState({});
 	React.useEffect(()=>{
 		getStoryInfo(storyId).then(res=>{
-			console.log('查询故事信息★')
 			setStoryInfo(res.data || {})
 		});
 	}, [storyId]); // storyId

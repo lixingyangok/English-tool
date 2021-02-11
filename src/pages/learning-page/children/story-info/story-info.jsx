@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 19:17:24
+ * @LastEditTime: 2021-02-11 19:41:20
  * @Description: 
  */
 
@@ -183,8 +183,6 @@ export default class extends MyClass {
 	render(){
 		const resultHTML = <cpnt.outer className="">
 			{this.getInfoBox()}
-			{/* ▼废弃？ */}
-			{/* {this.showFilesOfOneStory()} */}
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable()}
 		</cpnt.outer>

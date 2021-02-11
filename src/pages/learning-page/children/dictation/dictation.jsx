@@ -226,7 +226,7 @@ export default class Tool extends MyClass {
 			style={{ top: 20,  }}
 			visible={this.state.matchDialogVisible} footer={null}
 			onCancel={()=>this.setState({matchDialogVisible: false})}
-		>	
+		>
 			{btnBar}
 			<cpnt.matchUl>{aLi}</cpnt.matchUl>
 		</Modal>;
@@ -241,11 +241,12 @@ export default class Tool extends MyClass {
 		if ((this.oldMediaId !== mediaId) && mediaId) {
 			console.log('媒体id变成了------', mediaId);
 			this.oldMediaId = mediaId;
-			this.init();
+			this.setMedia(mediaId);
 		}
-		if (!this.oldContext && this.context){
-			console.log("context数据来了:");
-			this.oldContext = this.context;
+		const {context, context: {oStoryInfo}} = this;
+		if (!this.oldContext && oStoryInfo.ID){
+			console.log("context数据来了:\n", oStoryInfo);
+			this.oldContext = context;
 			this.init();
 		}
 		const WaveLeft = <cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>

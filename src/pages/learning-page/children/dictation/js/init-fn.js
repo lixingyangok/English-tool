@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 19:12:45
+ * @LastEditTime: 2021-02-11 19:50:38
  * @Description: 
  */
 
@@ -33,15 +33,8 @@ export default class {
 	// ▼初始化的方法（查询故事信息并保存）
 	async init(){
 		const oStory = this.context.oStoryInfo;
-		const {storyTB, oMediaTB, mediaId} = this.state; // aSteps,
-		if (!oStory || !mediaId) {
-			console.log("数据不完整：oStory, mediaId\n", oStory, mediaId);
-			return;
-		}
-		const [oStoryFromTB, oMediaInTB] = await Promise.all([
-			storyTB.where('ID').equals(oStory.ID).first(), //故事信息【本地】
-			oMediaTB.where('ID').equals(mediaId*1).first(), // 媒体数据【本地】
-		]);
+		const {storyTB} = this.state;
+		const oStoryFromTB = await storyTB.where('ID').equals(oStory.ID).first();
 		const aWords = (()=>{
 			if (!oStory.words) return [];
 			return oStory.words.split(',');
@@ -52,15 +45,16 @@ export default class {
 		}else{
 			storyTB.add(oStory);
 		}
-		this.setMedia(mediaId, oMediaInTB);
 	}
 	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
-	async setMedia(mediaId, oMediaInTB={}){
+	async setMedia(mediaId){  // oMediaInTB={}
+		const {aSteps, oFirstLine, oMediaTB} = this.state;
+		let oMediaInTB = await oMediaTB.where('ID').equals(mediaId*1).first();
+		oMediaInTB = oMediaInTB || {};
 		const {data: oMediaInfo} = await axios.get('/media/one-media/', {
 			params: {mediaId},
 		});
 		if (!oMediaInfo) return; // 查不到媒体信息
-		const {aSteps, oFirstLine} = this.state;
 		const {
 			id, changeTs_: changeTs,
 			subtitleFile_ = [oFirstLine.dc_], 
