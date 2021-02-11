@@ -30,8 +30,9 @@ function TabBar(props){
 	</cpnt.MyTabs>
 }
 
-function getBody(oStoryInfo={}){
+function ChildrenPages(props){
 	// console.log('收到故事信息：\n', oStoryInfo);
+	const {oStoryInfo={}}  = props;
 	const getPath = url => `/learning-page/:storyId${url}`;
 	const bottom = <Suspense fallback={Loading}>
 		<Switch>
@@ -45,7 +46,7 @@ function getBody(oStoryInfo={}){
 			/>
 		</Switch>
 	</Suspense>
-	const HTML = <MyContext.Provider value={oStoryInfo}>
+	const HTML = <MyContext.Provider value={{oStoryInfo}}>
 		{bottom}
 	</MyContext.Provider>
 	return HTML;
@@ -71,7 +72,7 @@ export default function (props){
 			{StoryInfo(oStoryInfo)}
 			<TabBar {...{storyId, curIdx}} />
 		</cpnt.header>
-		{getBody(oStoryInfo)}
+		<ChildrenPages oStoryInfo={oStoryInfo}/>
 	</cpnt.outer>
 	return resultHTML
 }

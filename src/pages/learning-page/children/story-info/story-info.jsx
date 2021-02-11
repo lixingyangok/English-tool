@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-10 19:39:28
+ * @LastEditTime: 2021-02-11 08:15:26
  * @Description: 
  */
 
@@ -24,7 +24,7 @@ const MyClass = window.mix(
 
 export default class extends MyClass {
 	static contextType = MyContext;
-	previousContext = null;
+	oldContext = {};
 	message = message;
 	state = {
 		visible: false, //窗口显示
@@ -54,8 +54,8 @@ export default class extends MyClass {
 		// this.init()
 	}
 	getInfoBox(){
-		// const {oStory} = this.state;
-		const oStory = this.context;
+		const {oStory} = this.state;
+		// const oStory = this.context;
 		const oHtml = <cpnt.infoBox>
 			<h1>{oStory.storyName}</h1>
 			<div className="story-info">
@@ -80,11 +80,8 @@ export default class extends MyClass {
 		if (!aMedia.length) return '暂无文件';
 		const myLiArr = aMedia.map((oMedia, idx)=>{
 			const btnBar = <Space className="media-btn-wrap" >
-				<Button type="primary" size="small" onClick={()=>this.goToolPage(oMedia)}>
+				<Button type="primary" size="small" onClick={()=>this.goDictation(oMedia)}>
 					听写
-				</Button>
-				<Button type="primary" size="small" onClick={()=>this.goLearningPage(oMedia)}>
-					听写（新）
 				</Button>
 				<label className="ant-btn ant-btn-sm">
 					替换音/视频
@@ -156,12 +153,8 @@ export default class extends MyClass {
 		</cpnt.filesWaitToUpload>
 		return ul;
 	}
+
 	render(){
-		const storyId = this.context.ID;
-		if (this.previousContext !== this.context && storyId) {
-			this.getMediaForOneStory(storyId);
-		}
-		this.previousContext = this.context;
 		const resultHTML = <div className="center-box">
 			{this.getInfoBox()}
 			{this.showFilesOfOneStory()}
@@ -172,9 +165,25 @@ export default class extends MyClass {
 	// ▲render
 	// ▼生命周期
 	async componentDidMount(){
-
+		console.log("componentDidMount");
+		this.oldContext = this.context;
+		const {oStoryInfo} = this.context;
+		if (oStoryInfo.ID) {
+			this.setState({oStory: oStoryInfo});
+			console.log("查询媒体");
+			this.getMediaForOneStory(oStoryInfo.ID);
+		}
 	}
 	componentDidUpdate(){
-
+		console.log("componentDidUpdate");
+		// console.log("this.context：\n", this.context);
+		const {oldContext, context={}} = this;
+		const {oStoryInfo={}} = context;
+		if (oldContext.oStoryInfo !== oStoryInfo && oStoryInfo.ID) {
+			console.log("查询媒体");
+			this.setState({oStory: oStoryInfo});
+			this.getMediaForOneStory(oStoryInfo.ID);
+		}
+		this.oldContext = context;
 	}
 }
