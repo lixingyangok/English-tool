@@ -1,5 +1,5 @@
 import React from "react";
-import * as cpnt from "./style/my-tool-style.js";
+import * as cpnt from "./style/dictation.js";
 import {Spin, Input, Popconfirm} from "antd";
 import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
