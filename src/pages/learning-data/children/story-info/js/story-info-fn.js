@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-10 13:22:57
+ * @LastEditTime: 2021-02-11 11:33:03
  * @Description: 
  */
 import {getStoryInfo} from 'common/js/learning-api.js';
@@ -40,12 +40,5 @@ export default class {
 		const sPath = `/learning-data/practicing`;
 		const query = `?storyId=${oStory.ID}&mediaId=${oMedia.ID}`;
 		this.props.history.push(sPath + query);
-	}
-	goLearningPage(oMedia){
-		const {oStory} = this.state;
-		const sPath = `/learning-page/dictation`;
-		const query = `?storyId=${oStory.ID}&mediaId=${oMedia.ID}`;
-		window.open(sPath + query, '_blank');
-		// this.props.history.push(sPath + query);
 	}
 }

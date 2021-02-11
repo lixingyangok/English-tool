@@ -79,9 +79,6 @@ export default class extends MyClass {
 				<Button type="primary" size="small" onClick={()=>this.goToolPage(oMedia)}>
 					听写
 				</Button>
-				<Button type="primary" size="small" onClick={()=>this.goLearningPage(oMedia)}>
-					听写（新）
-				</Button>
 				<label className="ant-btn ant-btn-sm">
 					替换音/视频
 					<input type="file" accept="audio/*, video/*"
