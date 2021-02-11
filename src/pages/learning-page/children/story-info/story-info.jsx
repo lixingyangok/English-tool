@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 18:23:59
+ * @LastEditTime: 2021-02-11 19:17:24
  * @Description: 
  */
 
@@ -54,13 +54,17 @@ export default class extends MyClass {
 		// this.init()
 	}
 	getInfoBox(){
-		const {oStory} = this.state;
+		const {oStory, aMedia} = this.state;
+		const {words='', CreatedAt} = oStory;
+		const wordsLength = words.split(',').filter(Boolean).length;
+		const sTime = new Date(CreatedAt).toLocaleString();
 		// const oStory = this.context;
 		const oHtml = <cpnt.infoBox>
 			<h1>{oStory.storyName}</h1>
 			<div className="story-info">
-				<span>创建时间：{oStory.CreatedAt}</span>&emsp;&emsp;
-				<span>媒体数量：{oStory.kids}</span>&emsp;&emsp;
+				<span>创建时间：{sTime}</span>&emsp;&emsp;
+				<span>媒体数量：{aMedia.length}</span>&emsp;&emsp;
+				<span>词汇：{wordsLength}</span>&emsp;&emsp;
 				{/* ant-btn ant-btn-primary ant-btn-sm */}
 				操作：<label className="btn">
 					导入文件
@@ -69,7 +73,7 @@ export default class extends MyClass {
 					/>
 				</label>
 			</div>
-			<div>词汇：{(oStory.words || '').replace(/,/g, ', ') || '无'}</div>
+			<div>词汇：{words.replace(/,/g, ', ') || '无'}</div>
 			<div>备注：{oStory.note || '无'}</div>
 		</cpnt.infoBox>
 		return oHtml;
