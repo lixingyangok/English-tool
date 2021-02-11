@@ -1,10 +1,59 @@
 import {
 	getQiniuToken,
 	getTimeInfo,
+	downloadString,
 } from 'assets/js/pure-fn.js';
+
 const axios = window.axios;
 
 export default class {
+	// buffer.sampleRate  // 采样率：浮点数，单位为 sample/s
+	// buffer.length  // 采样帧率：整形
+	// buffer.duration  // 时长(秒)：双精度型
+	// buffer.numberOfChannels  // 通道数：整形
+	// ▼计算波峰波谷（纯函数）
+	getPeaks(buffer, iPerSecPx, left=0, iCanvasWidth=500) {
+		const aChannel = buffer.aChannelData_ || buffer.getChannelData(0);
+		const sampleSize = ~~(buffer.sampleRate / iPerSecPx); // 每一份的点数 = 每秒采样率 / 每秒像素
+		const aPeaks = [];
+		let idx = Math.round(left);
+		const last = idx + iCanvasWidth;
+		while (idx <= last) {
+			let start = idx * sampleSize;
+			const end = start + sampleSize;
+			let min = 0;
+			let max = 0;
+			while (start < end) {
+				const value = aChannel[start];
+				if (value > max) max = value;
+				else if (value < min) min = value;
+				start++;
+			}
+			aPeaks.push(max, min);
+			idx++;
+		}
+		const fPerSecPx = buffer.length / sampleSize / buffer.duration;
+		return {aPeaks, fPerSecPx};
+	}
+	// ▼导出文件 TODO 文件名不正确
+	async toExport() {
+		const {aLines} = this.getCurStep();
+		const {secToStr} = this;
+		const aStr = aLines.map(({start, end, text}, idx) => {
+			const [startTime, endTime] = [secToStr(start), secToStr(end)];
+			return `${idx + 1}\n${startTime} --> ${endTime}\n${text}\n`;
+		});
+		console.log("arr\n", aStr);
+		// const {oTarget:{sctId}, oSectionTB} = this.state;
+		// const res = await oSectionTB.get(sctId*1);
+		// const fileName = res.audioFile.name.split('.').slice(0, -1).join('');
+		downloadString(aStr.join('\n'), 'fileName', 'srt');
+	}
+	// ▼打开对比字幕窗口
+	compareSubtitle(){
+		this.setState({matchDialogVisible: true})
+		this.getSubtitleFromNet();
+	}
 	// ▼跳转到当前行（可以删除）因为 goLine 没收到目标行，即跳到当前行
     goToCurLine(){
         const {iCurLine} = this.getCurStep();

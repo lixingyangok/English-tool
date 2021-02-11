@@ -11,18 +11,11 @@ export default class Menu extends React.Component{
 	render(){
 		const {commander} = this.props;
 		const btnBar = <cpnt.BtnBar>
-			<label className="btn" title="打开本地文件" >
-				<i className="fas fa-folder-open"/>
-				<input style={{display: 'none'}} type="file" multiple="multiple"
-					onChange={ev => commander('toImport', ev)}
-				/>
-			</label>
 			<span className="btn" title="显示词库"
 				onClick={()=>commander('showWordsDialog')}
 			>
 				<i className="fas fa-book"/>
 			</span>
-			|
 			<span className="btn" title="保存字幕到浏览器" 
 				onClick={()=>commander('toSaveInDb')}
 			>
