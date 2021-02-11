@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 17:15:25
+ * @LastEditTime: 2021-02-11 18:23:59
  * @Description: 
  */
 
@@ -157,12 +157,21 @@ export default class extends MyClass {
 					</div>
 				}}
 			/>
-			{/* <Column title="字幕" dataIndex="subtitleFileName" key="subtitleFileName" /> */}
-			<Column title="修改时间" dataIndex="subtitleFileModifyStr" key="address" />
+			<Column title="修改时间" key="address" 
+				render={oMedia=>{
+					const {subtitleFileModifyTs: ts} = oMedia;
+					if (!ts) return '';
+					const HTML = <>
+						{new Date(ts).toLocaleString()}<br/>
+						{this.timeAgo(ts)}
+					</>
+					return HTML;
+				}}
+			/>
 			<Column title="Tags" dataIndex="tags" key="tags"
 				render={tags => ( 123 )}
 			/>
-			<Column title="操作" key="action"
+			<Column title="操作" key="action" width="215px"
 				render={oMedia => getBtn(oMedia)}
 			/>
 		</Table>;
