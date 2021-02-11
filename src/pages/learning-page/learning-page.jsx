@@ -1,3 +1,11 @@
+/*
+ * @Author: 李星阳
+ * @Date: 2021-02-10 11:46:34
+ * @LastEditors: 李星阳
+ * @LastEditTime: 2021-02-11 12:39:19
+ * @Description: 
+ */
+
 import React, {Suspense, useState} from 'react';
 import { Redirect, useHistory} from 'react-router-dom';
 import Loading from 'common/components/loading/loading.jsx';
@@ -55,9 +63,11 @@ function ChildrenPages(props){
 			/>
 		</CacheSwitch>
 	</Suspense>
-	const HTML = <MyContext.Provider value={{oStoryInfo}}>
-		{bottom}
-	</MyContext.Provider>
+	const HTML = <cpnt.bodyWrap>
+		<MyContext.Provider value={{oStoryInfo}}>
+			{bottom}
+		</MyContext.Provider>
+	</cpnt.bodyWrap>
 	return HTML;
 }
 
@@ -66,12 +76,11 @@ export default function (props){
 	const {storyId} = props.match.params;
 	const  [oStoryInfo, setStoryInfo] =  useState({});
 	React.useEffect(()=>{
-		// oStoryInfo.ID || 
 		getStoryInfo(storyId).then(res=>{
 			console.log('查询故事信息★')
 			setStoryInfo(res.data || {})
 		});
-	}, []); // storyId
+	}, [storyId]); // storyId
 	const resultHTML = <cpnt.outer>
 		<cpnt.header>
 			<StoryInfoBar oStoryInfo={oStoryInfo} />

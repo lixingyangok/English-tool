@@ -319,13 +319,13 @@ export default class Tool extends MyClass {
 	}
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-	static getDerivedStateFromProps(props, state){ // nextProps, prevState
-		console.log( '%c02-A-getDerivedStateFromProps（双重调用【开始更新】', 'background:yellow');
-		const {params={}} = props.match;
+	static getDerivedStateFromProps(nextProps, prevState){ // nextProps, prevState
+		// console.log('%c02-A-getDerivedStateFromProps（双重调用【开始更新】', 'background:yellow');
+		const {params={}} = nextProps.match;
 		const mediaId = params.mediaId * 1;
-		if (mediaId && mediaId !== state.mediaId) {
-			console.log('新的媒体id--------', mediaId);
-			return {mediaId};
+		if (mediaId && mediaId !== prevState.mediaId) {
+			// console.log('新的媒体id--------', mediaId);
+			return {mediaId}; 
 		}
 		return null;
 	}

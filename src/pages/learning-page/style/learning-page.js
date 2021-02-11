@@ -6,14 +6,20 @@ export const outer = styled.article`
 `;
 
 const sDeepBlue = `#056bca`;
+const iHeaderHeight = '95px';
+
 export const header = styled.header`
 	/* background: var(--color); */
 	/* background: #999; */
+	height: ${iHeaderHeight};
 	background: linear-gradient(to bottom, #1890ff 0%,#99cfff 100%); 
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-between;
 `;
 
 export const storyInfo = styled.div`
-	padding: 20px 20px 15px;
+	padding: 20px 20px 0;
 	h1{
 		height: 26px;
 		line-height: 26px;
@@ -49,4 +55,8 @@ export const MyTabs = styled(Tabs)`
 	}
 `;
 
+export const bodyWrap = styled.section`
+	height: calc(100vh - ${iHeaderHeight});
+	overflow-y: auto;
+`;
 
