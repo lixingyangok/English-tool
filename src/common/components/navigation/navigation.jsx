@@ -6,14 +6,6 @@ export const aLearningData = [{
 	name: '列表',
 	path: '/list',
 	component: React.lazy(() => import('pages/learning-data/children/story-list/story-list.jsx')),
-}, {
-	name: '自习室',
-	path: '/practicing',
-	component: React.lazy(() => import('pages/my-tool-02/my-tool.jsx')),
-}, {
-	name: '故事详情',
-	path: '/story-info',
-	component: React.lazy(() => import('pages/learning-data/children/story-info/story-info.jsx')),
 }];
 
 function MyDiv (props){

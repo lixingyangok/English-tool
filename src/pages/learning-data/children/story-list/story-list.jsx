@@ -46,12 +46,8 @@ export default class extends MyClass{
 					<span>媒体数量：{oCurStory.kids}</span>
 				</p>
 				<p className="story-info">备注信息：{oCurStory.note || '无备注'}</p>
-				<Button size='small' type="primary" onClick={()=>this.goInfoPage(oCurStory)}>
-					查看详情
-				</Button>
-				&nbsp;
 				<Button size='small' type="primary" onClick={()=>this.goInfoPage02(oCurStory)}>
-					查看详情02
+					查看详情
 				</Button>
 				<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
 					修改信息

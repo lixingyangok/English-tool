@@ -80,12 +80,6 @@ export default class{
 		else oForm.resetFields();
 	}
 	// ▼跳到详情
-	goInfoPage(oStory){
-		const sPath = `/learning-data/story-info`;
-		const query = `?storyId=${oStory.ID}`;
-		this.props.history.push(sPath + query);
-	}
-	// ▼跳到详情
 	goInfoPage02(oStory){
 		let sUrl = `/learning-page/${oStory.ID}`;
 		window.open(sUrl, '_blank');

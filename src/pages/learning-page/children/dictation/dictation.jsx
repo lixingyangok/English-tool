@@ -14,13 +14,16 @@ import { fixTime } from 'assets/js/pure-fn.js';
 
 const { TextArea } = Input;
 const { confirm } = Modal;
-
+const oFirstLine = fixTime({start: 0.1, end: 5});
 const MyClass = window.mix(
 	React.Component,
 	coreFn, keyDownFn, MouseFn, wordsDbFn,
 	figureOutRegion, initFn,
 );
-const oFirstLine = fixTime({start: 0.1, end: 5});
+
+// TODO，区分人名与词汇、添加词汇后没有立即显示出来
+// 在输入框输入，不应触发上级的监听
+// textare 校对效果，搜索
 
 export default class Tool extends MyClass {
 	static contextType = MyContext;
