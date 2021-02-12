@@ -7,10 +7,15 @@
 import {setWrods} from 'common/js/learning-api.js';
 
 export default class {
+	// ▼控制词库窗口可见性
+	showWordsDialog(){
+		this.setState({visible: true});
+	}
 	// ▼得到字母表 a,b,c.....
 	getAlphabet(){
 		return [...Array(26).keys()].map(cur=>String.fromCharCode(97 + cur));
 	}
+	// ▼
 	checkWordsDB(oWordsDB){
 		const aAlphabet = this.getAlphabet();
 		aAlphabet.forEach(async (cur, idx)=>{
@@ -24,6 +29,7 @@ export default class {
 			this.setState({aWordsDBState})
 		});
 	}
+	// ▼初始 26 个英文字母
 	async initWordsDB(){
 		const {oWordsDB} = this.state;
 		const aAlphabet = this.getAlphabet();
@@ -48,17 +54,14 @@ export default class {
             if (idx===25) this.checkWordsDB();
         }
 	}
-	// ▼控制词库窗口可见性
-	showWordsDialog(){
-		this.setState({visible: true});
-	}
 	// ▼清空词库
 	cleanWordsList(){
-		const onOk = ()=>{
+		const onOk = async ()=>{
 			const {oStory} = this.state;
+			await setWrods(oStory.ID, 'words', []);
+			await setWrods(oStory.ID, 'names', []);
+			this.context.updateStoryInfo();
 			this.setState({aWords: [], aNames: []});
-			setWrods(oStory.ID, 'words', []);
-			setWrods(oStory.ID, 'names', []);
 		};
 		this.confirm({
 			title: '清空后不可恢复，欢乐祥瑞清空？', 
@@ -82,19 +85,24 @@ export default class {
 		if (sWord.includes(',')) return error('不能包含英文逗号');
 		// ▲通过考验，▼保存
 		const isCapitalize = /[A-Z]/.test(sWord[0]);
-		if (isCapitalize) aNames.push(sWord);
-		else aWords.push(sWord);
+		const arrToSubmit = isCapitalize ? aNames : aWords;
 		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
+		arrToSubmit.push(sWord);
+		setWrods(oStory.ID, sKey, arrToSubmit);
 		this.setState({aWords, aNames});
-		setWrods(oStory.ID, sKey, aWords);
+		this.context.updateStoryInfo();
 		this.message.success(`保存成功`);
 	}
 	// ▼删除一个保存的单词
-	delWord(sWord) {
-		let {oStory, aWords} = this.state;
-		aWords = aWords.filter(cur => cur !== sWord);
-		this.setState({ aWords });
-		setWrods(oStory.ID, aWords);
+	delWord(sKey, sWord) {
+		const {oStory} = this.state;
+		const keyName = {names: "aNames", words: "aWords"}[sKey];
+		const arrToSubmit = this.state[keyName].filter(cur => {
+			return cur != sWord;
+		});
+		this.setState({[keyName]: arrToSubmit});
+		setWrods(oStory.ID, sKey, arrToSubmit);
 		this.message.success(`保存成功`);
+		this.context.updateStoryInfo();
 	}
 }

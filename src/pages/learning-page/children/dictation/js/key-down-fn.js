@@ -124,10 +124,11 @@ export default class {
 	}
 	async getMatchedWords(sTyped = '') {
 		sTyped = sTyped.toLocaleLowerCase().trim();
-		const { aWords = [], oWordsDB } = this.state;
+		const {aWords, aNames, oWordsDB} = this.state;
+		const allWords = aWords.concat(aNames);
 		const aMatched = (() => {
-			if (!sTyped) return aWords;
-			const aFiltered = aWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
+			if (!sTyped) return allWords;
+			const aFiltered = allWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
 			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
 		})();
 		if (oWordsDB && sTyped && aMatched.length < 9) {

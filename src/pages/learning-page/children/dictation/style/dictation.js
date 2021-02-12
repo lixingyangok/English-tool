@@ -256,7 +256,7 @@ export const TextareaWrap = styled.div`
 	}
 `;
 
-// 候选词
+// 候选词栏
 export const WordsBar = styled.div`
 	display: flex;
 	flex-flow: row nowrap;
@@ -268,12 +268,21 @@ export const WordsBar = styled.div`
 	white-space: nowrap;
 	transition: 0.5s;
 	transition-delay: 0.5s;
-	.one-word{
-		margin-right: 15px;
-	}
-	.in-clound{
-		font-weight: bold;
+`;
+
+
+export const oneWord = styled.span`
+	margin-right: 15px;
+	font-size: 18px;
+	padding: 0;
+	color: #333;
+	&[kind=words],
+	&[kind=names]{
 		cursor: pointer;
+		color: red;
+	}
+	&[kind=words]{
+		color: blue;
 	}
 	.idx{
 		display: inline-block;
@@ -287,16 +296,13 @@ export const WordsBar = styled.div`
 		color: white;
 		font-size: 16px;
 	}
-	span:nth-child(n+5) .idx{
+	&:nth-child(n+5) .idx{
 		background: deepskyblue;
 	}
-	.letters{
-		color: black;
-		font-size: 18px;
+	.left{
+		font-weight: bold;
 		padding: 0;
-	}
-	mark{
-		background: rgba(255,255,0, 0.35);
+
 	}
 `;
 

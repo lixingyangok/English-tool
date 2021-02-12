@@ -29,8 +29,8 @@ const MyClass = window.mix(
 
 export default class Tool extends MyClass {
 	static contextType = MyContext;
-	oldContext = null;
-	oldMediaId = null;
+	oldContext = undefined;
+	oldMediaId = undefined;
 	message = message;
 	confirm = confirm;
 	oAudio = React.createRef();
@@ -97,7 +97,6 @@ export default class Tool extends MyClass {
 		});
 		this.checkWordsDB(oWordsDB);
 	}
-	
 	// ▼时间刻度
 	getMarkBar({fPerSecPx}){
 		const myArr = [];
@@ -161,19 +160,21 @@ export default class Tool extends MyClass {
 	}
 	// ▼提示单词
 	getWordsList({aMatched, aWords, aNames, sTyped}){
-		const allWords = aWords.concat(aNames);
 		const arr = aMatched.map((cur, idx)=>{
-			const inner = <span className="one-word" key={idx}>
+			const isName = aNames.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
+			const isWord = aWords.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
+			const kind = isName ? 'names' : (isWord ? 'words' : '');
+			const sRight = cur.slice(sTyped.length).trim();
+			const inner = <cpnt.oneWord key={idx} kind={kind}>
 				{sTyped ? <i className="idx">{idx+1}</i> : null}
-				<mark className="letters">{sTyped}</mark>
-				<em className="letters">{cur.slice(sTyped.length)}</em>
-			</span>
-			const isInCloud = allWords.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
-			if (!isInCloud) return inner;
-			const result = <Popconfirm title="确定删除？"
+				<em className="left">{sTyped}</em>
+				{(sTyped && sRight) ? '·' : ''}
+				<span className="right">{sRight}</span>
+			</cpnt.oneWord>
+			if (!kind) return inner;
+			const result = <Popconfirm title="确定删除？" key={idx}
 				okText="删除" cancelText="取消" placement="topLeft"
-				onConfirm={()=>this.delWord(cur)} key={idx}
-				className={isInCloud ? 'in-clound' : ''}
+				onConfirm={()=>this.delWord(kind, cur)}
 			>
 				{inner}
 			</Popconfirm>
@@ -196,7 +197,7 @@ export default class Tool extends MyClass {
 		return <Modal title="单词库"
 			visible={this.state.visible} footer={null}
 			onCancel={()=>this.setState({visible: false})}
-		>	
+		>
 			<cpnt.WordsDialog>
 				<div className="btn-bar">
 					<Button onClick={()=>this.initWordsDB()} type={isWordsDBOK && "primary"}>
@@ -247,22 +248,25 @@ export default class Tool extends MyClass {
 	render() {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
-			fileSrc, fPerSecPx, buffer, loading, oSct, mediaId,
+			fileSrc, fPerSecPx, buffer, loading, mediaId,
+			oSct, // TODO 择机删除
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
-		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
 		const oThisLine = aLines[iCurLine] || {};
 		if ((this.oldMediaId !== mediaId) && mediaId) {
 			console.log('媒体id变成了------', mediaId);
 			this.oldMediaId = mediaId;
 			this.setMedia(mediaId);
 		}
-		const {context, context: {oStoryInfo}} = this;
-		if (!this.oldContext && oStoryInfo.ID){
-			console.log("context数据来了:\n", oStoryInfo);
+		const {oldContext={}, context={}} = this;
+		const {UpdatedAt: UpdatedAtNew} = context.oStoryInfo || {};
+		const {UpdatedAt: UpdatedAtOld} = oldContext.oStoryInfo || {};
+		if (UpdatedAtNew && UpdatedAtNew !== UpdatedAtOld){
+			console.log("context数据来了:\n", context);
 			this.oldContext = context;
 			this.init();
 		}
+		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
 		const WaveLeft = <cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
 			<video src={fileSrc} name="controls"
 				ref={this.oAudio} className="video"
