@@ -24,7 +24,7 @@ export async function fileToTimeLines(oFile) {
 	});
 }
 
-export async  function fileToBuffer(oFile, isWantFakeBuffer=false){
+export async function fileToBuffer(oFile, isWantFakeBuffer=false){
 	if (!oFile) return {};
 	let resolveFn = xx => xx;
 	const promise = new Promise(resolve => resolveFn = resolve);
@@ -44,12 +44,13 @@ export async  function fileToBuffer(oFile, isWantFakeBuffer=false){
 
 // ▼秒-转为时间轴的时间
 function secToStr(fSecond){
-	let iHour = Math.floor(fSecond / 3600) + ''; //时
-	let iMinut = Math.floor((fSecond - iHour * 3600) / 60) + ''; //分
-	let fSec = fSecond - (iHour*3600 + iMinut*60) + ''; //秒
-	let [sec01, sec02='000'] = fSec.split('.');
-	const sTime = `${iHour.padStart(2, 0)}:${iMinut.padStart(2, 0)}:${sec01.padStart(2, 0)},${sec02.slice(0, 3).padEnd(3,0)}`;
-	return sTime;
+	const iHour = Math.floor(fSecond / 3600) + ''; //时
+	const iMinut = Math.floor((fSecond - iHour * 3600) / 60) + ''; //分
+	const fSec = fSecond - (iHour*3600 + iMinut*60) + ''; //秒
+	const [sec01, sec02='000'] = fSec.split('.');
+	const sTime = `${iHour.padStart(2, 0)}:${iMinut.padStart(2, 0)}:${sec01.padStart(2, 0)}`;
+	const sTail = `,${sec02.slice(0, 3).padEnd(3, 0)}`;
+	return sTime + sTail;
 }
 
 // ▼时间轴的时间转秒

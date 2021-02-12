@@ -1,6 +1,5 @@
 import React from "react";
 import * as cpnt from "./style/dictation.js";
-import {Spin, Input, Popconfirm} from "antd";
 import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
@@ -8,9 +7,12 @@ import initFn from './js/init-fn.js';
 import wordsDbFn from './js/words-db.js';
 import figureOutRegion from './js/figure-out-region.js';
 import Nav from './menu/menu.jsx';
-import {Modal, Button, message, Space} from 'antd';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import { fixTime } from 'assets/js/pure-fn.js';
+import {
+	Modal, Button, message, Space, 
+	Spin, Input, Popconfirm,
+} from 'antd';
 
 const { TextArea } = Input;
 const { confirm } = Modal;
