@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:43:26
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 14:41:33
+ * @LastEditTime: 2021-02-12 19:33:37
  * @Description: 
  */
 
@@ -18,7 +18,7 @@ export const outer = styled.section`
 
 export const infoBox = styled.div`
 	margin: 0 0 20px;
-	padding: 20px;
+	padding: 20px 25px;
 	border: solid 1px #ddd;
 	h1{
 		font-size: 20px;
@@ -34,10 +34,17 @@ export const infoBox = styled.div`
 	}
 `;
 
+export const myHr = styled.hr`
+	margin: 15px 0;
+	border: none;
+	border-bottom: dashed 1px #aaa;
+	background: none;
+`;
+
 export const wordsBar = styled.div`
 	text-align: left;
-	margin: 6px 0;
-	span{
+	margin: 5px 0 0;
+	span {
 		display: inline-block;
 		margin: 0 5px 0 0;
 	}

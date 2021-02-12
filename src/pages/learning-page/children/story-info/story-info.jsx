@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 15:33:31
+ * @LastEditTime: 2021-02-12 19:57:49
  * @Description: 
  */
 
@@ -76,7 +76,7 @@ export default class extends MyClass {
 			const result = <Popover trigger="click" 
 				key={sOneWord} content={btn}
 			>
-				<span>{sOneWord}</span>
+				<span>{sOneWord}, </span>
 			</Popover>
 			return result;
 		});
@@ -93,7 +93,8 @@ export default class extends MyClass {
 			<div className="story-info">
 				<span>创建时间：{sTime}</span>&emsp;&emsp;
 				<span>媒体数量：{aMedia.length}</span>&emsp;&emsp;
-				操作：<label className="btn">
+				操作：
+				<label className="btn">
 					导入文件
 					<input type="file" multiple="multiple" style={{display: 'none'}}
 						onChange={ev => this.toCheckFile(ev, oStory)}
@@ -104,16 +105,16 @@ export default class extends MyClass {
 		</>;
 		const oHtml = <cpnt.infoBox>
 			{part01}
-			<hr/>
+			<cpnt.myHr/>
 			<cpnt.wordsBar>
-				词汇共计：{namesLength + wordsLength} 个
+				词汇共计 {namesLength + wordsLength} 个
 			</cpnt.wordsBar>
 			<cpnt.wordsBar>
-				人名地名 {namesLength} 个：
+				专有名词（人名、地名等） {namesLength} 个：
 				{this.getWrodsList(names, "names")}
 			</cpnt.wordsBar>
 			<cpnt.wordsBar>
-				重点词汇 {wordsLength} 个：
+				重点词汇（生词，关注词） {wordsLength} 个：
 				{this.getWrodsList(words, "words")}
 			</cpnt.wordsBar>
 		</cpnt.infoBox>
@@ -242,14 +243,14 @@ export default class extends MyClass {
 		}
 	}
 	componentDidUpdate(){
-		// console.log("componentDidUpdate");
-		// console.log("this.context：\n", this.context);
-		const {oldContext, context={}} = this;
-		const {oStoryInfo={}} = context;
-		if (oldContext.oStoryInfo !== oStoryInfo && oStoryInfo.ID) {
-			console.log("查询媒体");
-			this.setState({oStory: oStoryInfo});
-			this.getMediaForOneStory(oStoryInfo.ID);
+		const {oldContext={}, context={}} = this;
+		const {UpdatedAt: UpdatedAtNew, ID} = context.oStoryInfo || {};
+		const {UpdatedAt: UpdatedAtOld } = oldContext.oStoryInfo || {};
+		if (UpdatedAtNew && UpdatedAtNew !== UpdatedAtOld){
+			this.setState({oStory: context.oStoryInfo});
+		}
+		if (ID && (ID !== oldContext.oStoryInfo.ID)){
+			this.getMediaForOneStory(ID);
 		}
 		this.oldContext = context;
 	}

@@ -71,7 +71,7 @@ export default class {
 		this.setState({visible: true});
 	}
 	// ▼保存生词到云
-	saveWord() {
+	async saveWord() {
 		const {oStory, aWords, aNames} = this.state; //oStoryTB,
 		const aAll = aWords.concat(aNames);
 		const {error} = this.message;
@@ -88,20 +88,20 @@ export default class {
 		const arrToSubmit = isCapitalize ? aNames : aWords;
 		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
 		arrToSubmit.push(sWord);
-		setWrods(oStory.ID, sKey, arrToSubmit);
+		await setWrods(oStory.ID, sKey, arrToSubmit);
 		this.setState({aWords, aNames});
 		this.context.updateStoryInfo();
 		this.message.success(`保存成功`);
 	}
 	// ▼删除一个保存的单词
-	delWord(sKey, sWord) {
+	async delWord(sKey, sWord) {
 		const {oStory} = this.state;
 		const keyName = {names: "aNames", words: "aWords"}[sKey];
 		const arrToSubmit = this.state[keyName].filter(cur => {
 			return cur != sWord;
 		});
 		this.setState({[keyName]: arrToSubmit});
-		setWrods(oStory.ID, sKey, arrToSubmit);
+		await setWrods(oStory.ID, sKey, arrToSubmit);
 		this.message.success(`保存成功`);
 		this.context.updateStoryInfo();
 	}
