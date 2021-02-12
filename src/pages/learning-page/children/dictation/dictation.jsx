@@ -330,6 +330,7 @@ export default class Tool extends MyClass {
 	}
 	// ▼以下是生命周期
 	async componentDidMount() {
+		// console.log("dictation - componentDidMount");
 		const oWaveWrap = this.oWaveWrap.current;
 		const oAudio = this.oAudio.current;
 		oWaveWrap.addEventListener( //在【波形图】上滚轮

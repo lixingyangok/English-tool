@@ -55,16 +55,14 @@ function secToStr(fSecond){
 // ▼时间轴的时间转秒
 export function getSeconds(text) {
 	const [hour, minute, second, tail] = text.match(/\d+/g);
-	let number = (hour * 60 * 60) + (minute * 60) + `${second}.${tail}` * 1;
-	return number.toFixed(2) * 1;
+	const number = (hour * 60 * 60) + (minute * 60) + `${second}.${tail}` * 1;
+	return number.toFixed(2) * 1; // 保留2位小数足矣
 };
 
 // ▼修整某一行
 export function fixTime(oTarget){
 	const {start, end, text} = oTarget;
-	oTarget.start_ = secToStr(start);
-	oTarget.end_ = secToStr(end);
-	oTarget.long = end - start;
+	oTarget.long = (end - start).toFixed(2) * 1;
 	oTarget.text = text || '';
 	return oTarget;
 }
