@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:43:26
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 14:41:39
+ * @LastEditTime: 2021-02-12 14:41:33
  * @Description: 
  */
 
@@ -31,6 +31,15 @@ export const infoBox = styled.div`
 	.btn{
 		color: blue;
 		cursor: pointer;
+	}
+`;
+
+export const wordsBar = styled.div`
+	text-align: left;
+	margin: 6px 0;
+	span{
+		display: inline-block;
+		margin: 0 5px 0 0;
 	}
 `;
 

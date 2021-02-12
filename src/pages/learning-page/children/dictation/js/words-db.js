@@ -7,6 +7,7 @@
 import {setWrods} from 'common/js/learning-api.js';
 
 export default class {
+	// ▼得到字母表 a,b,c.....
 	getAlphabet(){
 		return [...Array(26).keys()].map(cur=>String.fromCharCode(97 + cur));
 	}
@@ -47,7 +48,7 @@ export default class {
             if (idx===25) this.checkWordsDB();
         }
 	}
-	// ▼词库
+	// ▼控制词库窗口可见性
 	showWordsDialog(){
 		this.setState({visible: true});
 	}
@@ -56,7 +57,8 @@ export default class {
 		const onOk = ()=>{
 			const {oStory} = this.state;
 			this.setState({aWords: []});
-			setWrods(oStory.ID, []);
+			setWrods(oStory.ID, 'words', []);
+			setWrods(oStory.ID, 'names', []);
 		};
 		this.confirm({
 			title: '清空后不可恢复，欢乐祥瑞清空？', 
@@ -65,19 +67,23 @@ export default class {
 		});
 		this.setState({visible: true});
 	}
-	// ▼保存生词到DB
+	// ▼保存生词到云
 	saveWord() {
-		const {error} = this.message;
 		const {oStory, aWords} = this.state; //oStoryTB,
+		const {error} = this.message;
 		const sWord = window.getSelection().toString().trim();
+		if (aWords.find(cur => cur.toLowerCase()===sWord.toLowerCase())) {
+			return error(`已经保存不可重复添加`);
+		}
 		if (sWord.length < 2 || sWord.length > 30) {
-			return error(`单词长度不在合法范围（2-30字母）`);
+			return error(`单词长度超出范围：2-30字母`);
 		}
 		if (sWord.includes(',')) return error('不能包含英文逗号');
-		if (aWords.includes(sWord)) return error(`已经保存不可重复添加`);
+		// ▲通过考验，▼保存
 		aWords.push(sWord);
 		this.setState({aWords});
-		setWrods(oStory.ID, aWords);
+		const sKey = /^[A-Z].+$/.test(sWord) ? 'names' : 'words'; // 大写字母开头视为专有名词
+		setWrods(oStory.ID, sKey, aWords);
 		this.message.success(`保存成功`);
 	}
 	// ▼删除一个保存的单词

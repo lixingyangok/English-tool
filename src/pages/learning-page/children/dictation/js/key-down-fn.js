@@ -14,7 +14,7 @@ export default class {
 			'F3': () => this.giveUpThisOne(),
 		};
 		const type02 = { // ctrl 系列
-			'ctrl + d': () => this.toDel(), //删除
+			'ctrl + d': () => this.toDel(), //删除一行
 			'ctrl + z': () => this.setHistory(-1), //撤销
 			'ctrl + s': () => this.toSaveInDb(), //保存到浏览器（字幕）
 			'ctrl + j': () => this.putTogether('prior'), // 合并上一句
@@ -40,7 +40,7 @@ export default class {
 				'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
 				'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
 				'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
-				'alt + shift + d': () => this.saveWord(), //保存单词到DB
+				'alt + shift + d': () => this.saveWord(), //保存单词到云
 				'alt + shift + c': () => this.toStop(), //停止播放
 			},
 			'alt + j': () => this.previousAndNext(-1),

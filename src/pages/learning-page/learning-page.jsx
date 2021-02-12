@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-10 11:46:34
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 19:46:36
+ * @LastEditTime: 2021-02-12 15:05:03
  * @Description: 
  */
 
@@ -49,7 +49,7 @@ function TabBar(props){
 
 function ChildrenPages(props){
 	// console.log('收到故事信息：\n', oStoryInfo);
-	const {oStoryInfo={}}  = props;
+	const {oStoryInfo={}, updateStoryInfo}  = props;
 	const getPath = url => `/learning-page/:storyId${url}`;
 	const bottom = <Suspense fallback={Loading}>
 		<CacheSwitch>
@@ -64,7 +64,7 @@ function ChildrenPages(props){
 		</CacheSwitch>
 	</Suspense>
 	const HTML = <cpnt.bodyWrap>
-		<MyContext.Provider value={{oStoryInfo}}>
+		<MyContext.Provider value={{oStoryInfo, updateStoryInfo}}>
 			{bottom}
 		</MyContext.Provider>
 	</cpnt.bodyWrap>
@@ -75,17 +75,22 @@ export default function (props){
 	const {pathname} = props.location;
 	const {storyId} = props.match.params;
 	const  [oStoryInfo, setStoryInfo] =  useState({});
-	React.useEffect(()=>{
-		getStoryInfo(storyId).then(res=>{
+	const updateStoryInfo = (newId)=>{
+		getStoryInfo(newId || storyId).then(res=>{
 			setStoryInfo(res.data || {})
 		});
+	};
+	React.useEffect(()=>{
+		updateStoryInfo(storyId);
 	}, [storyId]); // storyId
 	const resultHTML = <cpnt.outer>
 		<cpnt.header>
 			<StoryInfoBar oStoryInfo={oStoryInfo} />
 			<TabBar {...{storyId, pathname}} />
 		</cpnt.header>
-		<ChildrenPages oStoryInfo={oStoryInfo}/>
+		<ChildrenPages oStoryInfo={oStoryInfo}
+			updateStoryInfo={updateStoryInfo}
+		/>
 	</cpnt.outer>
 	return resultHTML
 }

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 19:41:20
+ * @LastEditTime: 2021-02-12 15:02:46
  * @Description: 
  */
 
@@ -12,7 +12,7 @@ import * as cpnt from './style/story-info.js';
 import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import {
-	Button, Popconfirm, message, Table, // Tag, Space, 
+	Button, Popconfirm, message, Table, Popover,// Tag, Space, 
 } from 'antd';
 
 const { Column } = Table;
@@ -53,19 +53,46 @@ export default class extends MyClass {
 		if (!oTarget.storyId) return;
 		// this.init()
 	}
+	getWrodsList(sWords, sKey){
+		if (!sWords.length) return '无';
+		const aWords = sWords.split(',');
+		const aResult = aWords.map(sOneWord=>{
+			const btn = <div>
+				<h2>{sOneWord}</h2>
+				<Button size="small" onClick={()=>this.searchWord(sOneWord)}>
+					搜索
+				</Button>
+				<Button size="small" onClick={()=>this.copyWord(sOneWord)}>
+					复制
+				</Button>
+				<Button size="small" onClick={()=>this.switchWord(sKey, sOneWord)}>
+					切换
+				</Button>
+				<Button size="small" onClick={()=>this.delWords(sKey, sOneWord)}>
+					删除
+				</Button>
+			</div>
+			// title={sOneWord}
+			const result = <Popover trigger="click" 
+				key={sOneWord} content={btn}
+			>
+				<span>{sOneWord}</span>
+			</Popover>
+			return result;
+		});
+		return aResult;
+	}
 	getInfoBox(){
 		const {oStory, aMedia} = this.state;
-		const {words='', CreatedAt} = oStory;
-		const wordsLength = words.split(',').filter(Boolean).length;
+		const {CreatedAt, words='', names=''} = oStory;
 		const sTime = new Date(CreatedAt).toLocaleString();
-		// const oStory = this.context;
-		const oHtml = <cpnt.infoBox>
+		const wordsLength = words.split(',').filter(Boolean).length;
+		const namesLength = names.split(',').filter(Boolean).length;
+		const part01 = <>
 			<h1>{oStory.storyName}</h1>
 			<div className="story-info">
 				<span>创建时间：{sTime}</span>&emsp;&emsp;
 				<span>媒体数量：{aMedia.length}</span>&emsp;&emsp;
-				<span>词汇：{wordsLength}</span>&emsp;&emsp;
-				{/* ant-btn ant-btn-primary ant-btn-sm */}
 				操作：<label className="btn">
 					导入文件
 					<input type="file" multiple="multiple" style={{display: 'none'}}
@@ -73,8 +100,22 @@ export default class extends MyClass {
 					/>
 				</label>
 			</div>
-			<div>词汇：{words.replace(/,/g, ', ') || '无'}</div>
 			<div>备注：{oStory.note || '无'}</div>
+		</>;
+		const oHtml = <cpnt.infoBox>
+			{part01}
+			<hr/>
+			<cpnt.wordsBar>
+				词汇共计：{namesLength + wordsLength} 个
+			</cpnt.wordsBar>
+			<cpnt.wordsBar>
+				人名地名 {namesLength} 个：
+				{this.getWrodsList(names, "names")}
+			</cpnt.wordsBar>
+			<cpnt.wordsBar>
+				重点词汇 {wordsLength} 个：
+				{this.getWrodsList(words, "words")}
+			</cpnt.wordsBar>
 		</cpnt.infoBox>
 		return oHtml;
 	}
