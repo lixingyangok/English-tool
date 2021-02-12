@@ -56,7 +56,7 @@ export default class {
 	cleanWordsList(){
 		const onOk = ()=>{
 			const {oStory} = this.state;
-			this.setState({aWords: []});
+			this.setState({aWords: [], aNames: []});
 			setWrods(oStory.ID, 'words', []);
 			setWrods(oStory.ID, 'names', []);
 		};
@@ -69,10 +69,11 @@ export default class {
 	}
 	// ▼保存生词到云
 	saveWord() {
-		const {oStory, aWords} = this.state; //oStoryTB,
+		const {oStory, aWords, aNames} = this.state; //oStoryTB,
+		const aAll = aWords.concat(aNames);
 		const {error} = this.message;
 		const sWord = window.getSelection().toString().trim();
-		if (aWords.find(cur => cur.toLowerCase()===sWord.toLowerCase())) {
+		if (aAll.find(cur => cur.toLowerCase()===sWord.toLowerCase())) {
 			return error(`已经保存不可重复添加`);
 		}
 		if (sWord.length < 2 || sWord.length > 30) {
@@ -80,9 +81,11 @@ export default class {
 		}
 		if (sWord.includes(',')) return error('不能包含英文逗号');
 		// ▲通过考验，▼保存
-		aWords.push(sWord);
-		this.setState({aWords});
-		const sKey = /^[A-Z].+$/.test(sWord) ? 'names' : 'words'; // 大写字母开头视为专有名词
+		const isCapitalize = /[A-Z]/.test(sWord[0]);
+		if (isCapitalize) aNames.push(sWord);
+		else aWords.push(sWord);
+		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
+		this.setState({aWords, aNames});
 		setWrods(oStory.ID, sKey, aWords);
 		this.message.success(`保存成功`);
 	}

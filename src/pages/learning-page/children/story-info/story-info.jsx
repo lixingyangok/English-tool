@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 15:02:46
+ * @LastEditTime: 2021-02-12 15:33:31
  * @Description: 
  */
 
@@ -68,7 +68,7 @@ export default class extends MyClass {
 				<Button size="small" onClick={()=>this.switchWord(sKey, sOneWord)}>
 					切换
 				</Button>
-				<Button size="small" onClick={()=>this.delWords(sKey, sOneWord)}>
+				<Button size="small" onClick={()=>this.delWord(sKey, sOneWord)}>
 					删除
 				</Button>
 			</div>

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-10 11:46:34
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 15:05:03
+ * @LastEditTime: 2021-02-12 15:38:02
  * @Description: 
  */
 
@@ -81,7 +81,10 @@ export default function (props){
 		});
 	};
 	React.useEffect(()=>{
-		updateStoryInfo(storyId);
+		// updateStoryInfo(storyId);
+		getStoryInfo(storyId).then(res=>{
+			setStoryInfo(res.data || {})
+		});
 	}, [storyId]); // storyId
 	const resultHTML = <cpnt.outer>
 		<cpnt.header>

@@ -257,26 +257,23 @@ export const TextareaWrap = styled.div`
 `;
 
 // 候选词
-export const Words = styled.div`
+export const WordsBar = styled.div`
 	display: flex;
 	flex-flow: row nowrap;
 	overflow: hidden;
 	overflow: hidden;
 	flex: none;
-	line-height: 1.4;
+	height: 30px;
+	line-height: 30px;
 	white-space: nowrap;
-	min-height: 30px;
 	transition: 0.5s;
 	transition-delay: 0.5s;
-	&[class~=show-all]{
-		flex-wrap: wrap;
-	}
-	span{
+	.one-word{
 		margin-right: 15px;
-		cursor: pointer;
 	}
-	.in-db{
+	.in-clound{
 		font-weight: bold;
+		cursor: pointer;
 	}
 	.idx{
 		display: inline-block;
@@ -293,7 +290,7 @@ export const Words = styled.div`
 	span:nth-child(n+5) .idx{
 		background: deepskyblue;
 	}
-	.word{
+	.letters{
 		color: black;
 		font-size: 18px;
 		padding: 0;
@@ -302,6 +299,7 @@ export const Words = styled.div`
 		background: rgba(255,255,0, 0.35);
 	}
 `;
+
 
 export const InfoBar = styled.div`
 	padding: 15px 0 0;

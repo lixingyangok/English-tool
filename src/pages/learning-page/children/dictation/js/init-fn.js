@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-11 19:50:38
+ * @LastEditTime: 2021-02-12 15:29:47
  * @Description: 
  */
 
@@ -32,14 +32,13 @@ export default class {
 	}
 	// ▼初始化的方法（查询故事信息并保存）
 	async init(){
-		const oStory = this.context.oStoryInfo;
 		const {storyTB} = this.state;
-		const oStoryFromTB = await storyTB.where('ID').equals(oStory.ID).first();
-		const aWords = (()=>{
-			if (!oStory.words) return [];
-			return oStory.words.split(',');
-		})();
-		this.setState({oStory, aWords});
+		const oStory = this.context.oStoryInfo;
+		const {ID, words, names} = oStory;
+		const oStoryFromTB = await storyTB.where('ID').equals(ID).first();
+		const aWords = words ? words.split(',') : [];
+		const aNames = names ? names.split(',') : [];
+		this.setState({oStory, aWords, aNames});
 		if (oStoryFromTB) { // 更新本地故事数据
 			storyTB.put({...oStory, id: oStoryFromTB.id}); //全量更新
 		}else{

@@ -67,7 +67,8 @@ export default class Tool extends MyClass {
 		oTarget: {}, // 故事信息如：故事id、章节id
 		oWordsDB: {}, //词库
 		// ▼新版--------------------------------
-		aWords: [], //DB中的【单词】
+		aWords: [], // 
+		aNames: [], // 
 		storyTB: {}, // DB表
 		oMediaTB: {}, // 表-存媒体信息
 		oStory: {}, // 故事信息
@@ -159,22 +160,28 @@ export default class Tool extends MyClass {
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词
-	getWordsList({aMatched, aWords, sTyped}){
+	getWordsList({aMatched, aWords, aNames, sTyped}){
+		const allWords = aWords.concat(aNames);
 		const arr = aMatched.map((cur, idx)=>{
-			const Idx = sTyped ? <i className="idx">{idx+1}</i> : null;
-			const isInDb = aWords.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
-			return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
+			const inner = <span className="one-word" key={idx}>
+				{sTyped ? <i className="idx">{idx+1}</i> : null}
+				<mark className="letters">{sTyped}</mark>
+				<em className="letters">{cur.slice(sTyped.length)}</em>
+			</span>
+			const isInCloud = allWords.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
+			if (!isInCloud) return inner;
+			const result = <Popconfirm title="确定删除？"
+				okText="删除" cancelText="取消" placement="topLeft"
 				onConfirm={()=>this.delWord(cur)} key={idx}
-				className={isInDb ? 'in-db' : ''}
+				className={isInCloud ? 'in-clound' : ''}
 			>
-				{Idx}
-				<mark className="word">{sTyped}</mark>
-				<em className="word">{cur.slice(sTyped.length)}</em>
+				{inner}
 			</Popconfirm>
+			return result;
 		});
-		return <cpnt.Words>
+		return <cpnt.WordsBar>
 			{arr}
-		</cpnt.Words>;
+		</cpnt.WordsBar>;
 	}
 	getDialog({aWords, aWordsDBState}){
 		const arr = aWords.sort().map((cur, idx)=>{
