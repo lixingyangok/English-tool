@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-08-16 18:35:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 10:17:58
+ * @LastEditTime: 2021-02-12 10:27:45
  * @Description: 
  */
 import { fixTime } from 'assets/js/pure-fn.js';
@@ -71,7 +71,8 @@ export default class {
 		const [iPerSecPx, iWaveHeight, iAddition] = [100, 12, 20]; // 默认每秒宽度值（px），高度阈值，添加在两头的空隙，
 		const aWaveArr = this.getWaveArr(fEndSec, iPerSecPx); //取得波形
         const aSection = this.getCandidateArr(aWaveArr, iPerSecPx, iWaveHeight);
-		const { start, end } = (() => {
+		const {duration} = this.state.buffer;
+		let { start, end } = (() => {
 			const [oFirst, oSecond] = aSection;
 			if (!oFirst) return { start: 0, end: aWaveArr.length };
 			const start = Math.max(0, oFirst.start - iAddition);
@@ -89,9 +90,8 @@ export default class {
             end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iGapToNext);
 			return { start, end };
 		})();
-		return fixTime({
-			start: fEndSec + (start / iPerSecPx),
-			end: Math.min(fEndSec + (end / iPerSecPx), this.state.buffer.duration + 0.5),
-		});
+		start = (fEndSec + start / iPerSecPx).toFixed(2) * 1;
+		end = Math.min(fEndSec + end / iPerSecPx, duration + 0.5).toFixed(2) * 1;
+		return fixTime({start, end});
 	}
 }
