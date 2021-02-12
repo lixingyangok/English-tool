@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 15:10:23
+ * @LastEditTime: 2021-02-12 21:50:09
  * @Description: 
  */
 import {
@@ -81,12 +81,16 @@ export default class {
 		}
 		return result;
 	}
-	searchWord(sWord){
-		const url = ``;
-		window.open(url, '_blank');
+	searchWord(sSearching){
+		console.log('调用了我');
+		this.setState({sSearching, sPopWords: ''});
+		// const url = ``;
+		// window.open(url, '_blank');
 	}
 	// ▼复制文字到剪贴板
 	copyWord(sWord){
+		this.setState({sPopWords: ''});
+
 		const {body} = document;
 		const oInput = Object.assign(document.createElement('input'), {
 			value: sWord, // 把文字放进 input 中，供复制
@@ -101,6 +105,7 @@ export default class {
 	}
 	// ▼删除单词
 	async delWord(sKey, sWord){
+		this.setState({sPopWords: ''});
 		const {oStory} = this.state;
 		const aWordsFrom = oStory[sKey].split(',').filter(cur => cur !== sWord);
 		const res = await setWrods(oStory.ID, sKey, aWordsFrom);
@@ -108,7 +113,7 @@ export default class {
 		this.context.updateStoryInfo();
 	}
 	async switchWord(sKey, sWord){
-		console.log(sKey, sWord);
+		this.setState({sPopWords: ''});
 		const {oStory} = this.state;
 		const oppositeKey = ({words: 'names', names: 'words'}[sKey]);
 		const aWordsFrom = oStory[sKey].split(',').filter(cur => cur !== sWord);

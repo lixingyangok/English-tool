@@ -98,7 +98,7 @@ export default class {
 		const {oStory} = this.state;
 		const keyName = {names: "aNames", words: "aWords"}[sKey];
 		const arrToSubmit = this.state[keyName].filter(cur => {
-			return cur != sWord;
+			return cur !== sWord;
 		});
 		this.setState({[keyName]: arrToSubmit});
 		await setWrods(oStory.ID, sKey, arrToSubmit);

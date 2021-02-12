@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 19:57:49
+ * @LastEditTime: 2021-02-12 22:02:32
  * @Description: 
  */
 
@@ -11,6 +11,7 @@ import pageFn from './js/story-info-fn.js';
 import * as cpnt from './style/story-info.js';
 import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
+import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
 import {
 	Button, Popconfirm, message, Table, Popover,// Tag, Space, 
 } from 'antd';
@@ -33,9 +34,11 @@ export default class extends MyClass {
 		oMediaTB: {}, // 本地媒体列表TB
 		loading: false,
 		// ▼新
+		sPopWords: '',
 		oQueuer: {}, // 排队上传的媒体
 		oStory: {}, // 故事信息
 		aMedia: [], // 媒体列表
+		sSearching: '', // 搜索词汇
 	}
 	constructor(props) {
 		super(props);
@@ -56,6 +59,9 @@ export default class extends MyClass {
 	getWrodsList(sWords, sKey){
 		if (!sWords.length) return '无';
 		const aWords = sWords.split(',');
+		const handleVisibleChange = (sPopWords) => {
+			this.setState({sPopWords});
+		};
 		const aResult = aWords.map(sOneWord=>{
 			const btn = <div>
 				<h2>{sOneWord}</h2>
@@ -73,8 +79,10 @@ export default class extends MyClass {
 				</Button>
 			</div>
 			// title={sOneWord}
-			const result = <Popover trigger="click" 
+			const result = <Popover trigger="click" placement="topLeft"
 				key={sOneWord} content={btn}
+				visible={this.state.sPopWords === sOneWord}
+				onVisibleChange={newVal=>handleVisibleChange(newVal ? sOneWord : '')}
 			>
 				<span>{sOneWord}, </span>
 			</Popover>
@@ -227,6 +235,10 @@ export default class extends MyClass {
 			{this.getInfoBox()}
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable()}
+			<DictDialog
+				word={this.state.sSearching}
+				switcher={this.searchWord.bind(this)}
+			/>
 		</cpnt.outer>
 		return resultHTML;
 	}
