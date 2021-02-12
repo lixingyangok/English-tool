@@ -2,6 +2,7 @@ import {
 	getQiniuToken,
 	getTimeInfo,
 	downloadString,
+	fixTime,
 } from 'assets/js/pure-fn.js';
 
 const axios = window.axios;
@@ -168,15 +169,8 @@ export default class {
 		} else {
 			oCurLine[sKey] = fVal;
 		}
-		this.fixTime(oCurLine);
+		fixTime(oCurLine);
 		this.setCurLine(oCurLine);
-	}
-	// ▼修整某一行
-	fixTime(oTarget) {
-		const { start, end, text } = oTarget;
-		oTarget.long = end - start;
-		oTarget.text = text || '';
-		return oTarget;
 	}
 	// ▼时间轴的时间转秒
 	getSeconds(text) {

@@ -2,9 +2,10 @@
  * @Author: 李星阳
  * @Date: 2020-08-16 18:35:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2020-08-23 17:40:09
+ * @LastEditTime: 2021-02-12 10:17:58
  * @Description: 
  */
+import { fixTime } from 'assets/js/pure-fn.js';
 
 export default class {
 	// ▼提供【波形数组】用于断句
@@ -88,7 +89,7 @@ export default class {
             end = this.fixTail(aWaveArr.slice(end), end, iPerSecPx, iAddition, iGapToNext);
 			return { start, end };
 		})();
-		return this.fixTime({
+		return fixTime({
 			start: fEndSec + (start / iPerSecPx),
 			end: Math.min(fEndSec + (end / iPerSecPx), this.state.buffer.duration + 0.5),
 		});

@@ -1,6 +1,6 @@
 import keyMap from './key-map.js';
 
-import { getQiniuToken } from 'assets/js/pure-fn.js';
+import { getQiniuToken, fixTime } from 'assets/js/pure-fn.js';
 
 export default class {
 	getFn(keyStr) {
@@ -83,9 +83,9 @@ export default class {
 		if (iCurLine === 0 && iDirection === -1) return; //不可退
 		const iCurLineNew = iCurLine + iDirection;
 		const newLine = (() => {
-			if (aLines[iCurLineNew]) return false; //有数据，不用新增
-			if ((buffer.duration - aLines[iCurLine].end) < 0.1) return null; //临近终点不新增
-			return this.figureOut(aLines.last_.end); //返回下一行的数据
+			if (aLines[iCurLineNew]) return false; //有数据，不新增
+			if ((buffer.duration - aLines[iCurLine].end) < 0.1) return null; //临近终点，不新增
+			return this.figureOut(aLines.last_.end); // 要新增一行，返回下行数据
 		})();
 		if (newLine === null) return this.message.error(`已经到头了`);
 		this.goLine(iCurLineNew, newLine);
@@ -211,7 +211,7 @@ export default class {
 			if (isMergeNext) aResult.reverse();
 			return aResult.join(' ').replace(/\s{2,}/g, ' ');
 		})();
-		this.fixTime(oTarget);
+		fixTime(oTarget);
 		aLines.splice(iCurLine, 1);
 		oCurStepDc.iCurLine = isMergeNext ? iCurLine : iCurLine - 1;
 		this.setCurStep(oCurStepDc);
@@ -226,12 +226,12 @@ export default class {
 		const { oCurStepDc, iCurLine } = this.getCurStep();
 		const oCurLine = this.getCurLine();
 		const aNewItems = [
-			this.fixTime({
+			fixTime({
 				...oCurLine,
 				end: currentTime,
 				text: oCurLine.text.slice(0, selectionStart).trim(),
 			}),
-			this.fixTime({
+			fixTime({
 				...oCurLine,
 				start: currentTime + 0.01,
 				text: oCurLine.text.slice(selectionStart).trim(),
@@ -259,7 +259,7 @@ export default class {
 		if (start === 0) return; //0开头，不可向前插入
 		const oAim = aLines[iCurLine + iDirection] || {};
 		const newIdx = isToLeft ? iCurLine : iCurLine + 1;
-		const oNewLine = this.fixTime({
+		const oNewLine = fixTime({
 			start: isToLeft ? (oAim.end || 0) : end,
 			end: (
 				isToLeft ? start 

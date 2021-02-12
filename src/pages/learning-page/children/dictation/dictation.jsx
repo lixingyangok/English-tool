@@ -10,6 +10,7 @@ import figureOutRegion from './js/figure-out-region.js';
 import Nav from './menu/menu.jsx';
 import {Modal, Button, message, Space} from 'antd';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
+import { fixTime } from 'assets/js/pure-fn.js';
 
 const { TextArea } = Input;
 const { confirm } = Modal;
@@ -19,7 +20,7 @@ const MyClass = window.mix(
 	coreFn, keyDownFn, MouseFn, wordsDbFn,
 	figureOutRegion, initFn,
 );
-const oFirstLine = new coreFn().fixTime({start: 0.1, end: 5});
+const oFirstLine = fixTime({start: 0.1, end: 5});
 
 export default class Tool extends MyClass {
 	static contextType = MyContext;
@@ -238,6 +239,7 @@ export default class Tool extends MyClass {
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
+		const oThisLine = aLines[iCurLine] || {};
 		if ((this.oldMediaId !== mediaId) && mediaId) {
 			console.log('媒体id变成了------', mediaId);
 			this.oldMediaId = mediaId;
@@ -253,8 +255,8 @@ export default class Tool extends MyClass {
 			<video src={fileSrc} name="controls"
 				ref={this.oAudio} className="video"
 			/>
-			<p className="subtitle" data-text={aLines[iCurLine].text}>
-				{aLines[iCurLine].text}
+			<p className="subtitle" data-text={oThisLine.text}>
+				{oThisLine.text}
 			</p>
 		</cpnt.VideoWrap>
 		// 左右分界
@@ -279,7 +281,7 @@ export default class Tool extends MyClass {
 			</cpnt.HistoryBar>
 			<cpnt.TextareaWrap>
 				<TextArea id="myTextArea" ref={this.oTextArea}
-					value={aLines[iCurLine].text}
+					value={oThisLine.text}
 					onChange={ev => this.valChanged(ev)}
 					onKeyDown={ev => this.enterKeyDown(ev)}
 				/>
