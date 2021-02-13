@@ -1,36 +1,62 @@
 import React, {useState} from "react";
 import { Modal, Button } from 'antd';
-import styled from 'styled-components';
+import * as cpnt from './style/dict-dialog.js';
 
-const MyIframe = styled.iframe`
-	width: 100%; 
-	height: calc(100vh - 135px);
-	border: none;
-	margin: 0 auto -10px;
-`;
+const aDict = [{
+	name: '有道',
+	getUrl: word => `http://dict.youdao.com/w/${word}`,
+},{
+	name: '金山',
+	getUrl: word => `http://www.iciba.com/word?w=${word}`,
+},{
+	name: '剑桥',
+	getUrl: word => `https://dictionary.cambridge.org/us/dictionary/english/${word}`,
+},{
+	name: '朗文(新窗口)',
+	getUrl: word => {
+		const url = `https://www.ldoceonline.com/dictionary/${word}`;
+		window.open(url, '_blank');
+		return;
+	},
+}];
 
 export default function (props){
 	const {word} = props;
 	const [visible, setVisible] = useState(false);
-	const src = `http://www.iciba.com/word?w=${word}`;
-	const openIt = ()=>{
-		window.open(src, '_blank');
-	};
+	const [dictIdx, setDictIdx] = useState(0);
+	const [src, setSrc] = useState('');
+	const openIt = () => window.open(src, '_blank');
+	const changeDict = idx =>{
+		if (!aDict[idx].getUrl(word)) return;
+		setDictIdx(idx);
+	}
 	// ▼生命周期
 	React.useEffect(()=>{
+		const srcString = aDict[dictIdx].getUrl(word);
+		srcString && setSrc(srcString);
 		setVisible(!!word);
-	}, [word]);
+	}, [word, dictIdx]);
+	// ▼ HTML 
+	const aDictArr = aDict.map((cur, idx)=>{
+		return <Button  size="small" key={idx}
+			type={idx===dictIdx ? 'primary' : ''}
+			onClick={()=>changeDict(idx)}
+		>
+			{cur.name}
+		</Button>
+	});
 	const HTML = <Modal maskClosable closable width="98vw" footer={null}
-		style={{top: 20}} visible={visible}
+		style={{top: 20, paddingBottom: 0}} visible={visible}
 		onCancel={()=>setVisible(false)}
 	>
-		<div>
+		<cpnt.titleBar>
+			<cpnt.wordName>{word}</cpnt.wordName>
+			{aDictArr}
 			<Button onClick={openIt} size="small">
 				新窗口打开
 			</Button>
-		</div>
-		<br/>
-		{word ? <MyIframe src={src} /> : null}
+		</cpnt.titleBar>
+		{word ? <cpnt.MyIframe src={src} /> : null}
 	</Modal>;
 	return HTML;
 }
