@@ -41,6 +41,8 @@ export default class Tool extends MyClass {
 	oTextArea = React.createRef();
 	oSententList = React.createRef();
 	state = {
+		
+		// ▲疑似废弃 ----------
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
 		iHeight: 0.3, // 波形高
@@ -53,11 +55,9 @@ export default class Tool extends MyClass {
 		iCurStep: 0, //当前步骤
 		sTyped: '', //已经输入的，用于搜索
 		aMatched: [], //与当前输入匹配到的单词
-		visible: false,
+		visible: false, // 控制词汇弹出窗口的可见性
 		aWordsDBState: [],
 		scrollTimer: null,
-		// ▼疑似废弃 ----------
-		oTarget: {}, // 故事信息如：故事id、章节id
 		oWordsDB: {}, //词库
 		// ▼新版--------------------------------
 		oFirstLine, //默认行
@@ -84,7 +84,6 @@ export default class Tool extends MyClass {
 	constructor(props) {
 		super(props);
 		const mediaId = this.getMediaId(props);
-		// const oTarget = this.getSearchOjb(props.location);
 		const loading = !!mediaId; //有id就loading
 		const [storyTB, oMediaTB, oWordsDB] = (()=>{
 			const oWordsDB = new window.Dexie("wordsDB");
@@ -95,7 +94,7 @@ export default class Tool extends MyClass {
 		})();
 		Object.assign(this.state, {
 			oWordsDB, storyTB, oMediaTB,
-			loading, // mediaId, // oTarget, 
+			loading, // mediaId,
 		});
 		this.checkWordsDB(oWordsDB);
 	}
@@ -340,6 +339,11 @@ export default class Tool extends MyClass {
 	}
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	// // ▼生命周期
+	// static getDerivedStateFromProps(newProps, oldState){
+	// 	console.log("newProps\n", newProps);
+	// 	return null;
+	// }
 	static getDerivedStateFromProps(nextProps, prevState){ // nextProps, prevState
 		// console.log('%c02-A-getDerivedStateFromProps（双重调用【开始更新】', 'background:yellow');
 		const {params={}} = nextProps.match;
@@ -351,10 +355,13 @@ export default class Tool extends MyClass {
 		return null;
 	}
 	// ▼以下是生命周期
+	// componentDidUpdate(){
+	// 	document.onkeydown = this.keyDowned.bind(this);
+	// }
 	async componentDidMount() {
-		// console.log("dictation - componentDidMount");
 		const oWaveWrap = this.oWaveWrap.current;
 		const oAudio = this.oAudio.current;
+		const keyDownFn = this.keyDowned.bind(this);
 		oWaveWrap.addEventListener( //在【波形图】上滚轮
 			"mousewheel", ev => this.wheelOnWave(ev), {passive: false},
 		);
@@ -362,7 +369,12 @@ export default class Tool extends MyClass {
 			"mousewheel", ev => this.changeVideoSize(ev),
 		);
 		this.cleanCanvas();
-		document.onkeydown = this.keyDowned.bind(this);
+		document.onkeydown = keyDownFn;
+		this.props.history.listen(oRoute => { // 监听路由变化
+			const {pathname} = oRoute;
+			const hasGone = !pathname.includes('/dictation/');
+			document.onkeydown = hasGone ? null : keyDownFn;
+		});
 	}
 	// ▼销毁前
 	componentWillUnmount(){

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const iMarkWrapHeight = 18;
-export const iCanvasHeight = 115;
+export const iCanvasHeight = 110;
 export const iScrollHeight = 12;
 
 export const Container = styled.div`

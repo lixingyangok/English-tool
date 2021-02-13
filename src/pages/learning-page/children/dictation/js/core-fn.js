@@ -44,11 +44,8 @@ export default class {
 			const [startTime, endTime] = [secToStr(start), secToStr(end)];
 			return `${idx + 1}\n${startTime} --> ${endTime}\n${text}\n`;
 		});
-		console.log("arr\n", aStr);
-		// const {oTarget:{sctId}, oSectionTB} = this.state;
-		// const res = await oSectionTB.get(sctId*1);
-		// const fileName = res.audioFile.name.split('.').slice(0, -1).join('');
-		downloadString(aStr.join('\n'), 'fileName', 'srt');
+		const fileName = 'fileName';
+		downloadString(aStr.join('\n'), fileName, 'srt');
 	}
 	// ▼打开对比字幕窗口
 	compareSubtitle(){
