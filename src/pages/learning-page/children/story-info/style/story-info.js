@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:43:26
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 19:33:37
+ * @LastEditTime: 2021-02-13 15:48:48
  * @Description: 
  */
 
@@ -12,7 +12,7 @@ export const outer = styled.section`
 	margin: 0 auto;
 	box-sizing: border-box;
 	height: 100%;
-	padding: 20px 10vw 50px;
+	padding: 20px 10vw 80px;
 	overflow-y: auto;
 `;
 

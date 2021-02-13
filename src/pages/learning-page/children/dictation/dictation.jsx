@@ -27,7 +27,6 @@ const MyClass = window.mix(
 // TODO，区分人名与词汇、添加词汇后没有立即显示出来
 // 在输入框输入，不应触发上级的监听
 // textare 校对效果，搜索
-// 删除页面中的所有：oSct
 
 export default class Tool extends MyClass {
 	static contextType = MyContext;

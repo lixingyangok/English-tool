@@ -5,10 +5,10 @@
  */
 import {
 	fileToTimeLines, 
-	downloadString, 
 	fileToBlobForUpload,
 	getTimeInfo,
 	getQiniuToken,
+	// downloadString,
 	// fileToBuffer,
 	// getStrFromFile,
 	// getFaleBuffer, 
@@ -16,10 +16,7 @@ import {
 import {getMediaByStoryId} from 'common/js/learning-api.js';
 import {Modal} from 'antd';
 const { confirm } = Modal;
-
 const {axios} = window;
-// var URLSafeBase64 = require('urlsafe-base64');
-// console.log('URLSafeBase64', URLSafeBase64);
 
 export default class FileList {
 	// ▼将选中的文件整理，配对，返回
@@ -223,12 +220,14 @@ export default class FileList {
 			res && oCollection.delete();
 		});
 	}
-	// ▼导出字幕文件（废弃了？）
-	toExport(oSct) {
-		const aStr = oSct.aLines.map(({start_, end_, text}, idx) => {
-			return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
-		});
-		const fileName = oSct.audioFile.name.split('.').slice(0, -1).join('.');
-		downloadString(aStr.join('\n'), fileName, 'srt');
+	// ▼导出字幕文件
+	toExport(oMedia) {
+		console.log("oMedia\n");
+		console.log(oMedia);
+		// const aStr = [].aLines.map(({start_, end_, text}, idx) => {
+		// 	return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
+		// });
+		// const fileName = {}.audioFile.name.split('.').slice(0, -1).join('.');
+		// downloadString(aStr.join('\n'), fileName, 'srt');
 	}
 };

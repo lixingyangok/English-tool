@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-13 12:57:25
+ * @LastEditTime: 2021-02-13 15:48:13
  * @Description: 
  */
 
@@ -197,6 +197,10 @@ export default class extends MyClass {
 						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
 					/>
 				</label>
+				<br/>
+				<Button type="text" size="small" onClick={()=>this.toExport(oMedia)}>
+					导出字幕
+				</Button>
 			</>
 			return HTML;
 		}
