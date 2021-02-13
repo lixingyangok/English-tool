@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-13 15:30:51
+ * @LastEditTime: 2021-02-13 18:28:43
  * @Description: 
  */
 
@@ -70,7 +70,7 @@ export default class {
 		const {aSteps} = this.state;
 		aSteps.last_.aLines = subtitleFile_;
 		const oMediaInTBForSave = (()=>{
-			console.log('需要更新本地？', needUpDateDB);
+			console.log('是否需要更新本地数据：', needUpDateDB);
 			if (!needUpDateDB) { // 有 oMediaInTB 且不用更新
 				oMediaInfo.id = id;
 				this.setSubtitle({oMediaInfo, oMediaInTB}); // 查询字幕

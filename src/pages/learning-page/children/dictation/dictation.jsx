@@ -256,7 +256,7 @@ export default class Tool extends MyClass {
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oThisLine = aLines[iCurLine] || {};
 		if ((this.oldMediaId !== mediaId) && mediaId) {
-			console.log('媒体id变成了------', mediaId);
+			console.log('媒体id变成了--', mediaId);
 			this.oldMediaId = mediaId;
 			this.setMedia(mediaId);
 		}
@@ -264,7 +264,7 @@ export default class Tool extends MyClass {
 		const {UpdatedAt: UpdatedAtNew} = context.oStoryInfo || {};
 		const {UpdatedAt: UpdatedAtOld} = oldContext.oStoryInfo || {};
 		if (UpdatedAtNew && UpdatedAtNew !== UpdatedAtOld){
-			console.log("context数据来了:\n", context);
+			console.log("context数据更新了");
 			this.oldContext = context;
 			this.init();
 		}

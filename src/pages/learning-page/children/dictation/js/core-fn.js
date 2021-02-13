@@ -235,7 +235,6 @@ export default class {
 	}
 	// ▼动画滚动事件
 	goThere(oDom, sDirection, iNewVal){
-		console.log('动画滚动');
 		clearInterval(this.state.scrollTimer);
 		const sType = `scroll${sDirection}`;
 		const iOldVal = oDom[sType];
