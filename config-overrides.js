@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-06-30 11:39:59
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-09 09:16:41
+ * @LastEditTime: 2021-02-13 13:58:07
  * @Description: 
  */
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
@@ -10,9 +10,9 @@ const customizeCra = require('customize-cra');
 const {
   override,
   overrideDevServer,
+  fixBabelImports,
   // addLessLoader,
   // addPostcssPlugins,
-  // fixBabelImports,
 } = customizeCra;
 
 
@@ -55,10 +55,11 @@ const devServerConfig = () => config => {
 
 module.exports = {
   webpack: override(
-    // fixBabelImports('import', {
-    //   libraryName: 'antd-mobile',
-    //   style: 'css',
-    // }),
+    // ▼ fixBabelImports 用于按需加载 antd 库（但是需要提前安装包 npm i babel-plugin-import
+    fixBabelImports('import', {
+        libraryName: 'antd',
+        style: 'css',
+    }),
     // addLessLoader(),
     // addPostcssPlugins([require('postcss-pxtorem')({ rootValue: 75, propList: ['*'], minPixelValue: 2, selectorBlackList: ['am-'] })]),
     addCustomize(),

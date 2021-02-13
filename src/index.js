@@ -10,7 +10,6 @@ import * as serviceWorker from './serviceWorker';
 import { mix } from './common/common.js';
 import axios from 'common/lib/js/ajax.js';
 // ▼样式
-import 'antd/dist/antd.css';
 import 'assets/style/global.css'
 const store = require('store');
 
