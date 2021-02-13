@@ -46,6 +46,7 @@ export const MediaAndWave = styled.div`
 `;
 
 export const VideoWrap = styled.div`
+	box-sizing: border-box;
 	min-width: 250px;
 	max-width: 35%;
 	margin-right: 15px;
@@ -56,6 +57,7 @@ export const VideoWrap = styled.div`
 	align-items: center;
 	display: none;
 	position: relative;
+	border: solid 1px #ccc;
 	.video{
 		max-height: 100%;
 		max-width: 100%;

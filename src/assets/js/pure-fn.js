@@ -31,7 +31,9 @@ export async function fileToBuffer(oFile, isWantFakeBuffer=false){
 	const onload = async evt => {
 		const arrayBuffer = evt.currentTarget.result;
 		let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-		let buffer = await audioContext.decodeAudioData(arrayBuffer);
+		let buffer = await audioContext.decodeAudioData(arrayBuffer).catch(err=>{
+			console.log('读取波形 buffer 出错\n', err);
+		});
 		audioContext = null; // 如果不销毁audioContext对象的话，audio标签是无法播放的
 		if (isWantFakeBuffer) buffer = getFaleBuffer(buffer);
 		resolveFn(buffer);

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 15:29:47
+ * @LastEditTime: 2021-02-13 15:30:51
  * @Description: 
  */
 
@@ -46,14 +46,17 @@ export default class {
 		}
 	}
 	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
-	async setMedia(mediaId){  // oMediaInTB={}
-		const {aSteps, oFirstLine, oMediaTB} = this.state;
-		let oMediaInTB = await oMediaTB.where('ID').equals(mediaId*1).first();
-		oMediaInTB = oMediaInTB || {};
-		const {data: oMediaInfo} = await axios.get('/media/one-media/', {
-			params: {mediaId},
-		});
+	async setMedia(mediaId){
+		const {oFirstLine, oMediaTB} = this.state;
+		const [{data: oMediaInfo}, oMediaInTB={}] = await Promise.all([
+			axios.get('/media/one-media/', {params: {mediaId}}),
+			oMediaTB.where('ID').equals(mediaId*1).first(),
+		]);
 		if (!oMediaInfo) return; // 查不到媒体信息
+		this.setState({
+			iCurStep: 0,
+			aSteps: [{iCurLine: 0, aLines: [oFirstLine.dc_]}],
+		});
 		const {
 			id, changeTs_: changeTs,
 			subtitleFile_ = [oFirstLine.dc_], 
@@ -63,6 +66,8 @@ export default class {
 			mediaFile_, // 媒体文件
 			needUpDateDB, // 值为true表示需要更新DB
 		} = await this.getMediaAndButter({oMediaInfo, oMediaInTB});
+		if (!buffer) return this.setState({loading: false});
+		const {aSteps} = this.state;
 		aSteps.last_.aLines = subtitleFile_;
 		const oMediaInTBForSave = (()=>{
 			console.log('需要更新本地？', needUpDateDB);
@@ -71,14 +76,14 @@ export default class {
 				this.setSubtitle({oMediaInfo, oMediaInTB}); // 查询字幕
 				return {oMediaInTB}; // 保存到state
 			}
-			this.saveMediaToTb({ // 保存
+			this.saveMediaToTb({ // 保存到浏览 db
 				oMediaInfo, oMediaInTB, mediaFile_, buffer,
 			});
 		})();
 		this.setState({
-			aSteps, buffer, changeTs, oMediaInfo,
-			loading: false,
-			fileSrc: URL.createObjectURL(mediaFile_),
+			oMediaInfo, mediaFile_, buffer,
+			aSteps, changeTs, loading: false,
+			fileSrc: URL.createObjectURL(mediaFile_), // 10兆以下小文件 < 1毫秒
 			...oMediaInTBForSave,
 		});
 		this.bufferToPeaks();
@@ -89,12 +94,13 @@ export default class {
 		let {fileModifyTs: fTs, subtitleFile_, oBuffer_} = oMediaInTB; // 本地媒体信息
 		const isSame = fTs && (fTs === oMediaInfo.fileModifyTs); // 两地媒体文件一致
 		let needUpDateDB = !subtitleFile_; // 值为true表示需要更新DB
+		const {success, error} = this.message;
 		const mediaFile_ = await (async ()=>{
 			if (isSame && oMediaInTB.mediaFile_) {
-				this.message.success('正在加载【本地】媒体文件');
+				success('正在加载【本地】媒体文件');
 				return oMediaInTB.mediaFile_; // 值相同取本地媒体
 			}
-			this.message.success('正在加载【云端】媒体文件');
+			success('正在加载【云端】媒体文件');
 			const qiNiuUrl = 'http://qn.hahaxuexi.com/';
 			const {data} = await axios.get(`${qiNiuUrl}${oMediaInfo.fileId}`,  // 返回新数据
 				{responseType: "blob", params: {ts: new Date() * 1}},
@@ -108,10 +114,12 @@ export default class {
 				oBuffer_.aChannelData_ = await getChannelDataFromBlob(oBlob);
 				return oBuffer_;
 			}
-			this.message.success('正在读取媒体波形');
-			const oResult = await fileToBuffer(mediaFile_);
 			needUpDateDB = true;
-			return getFakeBuffer(oResult);
+			success('正在读取媒体波形');
+			const oResult = await fileToBuffer(mediaFile_);
+			if (oResult) return getFakeBuffer(oResult);
+			error('读取媒体波形未成功');
+			return;
 		})();
 		return {mediaFile_, buffer, needUpDateDB};
 	}

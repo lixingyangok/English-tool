@@ -28,9 +28,10 @@ export default function (props){
 	const [visible, setVisible] = useState(false);
 	const [dictIdx, setDictIdx] = useState(0);
 	const [src, setSrc] = useState('');
-	const openIt = () => window.open(src, '_blank');
 	const changeDict = idx =>{
-		if (!aDict[idx].getUrl(word)) return;
+		const newSrc = aDict[idx].getUrl(word);
+		if (!newSrc) return;
+		if (idx===dictIdx) return window.open(newSrc, '_blank');
 		setDictIdx(idx);
 	}
 	// ▼生命周期
@@ -57,9 +58,6 @@ export default function (props){
 				{word}
 			</cpnt.wordName>
 			{aDictArr}
-			<Button onClick={openIt} size="small">
-				新窗口打开
-			</Button>
 		</cpnt.titleBar>
 		{word ? <cpnt.MyIframe src={src} /> : null}
 	</Modal>;

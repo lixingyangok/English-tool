@@ -27,6 +27,7 @@ const MyClass = window.mix(
 // TODO，区分人名与词汇、添加词汇后没有立即显示出来
 // 在输入框输入，不应触发上级的监听
 // textare 校对效果，搜索
+// 删除页面中的所有：oSct
 
 export default class Tool extends MyClass {
 	static contextType = MyContext;
@@ -43,9 +44,6 @@ export default class Tool extends MyClass {
 	state = {
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
-		oFirstLine, //默认行
-		fileName: "", //文件名
-		fileSrc: "", //文件地址
 		iHeight: 0.3, // 波形高
 		iCanvasHeight: cpnt.iCanvasHeight, //画布高
 		iPerSecPx: 100, //人为定义的每秒宽度
@@ -53,12 +51,7 @@ export default class Tool extends MyClass {
 		drawing: false, //是否在绘制中（用于防抖
 		loading: false, //是否在加载中（解析文件
 		playing: false, //储存播放的定时器setInterval的返回值
-		aSteps: [{ //历史记录
-			iCurLine: 0, // 当前所在行
-			aLines: [oFirstLine.dc_], //字幕
-		}],
 		iCurStep: 0, //当前步骤
-		oSct: {}, // DB中的【章节】
 		sTyped: '', //已经输入的，用于搜索
 		aMatched: [], //与当前输入匹配到的单词
 		visible: false,
@@ -68,6 +61,13 @@ export default class Tool extends MyClass {
 		oTarget: {}, // 故事信息如：故事id、章节id
 		oWordsDB: {}, //词库
 		// ▼新版--------------------------------
+		oFirstLine, //默认行
+		fileName: "", //文件名
+		fileSrc: "", //文件地址
+		aSteps: [{ //历史记录
+			iCurLine: 0, // 当前所在行
+			aLines: [oFirstLine.dc_], //字幕
+		}],
 		aWords: [], // 
 		aNames: [], // 
 		storyTB: {}, // DB表
@@ -79,7 +79,8 @@ export default class Tool extends MyClass {
 		matchDialogVisible: false, // 
 		aSubtitleFromNet: [], //网上字幕
 		mediaId: null, // 媒体id
-		sSearching: '', 
+		sSearching: '',  // 正在搜索的单词
+		mediaFile_: {}, // 媒体文件
 	};
 	constructor(props) {
 		super(props);
@@ -252,7 +253,7 @@ export default class Tool extends MyClass {
 			aSteps, iCurStep, iCanvasHeight,
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
 			sSearching,
-			oSct, // TODO 择机删除
+			mediaFile_,
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oThisLine = aLines[iCurLine] || {};
@@ -269,7 +270,7 @@ export default class Tool extends MyClass {
 			this.oldContext = context;
 			this.init();
 		}
-		const isVideo = oSct.audioFile && oSct.audioFile.type.includes('video/');
+		const isVideo = (mediaFile_.type || '').includes('video/');
 		const WaveLeft = <cpnt.VideoWrap className={(isVideo ? 'show' : '') + ' left'}>
 			<video src={fileSrc} name="controls"
 				ref={this.oAudio} className="video"
