@@ -8,7 +8,6 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { mix } from './common/common.js';
-import lf from 'localforage';
 import axios from 'common/lib/js/ajax.js';
 // ▼样式
 import 'antd/dist/antd.css';
@@ -27,10 +26,6 @@ Object.defineProperties(window, {
 	axios: {
 		writable: false,
 		value: axios,
-	},
-	lf: {
-		writable: false,
-		value: lf,
 	},
 });
 
@@ -87,12 +82,6 @@ Date.prototype.format = function (fmt) {  // eslint-disable-line
 	}
 	return fmt;
 }
-
-// window.axios.get('/user/session').then(res=>{
-// 	window.store.set('userInfo', (
-// 		res && res.account ? res : {}
-// 	));
-// })
 
 ReactDOM.render(
 	// <React.StrictMode>

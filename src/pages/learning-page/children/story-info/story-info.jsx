@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-13 09:44:07
+ * @LastEditTime: 2021-02-13 12:57:25
  * @Description: 
  */
 
@@ -79,7 +79,7 @@ export default class extends MyClass {
 				</Button>
 			</div>
 			// title={sOneWord}
-			const result = <Popover trigger="click" placement="topLeft"
+			const result = <Popover trigger="hover" placement="topLeft"
 				key={idx} content={btn}
 				visible={this.state.sPopWords === sOneWord}
 				onVisibleChange={newVal=>handleVisibleChange(newVal ? sOneWord : '')}

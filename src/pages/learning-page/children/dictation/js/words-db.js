@@ -83,7 +83,8 @@ export default class {
 		const {oStory, aWords, aNames} = this.state; //oStoryTB,
 		const sWord = sSearching || window.getSelection().toString().trim();
 		const canSave = this.checkWord(sWord, !sSearching);
-		if (!canSave) return;
+		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 2;
+		if (!canSave || tooMuchSpace) return;
 		// ▲通过考验，▼保存
 		const isCapitalize = /[A-Z]/.test(sWord[0]);
 		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词

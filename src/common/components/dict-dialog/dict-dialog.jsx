@@ -9,6 +9,9 @@ const aDict = [{
 	name: '金山',
 	getUrl: word => `http://www.iciba.com/word?w=${word}`,
 },{
+	name: '百度',
+	getUrl: word => `https://fanyi.baidu.com/#en/zh/${word}`,
+},{
 	name: '剑桥',
 	getUrl: word => `https://dictionary.cambridge.org/us/dictionary/english/${word}`,
 },{
@@ -45,12 +48,14 @@ export default function (props){
 			{cur.name}
 		</Button>
 	});
-	const HTML = <Modal maskClosable closable width="98vw" footer={null}
+	const HTML = <Modal maskClosable closable width="calc(100vw - 35px)" footer={null}
 		style={{top: 20, paddingBottom: 0}} visible={visible}
 		onCancel={()=>setVisible(false)}
 	>
 		<cpnt.titleBar>
-			<cpnt.wordName>{word}</cpnt.wordName>
+			<cpnt.wordName title={word}>
+				{word}
+			</cpnt.wordName>
 			{aDictArr}
 			<Button onClick={openIt} size="small">
 				新窗口打开

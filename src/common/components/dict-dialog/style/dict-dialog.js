@@ -12,10 +12,14 @@ export const wordName = styled.em`
 	font-weight: bold;
 	margin: 0 1em 0 0;
 	text-transform: capitalize;
+	max-width: 45vw;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 `;
 
 export const MyIframe = styled.iframe`
-	width: 100%; 
+	width: 100%;
 	height: calc(100vh - 120px);
 	border: none;
 	margin: 0 auto -10px;
