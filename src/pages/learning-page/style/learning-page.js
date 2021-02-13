@@ -34,7 +34,7 @@ export const MyTabs = styled(Tabs)`
 	.ant-tabs-nav{
 		margin-bottom: 0 !important;
 		&::before{
-			border-bottom: 2px solid ${sDeepBlue};
+			border-bottom: 2px solid ${sDeepBlue} !important;
 			z-index: 2;
 		}
 	}
