@@ -275,7 +275,7 @@ export const oneWord = styled.span`
 	margin-right: 15px;
 	font-size: 18px;
 	padding: 0;
-	color: #333;
+	color: #444;
 	&[kind=words],
 	&[kind=names]{
 		cursor: pointer;
@@ -300,9 +300,9 @@ export const oneWord = styled.span`
 		background: deepskyblue;
 	}
 	.left{
+		color: inherit;
 		font-weight: bold;
 		padding: 0;
-
 	}
 `;
 

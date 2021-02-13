@@ -70,28 +70,47 @@ export default class {
 		});
 		this.setState({visible: true});
 	}
+	// ▼搜索
+	async searchWord() {
+		this.setState({sSearching: ''});
+		const sSearching = window.getSelection().toString().trim();
+		if (!sSearching) return;
+		this.setState({sSearching});
+		this.saveWord(sSearching);
+	}
 	// ▼保存生词到云
-	async saveWord() {
+	async saveWord(sSearching='') {
 		const {oStory, aWords, aNames} = this.state; //oStoryTB,
-		const aAll = aWords.concat(aNames);
-		const {error} = this.message;
-		const sWord = window.getSelection().toString().trim();
-		if (aAll.find(cur => cur.toLowerCase()===sWord.toLowerCase())) {
-			return error(`已经保存不可重复添加`);
-		}
-		if (sWord.length < 2 || sWord.length > 30) {
-			return error(`单词长度超出范围：2-30字母`);
-		}
-		if (sWord.includes(',')) return error('不能包含英文逗号');
+		const sWord = sSearching || window.getSelection().toString().trim();
+		const canSave = this.checkWord(sWord, !sSearching);
+		if (!canSave) return;
 		// ▲通过考验，▼保存
 		const isCapitalize = /[A-Z]/.test(sWord[0]);
-		const arrToSubmit = isCapitalize ? aNames : aWords;
 		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
+		const arrToSubmit = isCapitalize ? aNames : aWords;
 		arrToSubmit.push(sWord);
-		await setWrods(oStory.ID, sKey, arrToSubmit);
 		this.setState({aWords, aNames});
-		this.context.updateStoryInfo();
 		this.message.success(`保存成功`);
+		await setWrods(oStory.ID, sKey, arrToSubmit);
+		this.context.updateStoryInfo();
+	}
+	checkWord(sWord, showTip){
+		const {aWords, aNames} = this.state; //oStoryTB,
+		const aAll = aWords.concat(aNames);
+		const {error} = this.message;
+		if (aAll.find(cur => cur.toLowerCase() === sWord.toLowerCase())) {
+			showTip && error(`已经保存不可重复添加`);
+			return;
+		}
+		if (sWord.length < 2 || sWord.length > 30) {
+			showTip && error(`单词长度超出范围：2-30字母`);
+			return;
+		}
+		if (sWord.includes(',')) {
+			showTip && error('不能包含英文逗号');
+			return;
+		}
+		return true;
 	}
 	// ▼删除一个保存的单词
 	async delWord(sKey, sWord) {

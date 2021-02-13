@@ -12,6 +12,7 @@ export default class {
 			'F1': () => this.cutHere('start'),
 			'F2': () => this.cutHere('end'),
 			'F3': () => this.giveUpThisOne(),
+			'F4': () => this.searchWord(), //保存单词到云
 		};
 		const type02 = { // ctrl 系列
 			'ctrl + d': () => this.toDel(), //删除一行
@@ -61,7 +62,7 @@ export default class {
 		}
 		return fn.bind(this);
 	}
-	// ▼按下按键事件
+	// ▼按下按键事件（全局）
 	keyDowned(ev) {
 		const { ctrlKey, shiftKey, altKey, keyCode } = ev;
 		const ctrl = ctrlKey ? 'ctrl + ' : '';
@@ -104,7 +105,7 @@ export default class {
 		isNeedSave && this.toSaveInDb();
 	}
 
-	// ▼输入框文字改变
+	// ▼ 输入框文字改变
 	valChanged(ev) {
 		const { value: sText, selectionStart: idx } = ev.target;
 		let sTyped = ''; // 单词开头（用于搜索的）
@@ -138,7 +139,7 @@ export default class {
 		}
 		this.setState({ aMatched });
 	}
-	// ▼按下回车键
+	// ▼ 在输入框按下回车键
 	enterKeyDown(ev) {
 		const { keyCode, altKey, ctrlKey, shiftKey } = ev;
 		const willDo = keyCode === 13 && !altKey && !ctrlKey && !shiftKey;

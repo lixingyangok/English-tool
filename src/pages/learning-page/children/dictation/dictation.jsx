@@ -9,6 +9,7 @@ import figureOutRegion from './js/figure-out-region.js';
 import Nav from './menu/menu.jsx';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import { fixTime } from 'assets/js/pure-fn.js';
+import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
 import {
 	Modal, Button, message, Space, 
 	Spin, Input, Popconfirm,
@@ -78,6 +79,7 @@ export default class Tool extends MyClass {
 		matchDialogVisible: false, // 
 		aSubtitleFromNet: [], //网上字幕
 		mediaId: null, // 媒体id
+		sSearching: '', 
 	};
 	constructor(props) {
 		super(props);
@@ -249,6 +251,7 @@ export default class Tool extends MyClass {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
+			sSearching,
 			oSct, // TODO 择机删除
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
@@ -331,6 +334,7 @@ export default class Tool extends MyClass {
 			{SentenceWrap}
 			{this.getDialog(this.state)}
 			{this.getMatchDialog(this.state)}
+			<DictDialog word={sSearching} />
 		</cpnt.Container>;
 		return resultHTML;
 	}

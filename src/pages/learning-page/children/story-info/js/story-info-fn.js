@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 21:50:09
+ * @LastEditTime: 2021-02-13 09:11:24
  * @Description: 
  */
 import {
@@ -82,7 +82,6 @@ export default class {
 		return result;
 	}
 	searchWord(sSearching){
-		console.log('调用了我');
 		this.setState({sSearching, sPopWords: ''});
 		// const url = ``;
 		// window.open(url, '_blank');

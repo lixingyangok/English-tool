@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 22:02:32
+ * @LastEditTime: 2021-02-13 09:44:07
  * @Description: 
  */
 
@@ -62,7 +62,7 @@ export default class extends MyClass {
 		const handleVisibleChange = (sPopWords) => {
 			this.setState({sPopWords});
 		};
-		const aResult = aWords.map(sOneWord=>{
+		const aResult = aWords.map((sOneWord, idx)=>{
 			const btn = <div>
 				<h2>{sOneWord}</h2>
 				<Button size="small" onClick={()=>this.searchWord(sOneWord)}>
@@ -80,7 +80,7 @@ export default class extends MyClass {
 			</div>
 			// title={sOneWord}
 			const result = <Popover trigger="click" placement="topLeft"
-				key={sOneWord} content={btn}
+				key={idx} content={btn}
 				visible={this.state.sPopWords === sOneWord}
 				onVisibleChange={newVal=>handleVisibleChange(newVal ? sOneWord : '')}
 			>
@@ -235,10 +235,7 @@ export default class extends MyClass {
 			{this.getInfoBox()}
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable()}
-			<DictDialog
-				word={this.state.sSearching}
-				switcher={this.searchWord.bind(this)}
-			/>
+			<DictDialog word={this.state.sSearching} />
 		</cpnt.outer>
 		return resultHTML;
 	}
