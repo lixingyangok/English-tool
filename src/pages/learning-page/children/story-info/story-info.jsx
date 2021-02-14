@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 18:25:15
+ * @LastEditTime: 2021-02-14 20:45:42
  * @Description: 
  */
 
@@ -15,7 +15,7 @@ import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
 
 import {
 	Button, Popconfirm, message, Table, Popover,// Tag, Space, 
-	Spin,
+	Spin, Divider,
 } from 'antd';
 
 const { Column } = Table;
@@ -213,16 +213,16 @@ export default class extends MyClass {
 					return HTML;
 				}}
 			/>
-			<Column title="Tags" dataIndex="tags" key="tags"
+			{/* <Column title="Tags" dataIndex="tags" key="tags"
 				render={tags => ( 123 )}
-			/>
+			/> */}
 			<Column title="操作" key="action" width="215px"
 				render={oMedia => getBtn(oMedia)}
 			/>
 		</Table>;
 	}
 	render(){
-		const {loading, sSearching} = this.state;
+		const {loading, sSearching, aMedia} = this.state;
 		const resultHTML = <cpnt.outer className="">
 			{/* ▼loading有效，但丑陋 */}
 			<Spin spinning={loading} size="large"/>
@@ -230,6 +230,7 @@ export default class extends MyClass {
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable()}
 			<DictDialog word={sSearching} />
+			<Divider plain>共 {aMedia.length} 条音频</Divider>
 		</cpnt.outer>
 		return resultHTML;
 	}

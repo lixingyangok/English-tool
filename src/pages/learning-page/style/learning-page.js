@@ -6,7 +6,7 @@ export const outer = styled.article`
 `;
 
 const sDeepBlue = `#056bca`;
-const iHeaderHeight = '95px';
+const iHeaderHeight = '90px';
 
 export const header = styled.header`
 	/* background: var(--color); */

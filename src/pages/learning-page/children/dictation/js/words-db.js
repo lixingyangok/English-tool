@@ -41,7 +41,7 @@ export default class {
 				credentials: "same-origin",
 			});
 			const text = await res.text();
-			const aWords = text.split(/\n/).filter(Boolean).map((word, id)=>({word, id}));
+			const aWords = text.trim().split(/\s+/).map((word, id)=>({word, id}));
 			await setOneLetter(cur, aWords);
 		}
 		this.checkWordsDB();
@@ -64,11 +64,12 @@ export default class {
 	}
 	// ▼搜索
 	async searchWord() {
-		this.setState({sSearching: ''});
 		const sSearching = window.getSelection().toString().trim();
 		if (!sSearching) return;
-		this.setState({sSearching});
 		this.saveWord(sSearching);
+		this.setState({sSearching: ''}, ()=>{
+			this.setState({sSearching});
+		});
 	}
 	// ▼保存生词到云
 	async saveWord(sSearching='') {

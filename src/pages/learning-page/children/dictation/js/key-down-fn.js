@@ -127,19 +127,26 @@ export default class {
 	}
 	async getMatchedWords(sTyped = '') {
 		sTyped = sTyped.toLocaleLowerCase().trim();
-		const {aWords, aNames} = this.state;
-		const allWords = aWords.concat(aNames);
 		const aMatched = (() => {
+			const {aWords, aNames} = this.state;
+			const allWords = aWords.concat(aNames);
 			if (!sTyped) return allWords;
-			const aFiltered = allWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
+			const aFiltered = allWords.filter(cur => {
+				return cur.toLocaleLowerCase().startsWith(sTyped);
+			});
 			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
 		})();
 		if (sTyped && aMatched.length < 9) {
 			const theTB = wordsDB[sTyped[0]].where('word').startsWith(sTyped);
 			const res = await theTB.limit(9 - aMatched.length).toArray();
-			aMatched.push(...res.map(({ word }) => word));
+			res.forEach(({word})=>{
+				const hasIn = aMatched.find(one=>{
+					return one.toLocaleLowerCase() === word.toLocaleLowerCase();
+				});
+				hasIn || aMatched.push(word);
+			});
 		}
-		this.setState({ aMatched });
+		this.setState({aMatched});
 	}
 	// ▼ 在输入框按下回车键
 	enterKeyDown(ev) {
