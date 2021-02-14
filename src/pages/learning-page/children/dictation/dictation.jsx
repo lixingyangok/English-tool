@@ -370,7 +370,7 @@ export default class Tool extends MyClass {
 		);
 		this.cleanCanvas();
 		document.onkeydown = keyDownFn;
-		this.props.history.listen(oRoute => { // 监听路由变化
+		this.props.history.listen(oRoute => { // bj监听路由变化
 			const {pathname} = oRoute;
 			const hasGone = !pathname.includes('/dictation/');
 			document.onkeydown = hasGone ? null : keyDownFn;

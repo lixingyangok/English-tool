@@ -82,7 +82,9 @@ export default class{
 	// ▼跳到详情
 	goInfoPage02(oStory){
 		let sUrl = `/learning-page/${oStory.ID}`;
-		window.open(sUrl, '_blank');
+		console.log('sUrl：', sUrl);
+		// window.open(sUrl, '_blank');
+		this.props.history.push(sUrl); // bj路由跳转
 	}
 }
 

@@ -15,7 +15,7 @@ export default class {
 			loginForm.account = store.get('account') || '';
 			loginForm.password = store.get('password') || '';
 		}
-		const {data} = await axios.post('/user/login', loginForm);
+		const {data} = await axios.post('/open/login', loginForm);
 		if (data && data.loginAt) {
 			message.success('已登录');
 			return this.getSession();
@@ -23,13 +23,13 @@ export default class {
 		message.warning(data);
 	}
 	async logOut(){
-		const {data} = await axios.get('/user/logout');
+		const {data} = await axios.get('/open/logout');
 		if (!data) return;
 		message.success('已退出');
 		this.getSession();
 	}
 	async getSession(){
-		const {data} = await axios.get('/user/session');
+		const {data} = await axios.get('/open/session');
 		this.setState({logInfo: data || {}});
 	}
 }

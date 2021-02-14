@@ -4,17 +4,24 @@
  * @Description: 
  */ 
 import React, {Suspense} from 'react';
-import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Redirect, Switch, withRouter} from 'react-router-dom';
 import Navigation, {aNavData} from './common/components/navigation/navigation.jsx';
 import Loading from 'common/components/loading/loading.jsx';
 
+const MyNav = withRouter(function (props){
+	const {pathname} = props.location;
+	const [visible, setVisible] = React.useState(false);
+	React.useEffect(()=>{
+		const newVal = (()=>{
+			return !pathname.startsWith('/learning-page');
+		})();
+		setVisible(newVal);
+	}, [pathname])
+	if (visible) return <Navigation/>;
+	return null;
+});
+
 function App() {
-	const oNavigation = (()=>{
-		const {pathname} = window.location;
-		if (pathname.startsWith('/learning-page')) return null;
-		return <Navigation/>;
-	})();
-	// ▼ 异步组件父级要包裹 Suspense
 	const oBody = <Suspense fallback={Loading}>
 		<Switch>
 			<Redirect exact from="/" to="/index" ></Redirect>
@@ -27,10 +34,11 @@ function App() {
 	</Suspense>;
 	// ▼ 
 	const resultHTML = <BrowserRouter>
-		{oNavigation}
+		<MyNav/>
 		{oBody}
 	</BrowserRouter>
 	return resultHTML;
 }
 
 export default App;
+
