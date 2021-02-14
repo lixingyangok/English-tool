@@ -13,10 +13,13 @@ import {
 	// getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
+import {trainingDB} from 'common/js/common.js';
 import {getMediaByStoryId} from 'common/js/learning-api.js';
 import {Modal} from 'antd';
+
 const { confirm } = Modal;
 const {axios} = window;
+const {media: mediaTB} = trainingDB;
 
 export default class FileList {
 	// ▼将选中的文件整理，配对，返回
@@ -214,8 +217,7 @@ export default class FileList {
 		});
 		if (!res) return this.message.error('删除文件未成功');
 		this.getMediaForOneStory(oStory.ID);
-		const {oMediaTB} = this.state;
-		const oCollection = oMediaTB.where('ID').equals(oneMedia.ID);
+		const oCollection = mediaTB.where('ID').equals(oneMedia.ID);
 		oCollection.count().then(res=>{
 			res && oCollection.delete();
 		});

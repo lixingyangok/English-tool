@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 16:19:35
+ * @LastEditTime: 2021-02-14 17:55:52
  * @Description: 
  */
 
@@ -12,7 +12,6 @@ import * as cpnt from './style/story-info.js';
 import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
-import {getTrainingDb} from 'assets/js/common.js';
 
 import {
 	Button, Popconfirm, message, Table, Popover,// Tag, Space, 
@@ -29,11 +28,11 @@ const MyClass = window.mix(
 
 export default class extends MyClass {
 	static contextType = MyContext;
+	static message = message;
+
 	oldContext = {};
-	message = message;
 	state = {
 		visible: false, // 单词气泡可见性
-		oMediaTB: {}, // 本地媒体列表TB
 		loading: false,
 		sPopWords: '', // 弹出气泡的词汇
 		sSearching: '', // 搜索词汇
@@ -43,10 +42,6 @@ export default class extends MyClass {
 	}
 	constructor(props) {
 		super(props);
-		const {media: oMediaTB} = getTrainingDb();
-		Object.assign(this.state, {
-			oMediaTB, // 用于在删除章节时调其方法删除本地文件
-		});
 	}
 	getWrodsList(sWords, sKey){
 		if (!sWords.length) return '无';
@@ -227,14 +222,14 @@ export default class extends MyClass {
 		</Table>;
 	}
 	render(){
-		const {loading} = this.state;
+		const {loading, sSearching} = this.state;
 		const resultHTML = <cpnt.outer className="">
 			{/* ▼loading有效，但丑陋 */}
 			<Spin spinning={loading} size="large"/>
 			{this.getInfoBox()}
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable()}
-			<DictDialog word={this.state.sSearching} />
+			<DictDialog word={sSearching} />
 		</cpnt.outer>
 		return resultHTML;
 	}

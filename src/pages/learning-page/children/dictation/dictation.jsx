@@ -10,11 +10,14 @@ import Menu from './menu/menu.jsx';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import { fixTime } from 'assets/js/pure-fn.js';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
+import {trainingDB} from 'common/js/common.js';
+
 import {
 	Modal, Button, message, Space, 
 	Spin, Input, Popconfirm,
 } from 'antd';
 
+const {media: mediaTB, story: storyTB} = trainingDB;
 const { TextArea } = Input;
 const { confirm } = Modal;
 const oFirstLine = fixTime({start: 0.1, end: 5});
@@ -28,12 +31,16 @@ const MyClass = window.mix(
 // 在输入框输入，不应触发上级的监听
 // textare 校对效果，搜索
 
+// window.alert('类声明前夕');
+
 export default class Tool extends MyClass {
 	static contextType = MyContext;
+	static mediaTB = mediaTB;
+	static storyTB = storyTB;
+	static message = message;
+	static confirm = confirm;
 	oldContext = undefined;
 	oldMediaId = undefined;
-	message = message;
-	confirm = confirm;
 	oAudio = React.createRef();
 	oCanvas = React.createRef();
 	oPointer = React.createRef();
@@ -41,8 +48,6 @@ export default class Tool extends MyClass {
 	oTextArea = React.createRef();
 	oSententList = React.createRef();
 	state = {
-		
-		// ▲疑似废弃 ----------
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
 		iHeight: 0.3, // 波形高
@@ -58,7 +63,7 @@ export default class Tool extends MyClass {
 		visible: false, // 控制词汇弹出窗口的可见性
 		aWordsDBState: [],
 		scrollTimer: null,
-		oWordsDB: {}, //词库
+		oWordsDB: new window.Dexie("wordsDB"), //词库
 		// ▼新版--------------------------------
 		oFirstLine, //默认行
 		fileName: "", //文件名
@@ -83,20 +88,13 @@ export default class Tool extends MyClass {
 	};
 	constructor(props) {
 		super(props);
-		const mediaId = this.getMediaId(props);
-		const loading = !!mediaId; //有id就loading
-		const [storyTB, oMediaTB, oWordsDB] = (()=>{
-			const oWordsDB = new window.Dexie("wordsDB");
-			const trainingDB = new window.Dexie("trainingDB");
-			trainingDB.version(1).stores({story: '++id, ID, name, storyId'});
-			trainingDB.version(2).stores({media: '++id, ID, fileId, ownerStoryId'});
-			return [trainingDB.story, trainingDB.media, oWordsDB];
-		})();
-		Object.assign(this.state, {
-			oWordsDB, storyTB, oMediaTB,
-			loading, // mediaId,
-		});
-		this.checkWordsDB(oWordsDB);
+		// const {story:storyTB, media:oMediaTB} = getTrainingDb();
+		// Object.assign(this.state, {
+		// 	storyTB, 
+		// 	oMediaTB,
+		// });
+		console.log('this.state.oWordsDB\n', this.state.oWordsDB);
+		this.checkWordsDB(this.state.oWordsDB);
 	}
 	// ▼时间刻度
 	getMarkBar({fPerSecPx}){

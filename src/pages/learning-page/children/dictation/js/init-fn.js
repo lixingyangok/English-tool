@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-13 18:28:43
+ * @LastEditTime: 2021-02-14 16:25:29
  * @Description: 
  */
 
@@ -15,21 +15,6 @@ import {
 const axios = window.axios;
 
 export default class {
-	// ▼查询 mediaId
-	getMediaId(props){
-		const {params={}} = props.match;
-		return params.mediaId * 1;
-	}
-	// ▼格式化 search TODO 废弃？
-	getSearchOjb(oLocation){
-		const sSearch = oLocation.search;
-		if (!sSearch) return {};
-		const oResult = sSearch.slice(1).split('&').reduce((result, cur)=>{
-			const [key, val] = cur.split('=');
-			return {...result, [key]: val};
-		}, {});
-		return oResult;
-	}
 	// ▼初始化的方法（查询故事信息并保存）
 	async init(){
 		const {storyTB} = this.state;
