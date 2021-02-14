@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 16:25:29
+ * @LastEditTime: 2021-02-14 20:03:49
  * @Description: 
  */
 
@@ -11,13 +11,14 @@ import {
 	getFakeBuffer,
 	getChannelDataFromBlob,
 } from 'assets/js/pure-fn.js';
+import {trainingDB} from 'common/js/common.js';
 
+const {media: mediaTB, story: storyTB} = trainingDB;
 const axios = window.axios;
 
 export default class {
 	// ▼初始化的方法（查询故事信息并保存）
 	async init(){
-		const {storyTB} = this.state;
 		const oStory = this.context.oStoryInfo;
 		const {ID, words, names} = oStory;
 		const oStoryFromTB = await storyTB.where('ID').equals(ID).first();
@@ -32,10 +33,10 @@ export default class {
 	}
 	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
 	async setMedia(mediaId){
-		const {oFirstLine, oMediaTB} = this.state;
+		const {oFirstLine} = this.state;
 		const [{data: oMediaInfo}, oMediaInTB={}] = await Promise.all([
 			axios.get('/media/one-media/', {params: {mediaId}}),
-			oMediaTB.where('ID').equals(mediaId*1).first(),
+			mediaTB.where('ID').equals(mediaId*1).first(),
 		]);
 		if (!oMediaInfo) return; // 查不到媒体信息
 		this.setState({
@@ -115,7 +116,7 @@ export default class {
 			oMediaInTB: {id},
 			oMediaInfo, mediaFile_, buffer,
 		} = oData;
-		const {aSteps, oMediaTB} = this.state;
+		const {aSteps} = this.state;
 		const subtitleFile_ = aSteps.last_.aLines;
 		const oBuffer_ = Object.entries(buffer).reduce((result, [key, val])=>{
 			if (key === 'aChannelData_') {
@@ -131,7 +132,7 @@ export default class {
 			...oMediaInfo, mediaFile_, subtitleFile_, oBuffer_,
 			...(id ? {id} : null),
 		};
-		oMediaInfo.id = await oMediaTB[id ? 'put' : 'add'](dataToDB);
+		oMediaInfo.id = await mediaTB[id ? 'put' : 'add'](dataToDB);
 		this.setState({oMediaInfo});
 		this.setSubtitle({oMediaInfo, oMediaInTB}); // 查询字幕
 	}
@@ -139,7 +140,7 @@ export default class {
 	setSubtitle({oMediaInfo, oMediaInTB}){
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
 		const {changeTs_, subtitleFile_} = oMediaInTB;
-		const {aSteps} = this.state; //oMediaTB
+		const {aSteps} = this.state;
 		if (!changeTs_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
 				this.getSubtitleFromNet(true); // 查询网络字幕

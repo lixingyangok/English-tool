@@ -5,54 +5,46 @@
  */ 
 
 import {setWrods} from 'common/js/learning-api.js';
+import {wordsDB, aAlphabet} from 'common/js/common.js'
 
 export default class {
 	// ▼控制词库窗口可见性
 	showWordsDialog(){
 		this.setState({visible: true});
 	}
-	// ▼得到字母表 a,b,c.....
-	getAlphabet(){
-		return [...Array(26).keys()].map(cur=>String.fromCharCode(97 + cur));
-	}
-	// ▼
-	checkWordsDB(oWordsDB){
-		const aAlphabet = this.getAlphabet();
-		aAlphabet.forEach(async (cur, idx)=>{
-			oWordsDB.version(idx+1).stores({[cur]: '++id, word'});
+	// ▼检查词库是否已生效（页面一加载就执行）
+	async checkWordsDB(){
+		const arr = aAlphabet.map(async (cur)=>{
+			return await wordsDB[cur].count();
 		});
-		const aWordsDBState = [];
-		aAlphabet.forEach(async (cur, idx)=>{
-			const iRes = await oWordsDB[cur].count();
-			aWordsDBState.push(iRes);
-			if (idx<25) return;
+		const aWordsDBState = await Promise.all(arr);
+		if (aWordsDBState.length===26 && aWordsDBState.every(Boolean)){
 			this.setState({aWordsDBState})
+			return;
+		}
+		this.confirm({ title: '初始化单词库？', 
+			okText: '确定',
+			cancelText: '取消',
+			onOk: ()=>this.initWordsDB(),
 		});
 	}
-	// ▼初始 26 个英文字母
+	// ▼初始化词库
 	async initWordsDB(){
-		const {oWordsDB} = this.state;
-		const aAlphabet = this.getAlphabet();
-		const wordArr = [];
-		const promiseArr = aAlphabet.map(async (cur, idx)=>{
+		const setOneLetter = async (sLetter, aWords) => {
+			await wordsDB[sLetter].clear();
+			await wordsDB[sLetter].bulkAdd(aWords);
+            this.message.success(`初始化完成 ${sLetter}`);
+		};
+		for (const cur of aAlphabet) {
 			const res = await fetch(`/static/text/${cur}.txt`, {
 				headers: {"Content-Type": "application/json"},
 				credentials: "same-origin",
-			});  //.then(async res=>await res.text()).catch(()=>false)
-			wordArr[idx] = await res.text();
-			return true;
-		});
-		await Promise.all(promiseArr);
-		for (let idx = 0; idx < aAlphabet.length; idx++) {
-			await new Promise(fn=>setTimeout(()=>fn(), 500));
-			const curLetter = aAlphabet[idx];
-			const wordArrToTb = wordArr[idx].split(/\n/).filter(Boolean).map((word,id)=>({word, id}));
-			const curTB = oWordsDB[curLetter];
-			await curTB.clear();
-			await curTB.bulkAdd(wordArrToTb);
-            this.message.success(`初始化完成 ${curLetter}`);
-            if (idx===25) this.checkWordsDB();
-        }
+			});
+			const text = await res.text();
+			const aWords = text.split(/\n/).filter(Boolean).map((word, id)=>({word, id}));
+			await setOneLetter(cur, aWords);
+		}
+		this.checkWordsDB();
 	}
 	// ▼清空词库
 	cleanWordsList(){
@@ -80,7 +72,7 @@ export default class {
 	}
 	// ▼保存生词到云
 	async saveWord(sSearching='') {
-		const {oStory, aWords, aNames} = this.state; //oStoryTB,
+		const {oStory, aWords, aNames} = this.state;
 		const sWord = sSearching || window.getSelection().toString().trim();
 		const canSave = this.checkWord(sWord, !sSearching);
 		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 2;
@@ -96,7 +88,7 @@ export default class {
 		this.context.updateStoryInfo();
 	}
 	checkWord(sWord, showTip){
-		const {aWords, aNames} = this.state; //oStoryTB,
+		const {aWords, aNames} = this.state;
 		const aAll = aWords.concat(aNames);
 		const {error} = this.message;
 		if (aAll.find(cur => cur.toLowerCase() === sWord.toLowerCase())) {

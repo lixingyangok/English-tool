@@ -4,6 +4,9 @@ import {
 	downloadString,
 	fixTime,
 } from 'assets/js/pure-fn.js';
+import {trainingDB} from 'common/js/common.js';
+
+const {media: mediaTB} = trainingDB;
 
 const axios = window.axios;
 
@@ -44,8 +47,7 @@ export default class {
 			const [startTime, endTime] = [secToStr(start), secToStr(end)];
 			return `${idx + 1}\n${startTime} --> ${endTime}\n${text}\n`;
 		});
-		const fileName = 'fileName';
-		downloadString(aStr.join('\n'), fileName, 'srt');
+		downloadString(aStr.join('\n'), '文件名', 'srt');
 	}
 	// ▼打开对比字幕窗口
 	compareSubtitle(){
@@ -305,7 +307,7 @@ export default class {
 	// ▼保存字幕到云（上传字幕）
 	async uploadToCloud(oParams){
 		const {subtitleFile_, file, fileName, key} = oParams;
-		const {oMediaInfo, oMediaTB} =  this.state;
+		const {oMediaInfo} =  this.state;
 		const {id} = oMediaInfo;
 		const [token, oTime] = await getQiniuToken(key);
 		if (!token) return;
@@ -324,7 +326,7 @@ export default class {
 			...getTimeInfo(oTime, 's'),
 		});
 		if (!res) return;
-		oMediaTB.update(id, {
+		mediaTB.update(id, {
 			subtitleFile_, changeTs_: changeTs,
 		});
 		oMediaInfo.subtitleFileModifyTs = changeTs;
@@ -341,11 +343,11 @@ export default class {
 	// ▼使用网络字幕
 	useSubtitleFromNet(subtitleFile_){
 		subtitleFile_ = subtitleFile_ || this.state.aSubtitleFromNet || [];
-		const { aSteps, oMediaTB, oMediaInfo } = this.state;
+		const { aSteps, oMediaInfo } = this.state;
 		const {id, subtitleFileModifyTs: changeTs} = oMediaInfo;
 		aSteps.last_.aLines = subtitleFile_;
 		this.setState({ aSteps, changeTs });
-		oMediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
+		mediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
 	}
 }
 

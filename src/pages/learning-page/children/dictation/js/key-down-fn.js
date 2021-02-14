@@ -1,6 +1,8 @@
 import keyMap from './key-map.js';
-
 import { getQiniuToken, fixTime } from 'assets/js/pure-fn.js';
+import {trainingDB, wordsDB} from 'common/js/common.js';
+
+const {media: mediaTB} = trainingDB;
 
 export default class {
 	getFn(keyStr) {
@@ -125,15 +127,15 @@ export default class {
 	}
 	async getMatchedWords(sTyped = '') {
 		sTyped = sTyped.toLocaleLowerCase().trim();
-		const {aWords, aNames, oWordsDB} = this.state;
+		const {aWords, aNames} = this.state;
 		const allWords = aWords.concat(aNames);
 		const aMatched = (() => {
 			if (!sTyped) return allWords;
 			const aFiltered = allWords.filter(cur => cur.toLocaleLowerCase().startsWith(sTyped));
 			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
 		})();
-		if (oWordsDB && sTyped && aMatched.length < 9) {
-			const theTB = oWordsDB[sTyped[0]].where('word').startsWith(sTyped);
+		if (sTyped && aMatched.length < 9) {
+			const theTB = wordsDB[sTyped[0]].where('word').startsWith(sTyped);
 			const res = await theTB.limit(9 - aMatched.length).toArray();
 			aMatched.push(...res.map(({ word }) => word));
 		}
@@ -160,19 +162,16 @@ export default class {
 	}
 	// ▼保存字幕到浏览器
 	async toSaveInDb() {
-		const { fileName, oMediaTB, oMediaInfo: {id} } = this.state;
+		const { oMediaInfo: {id} } = this.state;
 		const { aLines: subtitleFile_ } = this.getCurStep();
 		const [,oTime] = await getQiniuToken();
 		const changeTs_ = oTime.getTime();
 		if (id) { //有本地数据, //增量更新
-			oMediaTB.update(id, {subtitleFile_, changeTs_});
+			mediaTB.update(id, {subtitleFile_, changeTs_});
 			this.setState({changeTs: changeTs_});
-		} else if (fileName) {
-			window.lf.setItem(fileName, subtitleFile_);
-		} else {
-			return;
+			return this.message.success('保存成功');
 		}
-		this.message.success('保存成功');
+		this.message.error('保存未成功');
 	}
 	// ▼微调区域（1参可能是 start、end。2参是调整步幅
 	fixRegion(sKey, iDirection) {
