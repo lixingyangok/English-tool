@@ -174,17 +174,3 @@ export function getFakeBuffer(buffer){
 		oChannelDataBlob_: null,
 	};
 }
-
-// ▼ 从File对象读取文字
-// export function getStrFromFile(oFile) {
-// 	let resolveFn;
-// 	const oPromise = new Promise(resolve => resolveFn = resolve);
-// 	const oReader = Object.assign(new FileReader(), {
-// 		onload() {
-// 			resolveFn(this.result);
-// 		},
-// 	});
-// 	oReader.readAsText(oFile);
-// 	return oPromise;
-// }
-

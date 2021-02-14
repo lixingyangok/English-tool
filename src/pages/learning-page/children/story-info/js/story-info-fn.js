@@ -2,41 +2,15 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-13 09:11:24
+ * @LastEditTime: 2021-02-14 16:14:21
  * @Description: 
  */
 import {
-	getStoryInfo, setWrods,
+	setWrods,
 } from 'common/js/learning-api.js';
 import {message} from 'antd';
 
 export default class {
-	// ▼格式化 search
-	getSearchOjb(oLocation){
-		const sSearch = oLocation.search;
-		if (!sSearch) return {};
-		const oResult = sSearch.slice(1).split('&').reduce((result, cur)=>{
-			const [key, val] = cur.split('=');
-			return {...result, [key]: val};
-		}, {});
-		return oResult;
-	}
-	// ▼初始化的方法（查询故事信息并保存）
-	async init(storyId){
-		const {oStoryTB} = this.state;
-		const [{data: oStory}, oStoryFromTB] = await Promise.all([
-			getStoryInfo(storyId), // 故事信息
-			oStoryTB.where('ID').equals(storyId*1).first(), //故事信息【本地】
-		]);
-		if (!oStory) return; // 查不到故事故事，返回
-		// console.log('故事信息', oStory);
-		this.setState({oStory});
-		if (oStoryFromTB) { // 更新本地故事数据
-			oStoryTB.put({...oStory, id: oStoryFromTB.id}); //全量更新
-		}else{
-			oStoryTB.add(oStory);
-		}
-	}
 	goDictation(oMedia){
 		const {oStory} = this.state;
 		const sUrl = `/learning-page/${oStory.ID}/dictation/${oMedia.ID}`;
@@ -89,7 +63,6 @@ export default class {
 	// ▼复制文字到剪贴板
 	copyWord(sWord){
 		this.setState({sPopWords: ''});
-
 		const {body} = document;
 		const oInput = Object.assign(document.createElement('input'), {
 			value: sWord, // 把文字放进 input 中，供复制

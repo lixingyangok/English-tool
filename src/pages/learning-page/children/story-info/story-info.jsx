@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-13 15:48:13
+ * @LastEditTime: 2021-02-14 16:19:35
  * @Description: 
  */
 
@@ -12,8 +12,11 @@ import * as cpnt from './style/story-info.js';
 import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
+import {getTrainingDb} from 'assets/js/common.js';
+
 import {
 	Button, Popconfirm, message, Table, Popover,// Tag, Space, 
+	Spin,
 } from 'antd';
 
 const { Column } = Table;
@@ -29,32 +32,21 @@ export default class extends MyClass {
 	oldContext = {};
 	message = message;
 	state = {
-		visible: false, //窗口显示
-		oStoryTB: {}, // 本地故事列表TB
+		visible: false, // 单词气泡可见性
 		oMediaTB: {}, // 本地媒体列表TB
 		loading: false,
-		// ▼新
-		sPopWords: '',
+		sPopWords: '', // 弹出气泡的词汇
+		sSearching: '', // 搜索词汇
 		oQueuer: {}, // 排队上传的媒体
 		oStory: {}, // 故事信息
 		aMedia: [], // 媒体列表
-		sSearching: '', // 搜索词汇
 	}
 	constructor(props) {
 		super(props);
-		const oTarget = this.getSearchOjb(props.location);
-		const loading = !!oTarget.storyId; //有id就loading
-		const [oStoryTB, oMediaTB] = (()=>{
-			const trainingDB = new window.Dexie("trainingDB");
-			trainingDB.version(1).stores({story: '++id, ID, name, storyId'});
-			trainingDB.version(2).stores({media: '++id, ID, fileId, ownerStoryId'});
-			return [trainingDB.story, trainingDB.media];
-		})();
+		const {media: oMediaTB} = getTrainingDb();
 		Object.assign(this.state, {
-			oStoryTB, oMediaTB, oTarget, loading,
+			oMediaTB, // 用于在删除章节时调其方法删除本地文件
 		});
-		if (!oTarget.storyId) return;
-		// this.init()
 	}
 	getWrodsList(sWords, sKey){
 		if (!sWords.length) return '无';
@@ -235,7 +227,10 @@ export default class extends MyClass {
 		</Table>;
 	}
 	render(){
+		const {loading} = this.state;
 		const resultHTML = <cpnt.outer className="">
+			{/* ▼loading有效，但丑陋 */}
+			<Spin spinning={loading} size="large"/>
 			{this.getInfoBox()}
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable()}
