@@ -5,8 +5,9 @@
  */ 
 import React, {Suspense} from 'react';
 import { BrowserRouter, Route, Redirect, Switch, withRouter} from 'react-router-dom';
-import Navigation, {aNavData} from './common/components/navigation/navigation.jsx';
 import Loading from 'common/components/loading/loading.jsx';
+import Navigation from './common/components/navigation/navigation.jsx';
+import {aNavData} from './common/components/navigation/navigation.js';
 
 const MyNav = withRouter(function (props){
 	const {pathname} = props.location;

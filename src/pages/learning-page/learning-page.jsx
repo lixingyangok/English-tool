@@ -9,7 +9,7 @@
 import React, {Suspense, useState} from 'react';
 import { Redirect, useHistory} from 'react-router-dom';
 import Loading from 'common/components/loading/loading.jsx';
-import {aLearningPage} from 'common/components/navigation/navigation.jsx';
+import {aLearningPage} from 'common/components/navigation/navigation.js';
 import * as cpnt from './style/learning-page.js';
 import {Tabs} from 'antd';
 import {getStoryInfo} from 'common/js/learning-api.js';
