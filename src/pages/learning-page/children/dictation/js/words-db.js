@@ -30,7 +30,8 @@ export default class {
 	}
 	// ▼初始化词库
 	async initWordsDB(){
-		const setOneLetter = async (sLetter, aWords) => {
+		const setOneLetter = async (sLetter, sWords) => {
+			const aWords = sWords.split(/\s+/).map((word, id)=>({word, id}));
 			await wordsDB[sLetter].clear();
 			await wordsDB[sLetter].bulkAdd(aWords);
             this.message.success(`初始化完成 ${sLetter}`);
@@ -41,8 +42,7 @@ export default class {
 				credentials: "same-origin",
 			});
 			const text = await res.text();
-			const aWords = text.trim().split(/\s+/).map((word, id)=>({word, id}));
-			await setOneLetter(cur, aWords);
+			await setOneLetter(cur, text.trim());
 		}
 		this.checkWordsDB();
 	}
