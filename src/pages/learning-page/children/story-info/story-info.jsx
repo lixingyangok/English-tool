@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 17:55:52
+ * @LastEditTime: 2021-02-14 18:25:15
  * @Description: 
  */
 
@@ -40,9 +40,9 @@ export default class extends MyClass {
 		oStory: {}, // 故事信息
 		aMedia: [], // 媒体列表
 	}
-	constructor(props) {
-		super(props);
-	}
+	// constructor(props) {
+	// 	super(props);
+	// }
 	getWrodsList(sWords, sKey){
 		if (!sWords.length) return '无';
 		const aWords = sWords.split(',');
