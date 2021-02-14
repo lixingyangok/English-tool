@@ -20,13 +20,25 @@ export const header = styled.header`
 
 export const storyInfo = styled.div`
 	padding: 20px 20px 0;
-	h1{
-		height: 26px;
-		line-height: 26px;
-		color: white;
-		font-size: 22px;
-		font-weight: bold;
-		margin: 0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	.left {
+		display: flex;
+		h1, a{
+			font-size: 22px;
+			height: 26px;
+			line-height: 26px;
+			color: white;
+			font-weight: bold;
+			margin: 0;
+		}
+		a{
+			margin: 0 6px 0 0;
+			&:hover{
+				color: blue;
+			}
+		}
 	}
 `;
 

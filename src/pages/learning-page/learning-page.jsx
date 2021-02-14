@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-10 11:46:34
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 15:38:02
+ * @LastEditTime: 2021-02-14 12:00:31
  * @Description: 
  */
 
@@ -14,13 +14,23 @@ import * as cpnt from './style/learning-page.js';
 import {Tabs} from 'antd';
 import {getStoryInfo} from 'common/js/learning-api.js';
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
+import { NavLink, /* useLocation */ } from "react-router-dom";
 
 export const MyContext = React.createContext('');
 
 function StoryInfoBar(props){
 	const {oStoryInfo={}} = props;
+	const left = <div className="left" >
+		<NavLink to="/learning-data/list">
+			<i className="fas fa-arrow-alt-circle-left"/>
+		</NavLink>
+		<h1>
+			{oStoryInfo.storyName}
+		</h1>
+	</div>
+	const right = <div></div>
 	return <cpnt.storyInfo>
-		<h1>{oStoryInfo.storyName}</h1>
+		{left}{right}
 	</cpnt.storyInfo>
 }
 
