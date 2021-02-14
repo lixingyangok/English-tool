@@ -2,13 +2,17 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 12:24:53
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 12:26:27
+ * @LastEditTime: 2021-02-14 12:47:01
  * @Description: 
  */
 import React from "react";
 
 function MyDiv (props){
-	return <div>MyDiv的参数：{props.mark}</div>
+	return <div className="center-box" >
+		<br/>
+		<br/>
+		<h1>MyDiv的参数：{props.mark}</h1>
+	</div>
 }
 
 export const aLearningData = [{
@@ -60,6 +64,10 @@ export const aNavData = [{
 	path: '/learning-data',
 	component: React.lazy(() => import('pages/learning-data/learning-data.jsx')),
 	children: aLearningData,
+}, {
+	name: '学习历史',
+	path: '/history',
+	component: ()=><MyDiv mark="abc" />, // 可用
 }, {
 	name: '学习页面',
 	path: '/learning-page/:storyId',
