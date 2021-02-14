@@ -1,7 +1,7 @@
 import React, {Suspense} from 'react';
 import { Route, Redirect, Switch } from 'react-router-dom';
 import Loading from 'common/components/loading/loading.jsx';
-import {aLocalData} from 'common/components/navigation/navigation.js';
+import {aLocalData} from 'common/components/navigation/js/navigation.js';
 
 export default function (){
 	const getPath = url => `/local-data${url}`;

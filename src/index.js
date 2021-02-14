@@ -7,7 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { mix } from './common/common.js';
+import { mix } from 'common/common.js';
 import axios from 'common/lib/js/ajax.js';
 // ▼样式
 import 'assets/style/global.css'

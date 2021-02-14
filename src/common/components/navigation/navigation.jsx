@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, /* useLocation */ } from "react-router-dom";
 import * as cpnt from './style/navigation.js';
-export {aNavData} from './js/navigation.js';
+import {aNavData} from './js/navigation.js';
 
 export default function () {
 	const getUl = function (parent, children) {
