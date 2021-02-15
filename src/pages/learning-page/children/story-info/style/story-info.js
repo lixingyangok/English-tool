@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:43:26
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-13 15:48:48
+ * @LastEditTime: 2021-02-15 20:11:44
  * @Description: 
  */
 
@@ -67,5 +67,20 @@ export const fileList = styled.ul`
 	}
 	.media-btn-wrap{
 		margin: 8px 0 0;
+	}
+`;
+
+export const cell = styled.div`
+	& > span,
+	& > small{
+		display: block;
+	}
+	.has{
+		color: var(--color);
+		font-weight: bold;
+	}
+	small{
+		opacity: 0.7;
+		font-size: 1em;
 	}
 `;

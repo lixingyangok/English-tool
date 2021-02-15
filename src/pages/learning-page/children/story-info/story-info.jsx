@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 16:31:22
+ * @LastEditTime: 2021-02-15 20:13:01
  * @Description: 
  */
 
@@ -155,71 +155,85 @@ export default class extends MyClass {
 		</cpnt.fileList>
 		return ul;
 	}
+	getBtnForTable(oMedia){
+		const {oStory} = this.state;
+		const HTML = <>
+			<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
+				听写
+			</Button>
+			<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+				title="确定删除？"
+				onConfirm={()=>this.delOneMedia(oStory, oMedia)}
+			>
+				<Button type="text" size="small" danger >删除</Button>
+			</Popconfirm>
+			<br/>
+			<label className="ant-btn ant-btn-text ant-btn-sm">
+				替换音/视频
+				<input type="file" accept="audio/*, video/*"
+					style={{display: 'none'}}
+					onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
+				/>
+			</label>
+			<label className="ant-btn ant-btn-text ant-btn-sm">
+				替换字幕
+				<input type="file" style={{display: 'none'}}
+					onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
+				/>
+			</label>
+			<br/>
+			<Button type="text" size="small" onClick={()=>this.toExport(oMedia)}>
+				导出字幕
+			</Button>
+		</>
+		return HTML;
+	}
 	getTable(){
-		const {oStory, aMedia} = this.state;
-		const dataForTable = aMedia.map(cur=>{
+		const {aMedia} = this.state;
+		const dataForTable = aMedia.map((cur, idx)=>{
 			cur.key = cur.ID;
+			cur.idx_ = idx+1;
 			return cur;
 		});
-		const getBtn = oMedia=>{
-			const HTML = <>
-				<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
-					听写
-				</Button>
-				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-					title="确定删除？"
-					onConfirm={()=>this.delOneMedia(oStory, oMedia)}
-				>
-					<Button type="text" size="small" danger >删除</Button>
-				</Popconfirm>
-				<br/>
-				<label className="ant-btn ant-btn-text ant-btn-sm">
-					替换音/视频
-					<input type="file" accept="audio/*, video/*"
-						style={{display: 'none'}}
-						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
-					/>
-				</label>
-				<label className="ant-btn ant-btn-text ant-btn-sm">
-					替换字幕
-					<input type="file" style={{display: 'none'}}
-						onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
-					/>
-				</label>
-				<br/>
-				<Button type="text" size="small" onClick={()=>this.toExport(oMedia)}>
-					导出字幕
-				</Button>
-			</>
-			return HTML;
-		}
 		return <Table dataSource={dataForTable} bordered
-			pagination={{position: ['none', 'none']}}
+			pagination={{position: ['none', 'none'], pageSize: 200}}
+			scroll={{ y: 500 }}
 		>
+			<Column title="序号" key="idx_" dataIndex="idx_" width="70px" />
 			<Column title="文件" key="fileName" 
 				render={oMedia=>{
-					return <div>
-						<em>{oMedia.fileName}</em><br/>
-						<small style={{color: "#999"}} >{oMedia.subtitleFileName || '无字幕'}</small>
-					</div>
+					const {hasMedia_} = oMedia;
+					const sClass = hasMedia_ ? 'has' : '';
+					return <cpnt.cell className="cell" >
+						<span className={sClass} >
+							{oMedia.fileName}
+						</span>
+						<small >文件体积：{oMedia.fileSize_}</small>
+					</cpnt.cell>
 				}}
 			/>
-			<Column title="修改时间" key="address" 
+			<Column title="字幕" key="fileName" width="275px" 
 				render={oMedia=>{
-					const {subtitleFileModifyTs: ts} = oMedia;
-					if (!ts) return '';
-					const HTML = <>
-						{new Date(ts).toLocaleString()}<br/>
-						{timeAgo(ts)}
-					</>
-					return HTML;
+					const {subtitleFileId, subtitleFileModifyTs: ts}= oMedia;
+					if (!subtitleFileId) return <span>无字幕</span>;
+					return <cpnt.cell>
+						<span>
+							修改时间：
+							<span title={new Date(ts).toLocaleString()}>
+								{timeAgo(ts)}
+							</span>
+						</span>
+						<small>文件体积：{oMedia.fisubtitleFileSize_}</small>
+						<small>本地缓存：{oMedia.hasSrt_ || '无'}句</small>
+					</cpnt.cell>
 				}}
 			/>
 			<Column title="操作" key="action" width="215px"
-				render={oMedia => getBtn(oMedia)}
+				render={oMedia => this.getBtnForTable(oMedia)}
 			/>
 		</Table>;
 	}
+	// ▼显示下载字幕的窗口
 	choseSubmitModal(){
 		const {tipForChoseSrt} = this.state;
 		const closeFn = ()=>this.setState({tipForChoseSrt: null});
@@ -264,7 +278,7 @@ export default class extends MyClass {
 		const {oStoryInfo} = this.context;
 		if (oStoryInfo.ID) {
 			this.setState({oStory: oStoryInfo});
-			console.log("查询媒体");
+			console.log("开始查询媒体");
 			this.getMediaForOneStory(oStoryInfo.ID);
 		}
 	}

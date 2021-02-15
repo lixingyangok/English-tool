@@ -212,6 +212,7 @@ export default class FileList {
 		const aMedia = await getMediaByStoryId(storyId);
 		if (!aMedia) return;
 		this.setState({aMedia});
+		this.checkMediaListInTB();
 	}
 	// ▼删除一个已上传的文件
 	async delOneMedia(oStory, oneMedia){
@@ -269,5 +270,18 @@ export default class FileList {
 		}
 		await new Promise(resolve=>setTimeout(resolve, 2.5 * 1000));
 		closeFn();
+	}
+	async checkMediaListInTB(){
+		const {aMedia} = this.state;
+		for (let [idx, cur] of aMedia.entries()) {
+			const oCollection = mediaTB.where('ID').equals(cur.ID);
+			const oInTB = await oCollection.first();
+			if (!oInTB) continue;
+			cur.hasMedia_ = oInTB.id;
+			cur.hasSrt_ = oInTB.subtitleFile_.length || 0;
+			aMedia[idx] = cur;
+			this.setState({aMedia});
+		}
+		// mediaTB
 	}
 };
