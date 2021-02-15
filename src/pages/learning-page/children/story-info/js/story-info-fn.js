@@ -2,10 +2,10 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 12:14:17
+ * @LastEditTime: 2021-02-15 21:02:30
  * @Description: 
  */
-import {dictationPath} from 'common/components/navigation/js/navigation.js';
+import {dictationPath, readingPath} from 'common/components/navigation/js/navigation.js';
 
 import {
 	setWrods,
@@ -17,6 +17,12 @@ export default class {
 	goDictation(oMedia){
 		const {oStory} = this.state;
 		const sUrl = `/learning-page/${oStory.ID}/${dictationPath}/${oMedia.ID}`;
+		this.props.history.push(sUrl);
+	}
+	// ▼跳到听写页
+	goRead(oMedia){
+		const {oStory} = this.state;
+		const sUrl = `/learning-page/${oStory.ID}/${readingPath}/${oMedia.ID}`;
 		this.props.history.push(sUrl);
 	}
 	// ▼搜索

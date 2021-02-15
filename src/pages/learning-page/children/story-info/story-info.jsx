@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 20:13:01
+ * @LastEditTime: 2021-02-15 20:58:33
  * @Description: 
  */
 
@@ -157,17 +157,16 @@ export default class extends MyClass {
 	}
 	getBtnForTable(oMedia){
 		const {oStory} = this.state;
+
 		const HTML = <>
 			<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
 				听写
 			</Button>
-			<Popconfirm placement="topRight" okText="确定" cancelText="取消"
-				title="确定删除？"
-				onConfirm={()=>this.delOneMedia(oStory, oMedia)}
-			>
-				<Button type="text" size="small" danger >删除</Button>
-			</Popconfirm>
+			<Button type="text" size="small" onClick={()=>this.goRead(oMedia)}>
+				阅读
+			</Button>
 			<br/>
+
 			<label className="ant-btn ant-btn-text ant-btn-sm">
 				替换音/视频
 				<input type="file" accept="audio/*, video/*"
@@ -182,6 +181,12 @@ export default class extends MyClass {
 				/>
 			</label>
 			<br/>
+			<Popconfirm placement="topRight" okText="确定" cancelText="取消"
+				title="确定删除？"
+				onConfirm={()=>this.delOneMedia(oStory, oMedia)}
+			>
+				<Button type="text" size="small" danger >删除</Button>
+			</Popconfirm>
 			<Button type="text" size="small" onClick={()=>this.toExport(oMedia)}>
 				导出字幕
 			</Button>
@@ -295,3 +300,18 @@ export default class extends MyClass {
 		this.oldContext = context;
 	}
 }
+
+
+// const handleMenuClick = (abc)=>{
+// 	console.log(abc);
+// }
+// const menu = (
+// 	<Menu onClick={handleMenuClick}>
+// 		<Menu.Item key="1">1st item</Menu.Item>
+// 		<Menu.Item key="2">2nd item</Menu.Item>
+// 		<Menu.Item key="3">3rd item</Menu.Item>
+// 	</Menu>
+// );
+// <Dropdown.Button overlay={menu}>
+// 	Actions
+// </Dropdown.Button>
