@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 15:52:51
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 12:20:24
+ * @LastEditTime: 2021-02-15 12:31:46
  * @Description: 
  */
 
@@ -14,8 +14,8 @@ export const aAlphabet = [...Array(26).keys()].map(cur=>{
 export const trainingDB = (()=>{
 	// console.log('trainingDB ★★:\n', new Date().toLocaleString());
 	const oResult = new window.Dexie("trainingDB");
-	oResult.version(1).stores({story: '++id, ID, name, storyId'});
-	oResult.version(2).stores({media: '++id, ID, fileId, ownerStoryIdoResult'});
+	oResult.version(1).stores({story: '++id, ID, storyName, storyId'});
+	oResult.version(2).stores({media: '++id, ID, fileName'}); //fileId
 	return oResult;
 })();
 

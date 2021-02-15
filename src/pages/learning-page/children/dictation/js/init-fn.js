@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 09:20:40
+ * @LastEditTime: 2021-02-15 12:39:28
  * @Description: 
  */
 
@@ -84,7 +84,7 @@ export default class {
 		const {success, error} = this.message;
 		const mediaFile_ = await (async ()=>{
 			if (isSame && oMediaInTB.mediaFile_) {
-				success('正在加载【本地】媒体文件');
+				success('已加载【本地】媒体文件');
 				return oMediaInTB.mediaFile_; // 值相同取本地媒体
 			}
 			success('正在加载【云端】媒体文件');
@@ -117,7 +117,7 @@ export default class {
 			oMediaInTB: {id},
 			oMediaInfo, mediaFile_, buffer,
 		} = oData;
-		const {aSteps} = this.state;
+		const {oStory, aSteps} = this.state;
 		const subtitleFile_ = aSteps.last_.aLines;
 		const oBuffer_ = Object.entries(buffer).reduce((result, [key, val])=>{
 			if (key === 'aChannelData_') {
@@ -132,6 +132,8 @@ export default class {
 		const dataToDB = {
 			...oMediaInfo, mediaFile_, subtitleFile_, oBuffer_,
 			...(id ? {id} : null),
+			// ▼添加一个记号方便调试
+			'0': `${oMediaInfo.fileName} ● ${oStory.storyName}`,
 		};
 		oMediaInfo.id = await mediaTB[id ? 'put' : 'add'](dataToDB);
 		this.setState({oMediaInfo});
