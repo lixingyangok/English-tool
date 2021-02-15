@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 12:13:25
+ * @LastEditTime: 2021-02-15 16:31:22
  * @Description: 
  */
 
@@ -16,7 +16,7 @@ import {MyLoading} from 'common/components/loading/loading02.jsx';
 import {timeAgo} from 'common/js/common.js';
 import {
 	Button, Popconfirm, message, Table, Popover,
-	Divider,
+	Divider, Modal,
 } from 'antd';
 
 const { Column } = Table;
@@ -39,6 +39,8 @@ export default class extends MyClass {
 		oStory: {}, // 故事信息
 		aMedia: [], // 媒体列表
 		sLoadingAction: '', // 加载事项
+		tipForChoseSrt: null, // 
+		oDownLoading: {}, //正在下载的字幕信息
 	}
 	// constructor(props) {
 	// 	super(props);
@@ -218,6 +220,29 @@ export default class extends MyClass {
 			/>
 		</Table>;
 	}
+	choseSubmitModal(){
+		const {tipForChoseSrt} = this.state;
+		const closeFn = ()=>this.setState({tipForChoseSrt: null});
+		const HTML = <Modal title="请选择" footer={null}
+			visible={!!tipForChoseSrt}
+			onCancel={closeFn}
+		>
+			{tipForChoseSrt}
+			<br/><br/>
+			<div style={{textAlign: 'center'}} >
+				<Button size="small" onClick={closeFn}>
+					关闭
+				</Button>
+				<Button size="small" onClick={()=>this.downloadSrtFileFn(1)} >
+					下载网上字幕
+				</Button>
+				<Button size="small" onClick={()=>this.downloadSrtFileFn(2)} >
+					下载本地字幕
+				</Button>
+			</div>
+        </Modal>
+		return HTML;
+	}
 	render(){
 		const {sLoadingAction, sSearching, aMedia} = this.state;
 		const resultHTML = <cpnt.outer className="">
@@ -227,6 +252,7 @@ export default class extends MyClass {
 			{this.getTable()}
 			<DictDialog word={sSearching} />
 			<Divider plain>共 {aMedia.length} 条音频</Divider>
+			{this.choseSubmitModal()}
 		</cpnt.outer>
 		return resultHTML;
 	}

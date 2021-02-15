@@ -3,17 +3,19 @@
  * @LastEditors: 李星阳
  * @Description: 处理文件上传、下载
  */
+import React from 'react';
 import {
 	fileToTimeLines, 
 	fileToBlobForUpload,
 	getTimeInfo,
 	getQiniuToken,
-	// downloadString,
+	downloadSrt,
+	getSubtitle,
 	// fileToBuffer,
 	// getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
-import {trainingDB} from 'common/js/common.js';
+import {trainingDB, timeAgo} from 'common/js/common.js';
 import {getMediaByStoryId} from 'common/js/learning-api.js';
 import {Modal} from 'antd';
 
@@ -230,13 +232,42 @@ export default class FileList {
 		});
 	}
 	// ▼导出字幕文件
-	toExport(oMedia) {
-		console.log("oMedia\n");
-		console.log(oMedia);
-		// const aStr = [].aLines.map(({start_, end_, text}, idx) => {
-		// 	return `${idx + 1}\n${start_} --> ${end_}\n${text}\n`;
-		// });
-		// const fileName = {}.audioFile.name.split('.').slice(0, -1).join('.');
-		// downloadString(aStr.join('\n'), fileName, 'srt');
+	async toExport(oMedia) {
+		// console.log('oMedia', oMedia);
+		const {message} = this;
+		const {ID, subtitleFileModifyTs, subtitleFileId} = oMedia;
+		const oInTB = await mediaTB.where('ID').equals(ID).first() || {};
+		const {subtitleFile_, changeTs_} = oInTB;
+		if (!subtitleFileId && !subtitleFile_) {
+			return message.error("没有字幕数据");
+		}
+		this.setState({oDownLoading: {oMedia, oInTB}});
+		let iType = 0;
+		const isSame = subtitleFileModifyTs === changeTs_;
+		if (isSame || !subtitleFileId) iType = 2; // (两地相同 || 网上没有) 用本地的
+		if (!subtitleFile_) iType = 1; // (本地也没有) 用网上的
+		if (iType) return this.downloadSrtFileFn(iType);
+		const tipForChoseSrt = <div>
+			网上字幕：{timeAgo(subtitleFileModifyTs)}<br/>
+			本地字幕：{timeAgo(changeTs_)}<br/>
+			{subtitleFileModifyTs > changeTs_ ? '网新' : '本地新'}<br/>
+		</div>
+		this.setState({tipForChoseSrt});
+	}
+	// ▼下载
+	async downloadSrtFileFn(iType){
+		const {oMedia, oInTB} = this.state.oDownLoading;
+		const {fileName} = oMedia;
+		const {message} = this;
+		let closeFn = xx=>xx;
+		if (iType===1){ // 网上
+			closeFn = message.loading(`正在下载网上数据${fileName}`);
+			await getSubtitle(oMedia, true);
+		}else if (iType===2){ // 本地
+			closeFn = message.loading(`正在导出本地数据${fileName}`);
+			downloadSrt(oInTB.subtitleFile_, fileName);
+		}
+		await new Promise(resolve=>setTimeout(resolve, 2.5 * 1000));
+		closeFn();
 	}
 };

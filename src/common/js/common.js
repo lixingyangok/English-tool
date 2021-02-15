@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 15:52:51
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 12:31:46
+ * @LastEditTime: 2021-02-15 13:44:59
  * @Description: 
  */
 
@@ -43,15 +43,15 @@ export function timeAgo(iTimeStamp){
 	const weekC = iGapTime / week;
 	const monthC = iGapTime / month;
 	if(monthC >= 1 && monthC <= 3){
-		return `${parseInt(monthC)}"月前"`;
+		return `${parseInt(monthC)}月前`;
 	}else if(weekC >= 1 && weekC <= 3){
-		return `${parseInt(weekC)}"周前"`;
+		return `${parseInt(weekC)}周前`;
 	}else if(dayC >= 1 && dayC <= 6){
-		return `${parseInt(dayC)}"天前"`;
+		return `${parseInt(dayC)}天前`;
 	}else if(hourC >= 1 && hourC <= 23){
-		return `${parseInt(hourC)}"小时前"`;
+		return `${parseInt(hourC)}小时前`;
 	}else if(minC >= 1 && minC <= 59){
-		return `${parseInt(minC)}"分钟前"`;
+		return `${parseInt(minC)}分钟前`;
 	}else if(iGapTime >= 0 && iGapTime <= minute){
 		return "刚刚";
 	}

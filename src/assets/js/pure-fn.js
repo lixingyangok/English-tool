@@ -46,7 +46,7 @@ export async function fileToBuffer(oFile, isWantFakeBuffer=false){
 	return promise;
 }
 
-// ▼秒-转为时间轴的时间
+// ▼浮点秒，转为时间轴的时间
 function secToStr(fSecond){
 	const iHour = Math.floor(fSecond / 3600) + ''; //时
 	const iMinut = Math.floor((fSecond - iHour * 3600) / 60) + ''; //分
@@ -111,6 +111,8 @@ export async function getChannelDataFromBlob(oBlob){
 	return aInt8Array;
 }
 
+// ▼将收到的数组转换为【文本文件】并下载
+// 将来下载文本时会用到
 export function downloadString(aStr, fileName='文本文件', suffix='txt'){
 	const blob = new Blob([aStr]);
 	Object.assign(document.createElement('a'), {
@@ -121,6 +123,16 @@ export function downloadString(aStr, fileName='文本文件', suffix='txt'){
 
 // ▼有后台功能之后的新方法---------------------------
 
+// ▼将收到的数组转换为【字幕文件】并下载
+export function downloadSrt(aLines, fileName='字幕文件'){
+	const aStr = aLines.map(({start, end, text}, idx) => {
+		const [t01, t02] = [secToStr(start), secToStr(end)];
+		return `${idx + 1}\n${t01} --> ${t02}\n${text}\n`;
+	}).join('\n');
+	downloadString(aStr, fileName, 'srt');
+}
+
+// ▼可能是上传字幕用的
 export async function fileToBlobForUpload(oFile){
 	const res = await fileToTimeLines(oFile);
 	const oBlob = new Blob(
@@ -159,7 +171,6 @@ export async function getQiniuToken(keyToOverwrite=''){
 	return [data.token, oTime];
 }
 
-
 export function getFakeBuffer(buffer){
 	const buffer_ = { // ★原始数据
 		duration: buffer.duration,
@@ -176,3 +187,17 @@ export function getFakeBuffer(buffer){
 		oChannelDataBlob_: null,
 	};
 }
+
+// ▼下载字幕
+export async function getSubtitle(oMedia, downLoad=false){
+	console.log("下载", oMedia);
+	const {subtitleFileId, fileName} = oMedia;
+	const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
+	const {data} = await window.axios.get(qiNiuUrl,
+		{params: {ts: new Date() * 1}},
+	);
+	if (!data) return;
+	downLoad && downloadSrt(data, fileName);
+	return data;
+}
+

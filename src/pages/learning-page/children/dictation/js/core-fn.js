@@ -1,7 +1,7 @@
 import {
 	getQiniuToken,
 	getTimeInfo,
-	downloadString,
+	downloadSrt,
 	fixTime,
 } from 'assets/js/pure-fn.js';
 import {trainingDB} from 'common/js/common.js';
@@ -42,12 +42,7 @@ export default class {
 	// ▼导出文件 TODO 文件名不正确
 	async toExport() {
 		const {aLines} = this.getCurStep();
-		const {secToStr} = this;
-		const aStr = aLines.map(({start, end, text}, idx) => {
-			const [startTime, endTime] = [secToStr(start), secToStr(end)];
-			return `${idx + 1}\n${startTime} --> ${endTime}\n${text}\n`;
-		});
-		downloadString(aStr.join('\n'), '文件名', 'srt');
+		downloadSrt(aLines, '文件名', 'srt');
 	}
 	// ▼打开对比字幕窗口
 	compareSubtitle(){
@@ -221,7 +216,7 @@ export default class {
 	}
 	// ▼传递给子级的方法
 	commander(sFnName, aRest) {
-		console.log('收到函数名，和参数', sFnName, aRest);
+		// console.log('收到函数名，和参数', sFnName, aRest);
 		const theFn = this[sFnName];
 		theFn && theFn.call(this, ...aRest);
 	}
