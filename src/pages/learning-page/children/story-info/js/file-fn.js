@@ -104,18 +104,23 @@ export default class FileList {
 			this.setState({ oQueuer });
 		}
 	}
+	/*
+		▲上传之前
+		▼上传之后
+	*/
 	// ▼上传一个媒体文件+字幕
 	async toUpload(oStory, oFileInfo, iFileIdx) {
-		this.setState({loading: true}); // 开始loading
+		const sst = this.setState.bind(this);
+		sst({sLoadingAction: '正在上传'}); // 开始loading
 		const sUrl = 'http://upload-z2.qiniup.com';
 		const {mediaFile, oSubtitleInfo} = oFileInfo;
 		const [token, oTime] = await getQiniuToken();
-		if (!token) return this.setState({loading: false}); // 关闭loading;
+		if (!token) return sst({sLoadingAction: false}); // 关闭loading;
 		const {data: fileRes01} = await axios.post(sUrl, { // 上传【媒体】到七牛
 			token, ...mediaFile,
 		});
 		if (!fileRes01) { // 上传失败
-			this.setState({loading: false});
+			sst({sLoadingAction: false});
 			return this.message.error('保存媒体文件未成功');
 		}
 		const oTimeInfo = getTimeInfo(oTime, 'f');
@@ -138,7 +143,7 @@ export default class FileList {
 			fileId: fileRes01.key,
 			subtitleFileId: fileRes02 ? fileRes02.key : '',
 		});
-		this.setState({loading: false}); // 无论如何关闭loading
+		sst({sLoadingAction: false}); // 无论如何关闭loading
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
 		this.message.success('上传成功');
 		this.deleteOneCandidate(oStory.ID, iFileIdx); //删除【排除文件】
@@ -201,13 +206,14 @@ export default class FileList {
 		this.setState({oQueuer});
 	}
 	// ▼查询某个故事下的文件
-	async getMediaForOneStory(storyId){ 
+	async getMediaForOneStory(storyId){
 		const aMedia = await getMediaByStoryId(storyId);
 		if (!aMedia) return;
 		this.setState({aMedia});
 	}
 	// ▼删除一个已上传的文件
 	async delOneMedia(oStory, oneMedia){
+		this.setState({sLoadingAction: '正在删除'});
 		const {data: res} = await axios.delete('/media/', {
 			params: {
 				mediaId: oneMedia.ID,
@@ -215,6 +221,7 @@ export default class FileList {
 				subtitleFileId: oneMedia.subtitleFileId,
 			},
 		});
+		this.setState({sLoadingAction: ''});
 		if (!res) return this.message.error('删除文件未成功');
 		this.getMediaForOneStory(oStory.ID);
 		const oCollection = mediaTB.where('ID').equals(oneMedia.ID);

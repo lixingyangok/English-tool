@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 09:07:08
+ * @LastEditTime: 2021-02-15 12:02:58
  * @Description: 
  */
 
@@ -12,10 +12,11 @@ import * as cpnt from './style/story-info.js';
 import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
+import {MyLoading} from 'common/components/loading/loading02.jsx';
 
 import {
 	Button, Popconfirm, message, Table, Popover,
-	Spin, Divider,
+	Divider,
 } from 'antd';
 
 const { Column } = Table;
@@ -28,17 +29,16 @@ const MyClass = window.mix(
 
 export default class extends MyClass {
 	static contextType = MyContext;
-	static message = message;
-
+	message = message;
 	oldContext = {};
 	state = {
 		visible: false, // 单词气泡可见性
-		loading: false,
 		sPopWords: '', // 弹出气泡的词汇
 		sSearching: '', // 搜索词汇
 		oQueuer: {}, // 排队上传的媒体
 		oStory: {}, // 故事信息
 		aMedia: [], // 媒体列表
+		sLoadingAction: '', // 加载事项
 	}
 	// constructor(props) {
 	// 	super(props);
@@ -222,10 +222,9 @@ export default class extends MyClass {
 		</Table>;
 	}
 	render(){
-		const {loading, sSearching, aMedia} = this.state;
+		const {sLoadingAction, sSearching, aMedia} = this.state;
 		const resultHTML = <cpnt.outer className="">
-			{/* ▼loading有效，但丑陋 */}
-			<Spin spinning={loading} size="large"/>
+			<MyLoading {...{sLoadingAction}}/>
 			{this.getInfoBox()}
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable()}

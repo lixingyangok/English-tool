@@ -2,10 +2,11 @@
  * @Author: 李星阳
  * @Date: 2020-09-18 20:44:43
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-01-19 20:53:31
+ * @LastEditTime: 2021-02-15 11:51:03
  * @Description: 
  */
 import axios from 'axios';
+import {message} from 'antd';
 
 const myAxios = axios.create({
 	// withCredentials: true, //添加此项以便跨域，值为true无法上传到七牛
@@ -34,8 +35,18 @@ myAxios.interceptors.request.use(config => {
 
 // ▼响应拦截器
 myAxios.interceptors.response.use(response => {
-	// console.log('response', response);
+	const {status, config:{method}} = response;
+	if (status !== 200) {
+		message.error("未成功");
+	}else if(method !== 'get'){
+		message.success("成功");
+	}
+	// console.log("response\n", response);
 	return response;
+}, (error)=>{
+	console.log("请求报错：\n", error);
+	// return Promise.reject(error);
+	return {};
 });
 
 export default myAxios;
