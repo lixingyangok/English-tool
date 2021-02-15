@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 12:02:58
+ * @LastEditTime: 2021-02-15 12:13:25
  * @Description: 
  */
 
@@ -13,7 +13,7 @@ import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
 import {MyLoading} from 'common/components/loading/loading02.jsx';
-
+import {timeAgo} from 'common/js/common.js';
 import {
 	Button, Popconfirm, message, Table, Popover,
 	Divider,
@@ -208,14 +208,11 @@ export default class extends MyClass {
 					if (!ts) return '';
 					const HTML = <>
 						{new Date(ts).toLocaleString()}<br/>
-						{this.timeAgo(ts)}
+						{timeAgo(ts)}
 					</>
 					return HTML;
 				}}
 			/>
-			{/* <Column title="Tags" dataIndex="tags" key="tags"
-				render={tags => ( 123 )}
-			/> */}
 			<Column title="操作" key="action" width="215px"
 				render={oMedia => getBtn(oMedia)}
 			/>

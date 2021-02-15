@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 09:43:31
+ * @LastEditTime: 2021-02-15 12:14:17
  * @Description: 
  */
 import {dictationPath} from 'common/components/navigation/js/navigation.js';
@@ -13,50 +13,13 @@ import {
 import {message} from 'antd';
 
 export default class {
+	// ▼跳到听写页
 	goDictation(oMedia){
 		const {oStory} = this.state;
 		const sUrl = `/learning-page/${oStory.ID}/${dictationPath}/${oMedia.ID}`;
 		this.props.history.push(sUrl);
 	}
-	timeAgo(dateTimeStamp){
-		const iNowTs = new Date().getTime();
-		const diffValue = iNowTs - dateTimeStamp;
-		if (diffValue < 0) return '';
-		const minute = 1000 * 60;      // 把分，时，天，周，半个月，一个月用毫秒表示
-		const hour = minute * 60;
-		const day = hour * 24;
-		const week = day * 7;
-		const month = day * 30;
-		const minC = diffValue / minute;  //计算时间差的分，时，天，周，月
-		const hourC = diffValue / hour;
-		const dayC = diffValue / day;
-		const weekC = diffValue / week;
-		const monthC = diffValue / month;
-		let result = '';
-		if(monthC >= 1 && monthC <= 3){
-			result = " " + parseInt(monthC) + "月前";
-		}else if(weekC >= 1 && weekC <= 3){
-			result = " " + parseInt(weekC) + "周前";
-		}else if(dayC >= 1 && dayC <= 6){
-			result = " " + parseInt(dayC) + "天前";
-		}else if(hourC >= 1 && hourC <= 23){
-			result = " " + parseInt(hourC) + "小时前";
-		}else if(minC >= 1 && minC <= 59){
-			result =" " + parseInt(minC) + "分钟前";
-		}else if(diffValue >= 0 && diffValue <= minute){
-			result = "刚刚";
-		}else {
-			const oData = new Date(dateTimeStamp);
-			const Nyear = oData.getFullYear();
-			const Nmonth = String(oData.getMonth() + 1).padStart(2, 0);
-			const Ndate = String(oData.getDate()).padStart(2, 0);
-			// const Nhour = String(oData.getHours()).padStart(2, 0);
-			// const Nminute = String(oData.getMinutes()).padStart(2, 0);
-			// const Nsecond = String(oData.getSeconds()).padStart(2, 0);
-			result = Nyear + "-" + Nmonth + "-" + Ndate;
-		}
-		return result;
-	}
+	// ▼搜索
 	searchWord(sSearching){
 		this.setState({sSearching, sPopWords: ''});
 		// const url = ``;
@@ -86,6 +49,7 @@ export default class {
 		if (!res) return;
 		this.context.updateStoryInfo();
 	}
+	// ▼修改单词分类
 	async switchWord(sKey, sWord){
 		this.setState({sPopWords: ''});
 		const {oStory} = this.state;
