@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-12 13:26:59
+ * @LastEditTime: 2021-02-15 16:47:36
  * @Description: 
  */
 
@@ -20,6 +20,10 @@ export async function getStoryInfo(storyId){
 export async function getMediaByStoryId(storyId){ 
 	const {data} = await axios.get('/media/media-list', {
 		params: {storyId},
+	});
+	if (!data) return;
+	data.forEach(cur=>{
+		cur.name_ = cur.fileName.replace(/\.[^\.]+$/, '')
 	});
 	return data;
 }

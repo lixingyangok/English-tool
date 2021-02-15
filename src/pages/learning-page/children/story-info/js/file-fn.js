@@ -257,15 +257,15 @@ export default class FileList {
 	// ▼下载
 	async downloadSrtFileFn(iType){
 		const {oMedia, oInTB} = this.state.oDownLoading;
-		const {fileName} = oMedia;
+		const {name_} = oMedia;
 		const {message} = this;
 		let closeFn = xx=>xx;
 		if (iType===1){ // 网上
-			closeFn = message.loading(`正在下载网上数据${fileName}`);
+			closeFn = message.loading(`正在下载网上数据${name_}`);
 			await getSubtitle(oMedia, true);
 		}else if (iType===2){ // 本地
-			closeFn = message.loading(`正在导出本地数据${fileName}`);
-			downloadSrt(oInTB.subtitleFile_, fileName);
+			closeFn = message.loading(`正在导出本地数据${name_}`);
+			downloadSrt(oInTB.subtitleFile_, name_);
 		}
 		await new Promise(resolve=>setTimeout(resolve, 2.5 * 1000));
 		closeFn();
