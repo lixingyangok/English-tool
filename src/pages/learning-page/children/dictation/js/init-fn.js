@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 12:39:28
+ * @LastEditTime: 2021-02-15 21:15:56
  * @Description: 
  */
 
@@ -11,6 +11,7 @@ import {
 	getFakeBuffer,
 	getChannelDataFromBlob,
 } from 'assets/js/pure-fn.js';
+import {getOneMedia} from 'common/js/learning-api.js';
 import {trainingDB} from 'common/js/common.js';
 
 const {media: mediaTB, story: storyTB} = trainingDB;
@@ -34,8 +35,8 @@ export default class {
 	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
 	async setMedia(mediaId){
 		const {oFirstLine} = this.state;
-		const [{data: oMediaInfo}, oMediaInTB={}] = await Promise.all([
-			axios.get('/media/one-media/', {params: {mediaId}}),
+		const [oMediaInfo, oMediaInTB={}] = await Promise.all([
+			getOneMedia(mediaId),
 			mediaTB.where('ID').equals(mediaId*1).first(),
 		]);
 		if (!oMediaInfo) return; // 查不到媒体信息

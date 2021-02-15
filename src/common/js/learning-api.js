@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 19:55:04
+ * @LastEditTime: 2021-02-15 21:14:37
  * @Description: 
  */
 
@@ -33,6 +33,14 @@ export async function getMediaByStoryId(storyId){
 	return data;
 }
 
+// ▼查询一个媒体文件信息
+export async function getOneMedia(mediaId){
+	const {data} = await axios.get('/media/one-media/', {
+		params: {mediaId},
+	});
+	return data;
+}
+
 // ▼修改故事的【词汇】
 export async function setWrods(storyId, key, aWords){
 	const res = await axios.put('/story/set-words', {
@@ -42,3 +50,4 @@ export async function setWrods(storyId, key, aWords){
 	});
 	return res;
 }
+
