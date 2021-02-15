@@ -188,16 +188,5 @@ export function getFakeBuffer(buffer){
 	};
 }
 
-// ▼下载字幕
-export async function getSubtitle(oMedia, downLoad=false){
-	// console.log("下载", oMedia);
-	const {subtitleFileId, name_} = oMedia;
-	const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
-	const {data} = await window.axios.get(qiNiuUrl,
-		{params: {ts: new Date() * 1}},
-	);
-	if (!data) return;
-	downLoad && downloadSrt(data, name_);
-	return data;
-}
+
 

@@ -10,13 +10,13 @@ import {
 	getTimeInfo,
 	getQiniuToken,
 	downloadSrt,
-	getSubtitle,
 	// fileToBuffer,
 	// getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
 import {trainingDB, timeAgo} from 'common/js/common.js';
-import {getMediaByStoryId} from 'common/js/learning-api.js';
+import {getMediaByStoryId, getSubtitle} from 'common/js/learning-api.js';
+
 import {Modal} from 'antd';
 
 const { confirm } = Modal;

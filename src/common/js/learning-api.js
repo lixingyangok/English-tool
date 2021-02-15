@@ -2,10 +2,11 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 21:14:37
+ * @LastEditTime: 2021-02-15 22:00:53
  * @Description: 
  */
 
+import {downloadSrt} from 'assets/js/pure-fn.js';
 const {axios} = window;
 
 // ▼查询一个故事信息
@@ -51,3 +52,15 @@ export async function setWrods(storyId, key, aWords){
 	return res;
 }
 
+// ▼下载字幕
+export async function getSubtitle(oMedia, downLoad=false){
+	// console.log("下载", oMedia);
+	const {subtitleFileId, name_} = oMedia;
+	const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
+	const {data} = await window.axios.get(qiNiuUrl,
+		{params: {ts: new Date() * 1}},
+	);
+	if (!data) return;
+	downLoad && downloadSrt(data, name_);
+	return data;
+}
