@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 16:47:36
+ * @LastEditTime: 2021-02-15 17:10:38
  * @Description: 
  */
 
@@ -23,7 +23,8 @@ export async function getMediaByStoryId(storyId){
 	});
 	if (!data) return;
 	data.forEach(cur=>{
-		cur.name_ = cur.fileName.replace(/\.[^\.]+$/, '')
+		// TODO 如果有第二个 \ 会报错：/\.[\^.]+$/ 
+		cur.name_ = cur.fileName.replace(/\.[^.]+$/, '');
 	});
 	return data;
 }
