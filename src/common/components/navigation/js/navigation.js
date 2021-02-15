@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 12:24:53
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 09:37:59
+ * @LastEditTime: 2021-02-15 21:01:34
  * @Description: 
  */
 import React from "react";
@@ -22,6 +22,7 @@ export const aLearningData = [{
 }];
 
 export const dictationPath = 'dictation';
+export const readingPath = 'reading';
 
 export const aLearningPage = [{
 	name: '列表',
@@ -38,9 +39,9 @@ export const aLearningPage = [{
 	component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
 }, {
 	name: '阅读',
-	path: '/read',
-	// component: React.lazy(() => import('pages/learning-page/children/dictation/dictation.jsx')),
-	component: ()=><MyDiv mark="abc" />, // 可用
+	path: `/${readingPath}/:mediaId`, //:mediaId',
+	pathRoot_: `/${readingPath}`,
+	component: React.lazy(() => import('pages/learning-page/children/reading/reading.jsx')),
 }, {
 	name: '词汇',
 	path: '/words',
