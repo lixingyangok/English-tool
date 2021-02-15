@@ -10,6 +10,9 @@ import Menu from './menu/menu.jsx';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import { fixTime } from 'assets/js/pure-fn.js';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
+import {dictationPath} from 'common/components/navigation/js/navigation.js';
+
+
 import {
 	Modal, Button, message, Space, 
 	Spin, Input, Popconfirm,
@@ -358,8 +361,8 @@ export default class Tool extends MyClass {
 		document.onkeydown = keyDownFn;
 		this.props.history.listen(oRoute => { // bj监听路由变化
 			const {pathname} = oRoute;
-			const hasGone = !pathname.includes('/dictation/');
-			document.onkeydown = hasGone ? null : keyDownFn;
+			const hasLeft = !pathname.includes(`/${dictationPath}/`);
+			document.onkeydown = hasLeft ? null : keyDownFn;
 		});
 	}
 	// ▼销毁前

@@ -12,7 +12,7 @@ export const aAlphabet = [...Array(26).keys()].map(cur=>{
 });
 
 export const trainingDB = (()=>{
-	console.log('trainingDB ★★:\n', new Date().toLocaleString());
+	// console.log('trainingDB ★★:\n', new Date().toLocaleString());
 	const oResult = new window.Dexie("trainingDB");
 	oResult.version(1).stores({story: '++id, ID, name, storyId'});
 	oResult.version(2).stores({media: '++id, ID, fileId, ownerStoryIdoResult'});
@@ -20,7 +20,7 @@ export const trainingDB = (()=>{
 })();
 
 export const wordsDB = (()=>{
-	console.log('wordsDB ▲▲:\n', new Date().toLocaleString());
+	// console.log('wordsDB ▲▲:\n', new Date().toLocaleString());
 	const oResult = new window.Dexie("wordsDB");
 	aAlphabet.forEach((cur, idx)=>{
 		oResult.version(idx+1).stores({[cur]: '++id, word'});

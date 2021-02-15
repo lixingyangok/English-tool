@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 20:03:49
+ * @LastEditTime: 2021-02-15 09:20:40
  * @Description: 
  */
 
@@ -39,6 +39,7 @@ export default class {
 			mediaTB.where('ID').equals(mediaId*1).first(),
 		]);
 		if (!oMediaInfo) return; // 查不到媒体信息
+		this.context.setMedia(oMediaInfo);
 		this.setState({
 			iCurStep: 0,
 			aSteps: [{iCurLine: 0, aLines: [oFirstLine.dc_]}],

@@ -4,6 +4,8 @@
  * @Description: 
  */ 
 
+import { message } from 'antd';
+
 // ▼字符转字幕数据，用于显示
 export async function fileToTimeLines(oFile) {
 	if (!oFile) return [];
@@ -150,7 +152,7 @@ export async function getQiniuToken(keyToOverwrite=''){
 		params: {keyToOverwrite},
 	});
 	if (!data || !data.token) {
-		this.message.error('查询token未成功');
+		message.error('查询token未成功');
 		return false;
 	}
 	const oTime = new Date(headers.date);

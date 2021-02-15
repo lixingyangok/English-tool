@@ -2,9 +2,11 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 16:14:21
+ * @LastEditTime: 2021-02-15 09:43:31
  * @Description: 
  */
+import {dictationPath} from 'common/components/navigation/js/navigation.js';
+
 import {
 	setWrods,
 } from 'common/js/learning-api.js';
@@ -13,7 +15,7 @@ import {message} from 'antd';
 export default class {
 	goDictation(oMedia){
 		const {oStory} = this.state;
-		const sUrl = `/learning-page/${oStory.ID}/dictation/${oMedia.ID}`;
+		const sUrl = `/learning-page/${oStory.ID}/${dictationPath}/${oMedia.ID}`;
 		this.props.history.push(sUrl);
 	}
 	timeAgo(dateTimeStamp){

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 20:45:42
+ * @LastEditTime: 2021-02-15 09:07:08
  * @Description: 
  */
 
@@ -14,7 +14,7 @@ import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
 
 import {
-	Button, Popconfirm, message, Table, Popover,// Tag, Space, 
+	Button, Popconfirm, message, Table, Popover,
 	Spin, Divider,
 } from 'antd';
 

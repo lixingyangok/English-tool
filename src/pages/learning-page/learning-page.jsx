@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-10 11:46:34
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-14 12:43:18
+ * @LastEditTime: 2021-02-15 09:47:22
  * @Description: 
  */
 
@@ -36,15 +36,15 @@ function StoryInfoBar(props){
 
 function TabBar(props){
 	const history = useHistory();
-	const {storyId, pathname} = props;
+	const {storyId, pathname, oMedia} = props;
 	// TODO ▼不准确，应找好办法
 	const curIdx = aLearningPage.findIndex(cur=>{
-		return pathname.includes(cur.pathRoot || cur.path);
+		return pathname.includes(cur.pathRoot_ || cur.path);
 	});
-	// console.log('新值：', curIdx);
 	function callback(idx) {
-		const oTarget = aLearningPage[idx];
-		const url = `/learning-page/${storyId}${oTarget.path}`;
+		const {pathRoot_, path, isDictationPage_} = aLearningPage[idx];
+		let url = `/learning-page/${storyId}${pathRoot_ || path}`;
+		if (isDictationPage_)  url += `/${oMedia.ID}`;
 		history.push(url);
 	}
 	const HTML = <cpnt.MyTabs activeKey={String(curIdx)}
@@ -59,7 +59,9 @@ function TabBar(props){
 
 function ChildrenPages(props){
 	// console.log('收到故事信息：\n', oStoryInfo);
-	const {oStoryInfo={}, updateStoryInfo}  = props;
+	const {
+		oStoryInfo={}, updateStoryInfo, setMedia,
+	}  = props;
 	const getPath = url => `/learning-page/:storyId${url}`;
 	const bottom = <Suspense fallback={Loading}>
 		<CacheSwitch>
@@ -74,7 +76,9 @@ function ChildrenPages(props){
 		</CacheSwitch>
 	</Suspense>
 	const HTML = <cpnt.bodyWrap>
-		<MyContext.Provider value={{oStoryInfo, updateStoryInfo}}>
+		<MyContext.Provider 
+			value={{oStoryInfo, updateStoryInfo, setMedia}}
+		>
 			{bottom}
 		</MyContext.Provider>
 	</cpnt.bodyWrap>
@@ -85,24 +89,24 @@ export default function (props){
 	const {pathname} = props.location;
 	const {storyId} = props.match.params;
 	const  [oStoryInfo, setStoryInfo] =  useState({});
+	const [oMedia, setMedia] = useState({});
 	const updateStoryInfo = (newId)=>{
 		getStoryInfo(newId || storyId).then(res=>{
 			setStoryInfo(res.data || {})
 		});
 	};
 	React.useEffect(()=>{
-		// updateStoryInfo(storyId);
 		getStoryInfo(storyId).then(res=>{
 			setStoryInfo(res.data || {})
 		});
-	}, [storyId]); // storyId
+	}, [storyId]);
 	const resultHTML = <cpnt.outer>
 		<cpnt.header>
 			<StoryInfoBar oStoryInfo={oStoryInfo} />
-			<TabBar {...{storyId, pathname}} />
+			<TabBar {...{storyId, pathname, oMedia}} />
 		</cpnt.header>
-		<ChildrenPages oStoryInfo={oStoryInfo}
-			updateStoryInfo={updateStoryInfo}
+		<ChildrenPages
+			{...{oStoryInfo, updateStoryInfo, setMedia}}
 		/>
 	</cpnt.outer>
 	return resultHTML
