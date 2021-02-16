@@ -5,7 +5,7 @@
  * @LastEditTime: 2021-02-12 10:27:45
  * @Description: 
  */
-import { fixTime } from 'assets/js/pure-fn.js';
+import { fixTime } from 'common/js/pure-fn.js';
 
 export default class {
 	// ▼提供【波形数组】用于断句

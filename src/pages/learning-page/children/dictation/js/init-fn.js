@@ -10,7 +10,7 @@ import {
 	fileToBuffer,
 	getFakeBuffer,
 	getChannelDataFromBlob,
-} from 'assets/js/pure-fn.js';
+} from 'common/js/pure-fn.js';
 import {getOneMedia} from 'common/js/learning-api.js';
 import {trainingDB} from 'common/js/common.js';
 

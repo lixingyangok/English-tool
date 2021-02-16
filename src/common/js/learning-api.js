@@ -6,7 +6,7 @@
  * @Description: 
  */
 
-import {downloadSrt} from 'assets/js/pure-fn.js';
+import {downloadSrt} from 'common/js/pure-fn.js';
 import {message} from 'antd';
 const {axios} = window;
 

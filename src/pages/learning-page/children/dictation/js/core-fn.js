@@ -2,7 +2,7 @@ import {
 	getTimeInfo,
 	downloadSrt,
 	fixTime,
-} from 'assets/js/pure-fn.js';
+} from 'common/js/pure-fn.js';
 import {trainingDB} from 'common/js/common.js';
 import {getQiniuToken} from 'common/js/learning-api.js';
 

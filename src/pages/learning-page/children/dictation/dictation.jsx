@@ -8,7 +8,7 @@ import wordsDbFn from './js/words-db.js';
 import figureOutRegion from './js/figure-out-region.js';
 import Menu from './menu/menu.jsx';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
-import { fixTime } from 'assets/js/pure-fn.js';
+import { fixTime } from 'common/js/pure-fn.js';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
 import {dictationPath} from 'common/components/navigation/js/navigation.js';
 
