@@ -130,13 +130,12 @@ export default class Tool extends MyClass {
 	// ▼故事信息等
 	getInfoBar(oState){ 
 		const {
-			oStory, oMediaInfo,
+			oMediaInfo,
 			buffer, iPerSecPx, aSteps, iCurStep,
 		} = oState;
 		const oCurStep = aSteps[iCurStep];
 		const [tips01, tips02] = this.getSubtitleInfo();
 		return <cpnt.InfoBar>
-			<span>故事：<em>{oStory.storyName}</em></span>
 			<span>章节：<em>{oMediaInfo.fileName}</em></span>
 			<span>时长：<em>{buffer.sDuration_}</em></span>
 			<span>共计：<em>{oCurStep.aLines.length || 0}句</em></span>

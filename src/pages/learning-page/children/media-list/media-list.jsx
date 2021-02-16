@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 12:37:36
+ * @LastEditTime: 2021-02-16 14:40:26
  * @Description: 
  */
 
@@ -202,7 +202,7 @@ export default class extends MyClass {
 			pagination={{position: ['none', 'none'], pageSize: 200}}
 			scroll={{ y: 560 }}
 		>
-			<Column title="序号" key="idx_" dataIndex="idx_" width="70px" />
+			<Column title="序号" key="idx_" dataIndex="idx_" width="65px"/>
 			<Column title="文件" key="fileName" 
 				render={oMedia=>{
 					const {hasMedia_} = oMedia;
@@ -215,7 +215,7 @@ export default class extends MyClass {
 					</cpnt.cell>
 				}}
 			/>
-			<Column title="字幕" key="fileName" width="275px" 
+			<Column title="字幕" key="fileName" width="235px" 
 				render={oMedia=>{
 					const {subtitleFileId, subtitleFileModifyTs: ts}= oMedia;
 					if (!subtitleFileId) return <span>无字幕</span>;

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:43:26
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 20:11:44
+ * @LastEditTime: 2021-02-16 14:34:48
  * @Description: 
  */
 
@@ -12,8 +12,12 @@ export const outer = styled.section`
 	margin: 0 auto;
 	box-sizing: border-box;
 	height: 100%;
-	padding: 20px 10vw 80px;
+	padding: 20px 15vw 80px;
 	overflow-y: auto;
+	@media all and (max-width: 1250px){
+		padding-left: 5vw;
+		padding-right: 5vw;
+	}
 `;
 
 export const infoBox = styled.div`
