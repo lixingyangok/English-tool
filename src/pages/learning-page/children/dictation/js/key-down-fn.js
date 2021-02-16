@@ -20,7 +20,7 @@ export default class {
 		const type02 = { // ctrl 系列
 			'ctrl + d': () => this.toDel(), //删除一行
 			'ctrl + z': () => this.setHistory(-1), //撤销
-			'ctrl + s': () => this.toSaveInDb(), //保存到浏览器（字幕）
+			'ctrl + s': () => this.uploadToCloudBefore(), // 保存到云（字幕）
 			'ctrl + j': () => this.putTogether('prior'), // 合并上一句
 			'ctrl + k': () => this.putTogether('next'), // 合并下一句
 			...{ // +shift
@@ -28,7 +28,7 @@ export default class {
 				'ctrl + shift + Enter': () => this.toPlay(true), //播放
 				'ctrl + shift + z': () => this.setHistory(1), //恢复
 				'ctrl + shift + c': () => this.split(), //分割
-				'ctrl + shift + s': () => this.toExport(), // 导出到本地
+				'ctrl + shift + s': () => this.toSaveInDb(), // 保存到本地
 			},
 		};
 		const type03 = { // alt 系列

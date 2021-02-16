@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 12:15:53
+ * @LastEditTime: 2021-02-16 14:05:09
  * @Description: 
  */
 
@@ -40,6 +40,8 @@ export async function getOneMedia(mediaId){
 	const {data} = await axios.get('/media/one-media/', {
 		params: {mediaId},
 	});
+	if (!data) return;
+	data.name_ = data.fileName.replace(/\.[^.]+$/, '');
 	return data;
 }
 

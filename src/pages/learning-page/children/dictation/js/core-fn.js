@@ -278,21 +278,28 @@ export default class {
 	}
 	// ▼提示是否上传字幕
 	async uploadToCloudBefore(){
+		const {aSteps, iCurStep, oMediaInfo, changeTs} =  this.state;
+		const {
+			name_,
+			subtitleFileId,
+			subtitleFileName, 
+			subtitleFileModifyTs,
+		} = oMediaInfo;
 		const onOk = () => {
-			const {aSteps, iCurStep, oMediaInfo} =  this.state;
 			const subtitleFile_ = aSteps[iCurStep].aLines;
 			const file = new Blob(
 				[JSON.stringify(subtitleFile_)],
 				{type: 'application/json;charset=utf-8'},
 			);
-			const [fileName, key] = (()=>{
-				const {subtitleFileName, fileName, subtitleFileId} = oMediaInfo;
-				const idx = fileName.lastIndexOf('.');
-				const val01 = subtitleFileName || (fileName.slice(0, idx) + '.srt');
-				return [val01, subtitleFileId || ''];
-			})();
-			this.uploadToCloud({subtitleFile_, file, fileName, key});
+			this.uploadToCloud({
+				file, // 存上云
+				subtitleFile_, // 存TB
+				fileName: subtitleFileName || (name_ + '.srt'),
+				key: subtitleFileId || '',
+			});
 		};
+		if (changeTs > subtitleFileModifyTs) return onOk();
+		// ▲本新新，直接提交，▼本地旧，询问
 		this.confirm({
 			title: '提示',
 			content: '立即上传？上传后会覆盖云端的文件！',
