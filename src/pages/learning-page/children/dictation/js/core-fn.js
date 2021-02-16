@@ -2,6 +2,7 @@ import {
 	getTimeInfo,
 	downloadSrt,
 	fixTime,
+	arrToblob,
 } from 'assets/js/pure-fn.js';
 import {trainingDB} from 'assets/js/common.js';
 import {getQiniuToken} from 'assets/js/learning-api.js';
@@ -278,22 +279,15 @@ export default class {
 	}
 	// ▼提示是否上传字幕
 	async uploadToCloudBefore(){
-		const {aSteps, iCurStep, oMediaInfo, changeTs} =  this.state;
+		const {oMediaInfo, changeTs} =  this.state;
 		const {
 			name_,
 			subtitleFileId,
 			subtitleFileName, 
 			subtitleFileModifyTs,
 		} = oMediaInfo;
-		const onOk = () => {
-			const subtitleFile_ = aSteps[iCurStep].aLines;
-			const file = new Blob(
-				[JSON.stringify(subtitleFile_)],
-				{type: 'application/json;charset=utf-8'},
-			);
+		const onOk = () => { // 上传的方法
 			this.uploadToCloud({
-				file, // 存上云
-				subtitleFile_, // 存TB
 				fileName: subtitleFileName || (name_ + '.srt'),
 				key: subtitleFileId || '',
 			});
@@ -308,16 +302,17 @@ export default class {
 	}
 	// ▼保存字幕到云（上传字幕）
 	async uploadToCloud(oParams){
-		const {subtitleFile_, file, fileName, key} = oParams;
-		const {oMediaInfo} =  this.state;
-		const {id} = oMediaInfo;
+		const {oMediaInfo, aSteps, iCurStep} =  this.state;
+		const subtitleFile_ = aSteps[iCurStep].aLines; // 字幕
+		const file = arrToblob(subtitleFile_);
+		const {fileName, key} = oParams;
 		const [token, oTime] = await getQiniuToken(key);
 		if (!token) return;
 		const changeTs = oTime.getTime();
 		const sUrl = 'http://upload-z2.qiniup.com';
 		const {data} = await axios.post(sUrl, { // 上传媒体到七牛
 			token, file, fileName,
-			...(key ? {key} : {}),
+			...(key ? {key} : {}), // key表示覆盖目标
 		});
 		if (!data) return;
 		const {data: res} = await axios.put('/media/update-file', {
@@ -328,7 +323,7 @@ export default class {
 			...getTimeInfo(oTime, 's'),
 		});
 		if (!res) return;
-		mediaTB.update(id, {
+		mediaTB.update(oMediaInfo.id, {
 			subtitleFile_, changeTs_: changeTs,
 		});
 		oMediaInfo.subtitleFileModifyTs = changeTs;

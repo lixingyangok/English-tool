@@ -6,9 +6,10 @@
 import React from 'react';
 import {
 	fileToTimeLines, 
-	fileToBlobForUpload,
+	fileToBlob,
 	getTimeInfo,
 	downloadSrt,
+	arrToblob,
 	// fileToBuffer,
 	// getStrFromFile,
 	// getFaleBuffer, 
@@ -42,7 +43,7 @@ export default class FileList {
 		}, [[], {}]);
 		aMedia.forEach(cur=>{
 			cur.oSubtitleFile = oSubtitle[cur.file.name_]; // 字幕文件
-			cur.loadingStr = !!cur.oSubtitleFile; // 标记是否在加载字幕
+			cur.loadingMark = !!cur.oSubtitleFile; // 标记是否在加载字幕
 		});
 		return aMedia;
 	}
@@ -71,7 +72,8 @@ export default class FileList {
 		});
 	}
 	// ▼把2类文件组织成列表显示出来，用于准备上传
-	toCheckFile(ev, oStory){
+	toCheckFile(ev){
+		const {oStory} = this.state;
 		const iMax = 100;
 		if (ev.target.files.length > iMax) {
 			return this.message.warning(`最多可选“${iMax}个”文件`);
@@ -89,17 +91,14 @@ export default class FileList {
 	}
 	// ▼将排队的文件的字幕转 Blob
 	async subTitleToBlob(oStoryId){
-		const aQueuerList = this.state.oQueuer[oStoryId];
+		const aQueuerList = this.state.oQueuer;
 		for (const curFile of aQueuerList) {
 			const {oSubtitleFile} = curFile;
 			if (!oSubtitleFile) continue; //没有字幕
 			const res = await fileToTimeLines(oSubtitleFile);
 			if (!res) return;
-			curFile.loadingStr = false;
-			curFile.oSubtitleInfo.file = new Blob(
-				[JSON.stringify(res)], // [res] 行不通
-				{type: 'application/json;charset=utf-8'}, //
-			);
+			curFile.loadingMark = false;
+			curFile.oSubtitleInfo.file = arrToblob(res);
 			const oQueuer = Object(this.state.oQueuer, {
 				[oStoryId]: aQueuerList,
 			});
@@ -111,7 +110,8 @@ export default class FileList {
 		▼开始上传及上传之后
 	*/
 	// ▼上传一个媒体文件+字幕
-	async toUpload(oStory, oFileInfo, iFileIdx) {
+	async toUpload(oFileInfo, iFileIdx) {
+		const {oStory} = this.state;
 		const sst = this.setState.bind(this);
 		sst({sLoadingAction: '正在上传'}); // 开始loading
 		const sUrl = 'http://upload-z2.qiniup.com';
@@ -148,7 +148,7 @@ export default class FileList {
 		sst({sLoadingAction: false}); // 无论如何关闭loading
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
 		this.message.success('上传成功');
-		this.deleteOneCandidate(oStory.ID, iFileIdx); //删除【排除文件】
+		this.deleteOneCandidate(iFileIdx); //删除【排除文件】
 		this.getMediaForOneStory(oStory.ID); //刷新【已上传】文件
 	}
 	// ▼准备上传（覆盖）文件
@@ -176,13 +176,13 @@ export default class FileList {
 	}
 	// ▼上传（替换）一条数据的媒体/字幕
 	async upLoadOne(oFile, oMedia, iType){
-		const fileId = ['fileId', 'subtitleFileId'][iType];
+		const fileId = ['fileId', 'subtitleFileId'][iType]; // iType为0表示是字幕
 		const fileName = ['fileName', 'subtitleFileName'][iType];
 		const fileSize = ['fileSize', 'subtitleFileSize'][iType];
 		const key = oMedia[fileId] || '';
 		const [[token, oTime], file] = await Promise.all([
 			getQiniuToken(key), //token值
-			iType === 0 ? oFile : fileToBlobForUpload(oFile), //媒体或字幕文件
+			iType === 0 ? oFile : fileToBlob(oFile), //媒体或字幕文件
 		]);
 		if (!token) return;
 		const sUrl = 'http://upload-z2.qiniup.com';
@@ -202,9 +202,9 @@ export default class FileList {
 		return res;
 	}
 	// ▼删除一个【待上传】的文件
-	deleteOneCandidate(oStoryID, iFileIdx){
+	deleteOneCandidate(iFileIdx){
 		const {oQueuer} = this.state;
-		oQueuer[oStoryID].splice(iFileIdx, 1);
+		oQueuer.splice(iFileIdx, 1);
 		this.setState({oQueuer});
 	}
 	// ▼查询某个故事下的文件

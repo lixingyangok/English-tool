@@ -10,7 +10,7 @@ export async function fileToTimeLines(oFile) {
 	const text = await fileToStrings(oFile);
 	const aLine = [];
 	let strArr = text.split('\n');
-	strArr = text.split('\n').filter((cur, idx) => {
+	strArr = strArr.filter((cur, idx) => {
 		const isTime = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/.test(cur);
 		if (!isTime) return false;
 		aLine.push(strArr[idx + 1]);
@@ -19,8 +19,8 @@ export async function fileToTimeLines(oFile) {
 	return strArr.map((cur, idx) => {
 		const [aa, bb] = cur.split(' --> ');
 		const [start, end] = [getSeconds(aa), getSeconds(bb)];
-		const text = aLine[idx].trim();
-		return fixTime({start, end, text});
+		const text = aLine[idx].trim() || '';
+		return {start, end, text}; // fixTime({start, end, text});
 	});
 }
 
@@ -62,7 +62,7 @@ export function getSeconds(text) {
 	return number.toFixed(2) * 1; // 保留2位小数足矣
 };
 
-// ▼修整某一行
+// ▼修整某一行（补充 .long 信息
 export function fixTime(oTarget){
 	const {start, end, text} = oTarget;
 	oTarget.long = (end - start).toFixed(2) * 1;
@@ -131,12 +131,9 @@ export function downloadSrt(aLines, fileName='字幕文件'){
 }
 
 // ▼可能是上传字幕用的
-export async function fileToBlobForUpload(oFile){
+export async function fileToBlob(oFile){
 	const res = await fileToTimeLines(oFile);
-	const oBlob = new Blob(
-		[JSON.stringify(res || [])],
-		{type: 'application/json;charset=utf-8'}, //
-	);
+	const oBlob = arrToblob(res || []);
 	return oBlob;
 }
 
@@ -155,6 +152,7 @@ export function getTimeInfo(oTime, sType, oAim){
 	return oResult;
 }
 
+// ▼
 export function getFakeBuffer(buffer){
 	const buffer_ = { // ★原始数据
 		duration: buffer.duration,
@@ -172,5 +170,13 @@ export function getFakeBuffer(buffer){
 	};
 }
 
-
+// ▼数组转 Blob，用于上传字幕
+export function arrToblob(arr){
+	arr.forEach(cur => delete cur.long);
+	const file = new Blob(
+		[JSON.stringify(arr)],
+		{type: 'application/json;charset=utf-8'},
+	);
+	return file;
+}
 

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 14:40:26
+ * @LastEditTime: 2021-02-16 17:00:23
  * @Description: 
  */
 
@@ -35,7 +35,7 @@ export default class extends MyClass {
 		visible: false, // 单词气泡可见性
 		sPopWords: '', // 弹出气泡的词汇
 		sSearching: '', // 搜索词汇
-		oQueuer: {}, // 排队上传的媒体
+		oQueuer: [], // 排队上传的媒体
 		oStory: {}, // 故事信息
 		aMedia: [], // 媒体列表
 		sLoadingAction: '', // 加载事项
@@ -94,7 +94,7 @@ export default class extends MyClass {
 				<label className="btn">
 					导入文件
 					<input type="file" multiple="multiple" style={{display: 'none'}}
-						onChange={ev => this.toCheckFile(ev, oStory)}
+						onChange={ev => this.toCheckFile(ev)}
 					/>
 				</label>
 			</div>
@@ -119,11 +119,10 @@ export default class extends MyClass {
 	}
 	// ▼陈列【待上传】的文件
 	showTheFileListReadyForUpload(){
-		const {oStory} = this.state;
-		const aFiles = this.state.oQueuer[oStory.ID] || [];
+		const {oQueuer: aFiles} = this.state;
 		if (!aFiles.length) return null;
 		function getSubtitleInfo(oneMedia){
-			if (oneMedia.loadingStr) return <span>
+			if (oneMedia.loadingMark) return <span>
 				正在加载字幕 <i className="fas fa-spinner fa-spin yellow"></i>
 			</span>;
 			if (oneMedia.oSubtitleFile) return <span>
@@ -137,13 +136,13 @@ export default class extends MyClass {
 				音频：{file.name}<br/>
 				字幕：{getSubtitleInfo(cur)}<br/>
 				<Button type="primary" size="small"
-					onClick={()=>this.toUpload(oStory, cur, idx)}
+					onClick={()=>this.toUpload(cur, idx)}
 				>
 					上传
 				</Button>
 				&nbsp;
 				<Button type="primary" size="small"
-					onClick={()=>this.deleteOneCandidate(oStory.ID, idx)}
+					onClick={()=>this.deleteOneCandidate(idx)}
 				>
 					删除
 				</Button>
