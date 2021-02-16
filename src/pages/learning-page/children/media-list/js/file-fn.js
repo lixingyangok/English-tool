@@ -77,25 +77,25 @@ export default class FileList {
 		if (ev.target.files.length > iMax) {
 			return this.message.warning(`最多可选“${iMax}个”文件`);
 		}
-		const oQueuer = this.toMatchFiles(ev.target.files);
-		this.getFileArrToShow(oQueuer);
+		const aQueuer = this.toMatchFiles(ev.target.files);
+		this.getFileArrToShow(aQueuer);
 		ev.target.value = ''; // 清空
-		if (!oQueuer.length) return; //没有媒体文件就返回
-		this.setState({oQueuer}, ()=>{
+		if (!aQueuer.length) return; //没有媒体文件就返回
+		this.setState({aQueuer}, ()=>{
 			this.subTitleToBlob();
 		});
 	}
 	// ▼将排队的文件的字幕转 Blob
 	async subTitleToBlob(){
-		const {oQueuer} = this.state;
-		for (const curFile of oQueuer) {
+		const {aQueuer} = this.state;
+		for (const curFile of aQueuer) {
 			const {oSubtitleFile} = curFile;
 			if (!oSubtitleFile) continue; //没有字幕
 			const res = await fileToTimeLines(oSubtitleFile);
 			if (!res) return;
 			curFile.loadingMark = false;
 			curFile.oSubtitleInfo.file = arrToblob(res);
-			this.setState({ oQueuer });
+			this.setState({ aQueuer });
 		}
 	}
 	/*
@@ -104,7 +104,6 @@ export default class FileList {
 	*/
 	// ▼上传一个媒体文件+字幕
 	async toUpload(oFileInfo, iFileIdx) {
-		const {oStory} = this.state;
 		const sst = this.setState.bind(this);
 		sst({sLoadingAction: '正在上传'}); // 开始loading
 		const sUrl = 'http://upload-z2.qiniup.com';
@@ -196,9 +195,9 @@ export default class FileList {
 	}
 	// ▼删除一个【待上传】的文件
 	deleteOneCandidate(iFileIdx){
-		const {oQueuer} = this.state;
-		oQueuer.splice(iFileIdx, 1);
-		this.setState({oQueuer});
+		const {aQueuer} = this.state;
+		aQueuer.splice(iFileIdx, 1);
+		this.setState({aQueuer});
 	}
 	// ▼查询某个故事下的媒体列表
 	async getMediaForOneStory(storyId){
@@ -264,6 +263,7 @@ export default class FileList {
 		await new Promise(resolve=>setTimeout(resolve, 2.5 * 1000));
 		closeFn();
 	}
+	// ▼添加标记，用于描述本地信息的标记
 	async checkMediaListInTB(){
 		const {aMedia} = this.state;
 		for (let [idx, cur] of aMedia.entries()) {

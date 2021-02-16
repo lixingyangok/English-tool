@@ -35,7 +35,7 @@ export default class extends MyClass {
 		visible: false, // 单词气泡可见性
 		sPopWords: '', // 弹出气泡的词汇
 		sSearching: '', // 搜索词汇
-		oQueuer: [], // 排队上传的媒体
+		aQueuer: [], // 排队上传的媒体
 		oStory: {}, // 故事信息
 		aMedia: [], // 媒体列表
 		sLoadingAction: '', // 加载事项
@@ -119,8 +119,8 @@ export default class extends MyClass {
 	}
 	// ▼陈列【待上传】的文件
 	showTheFileListReadyForUpload(){
-		const {oQueuer} = this.state;
-		if (!oQueuer.length) return null;
+		const {aQueuer} = this.state;
+		if (!aQueuer.length) return null;
 		function getSubtitleInfo(oneMedia){
 			if (oneMedia.loadingMark) return <span>
 				正在加载字幕 <i className="fas fa-spinner fa-spin yellow"></i>
@@ -130,7 +130,7 @@ export default class extends MyClass {
 			</span>;
 			return <span>无字幕</span>;
 		}
-		const myLiArr = oQueuer.map((cur, idx)=>{
+		const myLiArr = aQueuer.map((cur, idx)=>{
 			const {file} = cur;
 			const oLi = <li key={idx}>
 				音频：{file.name}<br/>
