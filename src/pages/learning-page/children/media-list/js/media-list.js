@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 19:13:46
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 21:02:30
+ * @LastEditTime: 2021-02-16 12:05:41
  * @Description: 
  */
 import {dictationPath, readingPath} from 'common/components/navigation/js/navigation.js';
