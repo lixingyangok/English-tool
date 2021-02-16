@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 14:05:09
+ * @LastEditTime: 2021-02-16 15:05:59
  * @Description: 
  */
 
@@ -27,9 +27,9 @@ export async function getMediaByStoryId(storyId){
 	data.forEach(cur=>{
 		// TODO 如果有第二个 \ 会报错：/\.[\^.]+$/ 
 		const size01 = (cur.fileSize / 1024 / 1024).toFixed(2) + 'mb';
-		const size02 = ((cur.subtitleFileSize || 0) / 1024 / 1024).toFixed(2) + 'kb';
+		const size02 = (cur.subtitleFileSize || 0) / 1024 / 1024;
 		cur.fileSize_ = size01;
-		cur.fisubtitleFileSize_ = size02;
+		cur.fisubtitleFileSize_ = `${(size02 > 1) ? size02.toFixed(2) : '<1'}kb`;
 		cur.name_ = cur.fileName.replace(/\.[^.]+$/, '');
 	});
 	return data;
