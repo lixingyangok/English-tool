@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 21:15:56
+ * @LastEditTime: 2021-02-16 17:51:10
  * @Description: 
  */
 
@@ -11,7 +11,7 @@ import {
 	getFakeBuffer,
 	getChannelDataFromBlob,
 } from 'assets/js/pure-fn.js';
-import {getOneMedia} from 'assets/js/learning-api.js';
+import {getOneMedia, getSubtitle} from 'assets/js/learning-api.js';
 import {trainingDB} from 'assets/js/common.js';
 
 const {media: mediaTB, story: storyTB} = trainingDB;
@@ -163,14 +163,12 @@ export default class {
 	}
 	// ▼从云上获取字幕
 	async getSubtitleFromNet(toSave=false){
-		const { subtitleFileId } = this.state.oMediaInfo;
-		if (!subtitleFileId) return; //没有字幕就不用查询
-		const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
-		const params = {ts: new Date() * 1};
-		const {data: subtitleFile_} = await axios.get(qiNiuUrl, {params});
-		if (!subtitleFile_) return;
-		this.setState({aSubtitleFromNet: subtitleFile_});
-		toSave && this.useSubtitleFromNet(subtitleFile_);
+		const {oMediaInfo} = this.state;
+		if (!oMediaInfo.subtitleFileId) return; //没有字幕就不用查询
+		const aSubtitleFromNet = await getSubtitle(oMediaInfo);
+		if (!aSubtitleFromNet) return;
+		this.setState({aSubtitleFromNet});
+		toSave && this.useSubtitleFromNet(aSubtitleFromNet);
 	}
 	// ▼音频数据转换波峰数据
 	bufferToPeaks(perSecPx_) {

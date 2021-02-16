@@ -266,7 +266,7 @@ export default class {
 				return '本地新/网旧';
 			}
 			status = 1;
-			return '本地旧/网新';
+			return '网新/本地旧';
 		})();
 		const sTime = ['', `两次间隔：${this.longTime(changeTs, sTs)}`][status];
 		return [tips, sTime];

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 17:36:24
+ * @LastEditTime: 2021-02-16 17:48:14
  * @Description: 
  */
 
@@ -84,26 +84,26 @@ export async function getQiniuToken(keyToOverwrite=''){
 }
 
 // ▼上传字幕到七牛（暂时停用）
-export async function uploadSubtitle(oParams){
-	const sUrl = 'http://upload-z2.qiniup.com';
-	const {token, aSubtitle=[]} = oParams;
-	let oTime = {};
-	oParams.token = await (async ()=>{
-		if (token) return token;
-		const [sResult, oTime_] = await getQiniuToken();
-		oTime = oTime_;
-		return sResult;
-	})();
-	if (!oParams.token) return;
-	oParams.file = (()=>{
-		aSubtitle.forEach(cur => delete cur.long);
-		const myBlob = new Blob(
-			[JSON.stringify(aSubtitle)],
-			{type: 'application/json;charset=utf-8'},
-		);
-		return myBlob;
-	})();
-	delete oParams.aSubtitle;
-	const {data} = await axios.post(sUrl, oParams);
-	return [data, oParams.file, oTime];
-}
+// export async function uploadSubtitle(oParams){
+// 	const sUrl = 'http://upload-z2.qiniup.com';
+// 	const {token, aSubtitle=[]} = oParams;
+// 	let oTime = {};
+// 	oParams.token = await (async ()=>{
+// 		if (token) return token;
+// 		const [sResult, oTime_] = await getQiniuToken();
+// 		oTime = oTime_;
+// 		return sResult;
+// 	})();
+// 	if (!oParams.token) return;
+// 	oParams.file = (()=>{
+// 		aSubtitle.forEach(cur => delete cur.long);
+// 		const myBlob = new Blob(
+// 			[JSON.stringify(aSubtitle)],
+// 			{type: 'application/json;charset=utf-8'},
+// 		);
+// 		return myBlob;
+// 	})();
+// 	delete oParams.aSubtitle;
+// 	const {data} = await axios.post(sUrl, oParams);
+// 	return [data, oParams.file, oTime];
+// }

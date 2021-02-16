@@ -269,12 +269,21 @@ export default class FileList {
 		for (let [idx, cur] of aMedia.entries()) {
 			const oCollection = mediaTB.where('ID').equals(cur.ID);
 			const oInTB = await oCollection.first();
+			const {subtitleFileModifyTs: ts} = cur;
+			cur.compare_ = ts ? '未修改' : '无字幕';
 			if (!oInTB) continue;
 			cur.hasMedia_ = oInTB.id;
-			cur.hasSrt_ = oInTB.subtitleFile_.length || 0;
+			cur.iSrtLen_ = oInTB.subtitleFile_.length || 0;
+			cur.compare_ = (()=>{
+				if (!ts) return '无字幕';
+				if (!oInTB.changeTs_) return '未修改';
+				if (ts === oInTB.changeTs_) return '两地相同';
+				cur.class_ = 'red';
+				if (ts > oInTB.changeTs_) return '网新';
+				return '本地新';
+			})();
 			aMedia[idx] = cur;
 			this.setState({aMedia});
 		}
-		// mediaTB
 	}
 };

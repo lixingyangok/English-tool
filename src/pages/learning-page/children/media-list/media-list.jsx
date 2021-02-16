@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 17:23:36
+ * @LastEditTime: 2021-02-16 18:13:42
  * @Description: 
  */
 
@@ -225,7 +225,10 @@ export default class extends MyClass {
 							</span>
 						</span>
 						<small>文件体积：{oMedia.fisubtitleFileSize_}</small>
-						<small>本地缓存：{oMedia.hasSrt_ || '无'}句</small>
+						<small>本地缓存：{oMedia.iSrtLen_ ? `${oMedia.iSrtLen_}句` : '无'}</small>
+						<small className={oMedia.class_}>
+							字幕状态：{oMedia.compare_}
+						</small>
 					</cpnt.cell>
 				}}
 			/>
