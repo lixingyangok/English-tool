@@ -2,11 +2,11 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 16:05:54
+ * @LastEditTime: 2021-02-16 17:36:24
  * @Description: 
  */
 
-import {downloadSrt} from './pure-fn.js';
+import {downloadSrt, fixTime} from './pure-fn.js';
 import {message} from 'antd';
 const {axios} = window;
 
@@ -55,7 +55,7 @@ export async function setWrods(storyId, key, aWords){
 	return res;
 }
 
-// ▼下载字幕
+// ▼查询字幕
 export async function getSubtitle(oMedia, downLoad=false){
 	const {subtitleFileId, name_} = oMedia;
 	const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
@@ -65,6 +65,7 @@ export async function getSubtitle(oMedia, downLoad=false){
 	if (!data) return;
 	// ▼下载
 	downLoad && downloadSrt(data, name_);
+	data.forEach(cur=>fixTime(cur)); //补充长度信息
 	return data;
 }
 
