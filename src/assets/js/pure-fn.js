@@ -172,6 +172,7 @@ export function getFakeBuffer(buffer){
 
 // ▼数组转 Blob，用于上传字幕
 export function arrToblob(arr){
+	arr = arr.dc_; // 深拷贝，不影响原值
 	arr.forEach(cur => delete cur.long);
 	const file = new Blob(
 		[JSON.stringify(arr)],

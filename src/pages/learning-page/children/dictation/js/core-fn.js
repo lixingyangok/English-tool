@@ -292,11 +292,11 @@ export default class {
 				key: subtitleFileId || '',
 			});
 		};
-		if (changeTs > subtitleFileModifyTs) return onOk();
+		if (changeTs >= subtitleFileModifyTs) return onOk();
 		// ▲本新新，直接提交，▼本地旧，询问
 		this.confirm({
 			title: '提示',
-			content: '立即上传？上传后会覆盖云端的文件！',
+			content: '本地数据比上网络数据更旧！确定上传？上传后会覆盖云端的文件！',
 			onOk,
 		});
 	}
@@ -328,7 +328,7 @@ export default class {
 		});
 		oMediaInfo.subtitleFileModifyTs = changeTs;
 		this.setState({changeTs, oMediaInfo});
-		this.message.success('上传成功');
+		// this.message.success('上传成功');
 	}
 	beforeUseNetSubtitle(){
 		this.confirm({
