@@ -10,9 +10,9 @@ import {
 	fileToBuffer,
 	getFakeBuffer,
 	getChannelDataFromBlob,
-} from 'common/js/pure-fn.js';
-import {getOneMedia} from 'common/js/learning-api.js';
-import {trainingDB} from 'common/js/common.js';
+} from 'assets/js/pure-fn.js';
+import {getOneMedia} from 'assets/js/learning-api.js';
+import {trainingDB} from 'assets/js/common.js';
 
 const {media: mediaTB, story: storyTB} = trainingDB;
 const axios = window.axios;

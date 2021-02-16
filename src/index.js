@@ -7,8 +7,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { mix } from 'common/js/common.js';
-import axios from 'common/lib/js/ajax.js';
+import { mix } from 'assets/js/common.js';
+import axios from 'assets/js/ajax.js';
 // ▼样式
 import 'assets/style/global.css'
 const store = require('store');

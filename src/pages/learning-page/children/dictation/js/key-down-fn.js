@@ -1,7 +1,7 @@
 import keyMap from './key-map.js';
-import {fixTime } from 'common/js/pure-fn.js';
-import {trainingDB, wordsDB} from 'common/js/common.js';
-import {getQiniuToken} from 'common/js/learning-api.js';
+import {fixTime } from 'assets/js/pure-fn.js';
+import {trainingDB, wordsDB} from 'assets/js/common.js';
+import {getQiniuToken} from 'assets/js/learning-api.js';
 
 const {media: mediaTB} = trainingDB;
 

@@ -7,8 +7,8 @@
  */
 
 import React from "react";
-import {getOneMedia, getSubtitle} from 'common/js/learning-api.js';
-import {trainingDB} from 'common/js/common.js';
+import {getOneMedia, getSubtitle} from 'assets/js/learning-api.js';
+import {trainingDB} from 'assets/js/common.js';
 
 const {media: mediaTB} = trainingDB;
 

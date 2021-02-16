@@ -4,8 +4,8 @@
  * @Description: 
  */ 
 
-import {setWrods} from 'common/js/learning-api.js';
-import {wordsDB, aAlphabet} from 'common/js/common.js'
+import {setWrods} from 'assets/js/learning-api.js';
+import {wordsDB, aAlphabet} from 'assets/js/common.js'
 
 export default class {
 	// ▼控制词库窗口可见性

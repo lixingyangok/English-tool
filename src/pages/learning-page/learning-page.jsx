@@ -12,7 +12,7 @@ import Loading from 'common/components/loading/loading.jsx';
 import {aLearningPage} from 'common/components/navigation/js/navigation.js';
 import * as cpnt from './style/learning-page.js';
 import {Tabs} from 'antd';
-import {getStoryInfo} from 'common/js/learning-api.js';
+import {getStoryInfo} from 'assets/js/learning-api.js';
 import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
 import { NavLink, /* useLocation */ } from "react-router-dom";
 

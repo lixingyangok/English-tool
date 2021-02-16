@@ -9,7 +9,7 @@ import {dictationPath, readingPath} from 'common/components/navigation/js/naviga
 
 import {
 	setWrods,
-} from 'common/js/learning-api.js';
+} from 'assets/js/learning-api.js';
 import {message} from 'antd';
 
 export default class {

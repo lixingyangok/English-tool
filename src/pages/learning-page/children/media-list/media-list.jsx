@@ -13,7 +13,7 @@ import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
 import {MyLoading} from 'common/components/loading/loading02.jsx';
-import {timeAgo} from 'common/js/common.js';
+import {timeAgo} from 'assets/js/common.js';
 import {
 	Button, Popconfirm, message, Table, Popover,
 	Divider, Modal,

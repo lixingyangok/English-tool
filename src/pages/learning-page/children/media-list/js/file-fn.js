@@ -12,9 +12,9 @@ import {
 	// fileToBuffer,
 	// getStrFromFile,
 	// getFaleBuffer, 
-} from 'common/js/pure-fn.js';
-import {trainingDB, timeAgo} from 'common/js/common.js';
-import {getMediaByStoryId, getSubtitle, getQiniuToken} from 'common/js/learning-api.js';
+} from 'assets/js/pure-fn.js';
+import {trainingDB, timeAgo} from 'assets/js/common.js';
+import {getMediaByStoryId, getSubtitle, getQiniuToken} from 'assets/js/learning-api.js';
 
 
 import {Modal} from 'antd';

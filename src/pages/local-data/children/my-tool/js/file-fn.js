@@ -3,7 +3,7 @@
  * @LastEditors: 李星阳
  * @Description: 
  */
-import {downloadString, fileToStrings} from 'common/js/pure-fn.js';
+import {downloadString, fileToStrings} from 'assets/js/pure-fn.js';
 
 export default class {
 	// ▼input导入文件

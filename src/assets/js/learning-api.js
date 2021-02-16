@@ -2,11 +2,11 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 11:51:35
+ * @LastEditTime: 2021-02-16 12:15:53
  * @Description: 
  */
 
-import {downloadSrt} from 'common/js/pure-fn.js';
+import {downloadSrt} from './pure-fn.js';
 import {message} from 'antd';
 const {axios} = window;
 

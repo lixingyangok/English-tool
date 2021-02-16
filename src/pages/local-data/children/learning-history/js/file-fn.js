@@ -3,7 +3,7 @@
  * @LastEditors: 李星阳
  * @Description: 
  */
-import {fileToTimeLines, fileToBuffer, getFaleBuffer, downloadString} from 'common/js/pure-fn.js';
+import {fileToTimeLines, fileToBuffer, getFaleBuffer, downloadString} from 'assets/js/pure-fn.js';
 
 export default class {
 	// ▼input导入文件到某个故事（通过第3个参数判断是新增还是修改
