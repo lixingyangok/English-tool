@@ -310,21 +310,27 @@ export const oneWord = styled.span`
 
 
 export const InfoBar = styled.div`
-	padding: 15px 0 0;
+	padding: 15px 0 2px;
 	overflow: hidden;
 	white-space: nowrap;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	flex-flow: row nowrap;
 	span{
 		font-size: 14px;
 		margin-right: 1.5em;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		max-width: 15em;
-		display: inline-block;
 		color: #999;
+		line-height: 1.2;
 	}
 	em{
+		display: inline-block;
+		line-height: inherit;
+		vertical-align: bottom;
 		color: #333;
+	}
+	.ellipsis{
+		max-width: 8em;
 	}
 `;
 

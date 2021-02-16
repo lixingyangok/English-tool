@@ -136,7 +136,12 @@ export default class Tool extends MyClass {
 		const oCurStep = aSteps[iCurStep];
 		const [tips01, tips02] = this.getSubtitleInfo();
 		return <cpnt.InfoBar>
-			<span>章节：<em>{oMediaInfo.fileName}</em></span>
+			<span>
+				章节：
+				<em title={oMediaInfo.fileName} className="ellipsis">
+					{oMediaInfo.fileName}
+				</em>
+			</span>
 			<span>时长：<em>{buffer.sDuration_}</em></span>
 			<span>共计：<em>{oCurStep.aLines.length || 0}句</em></span>
 			<span>每秒：<em>{iPerSecPx}px</em></span>
