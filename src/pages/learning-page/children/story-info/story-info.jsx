@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 20:58:33
+ * @LastEditTime: 2021-02-15 22:11:48
  * @Description: 
  */
 
@@ -157,7 +157,6 @@ export default class extends MyClass {
 	}
 	getBtnForTable(oMedia){
 		const {oStory} = this.state;
-
 		const HTML = <>
 			<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
 				听写
@@ -166,7 +165,6 @@ export default class extends MyClass {
 				阅读
 			</Button>
 			<br/>
-
 			<label className="ant-btn ant-btn-text ant-btn-sm">
 				替换音/视频
 				<input type="file" accept="audio/*, video/*"
@@ -202,7 +200,7 @@ export default class extends MyClass {
 		});
 		return <Table dataSource={dataForTable} bordered
 			pagination={{position: ['none', 'none'], pageSize: 200}}
-			scroll={{ y: 500 }}
+			scroll={{ y: 560 }}
 		>
 			<Column title="序号" key="idx_" dataIndex="idx_" width="70px" />
 			<Column title="文件" key="fileName" 
