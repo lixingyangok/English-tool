@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 17:00:23
+ * @LastEditTime: 2021-02-16 17:23:36
  * @Description: 
  */
 
@@ -119,8 +119,8 @@ export default class extends MyClass {
 	}
 	// ▼陈列【待上传】的文件
 	showTheFileListReadyForUpload(){
-		const {oQueuer: aFiles} = this.state;
-		if (!aFiles.length) return null;
+		const {oQueuer} = this.state;
+		if (!oQueuer.length) return null;
 		function getSubtitleInfo(oneMedia){
 			if (oneMedia.loadingMark) return <span>
 				正在加载字幕 <i className="fas fa-spinner fa-spin yellow"></i>
@@ -130,7 +130,7 @@ export default class extends MyClass {
 			</span>;
 			return <span>无字幕</span>;
 		}
-		const myLiArr = aFiles.map((cur, idx)=>{
+		const myLiArr = oQueuer.map((cur, idx)=>{
 			const {file} = cur;
 			const oLi = <li key={idx}>
 				音频：{file.name}<br/>
@@ -155,7 +155,6 @@ export default class extends MyClass {
 		return ul;
 	}
 	getBtnForTable(oMedia){
-		const {oStory} = this.state;
 		const HTML = <>
 			<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
 				听写
@@ -168,19 +167,19 @@ export default class extends MyClass {
 				替换音/视频
 				<input type="file" accept="audio/*, video/*"
 					style={{display: 'none'}}
-					onChange={ev => this.checkForUpload(ev, oStory, oMedia, 0)}
+					onChange={ev => this.checkForUpload(ev, oMedia, 0)}
 				/>
 			</label>
 			<label className="ant-btn ant-btn-text ant-btn-sm">
 				替换字幕
 				<input type="file" style={{display: 'none'}}
-					onChange={ev => this.checkForUpload(ev, oStory, oMedia, 1)}
+					onChange={ev => this.checkForUpload(ev, oMedia, 1)}
 				/>
 			</label>
 			<br/>
 			<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 				title="确定删除？"
-				onConfirm={()=>this.delOneMedia(oStory, oMedia)}
+				onConfirm={()=>this.delOneMedia(oMedia)}
 			>
 				<Button type="text" size="small" danger >删除</Button>
 			</Popconfirm>
@@ -280,7 +279,6 @@ export default class extends MyClass {
 		const {oStoryInfo} = this.context;
 		if (oStoryInfo.ID) {
 			this.setState({oStory: oStoryInfo});
-			console.log("开始查询媒体");
 			this.getMediaForOneStory(oStoryInfo.ID);
 		}
 	}

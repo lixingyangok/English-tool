@@ -48,8 +48,8 @@ export default class FileList {
 		return aMedia;
 	}
 	// ▼将配对完成的文件补充一些信息，用于显示
-	getFileArrToShow(aListForShow, oStoryID){
-		if (!(aListForShow || {}).length) return [];
+	getFileArrToShow(aListForShow=[]){
+		if (!aListForShow.length) return [];
 		aListForShow.forEach(oItem => { // 用于显示和上传的表格
 			const {file, oSubtitleFile} = oItem;
 			oItem.mediaFile = { // 用于七牛
@@ -61,7 +61,7 @@ export default class FileList {
 				fileName: oSubtitleFile.name,
 			}
 			oItem.forOwnDB = { // 用于自已的服务器
-				storyId: oStoryID,
+				storyId: this.state.oStory.ID,
 				fileId: '', //媒体文件id-真值后补
 				fileName: file.name,
 				fileSize: file.size,
@@ -73,35 +73,28 @@ export default class FileList {
 	}
 	// ▼把2类文件组织成列表显示出来，用于准备上传
 	toCheckFile(ev){
-		const {oStory} = this.state;
 		const iMax = 100;
 		if (ev.target.files.length > iMax) {
 			return this.message.warning(`最多可选“${iMax}个”文件`);
 		}
-		const aListForShow = this.toMatchFiles(ev.target.files);
-		this.getFileArrToShow(aListForShow, oStory.ID);
+		const oQueuer = this.toMatchFiles(ev.target.files);
+		this.getFileArrToShow(oQueuer);
 		ev.target.value = ''; // 清空
-		if (!aListForShow.length) return; //没有媒体文件就返回
-		const oQueuer = Object.assign(this.state.oQueuer, {
-			[oStory.ID]: aListForShow,
-		});
-		this.setState({ oQueuer }, ()=>{
-			this.subTitleToBlob(oStory.ID);
+		if (!oQueuer.length) return; //没有媒体文件就返回
+		this.setState({oQueuer}, ()=>{
+			this.subTitleToBlob();
 		});
 	}
 	// ▼将排队的文件的字幕转 Blob
-	async subTitleToBlob(oStoryId){
-		const aQueuerList = this.state.oQueuer;
-		for (const curFile of aQueuerList) {
+	async subTitleToBlob(){
+		const {oQueuer} = this.state;
+		for (const curFile of oQueuer) {
 			const {oSubtitleFile} = curFile;
 			if (!oSubtitleFile) continue; //没有字幕
 			const res = await fileToTimeLines(oSubtitleFile);
 			if (!res) return;
 			curFile.loadingMark = false;
 			curFile.oSubtitleInfo.file = arrToblob(res);
-			const oQueuer = Object(this.state.oQueuer, {
-				[oStoryId]: aQueuerList,
-			});
 			this.setState({ oQueuer });
 		}
 	}
@@ -149,10 +142,10 @@ export default class FileList {
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
 		this.message.success('上传成功');
 		this.deleteOneCandidate(iFileIdx); //删除【排除文件】
-		this.getMediaForOneStory(oStory.ID); //刷新【已上传】文件
+		this.getMediaForOneStory(); //刷新【已上传】文件
 	}
-	// ▼准备上传（覆盖）文件
-	checkForUpload(ev, oStory, oMedia, iType) {
+	// ▼ 处理要上传（要拿去覆盖旧资源）的文件
+	checkForUpload(ev, oMedia, iType) {
 		const [oFile] = ev.target.files;
 		ev.target.value = ''; // 清空
 		if (!oFile || (iType !== 0 && iType !== 1)) return;
@@ -166,7 +159,7 @@ export default class FileList {
 			const res = await this.upLoadOne(oFile, oMedia, iType);
 			if (!res) return warning('上传未成功');
 			success('上传成功');
-			this.getMediaForOneStory(oStory); //刷新【已上传】文件
+			this.getMediaForOneStory(); //刷新【已上传】文件
 		};
 		confirm({
 			title: '提示',
@@ -207,15 +200,16 @@ export default class FileList {
 		oQueuer.splice(iFileIdx, 1);
 		this.setState({oQueuer});
 	}
-	// ▼查询某个故事下的文件
+	// ▼查询某个故事下的媒体列表
 	async getMediaForOneStory(storyId){
+		storyId = storyId || this.state.oStoy.ID;
 		const aMedia = await getMediaByStoryId(storyId);
 		if (!aMedia) return;
 		this.setState({aMedia});
 		this.checkMediaListInTB();
 	}
 	// ▼删除一个已上传的文件
-	async delOneMedia(oStory, oneMedia){
+	async delOneMedia(oneMedia){
 		this.setState({sLoadingAction: '正在删除'});
 		const {data: res} = await axios.delete('/media/', {
 			params: {
@@ -226,7 +220,7 @@ export default class FileList {
 		});
 		this.setState({sLoadingAction: ''});
 		if (!res) return this.message.error('删除文件未成功');
-		this.getMediaForOneStory(oStory.ID);
+		this.getMediaForOneStory();
 		const oCollection = mediaTB.where('ID').equals(oneMedia.ID);
 		oCollection.count().then(res=>{
 			res && oCollection.delete();
@@ -234,7 +228,6 @@ export default class FileList {
 	}
 	// ▼导出字幕文件
 	async toExport(oMedia) {
-		// console.log('oMedia', oMedia);
 		const {message} = this;
 		const {ID, subtitleFileModifyTs, subtitleFileId} = oMedia;
 		const oInTB = await mediaTB.where('ID').equals(ID).first() || {};
