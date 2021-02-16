@@ -4,8 +4,6 @@
  * @Description: 
  */ 
 
-import { message } from 'antd';
-
 // ▼字符转字幕数据，用于显示
 export async function fileToTimeLines(oFile) {
 	if (!oFile) return [];
