@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 12:24:53
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 21:01:34
+ * @LastEditTime: 2021-02-16 11:55:35
  * @Description: 
  */
 import React from "react";
@@ -30,7 +30,7 @@ export const aLearningPage = [{
 	// component: MyDiv, // 可用
 	// component: ()=><MyDiv mark="123" />, // 可用
 	// component: <MyDiv mark="123"/>, // ★★报错★★
-	component: React.lazy(() => import('pages/learning-page/children/story-info/story-info.jsx')),
+	component: React.lazy(() => import('pages/learning-page/children/media-list/media-list.jsx')),
 }, {
 	name: '听写',
 	path: `/${dictationPath}/:mediaId`, //:mediaId',
