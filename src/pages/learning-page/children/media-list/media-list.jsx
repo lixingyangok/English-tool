@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 12:05:00
+ * @LastEditTime: 2021-02-16 12:37:36
  * @Description: 
  */
 
@@ -11,8 +11,8 @@ import pageFn from './js/media-list.js';
 import * as cpnt from './style/media-list.js';
 import FileFn from './js/file-fn.js';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
-import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
-import {MyLoading} from 'common/components/loading/loading02.jsx';
+import DictDialog from 'components/dict-dialog/dict-dialog.jsx';
+import {MyLoading} from 'components/loading/loading02.jsx';
 import {timeAgo} from 'assets/js/common.js';
 import {
 	Button, Popconfirm, message, Table, Popover,

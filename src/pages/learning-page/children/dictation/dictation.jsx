@@ -9,8 +9,8 @@ import figureOutRegion from './js/figure-out-region.js';
 import Menu from './menu/menu.jsx';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
 import { fixTime } from 'assets/js/pure-fn.js';
-import DictDialog from 'common/components/dict-dialog/dict-dialog.jsx';
-import {dictationPath} from 'common/components/navigation/js/navigation.js';
+import DictDialog from 'components/dict-dialog/dict-dialog.jsx';
+import {dictationPath} from 'components/navigation/js/navigation.js';
 import {
 	Modal, Button, message, Space, 
 	Spin, Input, Popconfirm,

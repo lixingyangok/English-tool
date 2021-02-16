@@ -2,14 +2,14 @@
  * @Author: 李星阳
  * @Date: 2021-02-10 11:46:34
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 09:47:22
+ * @LastEditTime: 2021-02-16 12:35:40
  * @Description: 
  */
 
 import React, {Suspense, useState} from 'react';
 import { Redirect, useHistory} from 'react-router-dom';
-import Loading from 'common/components/loading/loading.jsx';
-import {aLearningPage} from 'common/components/navigation/js/navigation.js';
+import Loading from 'components/loading/loading.jsx';
+import {aLearningPage} from 'components/navigation/js/navigation.js';
 import * as cpnt from './style/learning-page.js';
 import {Tabs} from 'antd';
 import {getStoryInfo} from 'assets/js/learning-api.js';

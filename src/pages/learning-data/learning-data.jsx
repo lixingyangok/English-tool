@@ -1,7 +1,7 @@
 import React, {Suspense} from 'react';
 import { Route, Redirect, Switch } from 'react-router-dom';
-import Loading from 'common/components/loading/loading.jsx';
-import {aLearningData} from 'common/components/navigation/js/navigation.js';
+import Loading from 'components/loading/loading.jsx';
+import {aLearningData} from 'components/navigation/js/navigation.js';
 
 export default function (){
 	const getPath = url => `/learning-data${url}`;

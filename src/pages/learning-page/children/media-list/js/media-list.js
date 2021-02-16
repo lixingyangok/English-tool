@@ -5,7 +5,7 @@
  * @LastEditTime: 2021-02-16 12:05:41
  * @Description: 
  */
-import {dictationPath, readingPath} from 'common/components/navigation/js/navigation.js';
+import {dictationPath, readingPath} from 'components/navigation/js/navigation.js';
 
 import {
 	setWrods,
