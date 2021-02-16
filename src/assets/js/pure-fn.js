@@ -157,20 +157,6 @@ export function getTimeInfo(oTime, sType, oAim){
 	return oResult;
 }
 
-// ▼查询七牛token
-export async function getQiniuToken(keyToOverwrite=''){
-	const sUrl = '/qiniu/gettoken';
-	const {data, headers} = await window.axios.get(sUrl, {
-		params: {keyToOverwrite},
-	});
-	if (!data || !data.token) {
-		message.error('查询token未成功');
-		return false;
-	}
-	const oTime = new Date(headers.date);
-	return [data.token, oTime];
-}
-
 export function getFakeBuffer(buffer){
 	const buffer_ = { // ★原始数据
 		duration: buffer.duration,

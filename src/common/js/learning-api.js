@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 22:00:53
+ * @LastEditTime: 2021-02-16 11:44:39
  * @Description: 
  */
 
@@ -57,10 +57,24 @@ export async function getSubtitle(oMedia, downLoad=false){
 	// console.log("下载", oMedia);
 	const {subtitleFileId, name_} = oMedia;
 	const qiNiuUrl = `http://qn.hahaxuexi.com/${subtitleFileId}`;
-	const {data} = await window.axios.get(qiNiuUrl,
+	const {data} = await axios.get(qiNiuUrl,
 		{params: {ts: new Date() * 1}},
 	);
 	if (!data) return;
 	downLoad && downloadSrt(data, name_);
 	return data;
+}
+
+// ▼查询七牛token
+export async function getQiniuToken(keyToOverwrite=''){
+	const sUrl = '/qiniu/gettoken';
+	const {data, headers} = await axios.get(sUrl, {
+		params: {keyToOverwrite},
+	});
+	if (!data || !data.token) {
+		message.error('查询token未成功');
+		return false;
+	}
+	const oTime = new Date(headers.date);
+	return [data.token, oTime];
 }

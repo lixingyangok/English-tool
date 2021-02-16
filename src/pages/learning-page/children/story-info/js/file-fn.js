@@ -8,14 +8,14 @@ import {
 	fileToTimeLines, 
 	fileToBlobForUpload,
 	getTimeInfo,
-	getQiniuToken,
 	downloadSrt,
 	// fileToBuffer,
 	// getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
 import {trainingDB, timeAgo} from 'common/js/common.js';
-import {getMediaByStoryId, getSubtitle} from 'common/js/learning-api.js';
+import {getMediaByStoryId, getSubtitle, getQiniuToken} from 'common/js/learning-api.js';
+
 
 import {Modal} from 'antd';
 
@@ -108,7 +108,7 @@ export default class FileList {
 	}
 	/*
 		▲上传之前
-		▼上传之后
+		▼开始上传及上传之后
 	*/
 	// ▼上传一个媒体文件+字幕
 	async toUpload(oStory, oFileInfo, iFileIdx) {

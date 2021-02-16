@@ -1,10 +1,10 @@
 import {
-	getQiniuToken,
 	getTimeInfo,
 	downloadSrt,
 	fixTime,
 } from 'assets/js/pure-fn.js';
 import {trainingDB} from 'common/js/common.js';
+import {getQiniuToken} from 'common/js/learning-api.js';
 
 const {media: mediaTB} = trainingDB;
 
