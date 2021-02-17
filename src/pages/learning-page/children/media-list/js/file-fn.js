@@ -201,7 +201,7 @@ export default class FileList {
 	}
 	// ▼查询某个故事下的媒体列表
 	async getMediaForOneStory(storyId){
-		storyId = storyId || this.state.oStoy.ID;
+		storyId = storyId || this.state.oStory.ID;
 		const aMedia = await getMediaByStoryId(storyId);
 		if (!aMedia) return;
 		this.setState({aMedia});

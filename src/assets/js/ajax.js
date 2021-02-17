@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-09-18 20:44:43
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-15 11:51:03
+ * @LastEditTime: 2021-02-17 09:19:08
  * @Description: 
  */
 import axios from 'axios';
@@ -38,6 +38,7 @@ myAxios.interceptors.response.use(response => {
 	const {status, config:{method}} = response;
 	if (status !== 200) {
 		message.error("未成功");
+		return {data:false, response};
 	}else if(method !== 'get'){
 		message.success("成功");
 	}

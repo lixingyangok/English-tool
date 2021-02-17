@@ -25,11 +25,8 @@ const MyClass = window.mix(
 	figureOutRegion, initFn,
 );
 
-// TODO，区分人名与词汇、添加词汇后没有立即显示出来
-// 在输入框输入，不应触发上级的监听
-// textare 校对效果，搜索
-
-// window.alert('类声明前夕');
+// TODO
+// textare 的输入动效，校对功能
 
 export default class Tool extends MyClass {
 	static contextType = MyContext;
@@ -360,11 +357,12 @@ export default class Tool extends MyClass {
 			"mousewheel", ev => this.changeVideoSize(ev),
 		);
 		this.cleanCanvas();
-		document.onkeydown = keyDownFn;
+		document.addEventListener('keydown', keyDownFn);
 		this.props.history.listen(oRoute => { // bj监听路由变化
 			const {pathname} = oRoute;
 			const hasLeft = !pathname.includes(`/${dictationPath}/`);
-			document.onkeydown = hasLeft ? null : keyDownFn;
+			const type = hasLeft ? 'removeEventListener' : 'addEventListener';
+			document[type]('keydown', keyDownFn);
 		});
 	}
 	// ▼销毁前
