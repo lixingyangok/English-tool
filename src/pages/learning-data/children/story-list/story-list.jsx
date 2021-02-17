@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-10 14:24:30
+ * @LastEditTime: 2021-02-17 20:15:29
  * @Description: 
  */
 
@@ -26,8 +26,6 @@ export default class extends MyClass{
 	oForm = React.createRef(); //窗口中的表单
 	state = {
 		visible: false, //窗口显示
-		oStoryTB: {}, // 本地故事列表TB
-		mediaTB: {}, // 本地媒体列表TB
 		aStory: [], // 故事列表
 		loading: false,
 		pageInfo: {
@@ -99,21 +97,21 @@ export default class extends MyClass{
 					description="暂无数据，请新增"
 				/>
 				<cpnt.myPagination total={total} showTotal={()=>`共${total}条 `}
-					showSizeChanger
 					pageSize={pageInfo.pageSize}
 					current={pageInfo.current} 
 					onChange={newPage=>this.chnagePage(newPage)}
-					onShowSizeChange={(current, size)=>this.changeSize(current, size)}
 				/>
+					{/* showSizeChanger */}
+					{/* onShowSizeChange={(current, size)=>this.changeSize(current, size)} */}
 				{dialog}
-			</Spin>
+			</Spin> 
 		</cpnt.Outter>
 		return resultHTML;
 	}
 	// ▲render
 	// ▼生命周期
 	async componentDidMount(){
-		await this.init();
-		this.dbInit();
+		// console.log("componentDidMount", this.state.pageInfo);
+		this.init();
 	}
 }

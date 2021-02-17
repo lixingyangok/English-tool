@@ -11,10 +11,10 @@ const {axios} = window;
 export default class{
 	// ▼初始化，即查询【故事数据】
 	async init(){
+		const {pageInfo} = this.state;
+		// console.log("pageInfo", pageInfo);
 		const {data: res} = await axios.get('/story', {
-			params: {
-				...this.state.pageInfo,
-			},
+			params: pageInfo,
 		});
 		if (!res || !res.rows) return;
 		this.setState({
@@ -22,25 +22,16 @@ export default class{
 			total: res.total,
 		});
 	}
-	// ▼初始化 DB
-	async dbInit(){
-		const trainingDB = new window.Dexie("trainingDB");
-		trainingDB.version(1).stores({story: '++id, ID, name, storyId'});
-		trainingDB.version(2).stores({media: '++id, ID, fileId, ownerStoryId'});
-		const oStoryTB = trainingDB.story;
-		const mediaTB = trainingDB.media;
-		this.setState({oStoryTB, mediaTB});
-	}
 	chnagePage(current){
 		const pageInfo = ({
 			...this.state.pageInfo, current,
 		});
 		this.setState({pageInfo}, this.init);
 	}
-	changeSize(current, pageSize){
-		const pageInfo = ({current, pageSize});
-		this.setState({pageInfo}, this.init);
-	}
+	// changeSize(current, pageSize){
+	// 	const pageInfo = ({current, pageSize});
+	// 	this.setState({pageInfo}, this.init);
+	// }
 	// ▼提交表单，提交一个故事
 	async onSave(oForm) {
 		Object.entries(oForm).forEach(([key, val]) => {
