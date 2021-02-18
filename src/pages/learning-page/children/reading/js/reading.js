@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-17 15:38:23
+ * @LastEditTime: 2021-02-18 12:34:50
  * @Description: 
  */
 
@@ -42,18 +42,74 @@ export class Fn01 {
 		this.setState({aSubtitle});
 	}
 	keyDownFn(ev){
-		console.log(ev);
+		// console.log(ev);
 		const {key} = ev;
 		const oFn = ({
 			'w': () => this.setCurLine(-1),
 			's': () => this.setCurLine(1),
 			'e': () => this.toPlay(),
+			'd': () => this.toRead(),
 			'F4': () => this.toSearch(),
 		});
 		if (!oFn[key]) return;
 		oFn[key]();
 		// console.log("当前行", curLine);
 	}
+	keyUpFn(ev){
+		const {key} = ev;
+		if (key!=='d') return;
+		console.log('松手');
+		clearInterval(this.state.timer);
+		this.setState({isStop: true});
+	}
+	toRead(iPlaying){
+		const {state} = this;
+		let {aSubtitle, curLine, isStop, iStartTs, fPlayRate} = state;
+		iPlaying = typeof iPlaying === 'number' ? iPlaying : curLine;
+		const {long, iTimes=0} = aSubtitle[iPlaying];
+		const iNowTs = new Date() * 1;
+		if (iPlaying === state.iPlaying){
+			const stepLong = isStop ? 0 : iNowTs - iStartTs;
+			if (fPlayRate===100 && isStop){
+				this.setState({fPlayRate: 0});
+			}else{
+				fPlayRate += stepLong / 1000 / long * 100; 
+				if (fPlayRate>=100) {
+					fPlayRate = 100;
+					aSubtitle[iPlaying].iTimes = iTimes + 1;
+				}
+				this.setState({fPlayRate, aSubtitle});
+			}
+		}else {
+			this.setState({fPlayRate: 0, iPlaying});
+		}
+		this.setState({isStop: false, iStartTs: iNowTs});
+	}
+	// ▼播放
+	toPlay(iPlaying){
+		const {state} = this;
+		clearInterval(state.timer);
+		const {aSubtitle, curLine} = state;
+		iPlaying = typeof iPlaying === 'number' ? iPlaying : curLine;
+		// console.log('播放：', iPlaying);
+		const {start, end, long} = aSubtitle[iPlaying];
+		const oCurrent =  this.oAudio.current;
+		const iTimes = 20; // 每秒执行次数
+		const oneStep = 100 / (long * iTimes);
+		oCurrent.currentTime = start;
+		oCurrent.play();
+		const timer = setInterval(() => {
+			this.setState({
+				fPlayRate: this.state.fPlayRate + oneStep,
+			});
+			const { currentTime: cTime } = oCurrent;
+			if (cTime < end) return;
+			clearInterval(state.timer);
+			oCurrent.pause();
+		}, 1000 / iTimes);
+		this.setState({timer, iPlaying, fPlayRate: 0, isStop: false});
+	}
+
 	// ▼公共方法▼要提取
 	toSearch(){
 		const sSearching = window.getSelection().toString().trim();
@@ -90,32 +146,5 @@ export class Fn01 {
 			return iResult;
 		})();
 		this.setState({curLine});
-	}
-	toPlay(idx){
-		clearInterval(this.state.timer);
-		const {aSubtitle, curLine} = this.state;
-		idx = typeof idx === 'number' ? idx : curLine;
-		const {start, end, long} = aSubtitle[idx];
-		console.log('播放：', idx);
-		const oCurrent =  this.oAudio.current;
-		const iTimes = 20; // 每秒执行次数
-		const oneStep = 100 / (long * iTimes);
-		oCurrent.currentTime = start;
-		oCurrent.play();
-		const newTimer = setInterval(() => {
-			this.setState({
-				fPlayRate: this.state.fPlayRate + oneStep,
-			});
-			const { currentTime: cTime } = oCurrent;
-			if (cTime < end) return;
-			clearInterval(this.state.timer);
-			oCurrent.pause();
-			// this.setState({iPlaying: null});
-		}, 1000 / iTimes);
-		this.setState({
-			iPlaying: idx,
-			timer: newTimer,
-			fPlayRate: 0,
-		});
 	}
 }

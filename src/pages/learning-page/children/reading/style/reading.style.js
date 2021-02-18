@@ -40,6 +40,9 @@ export const oneLine = styled.li`
 		background: #f0f0f0;
 		color: #000;
 	}
+	&[class~=done] .bg::after{
+		background: rgba(0, 255, 0, 0.35);
+	}
 	.idx{
 		display: inline-block;
 		font-style: normal;
@@ -57,7 +60,7 @@ export const oneLine = styled.li`
 	}
 	.support{
 		color: transparent;
-		/* pointer-events: none; */
+		pointer-events: none;
 	}
 	.bg, .up{
 		position: absolute;
@@ -65,12 +68,13 @@ export const oneLine = styled.li`
 		left: 0;
 	}
 	.bg{
-		/* pointer-events: none; */
+		pointer-events: none;
 		::after{
 			content: ""attr(text)"";
 			display: inline;
-			background: rgba(255, 255, 0, 0.55);
+			background: rgba(255, 255, 0, 0.45);
 			color: transparent;
+			transition: all 0.5s;
 		}
 	}
 	.playing{

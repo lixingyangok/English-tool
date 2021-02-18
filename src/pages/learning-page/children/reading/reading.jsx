@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-17 15:35:46
+ * @LastEditTime: 2021-02-18 12:29:31
  * @Description: 
  */
 
@@ -24,15 +24,19 @@ export default class Reading extends MyClass{
 	static contextType = MyContext;
 	oAudio = React.createRef();
 	state = {
-		mediaId: null,
-		oMedia: {},
-		fileSrc: null,
-		curLine: 0,
-		aSubtitle: [],
-		timer: null,
-		iPlaying: null,
-		sSearching: '',
+		mediaId: 0, // 媒体id
+		oMedia: {}, // 媒体信息
+		fileSrc: null, // 媒体src，用于播放
+		aSubtitle: [], // 字幕
+		// ▲稳定数据，▼变动数据
+		curLine: 0, // 当前高亮行
+		iPlaying: null, // 当前播放行
+		timer: null, // 定时器
 		fPlayRate: 0, // 最大100
+		sSearching: '',
+		// ▼长按阅读
+		iStartTs: 0, //开始时间
+		isStop: true,
 	};
 	constructor(props){
 		super(props);
@@ -59,23 +63,29 @@ export default class Reading extends MyClass{
 	getAllLines(){
 		const { curLine, aSubtitle, iPlaying,  fPlayRate} = this.state;
 		const aAllLine = aSubtitle.map((cur, idx)=>{
-			// const playingMe = iPlaying===idx;
+			const {text} = cur; //iTimes
 			const textVal = (()=>{
 				if (iPlaying !== idx) return '';
-				const end = ~~(cur.text.length / 100 * fPlayRate) + 1;
-				return cur.text.slice(0, end);
+				const end = ~~(text.length / 100 * fPlayRate);
+				return text.slice(0, end);
+			})();
+			const lineClass = (()=>{
+				let result = idx === curLine ? 'current ' : '';
+				// if (iTimes) result += ' done';
+				if (iPlaying === idx && fPlayRate>=100) {
+					result += ' done';
+				}
+				return result;
 			})();
 			return <cpnt.oneLine key={idx}
 				onClick={()=>this.setState({curLine:idx})}
-				className={idx === curLine ? 'current ' : ''}
+				className={lineClass}
 			>
 				<i className="idx" >{idx+1}</i>
-				<div className={"text "} >
-					<p className={'support'}>{cur.text}</p>
+				<div className={"text"} >
+					<p className={'support'}>{text}</p>
 					<p className={'bg'} text={textVal}></p>
-					<p className={'up'} >
-						{cur.text}
-					</p>
+					<p className={'up'} >{text}</p>
 				</div>
 			</cpnt.oneLine>
 		})
@@ -96,12 +106,15 @@ export default class Reading extends MyClass{
 	}
 	async componentDidMount() {
 		const keyDownFn = this.keyDownFn.bind(this);
+		const keyUpFn = this.keyUpFn.bind(this);
 		document.addEventListener('keydown', keyDownFn);
+		document.addEventListener('keyup', keyUpFn);
 		this.props.history.listen(oRoute => { // bj:监听路由变化
 			const {pathname} = oRoute;
 			const hasLeft = !pathname.includes(`/${readingPath}/`);
 			const type = hasLeft ? 'removeEventListener' : 'addEventListener';
 			document[type]('keydown', keyDownFn);
+			document[type]('keyup', keyUpFn);
 		});
 	}
 }

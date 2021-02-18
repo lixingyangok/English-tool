@@ -278,7 +278,8 @@ export default class {
 		return parseInt(hour)+":"+parseInt(mm)+":"+parseInt(ss);
 	}
 	// ▼提示是否上传字幕
-	async uploadToCloudBefore(){
+	uploadToCloudBefore(){
+		const toHide = this.message.loading('开始保存');
 		const {oMediaInfo, changeTs} =  this.state;
 		const {
 			name_,
@@ -286,11 +287,12 @@ export default class {
 			subtitleFileName, 
 			subtitleFileModifyTs,
 		} = oMediaInfo;
-		const onOk = () => { // 上传的方法
-			this.uploadToCloud({
+		const onOk = async () => { // 上传的方法
+			await this.uploadToCloud({
 				fileName: subtitleFileName || (name_ + '.srt'),
 				key: subtitleFileId || '',
 			});
+			toHide();
 		};
 		if (changeTs >= subtitleFileModifyTs) return onOk();
 		// ▲本新新，直接提交，▼本地旧，询问
