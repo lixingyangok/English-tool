@@ -1,5 +1,5 @@
 import React from "react";
-import * as cpnt from "./style/dictation.js";
+import * as cpnt from "./style/dictation.style.js";
 import coreFn from "./js/core-fn.js";
 import keyDownFn from "./js/key-down-fn.js";
 import MouseFn from './js/mouse-fn.js';
@@ -8,7 +8,7 @@ import wordsDbFn from './js/words-db.js';
 import figureOutRegion from './js/figure-out-region.js';
 import Menu from './menu/menu.jsx';
 import {MyContext} from 'pages/learning-page/learning-page.jsx';
-import { fixTime } from 'assets/js/pure-fn.js';
+import { fixTime, secToStr } from 'assets/js/pure-fn.js';
 import DictDialog from 'components/dict-dialog/dict-dialog.jsx';
 import {dictationPath} from 'components/navigation/js/navigation.js';
 import {
@@ -240,7 +240,6 @@ export default class Tool extends MyClass {
 			aWords, aNames,
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
-		const {secToStr} = this;
 		const spanArr = text => text.split(/\s+/).map((curWord, order)=>{
 			const getDom = cName => <span key={order} className={cName} >{curWord}</span>;
 			const {'0': trueWord, index} = curWord.match(/[\w-]+/) || []; // 英文部分
@@ -255,22 +254,23 @@ export default class Tool extends MyClass {
 				{sHead}<span className={cName}>{trueWord}</span>{sTail}
 			</span>
 		});
-		// const oThisLine = aLines[iCurLine] || {};
 		const arr = aLines.map((cur, idx) => {
-			return <li key={idx}
+			return <li key={idx} onClick={() => this.goLine(idx)}
 				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
-				onClick={() => this.goLine(idx)}
 			>
-				<i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
-					{idx + 1}
-				</i>
+				<i className="idx">{idx + 1}</i>
 				<span className="time">
-					<em>{secToStr(cur.start)}</em>&nbsp;-&nbsp;<em>{secToStr(cur.end)}</em>
+					<em>{secToStr(cur.start)}</em>
+					<i>-</i>
+					<em>{secToStr(cur.end)}</em>
 				</span>
 				<cpnt.oneSentence>{spanArr(cur.text)}</cpnt.oneSentence>
 			</li>;
 		});
-		const HTML = <cpnt.SentenceWrap ref={this.oSententList}>
+		const HTML = <cpnt.SentenceWrap
+			ref={this.oSententList}
+			style={{'--width': `${String(aLines.length || 0).length}em`}}
+		>
 			{arr}
 		</cpnt.SentenceWrap>
 		return HTML;

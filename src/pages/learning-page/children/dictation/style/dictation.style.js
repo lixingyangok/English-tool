@@ -357,14 +357,17 @@ export const SentenceWrap = styled.ol`
 	.idx{
 		flex: none;
 		font-style: normal;
+		font-weight: normal;
 		text-align: center;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		min-width: 2em;
+		width: var(--width);
 	}
 	.time{
 		flex: none;
+		width: 216px;
 		border: solid #aaa;
 		border-width: 0 1px;
 		margin: 0 0.6em 0 0;
@@ -372,8 +375,12 @@ export const SentenceWrap = styled.ol`
 		justify-content: center;
 		align-items: center;
 		padding: 0 10px;
+		i{
+			margin: 0 2px;
+		}
 		em{
 			font-style: normal;
+			font-weight: normal;
 		}
 	}
 `;
@@ -394,6 +401,7 @@ export const oneSentence = styled.p`
 	}
 `;
 
+// ▼历史记录
 export const HistoryBar = styled.div`
 	padding: 0;
 	margin: 0;

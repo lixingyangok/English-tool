@@ -8,7 +8,6 @@ import {trainingDB} from 'assets/js/common.js';
 import {getQiniuToken} from 'assets/js/learning-api.js';
 
 const {media: mediaTB} = trainingDB;
-
 const axios = window.axios;
 
 export default class {
@@ -166,21 +165,6 @@ export default class {
 		}
 		fixTime(oCurLine);
 		this.setCurLine(oCurLine);
-	}
-	// ▼时间轴的时间转秒
-	getSeconds(text) {
-		const [hour, minute, second, tail] = text.match(/\d+/g);
-		let number = (hour * 60 * 60) + (minute * 60) + `${second}.${tail}` * 1;
-		return number.toFixed(2) * 1;
-	};
-	// ▼秒-转为时间轴的时间
-	secToStr(fSecond) {
-		let iHour = Math.floor(fSecond / 3600) + ''; //时
-		let iMinut = Math.floor((fSecond - iHour * 3600) / 60) + ''; //分
-		let fSec = fSecond - (iHour * 3600 + iMinut * 60) + ''; //秒
-		let [sec01, sec02 = '000'] = fSec.split('.');
-		const sTime = `${iHour.padStart(2, 0)}:${iMinut.padStart(2, 0)}:${sec01.padStart(2, 0)},${sec02.slice(0, 3).padEnd(3, 0)}`;
-		return sTime;
 	}
 	// ▼得到当前步骤
 	getCurStep(isJustCurStep = false) {
