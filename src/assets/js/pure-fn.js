@@ -45,7 +45,7 @@ export async function fileToBuffer(oFile, isWantFakeBuffer=false){
 }
 
 // ▼浮点秒，转为时间轴的时间
-function secToStr(fSecond){
+export function secToStr(fSecond){
 	const iHour = Math.floor(fSecond / 3600) + ''; //时
 	const iMinut = Math.floor((fSecond - iHour * 3600) / 60) + ''; //分
 	const fSec = fSecond - (iHour*3600 + iMinut*60) + ''; //秒
@@ -73,7 +73,7 @@ export function fixTime(oTarget){
 // ▼【文件】转字符
 export function fileToStrings(oFile) {
 	let resolveFn = xx => xx;
-	const oPromise = new Promise(resolve => resolveFn = resolve);
+	const oPromise = new Promise(fn => resolveFn = fn);
 	Object.assign(new FileReader(), {
 		onload: event => resolveFn(event.target.result), // event.target.result就是文件文本内容,
 	}).readAsText(oFile);
@@ -103,6 +103,7 @@ export function getFaleBuffer(buffer){
 	};
 }
 
+// ▼没人用？
 export async function getChannelDataFromBlob(oBlob){
 	const arrayBuffer = await oBlob.arrayBuffer();
 	const aInt8Array = new Int8Array(arrayBuffer);
