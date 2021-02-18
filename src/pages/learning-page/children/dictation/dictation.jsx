@@ -234,6 +234,47 @@ export default class Tool extends MyClass {
 			<cpnt.matchUl>{aLi}</cpnt.matchUl>
 		</Modal>;
 	}
+	getAllSentence(){
+		const {
+			aSteps, iCurStep, 
+			aWords, aNames,
+		} = this.state;
+		const {aLines, iCurLine} = aSteps[iCurStep];
+		const {secToStr} = this;
+		const spanArr = text => text.split(/\s+/).map((curWord, order)=>{
+			const getDom = cName => <span key={order} className={cName} >{curWord}</span>;
+			const {'0': trueWord, index} = curWord.match(/[\w-]+/) || []; // 英文部分
+			if (!trueWord) return getDom();
+			let cName = hasIn(aWords, trueWord) ? 'red' : '';
+			if (!cName) cName = hasIn(aNames, trueWord) ? 'blue' : '';
+			if (!cName) return getDom();
+			if (trueWord===curWord) return getDom(cName);
+			const sHead = curWord.slice(0, index);
+			const sTail = curWord.slice(index + trueWord.length);
+			return <span key={order}>
+				{sHead}<span className={cName}>{trueWord}</span>{sTail}
+			</span>
+		});
+		// const oThisLine = aLines[iCurLine] || {};
+		const arr = aLines.map((cur, idx) => {
+			return <li key={idx}
+				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
+				onClick={() => this.goLine(idx)}
+			>
+				<i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
+					{idx + 1}
+				</i>
+				<span className="time">
+					<em>{secToStr(cur.start)}</em>&nbsp;-&nbsp;<em>{secToStr(cur.end)}</em>
+				</span>
+				<cpnt.oneSentence>{spanArr(cur.text)}</cpnt.oneSentence>
+			</li>;
+		});
+		const HTML = <cpnt.SentenceWrap ref={this.oSententList}>
+			{arr}
+		</cpnt.SentenceWrap>
+		return HTML;
+	}
 	render() {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
@@ -294,23 +335,6 @@ export default class Tool extends MyClass {
 			</cpnt.TextareaWrap>
 			{this.getWordsList(this.state)}
 		</div>
-		// ▼句子列表
-		const {secToStr} = this;
-		const SentenceWrap = <cpnt.SentenceWrap ref={this.oSententList}>
-			{aLines.map((cur, idx) => {
-				return <li className={`one-line ${idx === iCurLine ? "cur" : ""}`}
-					key={idx} onClick={() => this.goLine(idx)}
-				>
-					<i className="idx" style={{width: `${String(aLines.length || 0).length}em`}} >
-						{idx + 1}
-					</i>
-					<span className="time">
-						<em>{secToStr(cur.start)}</em>&nbsp;-&nbsp;<em>{secToStr(cur.end)}</em>
-					</span>
-					<p className="the-text" >{cur.text}</p>
-				</li>;
-			})}
-		</cpnt.SentenceWrap>
 		// ===============================================
 		const resultHTML = <cpnt.Container>
 			<Spin spinning={loading} size="large"/>
@@ -318,7 +342,7 @@ export default class Tool extends MyClass {
 				{WaveLeft}
 				{WaveRight}
 			</cpnt.MediaAndWave>
-			{SentenceWrap}
+			{this.getAllSentence()}
 			{this.getDialog(this.state)}
 			{this.getMatchDialog(this.state)}
 			<DictDialog word={sSearching} />
@@ -372,4 +396,10 @@ export default class Tool extends MyClass {
 		this.setState = (state, callback) => null;
 		document.onkeydown = null; // xx=>xx;
 	}
+}
+
+function hasIn(arr, str){
+	return arr.find(cur => {
+		return cur.toLowerCase().split(/\s+/).includes(str.toLowerCase());
+	})
 }

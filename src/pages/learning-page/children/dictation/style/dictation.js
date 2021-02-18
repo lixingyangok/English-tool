@@ -241,7 +241,7 @@ export const RegionWrap = styled.section`
 `;
 
 export const TextareaWrap = styled.div`
-	height: 90px;
+	/* height: 90px; */
 	margin: 0;
 	flex: none;
 	textarea{
@@ -265,13 +265,12 @@ export const WordsBar = styled.div`
 	overflow: hidden;
 	overflow: hidden;
 	flex: none;
-	height: 30px;
-	line-height: 30px;
+	height: 28px;
+	line-height: 28px;
 	white-space: nowrap;
 	transition: 0.5s;
 	transition-delay: 0.5s;
 `;
-
 
 export const oneWord = styled.span`
 	margin-right: 15px;
@@ -281,10 +280,10 @@ export const oneWord = styled.span`
 	&[kind=words],
 	&[kind=names]{
 		cursor: pointer;
-		color: red;
+		color: blue;
 	}
 	&[kind=words]{
-		color: blue;
+		color: #d80000;
 	}
 	.idx{
 		display: inline-block;
@@ -342,9 +341,9 @@ export const SentenceWrap = styled.ol`
 	border: solid #aaa;
 	border-width: 1px 0;
 	.one-line{
-		border: solid #aaa;
-		border-width: 1px 0 0;
 		display: flex;
+		border: solid #ccc;
+		border-width:  0 0 1px;
 		font-size: 16px;
 		font-weight: 500;
 		cursor: pointer;
@@ -352,10 +351,7 @@ export const SentenceWrap = styled.ol`
 			background: #ceffe7;
 		}
 		&:hover{
-			background: #9de3c1;
-		}
-		&:last-child{
-			border-width: 1px 0;
+			background: #aef3d1;
 		}
 	}
 	.idx{
@@ -380,12 +376,21 @@ export const SentenceWrap = styled.ol`
 			font-style: normal;
 		}
 	}
-	.the-text{
-		min-height: 1.3em;
-		line-height: 1.3;
-		margin: 0 10px 0 0;
-		padding: 0.4em 0;
-		box-sizing: content-box;
+`;
+
+
+export const oneSentence = styled.p`
+	min-height: 1.3em;
+	line-height: 1.3;
+	margin: 0 10px 0 0;
+	padding: 0.4em 0;
+	box-sizing: content-box;
+	& > span + span{
+		margin: 0 0 0 4px;
+		/* background: pink; */
+	}
+	.blue{
+		color: blue;
 	}
 `;
 
