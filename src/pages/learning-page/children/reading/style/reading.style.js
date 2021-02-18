@@ -59,10 +59,11 @@ export const oneLine = styled.li`
 		white-space: pre-wrap;
 	}
 	.support{
-		color: transparent;
-		pointer-events: none;
+		/* opacity: 0; */
+		/* opacity还会触发事件，visibility 不会 */
+		visibility: hidden;
 	}
-	.bg, .up{
+	.bg, .cover{
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -75,13 +76,6 @@ export const oneLine = styled.li`
 			background: rgba(255, 255, 0, 0.45);
 			color: transparent;
 			transition: all 0.5s;
-		}
-	}
-	.playing{
-		::after{
-			width: 100%;
-			transition: all var(--long);
-			transition-timing-function: linear;
 		}
 	}
 `;

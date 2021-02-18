@@ -241,20 +241,54 @@ export const RegionWrap = styled.section`
 `;
 
 export const TextareaWrap = styled.div`
-	/* height: 90px; */
 	margin: 0;
 	flex: none;
-	textarea{
+	position: relative;
+	.textarea{
+		width: 100%;
+		max-width: 100%;
+		height: 90px;
+		min-height: 32px;
+		line-height: 1.5715;
 		display: block;
 		box-sizing: border-box;
-		width: 100%;
-		height: 100%;
 		padding: 5px 10px;
 		font-size: 22px;
 		resize: none;
-		color: #333;
-		font-weight: 500;
-		line-height: 1.4;
+		transition: all 0.3s;
+		background-color: #fff;
+		background-image: none;
+		border: 1px solid #d9d9d9;
+		border-radius: 2px;
+		/* vertical-align: bottom; */
+	}
+	.bg{
+		.red{
+			background: yellow;
+		}
+		.blue{
+			background: pink;
+		}
+	}
+	textarea{
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 2;
+		/* color: transparent !important; */
+		color: rgba(255,0,0, 0.2) !important;
+		background: transparent !important;
+		caret-color: red;
+		&::focus{
+			border-color: #40a9ff;
+			border-right-width: 1px !important;
+			outline: 0;
+			box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
+		}
+		&:hover{
+			border-color: #40a9ff;
+			border-right-width: 1px !important;
+		}
 	}
 `;
 

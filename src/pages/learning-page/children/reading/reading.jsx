@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-18 12:29:31
+ * @LastEditTime: 2021-02-18 19:01:18
  * @Description: 
  */
 
@@ -85,7 +85,7 @@ export default class Reading extends MyClass{
 				<div className={"text"} >
 					<p className={'support'}>{text}</p>
 					<p className={'bg'} text={textVal}></p>
-					<p className={'up'} >{text}</p>
+					<p className='cover' >{text}</p>
 				</div>
 			</cpnt.oneLine>
 		})

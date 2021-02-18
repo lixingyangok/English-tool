@@ -16,7 +16,6 @@ import {
 	Spin, Input, Popconfirm,
 } from 'antd';
 
-const { TextArea } = Input;
 const { confirm } = Modal;
 const oFirstLine = fixTime({start: 0.1, end: 5});
 const MyClass = window.mix(
@@ -281,6 +280,7 @@ export default class Tool extends MyClass {
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
 			sSearching,
 			mediaFile_,
+			aWords, aNames
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oThisLine = aLines[iCurLine] || {};
@@ -327,11 +327,23 @@ export default class Tool extends MyClass {
 				})}
 			</cpnt.HistoryBar>
 			<cpnt.TextareaWrap>
-				<TextArea id="myTextArea" ref={this.oTextArea}
+				<div className="textarea bg">
+					{((oThisLine.text + ' ').match(/\S+\s+/g) || []).map((cur, idx)=>{
+						const {'0': tail, index} = cur.match(/\s+/);
+						const head = cur.slice(0, index);
+						let cName = hasIn(aWords, head) ? 'red' : '';
+						if (!cName) cName = hasIn(aNames, head) ? 'blue' : '';
+						return <span key={idx}>
+							<span className={cName}>{head}</span>{tail}
+						</span>
+					})}
+				</div>
+				<textarea className="textarea" id="myTextArea"
+					ref={this.oTextArea}
 					value={oThisLine.text}
 					onChange={ev => this.valChanged(ev)}
 					onKeyDown={ev => this.enterKeyDown(ev)}
-				/>
+				></textarea>
 			</cpnt.TextareaWrap>
 			{this.getWordsList(this.state)}
 		</div>
