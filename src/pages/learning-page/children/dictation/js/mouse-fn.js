@@ -117,28 +117,41 @@ export default class {
 	}
 	setSpanArr(){
 		const aWordDom = this.oTextBg.current.querySelectorAll('.word');
-		if (!aWordDom[0]) {
-			return this.aWordDom = [];
-		}
+		if (!aWordDom[0]) return this.aWordDom = [];
 		this.aWordDom = [...aWordDom].map((dom, idx)=>{
 			const {top, left} = dom.getBoundingClientRect();
 			const {offsetWidth: width, offsetHeight: height, innerText} = dom;
 			return { dom, top, left, width, height, innerText, idx };
 		});
-		console.log(aWordDom[0]);
+		// console.log(aWordDom[0]);
 	}
 	mouseMoveFn(ev){
+		clearTimeout(this.wordTimer);
+		const {iBright, iHoverWord}= this.state;
 		const {aWordDom} = this;
-		if (!aWordDom.length) return this.setState({iHoverWord: -1});
+		if (!aWordDom.length){
+			if (iHoverWord !== -1) this.setState({iHoverWord: -1});
+			return 
+		}
 		const {x: evX, y: evY} = ev;
 		const oTarget = aWordDom.find(cur=>{
-			const { top, left, width, height, idx } = cur;
+			const { top, left, width, height } = cur;
 			return (
 				(evX > left && evX < left+width) &&
 				(evY > top && evY < top+height)
 			);
 		});
-		this.setState({iHoverWord: oTarget ? oTarget.idx : -1});
+		if (!oTarget) {
+			// this.wordTimer = setTimeout(()=>{
+			// 	this.setState({iHoverWord: oTarget ? oTarget.idx : -1});
+			// }, 400);
+			if (iBright !== -1) this.setState({iBright: -1});
+			return;
+		}
+		this.setState({iBright: oTarget.idx}); //, iHoverWord: -1
+		this.wordTimer = setTimeout(()=>{
+			this.setState({iHoverWord: oTarget ? oTarget.idx : -1});
+		}, 300);
 		// console.log(oTarget.innerText);
 		// console.log(ev.x, ev.y);
 	}

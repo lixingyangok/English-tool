@@ -102,7 +102,7 @@ export default class {
 	// ▼绘制（//修改波形高度的时候不需要参数
 	toDraw(aPeaks_) {
 		this.cleanCanvas();
-		const { iHeight } = this.state; //波形高
+		const { iHeight, drawing } = this.state; //波形高
 		const aPeaks = aPeaks_ || this.state.aPeaks;
 		const oCanvas = this.oCanvas.current;
 		const Context = oCanvas.getContext('2d');
@@ -118,7 +118,7 @@ export default class {
 		}
 		Context.fillStyle = '#0f0';
 		Context.fillRect(0, ~~halfHeight, oCanvas.width, 1);
-		this.setState({ drawing: false });
+		if (drawing) this.setState({ drawing: false });
 		return oCanvas;
 	}
 	// ▼播放
@@ -215,19 +215,30 @@ export default class {
 		const end = ~~((scrollLeft + offsetWidth) / fPerSecPx + 1);
 		return [start > 0 ? start : 0, end];
 	}
-	// ▼动画滚动事件
+	// ▼动画滚动事件，波形横向滚动动画
+	// 会触发 onScroll 事件，所以一直在 render 
 	goThere(oDom, sDirection, iNewVal){
+		console.log("开始滚动");
 		clearInterval(this.state.scrollTimer);
 		const sType = `scroll${sDirection}`;
 		const iOldVal = oDom[sType];
-		if (iOldVal === iNewVal) return;
-		const [iTakeTime, iTimes] = [400, 30]; //走完全程耗时, x毫秒走一步
+		if (~~iOldVal === ~~iNewVal) return;
+		const [iTakeTime, iTimes] = [400, 35]; //走完全程耗时, x毫秒走一步
 		const iOneStep = ~~((iNewVal - iOldVal) / (iTakeTime / iTimes));
 		const scrollTimer = setInterval(()=>{
 			let iAimTo = oDom[sType] + iOneStep;
 			if (iNewVal > iOldVal ? iAimTo >= iNewVal : iAimTo <= iNewVal){
 				iAimTo = iNewVal;
 				clearInterval(scrollTimer);
+				// {
+				// 	// ▼后补
+				// 	let {buffer, iPerSecPx} = this.state;
+				// 	let {offsetWidth, scrollLeft} = this.oWaveWrap.current;
+				// 	const {aPeaks, fPerSecPx} = this.getPeaks(
+				// 		buffer, iPerSecPx, scrollLeft, offsetWidth,
+				// 	);
+				// 	this.setState({aPeaks, fPerSecPx});
+				// }
 			}
 			oDom[sType] = iAimTo;
 		}, iTimes);

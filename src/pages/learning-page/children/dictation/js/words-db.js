@@ -76,7 +76,7 @@ export default class {
 		const {oStory, aWords, aNames} = this.state;
 		const sWord = sSearching || window.getSelection().toString().trim();
 		const canSave = this.checkWord(sWord, !sSearching);
-		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 2;
+		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 3; // 有2个空格得保存，如：Dulcinea del Toboso
 		if (!canSave || tooMuchSpace) return;
 		// ▲通过考验，▼保存
 		const isCapitalize = /[A-Z]/.test(sWord[0]);

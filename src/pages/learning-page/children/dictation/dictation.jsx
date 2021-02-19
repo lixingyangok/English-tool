@@ -43,6 +43,7 @@ export default class Tool extends MyClass {
 	oTextArea = React.createRef();
 	oTextBg = React.createRef();
 	oSententList = React.createRef();
+	wordTimer = null;
 	state = {
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
@@ -78,6 +79,7 @@ export default class Tool extends MyClass {
 		sSearching: '',  // 正在搜索的单词
 		mediaFile_: {}, // 媒体文件
 		iHoverWord: -1,
+		iBright: -1,
 	};
 	constructor(props) {
 		super(props);
@@ -239,8 +241,7 @@ export default class Tool extends MyClass {
 	}
 	getAllSentence(){
 		const {
-			aSteps, iCurStep, 
-			aWords, aNames,
+			aSteps, iCurStep, aWords, aNames,
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const spanArr = text => text.split(/\s+/).map((curWord, order)=>{
@@ -279,8 +280,9 @@ export default class Tool extends MyClass {
 		return HTML;
 	}
 	getTextArea(oThisLine){
-		const {aWords, aNames, iHoverWord} = this.state;
+		const {aWords, aNames, iHoverWord, iBright} = this.state;
 		const aText = (oThisLine.text || '').match(/\S+\s{0,}/g) || [];
+		// if (aText.length===1) debugger;
 		// const sHTML = aText.reduce((result, cur)=>{
 		// 	return result += `<span>${cur} </span>`
 		// }, '');
@@ -295,30 +297,28 @@ export default class Tool extends MyClass {
 		// />
 		// return <cpnt.TextareaWrap>{oArtice}</cpnt.TextareaWrap>;
 		const handleVisibleChange = (iHoverWord) => {
-			this.setState({iHoverWord});
+			clearTimeout(this.wordTimer);
+			this.wordTimer = setTimeout(()=>{
+				this.setState({iHoverWord});
+			}, 0);
 		};
 		return <cpnt.TextareaWrap>
 			<div className="textarea bg" ref={this.oTextBg}  >
 				{aText.map((cur, idx)=>{
-					const {'0': head} = cur.match(/[\w-']+/);
-					const tail = cur.slice(head.length);
-					let cName = hasIn(aWords, head) ? 'red' : '';
-					if (!cName) cName = hasIn(aNames, head) ? 'blue' : '';
-					if (iHoverWord === idx) cName += ' hover';
+					const {'0': body='', index=-1} = cur.match(/[\w-']+/) || [];
+					const tail = index===-1 ? '' : cur.slice(index + body.length) || '';
+					const head = index===-1 ? cur : cur.slice(0, index) || '';
+					let cName = hasIn(aWords, body) ? 'red' : '';
+					if (!cName) cName = hasIn(aNames, body) ? 'blue' : '';
+					if (iBright === idx) cName += ' hover';
 					cName += ' word';
 					return <span key={idx}>
 						<Popover trigger="hover" placement="topLeft"
 							visible={iHoverWord === idx}
 							onVisibleChange={newVal=>handleVisibleChange(newVal ? idx : -1)}
-							content={
-								<div>
-									<Button>按钮1</Button>
-									<Button>按钮2</Button>
-								</div>
-							}
-						>
-						</Popover>
-						<span className={cName}>{head}</span>{tail}
+							content={<Button>按钮1</Button>}
+						></Popover>
+						{head}<span className={cName}>{body}</span>{tail}
 					</span>
 				})}
 			</div>
@@ -331,6 +331,7 @@ export default class Tool extends MyClass {
 		</cpnt.TextareaWrap>;
 	}
 	render() {
+		console.log("开始render");
 		const {
 			aSteps, iCurStep, iCanvasHeight,
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
@@ -401,9 +402,9 @@ export default class Tool extends MyClass {
 	// ▲render  // ▼返回dom的方法，按从上到下的顺序排列
 	// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	// // ▼生命周期
-	// static getDerivedStateFromProps(newProps, oldState){
-	// 	console.log("newProps\n", newProps);
-	// 	return null;
+	// shouldComponentUpdate(){
+	//     console.log( 'B-shouldComponentUpdate（更新调用' );
+	//     return true;
 	// }
 	static getDerivedStateFromProps(nextProps, prevState){ // nextProps, prevState
 		// console.log('%c02-A-getDerivedStateFromProps（双重调用【开始更新】', 'background:yellow');
@@ -422,7 +423,7 @@ export default class Tool extends MyClass {
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oThisLine = aLines[iCurLine] || {};
 		if (this.sOldText !== oThisLine.text ) {
-			console.log('文字变了');
+			// console.log('文字变了');
 			this.setSpanArr();
 		}
 		this.sOldText = oThisLine.text;
@@ -459,7 +460,8 @@ export default class Tool extends MyClass {
 }
 
 function hasIn(arr, str){
+	// 如人名是 li da 且被收藏，再输入 li 会被点亮，要注意
 	return arr.find(cur => {
 		return cur.toLowerCase().split(/\s+/).includes(str.toLowerCase());
-	})
+	});
 }
