@@ -264,6 +264,9 @@ export const TextareaWrap = styled.div`
 	}
 	.bg{
 		white-space: break-spaces;
+		.hover{
+			background: rgba(255, 255, 0, 0.5);
+		}
 		.red{
 			color: red;
 		}
@@ -279,15 +282,14 @@ export const TextareaWrap = styled.div`
 		color: rgba(0, 0, 0, 0.1) !important;
 		background: transparent !important;
 		caret-color: red;
-		&::focus{
-			border-color: #40a9ff;
-			border-right-width: 1px !important;
-			outline: 0;
-			box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
-		}
+		&:focus,
 		&:hover{
 			border-color: #40a9ff;
 			border-right-width: 1px !important;
+		}
+		&:focus{
+			outline: 0;
+			box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
 		}
 	}
 `;

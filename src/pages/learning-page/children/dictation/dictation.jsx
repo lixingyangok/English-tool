@@ -13,7 +13,7 @@ import DictDialog from 'components/dict-dialog/dict-dialog.jsx';
 import {dictationPath} from 'components/navigation/js/navigation.js';
 import {
 	Modal, Button, message, Space, 
-	Spin, Input, Popconfirm,
+	Spin, Popconfirm, Popover,
 } from 'antd';
 
 const { confirm } = Modal;
@@ -34,11 +34,14 @@ export default class Tool extends MyClass {
 	message = message;
 	oldContext = undefined;
 	oldMediaId = undefined;
+	sOldText = '';
+	aWordDom = [];
 	oAudio = React.createRef();
 	oCanvas = React.createRef();
 	oPointer = React.createRef();
 	oWaveWrap = React.createRef();
 	oTextArea = React.createRef();
+	oTextBg = React.createRef();
 	oSententList = React.createRef();
 	state = {
 		buffer: {}, //音频数据
@@ -74,6 +77,7 @@ export default class Tool extends MyClass {
 		mediaId: null, // 媒体id
 		sSearching: '',  // 正在搜索的单词
 		mediaFile_: {}, // 媒体文件
+		iHoverWord: -1,
 	};
 	constructor(props) {
 		super(props);
@@ -275,7 +279,7 @@ export default class Tool extends MyClass {
 		return HTML;
 	}
 	getTextArea(oThisLine){
-		const {aWords, aNames} = this.state;
+		const {aWords, aNames, iHoverWord} = this.state;
 		const aText = (oThisLine.text || '').match(/\S+\s{0,}/g) || [];
 		// const sHTML = aText.reduce((result, cur)=>{
 		// 	return result += `<span>${cur} </span>`
@@ -289,17 +293,31 @@ export default class Tool extends MyClass {
 		// 	onChange={ev => this.valChanged(ev)}
 		// 	onKeyDown={ev => this.enterKeyDown(ev)}
 		// />
-		// return <cpnt.TextareaWrap>
-		// 	{oArtice}
-		// </cpnt.TextareaWrap>;
+		// return <cpnt.TextareaWrap>{oArtice}</cpnt.TextareaWrap>;
+		const handleVisibleChange = (iHoverWord) => {
+			this.setState({iHoverWord});
+		};
 		return <cpnt.TextareaWrap>
-			<div className="textarea bg">
+			<div className="textarea bg" ref={this.oTextBg}  >
 				{aText.map((cur, idx)=>{
-					const {'0': head} = cur.match(/\S+/);
+					const {'0': head} = cur.match(/[\w-']+/);
 					const tail = cur.slice(head.length);
 					let cName = hasIn(aWords, head) ? 'red' : '';
 					if (!cName) cName = hasIn(aNames, head) ? 'blue' : '';
+					if (iHoverWord === idx) cName += ' hover';
+					cName += ' word';
 					return <span key={idx}>
+						<Popover trigger="hover" placement="topLeft"
+							visible={iHoverWord === idx}
+							onVisibleChange={newVal=>handleVisibleChange(newVal ? idx : -1)}
+							content={
+								<div>
+									<Button>按钮1</Button>
+									<Button>按钮2</Button>
+								</div>
+							}
+						>
+						</Popover>
 						<span className={cName}>{head}</span>{tail}
 					</span>
 				})}
@@ -398,13 +416,22 @@ export default class Tool extends MyClass {
 		return newObj;
 	}
 	// ▼以下是生命周期
-	// componentDidUpdate(){
-	// 	document.onkeydown = this.keyDowned.bind(this);
-	// }
+	componentDidUpdate(){
+		// document.onkeydown = this.keyDowned.bind(this);
+		const { aSteps, iCurStep } = this.state;
+		const {aLines, iCurLine} = aSteps[iCurStep];
+		const oThisLine = aLines[iCurLine] || {};
+		if (this.sOldText !== oThisLine.text ) {
+			console.log('文字变了');
+			this.setSpanArr();
+		}
+		this.sOldText = oThisLine.text;
+	}
 	async componentDidMount() {
 		const oWaveWrap = this.oWaveWrap.current;
 		const oAudio = this.oAudio.current;
 		const keyDownFn = this.keyDowned.bind(this);
+		const mouseMoveFn = this.mouseMoveFn.bind(this);
 		oWaveWrap.addEventListener( //在【波形图】上滚轮
 			"mousewheel", ev => this.wheelOnWave(ev), {passive: false},
 		);
@@ -413,11 +440,13 @@ export default class Tool extends MyClass {
 		);
 		this.cleanCanvas();
 		document.addEventListener('keydown', keyDownFn);
+		document.addEventListener('mousemove', mouseMoveFn);
 		this.props.history.listen(oRoute => { // bj监听路由变化
 			const {pathname} = oRoute;
 			const hasLeft = !pathname.includes(`/${dictationPath}/`);
 			const type = hasLeft ? 'removeEventListener' : 'addEventListener';
 			document[type]('keydown', keyDownFn);
+			document[type]('mousemove', mouseMoveFn);
 		});
 	}
 	// ▼销毁前
