@@ -10,6 +10,7 @@
     "axios": "^0.20.0",
     "localforage": "^1.7.3",
     "react": "^16.13.1",
+    "react-contenteditable": "^3.3.5",
     "react-dom": "^16.13.1",
     "react-router-cache-route": "^1.11.0",
     "react-router-dom": "^5.2.0",

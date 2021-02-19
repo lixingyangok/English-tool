@@ -274,13 +274,50 @@ export default class Tool extends MyClass {
 		</cpnt.SentenceWrap>
 		return HTML;
 	}
+	getTextArea(oThisLine){
+		const {aWords, aNames} = this.state;
+		const aText = (oThisLine.text || '').match(/\S+\s{0,}/g) || [];
+		// const sHTML = aText.reduce((result, cur)=>{
+		// 	return result += `<span>${cur} </span>`
+		// }, '');
+		// const oArtice = <ContentEditable 
+		// 	id="myTextArea" className="textarea"
+		// 	tagName='article' disabled={false}
+		// 	innerRef={this.oTextArea}
+		// 	// html={oThisLine.text} // innerHTML of the editable div
+		// 	html={sHTML} // innerHTML of the editable div
+		// 	onChange={ev => this.valChanged(ev)}
+		// 	onKeyDown={ev => this.enterKeyDown(ev)}
+		// />
+		// return <cpnt.TextareaWrap>
+		// 	{oArtice}
+		// </cpnt.TextareaWrap>;
+		return <cpnt.TextareaWrap>
+			<div className="textarea bg">
+				{aText.map((cur, idx)=>{
+					const {'0': head} = cur.match(/\S+/);
+					const tail = cur.slice(head.length);
+					let cName = hasIn(aWords, head) ? 'red' : '';
+					if (!cName) cName = hasIn(aNames, head) ? 'blue' : '';
+					return <span key={idx}>
+						<span className={cName}>{head}</span>{tail}
+					</span>
+				})}
+			</div>
+			<textarea className="textarea" id="myTextArea"
+				ref={this.oTextArea}
+				value={oThisLine.text}
+				onChange={ev => this.valChanged(ev)}
+				onKeyDown={ev => this.enterKeyDown(ev)}
+			></textarea>
+		</cpnt.TextareaWrap>;
+	}
 	render() {
 		const {
 			aSteps, iCurStep, iCanvasHeight,
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
 			sSearching,
 			mediaFile_,
-			aWords, aNames
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oThisLine = aLines[iCurLine] || {};
@@ -326,25 +363,7 @@ export default class Tool extends MyClass {
 					return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
 				})}
 			</cpnt.HistoryBar>
-			<cpnt.TextareaWrap>
-				<div className="textarea bg">
-					{((oThisLine.text + ' ').match(/\S+\s+/g) || []).map((cur, idx)=>{
-						const {'0': tail, index} = cur.match(/\s+/);
-						const head = cur.slice(0, index);
-						let cName = hasIn(aWords, head) ? 'red' : '';
-						if (!cName) cName = hasIn(aNames, head) ? 'blue' : '';
-						return <span key={idx}>
-							<span className={cName}>{head}</span>{tail}
-						</span>
-					})}
-				</div>
-				<textarea className="textarea" id="myTextArea"
-					ref={this.oTextArea}
-					value={oThisLine.text}
-					onChange={ev => this.valChanged(ev)}
-					onKeyDown={ev => this.enterKeyDown(ev)}
-				></textarea>
-			</cpnt.TextareaWrap>
+			{this.getTextArea(oThisLine)}
 			{this.getWordsList(this.state)}
 		</div>
 		// ===============================================
@@ -372,11 +391,11 @@ export default class Tool extends MyClass {
 		// console.log('%c02-A-getDerivedStateFromProps（双重调用【开始更新】', 'background:yellow');
 		const {params={}} = nextProps.match;
 		const mediaId = params.mediaId * 1;
+		let newObj = null;
 		if (mediaId && mediaId !== prevState.mediaId) {
-			// console.log('新的媒体id--------', mediaId);
-			return {mediaId}; 
+			newObj = {mediaId}; 
 		}
-		return null;
+		return newObj;
 	}
 	// ▼以下是生命周期
 	// componentDidUpdate(){

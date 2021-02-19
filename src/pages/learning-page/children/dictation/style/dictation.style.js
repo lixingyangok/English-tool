@@ -263,11 +263,12 @@ export const TextareaWrap = styled.div`
 		/* vertical-align: bottom; */
 	}
 	.bg{
+		white-space: break-spaces;
 		.red{
-			background: yellow;
+			color: red;
 		}
 		.blue{
-			background: pink;
+			color: blue;
 		}
 	}
 	textarea{
@@ -275,8 +276,7 @@ export const TextareaWrap = styled.div`
 		top: 0;
 		left: 0;
 		z-index: 2;
-		/* color: transparent !important; */
-		color: rgba(255,0,0, 0.2) !important;
+		color: rgba(0, 0, 0, 0.1) !important;
 		background: transparent !important;
 		caret-color: red;
 		&::focus{
