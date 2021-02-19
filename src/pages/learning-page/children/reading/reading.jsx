@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-18 19:01:18
+ * @LastEditTime: 2021-02-19 20:57:32
  * @Description: 
  */
 
@@ -36,7 +36,7 @@ export default class Reading extends MyClass{
 		sSearching: '',
 		// ▼长按阅读
 		iStartTs: 0, //开始时间
-		isStop: true,
+		isKeyPressing: false, // true 表示正按着键
 	};
 	constructor(props){
 		super(props);

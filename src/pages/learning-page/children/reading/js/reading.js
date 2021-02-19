@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-18 12:34:50
+ * @LastEditTime: 2021-02-19 20:59:52
  * @Description: 
  */
 
@@ -42,13 +42,14 @@ export class Fn01 {
 		this.setState({aSubtitle});
 	}
 	keyDownFn(ev){
-		// console.log(ev);
 		const {key} = ev;
+		console.log(`按下-${key}-`);
 		const oFn = ({
 			'w': () => this.setCurLine(-1),
 			's': () => this.setCurLine(1),
 			'e': () => this.toPlay(),
 			'd': () => this.toRead(),
+			' ': () => this.toRead(),
 			'F4': () => this.toSearch(),
 		});
 		if (!oFn[key]) return;
@@ -57,20 +58,20 @@ export class Fn01 {
 	}
 	keyUpFn(ev){
 		const {key} = ev;
-		if (key!=='d') return;
-		console.log('松手');
+		if (!['d', ' '].includes(key)) return;
+		console.log('松手了');
 		clearInterval(this.state.timer);
-		this.setState({isStop: true});
+		this.setState({isKeyPressing: false});
 	}
 	toRead(iPlaying){
 		const {state} = this;
-		let {aSubtitle, curLine, isStop, iStartTs, fPlayRate} = state;
+		let {aSubtitle, curLine, iStartTs, fPlayRate, isKeyPressing} = state;
 		iPlaying = typeof iPlaying === 'number' ? iPlaying : curLine;
 		const {long, iTimes=0} = aSubtitle[iPlaying];
 		const iNowTs = new Date() * 1;
 		if (iPlaying === state.iPlaying){
-			const stepLong = isStop ? 0 : iNowTs - iStartTs;
-			if (fPlayRate===100 && isStop){
+			const stepLong = !isKeyPressing ? 0 : iNowTs - iStartTs;
+			if (fPlayRate >= 100 && !isKeyPressing){
 				this.setState({fPlayRate: 0});
 			}else{
 				fPlayRate += stepLong / 1000 / long * 100; 
@@ -83,7 +84,7 @@ export class Fn01 {
 		}else {
 			this.setState({fPlayRate: 0, iPlaying});
 		}
-		this.setState({isStop: false, iStartTs: iNowTs});
+		this.setState({isKeyPressing: true, iStartTs: iNowTs});
 	}
 	// ▼播放
 	toPlay(iPlaying){
@@ -107,7 +108,7 @@ export class Fn01 {
 			clearInterval(state.timer);
 			oCurrent.pause();
 		}, 1000 / iTimes);
-		this.setState({timer, iPlaying, fPlayRate: 0, isStop: false});
+		this.setState({timer, iPlaying, fPlayRate: 0});
 	}
 
 	// ▼公共方法▼要提取
