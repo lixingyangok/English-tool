@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-19 20:59:52
+ * @LastEditTime: 2021-02-19 21:11:56
  * @Description: 
  */
 
@@ -49,6 +49,7 @@ export class Fn01 {
 			's': () => this.setCurLine(1),
 			'e': () => this.toPlay(),
 			'd': () => this.toRead(),
+			'a': () => this.goBack(),
 			' ': () => this.toRead(),
 			'F4': () => this.toSearch(),
 		});
@@ -62,6 +63,10 @@ export class Fn01 {
 		console.log('松手了');
 		clearInterval(this.state.timer);
 		this.setState({isKeyPressing: false});
+	}
+	goBack(){
+		const fPlayRate =  Math.max(0, this.state.fPlayRate - 15);
+		this.setState({fPlayRate});
 	}
 	toRead(iPlaying){
 		const {state} = this;

@@ -32,7 +32,7 @@ export default class Reading extends MyClass{
 		curLine: 0, // 当前高亮行
 		iPlaying: null, // 当前播放行
 		timer: null, // 定时器
-		fPlayRate: 0, // 最大100
+		fPlayRate: 0, // 0-100
 		sSearching: '',
 		// ▼长按阅读
 		iStartTs: 0, //开始时间
