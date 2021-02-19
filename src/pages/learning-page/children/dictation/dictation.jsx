@@ -43,7 +43,6 @@ export default class Tool extends MyClass {
 	oTextArea = React.createRef();
 	oTextBg = React.createRef();
 	oSententList = React.createRef();
-	wordTimer = null;
 	state = {
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
@@ -78,7 +77,6 @@ export default class Tool extends MyClass {
 		mediaId: null, // 媒体id
 		sSearching: '',  // 正在搜索的单词
 		mediaFile_: {}, // 媒体文件
-		iHoverWord: -1,
 		iBright: -1,
 	};
 	constructor(props) {
@@ -280,7 +278,7 @@ export default class Tool extends MyClass {
 		return HTML;
 	}
 	getTextArea(oThisLine){
-		const {aWords, aNames, iHoverWord, iBright} = this.state;
+		const {aWords, aNames, iBright} = this.state;
 		const aText = (oThisLine.text || '').match(/\S+\s{0,}/g) || [];
 		// if (aText.length===1) debugger;
 		// const sHTML = aText.reduce((result, cur)=>{
@@ -296,32 +294,33 @@ export default class Tool extends MyClass {
 		// 	onKeyDown={ev => this.enterKeyDown(ev)}
 		// />
 		// return <cpnt.TextareaWrap>{oArtice}</cpnt.TextareaWrap>;
-		const handleVisibleChange = (iHoverWord) => {
-			clearTimeout(this.wordTimer);
-			this.wordTimer = setTimeout(()=>{
-				this.setState({iHoverWord});
-			}, 0);
+		const handleVisibleChange = (newVal) => {
+			this.setState({iBright: newVal ? newVal : -1});
 		};
-		return <cpnt.TextareaWrap>
-			<div className="textarea bg" ref={this.oTextBg}  >
-				{aText.map((cur, idx)=>{
-					const {'0': body='', index=-1} = cur.match(/[\w-']+/) || [];
-					const tail = index===-1 ? '' : cur.slice(index + body.length) || '';
-					const head = index===-1 ? cur : cur.slice(0, index) || '';
-					let cName = hasIn(aWords, body) ? 'red' : '';
-					if (!cName) cName = hasIn(aNames, body) ? 'blue' : '';
-					if (iBright === idx) cName += ' hover';
-					cName += ' word';
-					return <span key={idx}>
-						<Popover trigger="hover" placement="topLeft"
-							visible={iHoverWord === idx}
-							onVisibleChange={newVal=>handleVisibleChange(newVal ? idx : -1)}
-							content={<Button>按钮1</Button>}
-						></Popover>
-						{head}<span className={cName}>{body}</span>{tail}
-					</span>
-				})}
-			</div>
+		const aWordsList = aText.map((cur, idx)=>{
+			const {'0': body='', index=-1} = cur.match(/[\w-']+/) || [];
+			const tail = index===-1 ? '' : cur.slice(index + body.length) || '';
+			const head = index===-1 ? cur : cur.slice(0, index) || '';
+			let cName = hasIn(aWords, body) ? 'red' : '';
+			if (!cName) cName = hasIn(aNames, body) ? 'blue' : '';
+			if (iBright === idx) cName += ' hover';
+			cName += ' word';
+			return <span key={idx}>
+				{head}
+				<Popover trigger="hover" placement="topLeft"
+					visible={iBright === idx}
+					onVisibleChange={newVal=>handleVisibleChange(newVal)}
+					content={<Button>按钮1</Button>}
+				>
+					<span className={cName}>{body}</span>
+				</Popover>
+				{tail}
+			</span>
+		});
+		return <cpnt.TextareaWrap ref={this.oTextBg}>
+			{/* <div className="textarea bg"   >
+			</div> */}
+			{aWordsList}
 			<textarea className="textarea" id="myTextArea"
 				ref={this.oTextArea}
 				value={oThisLine.text}

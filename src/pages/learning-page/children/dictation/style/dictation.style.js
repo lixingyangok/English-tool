@@ -244,6 +244,7 @@ export const TextareaWrap = styled.div`
 	margin: 0;
 	flex: none;
 	position: relative;
+	&,
 	.textarea{
 		display: block;
 		box-sizing: border-box;
@@ -260,10 +261,14 @@ export const TextareaWrap = styled.div`
 		border-radius: 2px;
 		/* vertical-align: bottom; */
 	}
+	&,
 	.bg{
 		white-space: break-spaces;
 		.hover{
+			position: relative;
 			background: rgba(255, 255, 0, 0.5);
+			z-index: 2;
+			color: red;
 		}
 		.red{
 			color: red;
@@ -276,7 +281,6 @@ export const TextareaWrap = styled.div`
 		position: absolute;
 		top: 0;
 		left: 0;
-		z-index: 2;
 		color: rgba(0, 0, 0, 0.1) !important;
 		caret-color: red;
 		&:focus,

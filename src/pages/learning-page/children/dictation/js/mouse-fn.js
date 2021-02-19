@@ -126,13 +126,8 @@ export default class {
 		// console.log(aWordDom[0]);
 	}
 	mouseMoveFn(ev){
-		clearTimeout(this.wordTimer);
-		const {iBright, iHoverWord}= this.state;
 		const {aWordDom} = this;
-		if (!aWordDom.length){
-			if (iHoverWord !== -1) this.setState({iHoverWord: -1});
-			return 
-		}
+		if (!aWordDom.length) return 
 		const {x: evX, y: evY} = ev;
 		const oTarget = aWordDom.find(cur=>{
 			const { top, left, width, height } = cur;
@@ -141,19 +136,9 @@ export default class {
 				(evY > top && evY < top+height)
 			);
 		});
-		if (!oTarget) {
-			// this.wordTimer = setTimeout(()=>{
-			// 	this.setState({iHoverWord: oTarget ? oTarget.idx : -1});
-			// }, 400);
-			if (iBright !== -1) this.setState({iBright: -1});
-			return;
-		}
-		this.setState({iBright: oTarget.idx}); //, iHoverWord: -1
-		this.wordTimer = setTimeout(()=>{
-			this.setState({iHoverWord: oTarget ? oTarget.idx : -1});
-		}, 300);
-		// console.log(oTarget.innerText);
-		// console.log(ev.x, ev.y);
+		console.log('有目标：', !!oTarget);
+		if (!oTarget) return;
+		this.setState({iBright: oTarget.idx});
 	}
 }
 
