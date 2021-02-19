@@ -245,18 +245,16 @@ export const TextareaWrap = styled.div`
 	flex: none;
 	position: relative;
 	.textarea{
-		width: 100%;
-		max-width: 100%;
-		height: 90px;
-		min-height: 32px;
-		line-height: 1.5715;
 		display: block;
 		box-sizing: border-box;
+		width: 100%;
+		height: 90px;
+		line-height: 1.5;
 		padding: 5px 10px;
 		font-size: 22px;
 		resize: none;
 		transition: all 0.3s;
-		background-color: #fff;
+		background-color: transparent;
 		background-image: none;
 		border: 1px solid #d9d9d9;
 		border-radius: 2px;
@@ -280,7 +278,6 @@ export const TextareaWrap = styled.div`
 		left: 0;
 		z-index: 2;
 		color: rgba(0, 0, 0, 0.1) !important;
-		background: transparent !important;
 		caret-color: red;
 		&:focus,
 		&:hover{
@@ -428,6 +425,8 @@ export const oneSentence = styled.p`
 	margin: 0 10px 0 0;
 	padding: 0.4em 0;
 	box-sizing: content-box;
+	/* word-break: break-all; */
+	word-break: break-word;
 	& > span + span{
 		margin: 0 0 0 4px;
 		/* background: pink; */
