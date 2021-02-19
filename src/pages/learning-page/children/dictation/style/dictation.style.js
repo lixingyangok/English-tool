@@ -244,8 +244,8 @@ export const TextareaWrap = styled.div`
 	margin: 0;
 	flex: none;
 	position: relative;
-	&,
-	.textarea{
+	white-space: break-spaces;
+	&, textarea{
 		display: block;
 		box-sizing: border-box;
 		width: 100%;
@@ -254,21 +254,16 @@ export const TextareaWrap = styled.div`
 		padding: 5px 10px;
 		font-size: 22px;
 		resize: none;
-		transition: all 0.3s;
-		background-color: transparent;
-		background-image: none;
-		border: 1px solid #d9d9d9;
 		border-radius: 2px;
 		/* vertical-align: bottom; */
 	}
-	&,
-	.bg{
-		white-space: break-spaces;
-		.hover{
+	&{
+		.word{
 			position: relative;
-			background: rgba(255, 255, 0, 0.5);
+		}
+		.hover{
+			background: rgba(255, 255, 0, 0.3);
 			z-index: 2;
-			color: red;
 		}
 		.red{
 			color: red;
@@ -283,6 +278,10 @@ export const TextareaWrap = styled.div`
 		left: 0;
 		color: rgba(0, 0, 0, 0.1) !important;
 		caret-color: red;
+		background-color: transparent;
+		background-image: none;
+		border: 1px solid #d9d9d9;
+		transition: all 0.3s;
 		&:focus,
 		&:hover{
 			border-color: #40a9ff;

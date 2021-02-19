@@ -279,24 +279,11 @@ export default class Tool extends MyClass {
 	}
 	getTextArea(oThisLine){
 		const {aWords, aNames, iBright} = this.state;
-		const aText = (oThisLine.text || '').match(/\S+\s{0,}/g) || [];
-		// if (aText.length===1) debugger;
-		// const sHTML = aText.reduce((result, cur)=>{
-		// 	return result += `<span>${cur} </span>`
-		// }, '');
-		// const oArtice = <ContentEditable 
-		// 	id="myTextArea" className="textarea"
-		// 	tagName='article' disabled={false}
-		// 	innerRef={this.oTextArea}
-		// 	// html={oThisLine.text} // innerHTML of the editable div
-		// 	html={sHTML} // innerHTML of the editable div
-		// 	onChange={ev => this.valChanged(ev)}
-		// 	onKeyDown={ev => this.enterKeyDown(ev)}
-		// />
-		// return <cpnt.TextareaWrap>{oArtice}</cpnt.TextareaWrap>;
 		const handleVisibleChange = (newVal) => {
 			this.setState({iBright: newVal ? newVal : -1});
 		};
+		const {text=''} = oThisLine;
+		const aText = text.match(/\S+\s{0,}/g) || [];
 		const aWordsList = aText.map((cur, idx)=>{
 			const {'0': body='', index=-1} = cur.match(/[\w-']+/) || [];
 			const tail = index===-1 ? '' : cur.slice(index + body.length) || '';
@@ -318,12 +305,12 @@ export default class Tool extends MyClass {
 			</span>
 		});
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
-			{/* <div className="textarea bg"   >
-			</div> */}
 			{aWordsList}
-			<textarea className="textarea" id="myTextArea"
+			{/* TODO 下面的id要取缔 */}
+			<textarea className="textarea"
+				id="myTextArea"
 				ref={this.oTextArea}
-				value={oThisLine.text}
+				value={text}
 				onChange={ev => this.valChanged(ev)}
 				onKeyDown={ev => this.enterKeyDown(ev)}
 			></textarea>
