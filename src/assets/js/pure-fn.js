@@ -103,7 +103,7 @@ export function getFaleBuffer(buffer){
 	};
 }
 
-// ▼没人用？
+// ▼听写页加载时调用
 export async function getChannelDataFromBlob(oBlob){
 	const arrayBuffer = await oBlob.arrayBuffer();
 	const aInt8Array = new Int8Array(arrayBuffer);
