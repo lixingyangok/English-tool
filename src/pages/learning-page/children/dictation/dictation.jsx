@@ -36,6 +36,7 @@ export default class Tool extends MyClass {
 	oldMediaId = undefined;
 	sOldText = '';
 	aWordDom = [];
+	wordHoverTimer = null;
 	oAudio = React.createRef();
 	oCanvas = React.createRef();
 	oPointer = React.createRef();

@@ -118,27 +118,30 @@ export default class {
 	setSpanArr(){
 		const aWordDom = this.oTextBg.current.querySelectorAll('.word');
 		if (!aWordDom[0]) return this.aWordDom = [];
-		this.aWordDom = [...aWordDom].map((dom, idx)=>{
-			const {top, left} = dom.getBoundingClientRect();
-			const {offsetWidth: width, offsetHeight: height, innerText} = dom;
-			return { dom, top, left, width, height, innerText, idx };
-		});
+		this.aWordDom = [...aWordDom];
+		// .map((dom, idx)=>{
+		// 	const {top, left} = dom.getBoundingClientRect();
+		// 	const {offsetWidth: width, offsetHeight: height, innerText} = dom;
+		// 	return { dom, top, left, width, height, innerText, idx };
+		// });
 		// console.log(aWordDom[0]);
 	}
 	mouseMoveFn(ev){
+		clearTimeout(this.wordHoverTimer);
 		const {aWordDom} = this;
-		if (!aWordDom.length) return 
+		if (!aWordDom.length) return;
 		const {x: evX, y: evY} = ev;
-		const oTarget = aWordDom.find(cur=>{
-			const { top, left, width, height } = cur;
+		const iBright = aWordDom.findIndex(cur=>{
+			const { top, bottom, left, right } = cur.getBoundingClientRect();
 			return (
-				(evX > left && evX < left+width) &&
-				(evY > top && evY < top+height)
+				(evX > left && evX < right) && (evY > top && evY < bottom)
 			);
 		});
-		console.log('有目标：', !!oTarget);
-		if (!oTarget) return;
-		this.setState({iBright: oTarget.idx});
+		// console.log('有目标：', !!oTarget);
+		if (iBright < 0 || iBright === this.state.iBright) return;
+		this.wordHoverTimer = setTimeout(()=>{
+			this.setState({iBright});
+		}, 300);
 	}
 }
 

@@ -262,7 +262,7 @@ export const TextareaWrap = styled.div`
 			position: relative;
 		}
 		.hover{
-			background: rgba(255, 255, 0, 0.3);
+			background: rgba(255, 255, 0, 0.2);
 			z-index: 2;
 		}
 		.red{
@@ -378,7 +378,7 @@ export const SentenceWrap = styled.ol`
 	border-width: 1px 0;
 	.one-line{
 		display: flex;
-		border: solid #ccc;
+		border: solid #d1d1d1;
 		border-width:  0 0 1px;
 		font-size: 16px;
 		font-weight: 500;
