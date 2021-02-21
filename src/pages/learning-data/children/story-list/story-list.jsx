@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-17 20:15:29
+ * @LastEditTime: 2021-02-21 13:48:33
  * @Description: 
  */
 
@@ -34,8 +34,8 @@ export default class extends MyClass{
 		},
 		total: 0,
 	}
-	render(){
-		const {visible, aStory, loading, pageInfo, total} = this.state;
+	getStoryList(){
+		const {aStory} = this.state;
 		const storyInfo = aStory.map((oCurStory, idx) => {
 			const myLi = <cpnt.oneStory key={idx}>
 				<h1 className="story-name">{oCurStory.storyName}</h1>
@@ -58,6 +58,13 @@ export default class extends MyClass{
 			</cpnt.oneStory>
 			return myLi;
 		});
+		const HTML = <cpnt.StoryUl>
+			{storyInfo}
+		</cpnt.StoryUl>
+		return HTML;
+	}
+	getModal(){
+		const {visible} = this.state;
 		const dialog = <Modal title="资源信息" okText="保存" cancelText="关闭"
 			visible={visible}
 			onOk={()=>this.oForm.current.submit()}
@@ -81,6 +88,10 @@ export default class extends MyClass{
 				</Form.Item>
 			</Form>
 		</Modal>
+		return dialog;
+	}
+	render(){
+		const {aStory, loading, pageInfo, total} = this.state;
 		const resultHTML = <cpnt.Outter className='center-box'>
 			<Spin spinning={loading}>
 				<cpnt.BtnBar>
@@ -89,9 +100,7 @@ export default class extends MyClass{
 						新增
 					</Button>
 				</cpnt.BtnBar>
-				<cpnt.StoryUl>
-					{storyInfo}
-				</cpnt.StoryUl>
+				{this.getStoryList()}
 				<cpnt.Empty_ visible={aStory.length ? 0 : 1}
 					image={cpnt.Empty_.PRESENTED_IMAGE_SIMPLE}
 					description="暂无数据，请新增"
@@ -103,7 +112,7 @@ export default class extends MyClass{
 				/>
 					{/* showSizeChanger */}
 					{/* onShowSizeChange={(current, size)=>this.changeSize(current, size)} */}
-				{dialog}
+				{this.getModal()}
 			</Spin> 
 		</cpnt.Outter>
 		return resultHTML;
