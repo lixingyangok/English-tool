@@ -125,8 +125,10 @@ export default class Tool extends MyClass {
 			)
 			if (end > endSec) break;
 		}
-		const oPointer = <i ref={this.oPointer} className={"pointer " + (playing ? 'playing' : '')}/>;
-		return <cpnt.RegionWrap>{oPointer}{myArr}</cpnt.RegionWrap>
+		return <cpnt.RegionWrap>
+			<i ref={this.oPointer} className={"pointer " + (playing ? 'playing' : '')}/>;
+			{myArr}
+		</cpnt.RegionWrap>
 	}
 	// ▼故事信息等
 	getInfoBar(oState){ 

@@ -126,8 +126,9 @@ export default class {
 		clearInterval(this.state.playing); //把之前播放的关闭再说
 		const { fPerSecPx } = this.state;
 		const { start, long } = this.getCurLine();
-		const Audio = this.oAudio.current;
-		const { style } = this.oPointer.current;
+		const Audio = this.oAudio.current || document.createElement('audio');
+		if (!this.oAudio.current) console.error('没有音频对象');
+		const { style={} } = this.oPointer.current || {}; 
 		const fStartTime = start + (isFromHalf ? long * 0.4 : 0);
 		style.left = `${fStartTime * fPerSecPx}px`;
 		Audio.currentTime = fStartTime;
