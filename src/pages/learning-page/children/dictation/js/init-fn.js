@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 17:51:10
+ * @LastEditTime: 2021-02-21 10:35:16
  * @Description: 
  */
 
@@ -13,6 +13,7 @@ import {
 } from 'assets/js/pure-fn.js';
 import {getOneMedia, getSubtitle} from 'assets/js/learning-api.js';
 import {trainingDB} from 'assets/js/common.js';
+// import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
 const {media: mediaTB, story: storyTB} = trainingDB;
 const axios = window.axios;
@@ -72,6 +73,7 @@ export default class {
 			oMediaInfo, mediaFile_, buffer,
 			aSteps, changeTs, loading: false,
 			fileSrc: URL.createObjectURL(mediaFile_), // 10兆以下小文件 < 1毫秒
+			// fileSrc: URL.createObjectURL(mediaFile_, {type: 'video/aac'}),
 			...oMediaInTBForSave,
 		});
 		this.bufferToPeaks();
@@ -94,7 +96,7 @@ export default class {
 				{responseType: "blob", params: {ts: new Date() * 1}},
 			);
 			needUpDateDB = true;
-			return data;
+			return data; // 返回：Blob {size: 620705, type: "audio/mpeg"}
 		})();
 		const buffer = await (async ()=>{
 			if (isSame && oBuffer_) {
@@ -186,5 +188,25 @@ export default class {
 }
 
 
-
-
+// if (0) {
+// 	const ffmpeg = createFFmpeg({
+// 		log: true,
+// 		corePath: `${window.location.origin}/ffmpeg-core.js`,
+// 	});
+// 	console.time('ffmpeg 耗时 ■■■■■■■■■■');
+// 	const {'1': mp3Data} = await Promise.all([
+// 		ffmpeg.load(), fetchFile(mediaFile_),
+// 	]);
+// 	let fileName = 'mu.mp3'; //oMediaInfo.fileName + '.mp3';
+// 	console.log('fileName - - - - ', fileName);
+// 	ffmpeg.FS('writeFile', fileName, mp3Data); // 没有返回值
+// 	await ffmpeg.run('-i', fileName, 'music1.ogg');
+// 	// 10M 文件转 aac、ogg 之后体积减半，耗时 20 多秒
+// 	console.timeEnd('ffmpeg 耗时 ■■■■■■■■■■');
+// 	const bata = ffmpeg.FS('readFile', 'music1.ogg');
+// 	const myBlob2 = new Blob(
+// 		[bata.buffer], {type: 'audio/ogg'},
+// 	);
+// 	console.log('新体积---■', ~~(myBlob2.size / 1024) + 'kb');
+// 	// mediaFile_ = myBlob2;
+// }
