@@ -9,7 +9,8 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import global from 'assets/js/global.js';
 // ▼样式
-import 'assets/style/global.css'
+import 'assets/style/global.css';
+import 'assets/style/rewrite-antd.css';
 
 global();
 window.axios.get('/open/session');

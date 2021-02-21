@@ -23,13 +23,20 @@ export const StoryUl = styled.ul`
 
 export const oneStory = styled.li`
 	width: calc(100% / 2 - 8px);
-	padding: ${paddingPxVal}px;
-	margin: 0 0 16px;
+	padding: 18px ${paddingPxVal}px 13px;
+	margin: 0 0 15px;
 	border: solid 1px #ccc;
 	position: relative;
+	&:hover{
+		.hide{
+			opacity: 1;
+		}
+	}
 	.story-name{
 		font-size: 18px;
 		font-weight: bold;
+		display: flex;
+		align-items: center;
 	}
 	.story-info{
 		color: #999;
@@ -38,18 +45,12 @@ export const oneStory = styled.li`
 			margin-left: 15px;
 		}
 	}
-	.state{
-		button{
-			opacity: 0;
-		}
-		&:Hover{
-			button{
-				opacity: 1;
-			}
-		}
-	}
 	.last{
 		margin: 0 0 12px;
+	}
+	.hide{
+		opacity: 0;
+		transition: all 0.5s;
 	}
 `;
 

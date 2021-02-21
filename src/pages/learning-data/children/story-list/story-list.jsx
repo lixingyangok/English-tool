@@ -2,12 +2,12 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 16:52:10
+ * @LastEditTime: 2021-02-21 17:33:03
  * @Description: 
  */
 
 import React from 'react';
-import * as cpnt from './style/story-list.js';
+import * as cpnt from './style/story-list.style.js';
 import TheFn from './js/story-list-fn.js';
 import {aStoryType} from 'assets/js/data.js';
 
@@ -45,44 +45,43 @@ export default class extends MyClass{
 	getStoryList(){
 		const {aStory} = this.state;
 		const storyInfo = aStory.map((oCurStory, idx) => {
-			const {info_} = oCurStory;
+			const {info_, storyName} = oCurStory;
 			const myLi = <cpnt.oneStory key={idx}>
-				<h1 className="story-name">{oCurStory.storyName}</h1>
+				<h1 className="story-name ellipsis" title={storyName} >
+					<Tag color={info_.color} > {info_.name} </Tag>
+					{storyName}
+				</h1>
 				<p className="story-info">
 					<span>创建时间：{oCurStory.time_}</span>
 					<span>媒体数量：{oCurStory.kids}</span>
 				</p>
 				<p className="story-info state">
-					<span>
-						当前类型：
-						<Tag color={info_.color} > {info_.name} </Tag>
-					</span>
-					<Dropdown overlay={
-						<Menu onClick={key=>this.setType(oCurStory, key)} >
-							{aStoryType.map(cur=>{
-								return <Menu.Item key={cur.val}>
-									{cur.name}
-								</Menu.Item>
-							})}
-						</Menu>
-					}>
-						<Button type="text" size="small">变更状态</Button>
-					</Dropdown>
+					
 				</p>
 				<p className="story-info last">
 					备注信息：{oCurStory.note || '无备注'}
 				</p>
-				<Button size='small' type="primary" onClick={()=>this.goInfoPage02(oCurStory)}>
-					查看详情
+				<Button size='small' className="thin" type="link" onClick={()=>this.goInfoPage02(oCurStory)}>
+					详情
 				</Button>
-				<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
-					修改信息
+				<Button size='small' className="hide thin gap" type="text" thin onClick={()=>this.showModal(oCurStory)}>
+					修改
 				</Button>
-				
+				<Dropdown overlay={
+					<Menu onClick={key=>this.setType(oCurStory, key)} >
+						{aStoryType.map(cur=>{
+							return <Menu.Item key={cur.val}>
+								{cur.name}
+							</Menu.Item>
+						})}
+					</Menu>
+				}>
+					<Button type="text" className="hide thin gap" size="small">状态</Button>
+				</Dropdown>
 				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 					title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
 				>
-					<Button size='small' type="link">删除</Button>
+					<Button size='small' type="text" className="hide thin gap">删除</Button>
 				</Popconfirm>
 			</cpnt.oneStory>
 			return myLi;

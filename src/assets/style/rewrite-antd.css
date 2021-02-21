@@ -1,0 +1,6 @@
+.ant-btn[class~=thin]{
+    padding: 0;
+}
+.ant-btn + .ant-btn[class~=gap]{
+    margin-left: 10px;
+}
