@@ -12,7 +12,7 @@ export default function (){
 					component={cur.component}
 				/>
 			})}
-			<Redirect exact from="/learning-data" to="/learning-data/list" />
+			<Redirect exact from="/learning-data" to="/learning-data/list/-1" />
 		</Switch>
 	</Suspense>
 }

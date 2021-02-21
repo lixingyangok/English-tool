@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 12:24:53
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 13:50:33
+ * @LastEditTime: 2021-02-21 14:45:43
  * @Description: 
  */
 import React from "react";
@@ -15,15 +15,26 @@ function MyDiv (props){
 	</div>
 }
 
-export const aLearningData = [{
-	name: '列表',
-	path: '/list',
+const oListPage = {
+	name: '所有资源',
+	path: '/list/:type',
+	pathRoot_: '/list/-1',
 	component: React.lazy(() => import('pages/learning-data/children/story-list/story-list.jsx')),
-},{
-	name: '进行中',
-	path: '/learning-list',
-	component: React.lazy(() => import('pages/learning-data/children/story-list/story-list.jsx')),
-},];
+};
+
+export const aLearningData = [
+	oListPage,
+	{
+		...oListPage,
+		name: '听写',
+		pathRoot_: '/list/1',
+	},
+	{
+		...oListPage,
+		name: '阅读',
+		pathRoot_: '/list/2',
+	},
+];
 
 export const dictationPath = 'dictation';
 export const readingPath = 'reading';

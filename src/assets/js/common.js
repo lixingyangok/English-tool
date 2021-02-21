@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 15:52:51
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 12:14:44
+ * @LastEditTime: 2021-02-21 14:33:15
  * @Description: 
  */
 
@@ -61,28 +61,4 @@ export function timeAgo(iTimeStamp){
 	const Ndate = String(oData.getDate()).padStart(2, 0);
 	// const Nhour = String(oData.getHours()).padStart(2, 0); // const Nminute = String(oData.getMinutes()).padStart(2, 0); // const Nsecond = String(oData.getSeconds()).padStart(2, 0);
 	return `${Nyear}-${Nmonth}-${Ndate}`;
-}
-
-export function mix(...mixins) {
-	class Mix {
-		constructor() {
-			for (let mixin of mixins) {
-				copyProperties(this, new mixin()); // 拷贝实例属性
-			}
-		}
-	}
-	for (let mixin of mixins) {
-		copyProperties(Mix, mixin); // 拷贝静态属性
-		copyProperties(Mix.prototype, mixin.prototype); // 拷贝原型属性
-	}
-	return Mix;
-}
-
-function copyProperties(target, source) {
-	for (let key of Reflect.ownKeys(source)) {
-		if (key !== 'constructor' && key !== 'prototype' && key !== 'name' ) {
-			let desc = Object.getOwnPropertyDescriptor(source, key);
-			Object.defineProperty(target, key, desc);
-		}
-	}
 }

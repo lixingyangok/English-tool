@@ -8,8 +8,11 @@ export default function () {
 		if (!children) return null;
 		children = children.filter(cur => !cur.hide_);
 		const aLi = children.map((oneLi, idx) => {
+			const myPath = oneLi.pathRoot_ || oneLi.path;
 			return <li key={idx} >
-				<NavLink to={parent.path + oneLi.path} target={oneLi.target || ''} >
+				<NavLink target={oneLi.target || ''}
+					to={parent.path + myPath} 
+				>
 					{oneLi.name}
 				</NavLink>
 			</li>
