@@ -8,31 +8,26 @@
 // import {Button} from 'antd';
 const {axios} = window;
 
-export default class{
+class asyncFn {
 	// ▼初始化，即查询【故事数据】
-	async init(){
+	async init(isFromZero=false){
+		// const {pageInfo} = (
+		// 	isFromZero ? this.oOriginal.dc_ : this.state
+		// );
+		const {pageInfo, iType} = this.state;
 		const {data: res} = await axios.get('/story', {
 			params: {
-				...this.state.pageInfo,
-				type: this.isAtLearningPage ? 1 : -1,
+				...pageInfo,
+				type: iType, 
 			},
 		});
 		if (!res || !res.rows) return;
 		this.setState({
 			aStory: res.rows,
 			total: res.total,
+			needToGet: false,
 		});
 	}
-	chnagePage(current){
-		const pageInfo = ({
-			...this.state.pageInfo, current,
-		});
-		this.setState({pageInfo}, this.init);
-	}
-	// changeSize(current, pageSize){
-	// 	const pageInfo = ({current, pageSize});
-	// 	this.setState({pageInfo}, this.init);
-	// }
 	// ▼提交表单，提交一个故事
 	async onSave(oForm) {
 		Object.entries(oForm).forEach(([key, val]) => {
@@ -71,13 +66,6 @@ export default class{
 		if (oFormData) oForm.setFieldsValue(oFormData);
 		else oForm.resetFields();
 	}
-	// ▼跳到详情
-	goInfoPage02(oStory){
-		let sUrl = `/learning-page/${oStory.ID}`;
-		// console.log('sUrl：', sUrl);
-		// window.open(sUrl, '_blank');
-		this.props.history.push(sUrl); // bj路由跳转
-	}
 	// ▼设定状态
 	async setType(oStory){
 		const {data: res} = await axios.put('/story/set-type', {
@@ -89,3 +77,38 @@ export default class{
 	}
 }
 
+
+class simpleFn {
+	chnagePage(current){
+		const pageInfo = ({
+			...this.state.pageInfo, current,
+		});
+		this.setState({pageInfo}, this.init);
+	}
+	// changeSize(current, pageSize){
+	// 	const pageInfo = ({current, pageSize});
+	// 	this.setState({pageInfo}, this.init);
+	// }
+	// ▼跳到详情
+	goInfoPage02(oStory){
+		let sUrl = `/learning-page/${oStory.ID}`;
+		// console.log('sUrl：', sUrl);
+		// window.open(sUrl, '_blank');
+		this.props.history.push(sUrl); // bj路由跳转
+	}
+	// 
+	oRouteChanged(props){
+		// let {type} = props.match.params || {};
+		// type = type * 1 || -1;
+		// const isSame = type === this.iType;
+		// if (isSame) return;
+		// this.iType = type;
+		// // console.log('新-type：', type);
+		// this.init(true);
+	}
+}
+
+export default window.mix(
+	asyncFn,
+	simpleFn,
+);

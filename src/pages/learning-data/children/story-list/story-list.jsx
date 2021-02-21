@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 14:16:33
+ * @LastEditTime: 2021-02-21 15:50:10
  * @Description: 
  */
 
@@ -19,26 +19,34 @@ import {
 const MyClass = window.mix(
 	React.Component, TheFn,
 );
+const oOriginal = {
+	pageInfo: { current: 1, pageSize: 20 },
+	aStory: [], // 故事列表
+	total: 0,
+};
 
 export default class extends MyClass{
 	Modal = Modal;
 	message = message;
 	oForm = React.createRef(); //窗口中的表单
-	isAtLearningPage = false;
+	// iType = null;
+	// oOriginal = {
+	// 	pageInfo: { current: 1, pageSize: 20 },
+	// 	aStory: [], // 故事列表
+	// 	total: 0,
+	// }
 	state = {
-		visible: false, //窗口显示
-		aStory: [], // 故事列表
+		...oOriginal.dc_,
 		loading: false,
-		pageInfo: {
-			current: 1,
-			pageSize: 20,
-		},
-		total: 0,
+		visible: false, //窗口显示
+		iType: null,
+		needToGet: true,
 	}
 	constructor(props){
 		super(props);
-		const {pathname} = props.location;
-		this.isAtLearningPage = pathname.includes('/learning-list');
+		let {type} = props.match.params || {};
+		this.state.iType = type * 1 || -1;
+		// this.oRouteChanged(props);
 	}
 	getStoryList(){
 		const {aStory} = this.state;
@@ -100,7 +108,8 @@ export default class extends MyClass{
 		return dialog;
 	}
 	render(){
-		const {aStory, loading, pageInfo, total} = this.state;
+		const {aStory, loading, pageInfo, total, needToGet} = this.state;
+		if (needToGet) this.init();
 		const resultHTML = <cpnt.Outter className='center-box'>
 			<Spin spinning={loading}>
 				<cpnt.BtnBar>
@@ -128,7 +137,23 @@ export default class extends MyClass{
 	}
 	// ▲render
 	// ▼生命周期
+	// shouldComponentUpdate(nextProps, prevState){
+	//     console.log('B-shouldComponentUpdate（更新调用');
+	//     if (0) console.log(nextProps, prevState);
+	// 	this.oRouteChanged(nextProps);
+	// 	return true;
+	// }
+	static getDerivedStateFromProps(nextProps, prevState){
+		const {iType} = prevState;
+		let {type: iNewType} = nextProps.match.params || {};
+		iNewType = iNewType * 1 || -1;
+		if (iNewType !== iType){
+			return {...oOriginal.dc_, needToGet: true, iType: iNewType};
+		}
+		return null;
+	}
+	// 
 	async componentDidMount(){
-		this.init();
+		// this.init();
 	}
 }
