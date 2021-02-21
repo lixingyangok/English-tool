@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import {iHeaderHeight} from 'pages/learning-page/style/learning-page.style.js';
 
 export const iMarkWrapHeight = 18;
 export const iCanvasHeight = 110;
@@ -7,7 +8,7 @@ export const iScrollHeight = 12;
 export const Container = styled.div`
 	box-sizing: border-box;
 	padding: 20px;
-	height: 100%;
+	height: calc(100vh - ${iHeaderHeight});
 	overflow-y: auto;
 	display: flex;
 	flex-flow: column nowrap;

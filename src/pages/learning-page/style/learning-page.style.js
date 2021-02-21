@@ -6,11 +6,16 @@ export const outer = styled.article`
 `;
 
 const sDeepBlue = `#056bca`;
-const iHeaderHeight = '90px';
+export const iHeaderHeight = '90px';
 
 export const header = styled.header`
 	/* background: var(--color); */
 	/* background: #999; */
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 2;
 	height: ${iHeaderHeight};
 	background: linear-gradient(to bottom, #1890ff 0%,#99cfff 100%); 
 	display: flex;
@@ -70,10 +75,6 @@ export const MyTabs = styled(Tabs)`
 `;
 
 export const bodyWrap = styled.section`
-	> div{
-		height: calc(100vh - ${iHeaderHeight});
-		overflow-y: hidden;
-	}
-	/* overflow-y: auto; */
+	padding-top: ${iHeaderHeight};
 `;
 
