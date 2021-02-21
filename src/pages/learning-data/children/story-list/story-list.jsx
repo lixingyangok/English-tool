@@ -2,18 +2,19 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 15:50:10
+ * @LastEditTime: 2021-02-21 16:52:10
  * @Description: 
  */
 
 import React from 'react';
 import * as cpnt from './style/story-list.js';
 import TheFn from './js/story-list-fn.js';
+import {aStoryType} from 'assets/js/data.js';
 
 // ▼组件库
 import {
 	Modal, Form, Input, Button, Popconfirm, 
-	message, Spin,
+	message, Spin, Tag, Dropdown, Menu,
 } from 'antd';
 
 const MyClass = window.mix(
@@ -29,12 +30,6 @@ export default class extends MyClass{
 	Modal = Modal;
 	message = message;
 	oForm = React.createRef(); //窗口中的表单
-	// iType = null;
-	// oOriginal = {
-	// 	pageInfo: { current: 1, pageSize: 20 },
-	// 	aStory: [], // 故事列表
-	// 	total: 0,
-	// }
 	state = {
 		...oOriginal.dc_,
 		loading: false,
@@ -46,27 +41,44 @@ export default class extends MyClass{
 		super(props);
 		let {type} = props.match.params || {};
 		this.state.iType = type * 1 || -1;
-		// this.oRouteChanged(props);
 	}
 	getStoryList(){
 		const {aStory} = this.state;
 		const storyInfo = aStory.map((oCurStory, idx) => {
+			const {info_} = oCurStory;
 			const myLi = <cpnt.oneStory key={idx}>
 				<h1 className="story-name">{oCurStory.storyName}</h1>
 				<p className="story-info">
-					<span>创建时间：{oCurStory.CreatedAt}</span>
+					<span>创建时间：{oCurStory.time_}</span>
 					<span>媒体数量：{oCurStory.kids}</span>
 				</p>
-				<p className="story-info">备注信息：{oCurStory.note || '无备注'}</p>
+				<p className="story-info state">
+					<span>
+						当前类型：
+						<Tag color={info_.color} > {info_.name} </Tag>
+					</span>
+					<Dropdown overlay={
+						<Menu onClick={key=>this.setType(oCurStory, key)} >
+							{aStoryType.map(cur=>{
+								return <Menu.Item key={cur.val}>
+									{cur.name}
+								</Menu.Item>
+							})}
+						</Menu>
+					}>
+						<Button type="text" size="small">变更状态</Button>
+					</Dropdown>
+				</p>
+				<p className="story-info last">
+					备注信息：{oCurStory.note || '无备注'}
+				</p>
 				<Button size='small' type="primary" onClick={()=>this.goInfoPage02(oCurStory)}>
 					查看详情
 				</Button>
 				<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
 					修改信息
 				</Button>
-				<Button size='small' type="link" onClick={()=>this.setType(oCurStory)}>
-					变更状态{oCurStory.type}
-				</Button>
+				
 				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 					title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
 				>
@@ -140,7 +152,6 @@ export default class extends MyClass{
 	// shouldComponentUpdate(nextProps, prevState){
 	//     console.log('B-shouldComponentUpdate（更新调用');
 	//     if (0) console.log(nextProps, prevState);
-	// 	this.oRouteChanged(nextProps);
 	// 	return true;
 	// }
 	static getDerivedStateFromProps(nextProps, prevState){

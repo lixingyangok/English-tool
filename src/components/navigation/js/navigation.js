@@ -2,10 +2,11 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 12:24:53
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 14:45:43
+ * @LastEditTime: 2021-02-21 16:23:53
  * @Description: 
  */
 import React from "react";
+import {oStoryType} from 'assets/js/data.js';
 
 function MyDiv (props){
 	return <div className="center-box" >
@@ -16,9 +17,9 @@ function MyDiv (props){
 }
 
 const oListPage = {
-	name: '所有资源',
+	name: oStoryType['-1'].name,
 	path: '/list/:type',
-	pathRoot_: '/list/-1',
+	pathRoot_: `/list/${oStoryType['-1'].val}`,
 	component: React.lazy(() => import('pages/learning-data/children/story-list/story-list.jsx')),
 };
 
@@ -26,13 +27,13 @@ export const aLearningData = [
 	oListPage,
 	{
 		...oListPage,
-		name: '听写',
-		pathRoot_: '/list/1',
+		name: oStoryType['1'].name,
+		pathRoot_: `/list/${oStoryType['1'].val}`,
 	},
 	{
 		...oListPage,
-		name: '阅读',
-		pathRoot_: '/list/2',
+		name: oStoryType['2'].name,
+		pathRoot_: `/list/${oStoryType['2'].val}`,
 	},
 ];
 

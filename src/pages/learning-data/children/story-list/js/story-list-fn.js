@@ -6,20 +6,16 @@
 
 // import React from 'react';
 // import {Button} from 'antd';
+import {getAllStory} from 'assets/api/story.js';
 const {axios} = window;
 
 class asyncFn {
 	// ▼初始化，即查询【故事数据】
-	async init(isFromZero=false){
-		// const {pageInfo} = (
-		// 	isFromZero ? this.oOriginal.dc_ : this.state
-		// );
+	async init(){
 		const {pageInfo, iType} = this.state;
-		const {data: res} = await axios.get('/story', {
-			params: {
-				...pageInfo,
-				type: iType, 
-			},
+		const res = await getAllStory({
+			...pageInfo,
+			type: iType, 
 		});
 		if (!res || !res.rows) return;
 		this.setState({
@@ -67,10 +63,11 @@ class asyncFn {
 		else oForm.resetFields();
 	}
 	// ▼设定状态
-	async setType(oStory){
+	async setType(oStory, obj){
+		const type = obj.key * 1;
 		const {data: res} = await axios.put('/story/set-type', {
 			storyId: oStory.ID,
-			type: oStory.type === 0 ? 1 : 0,
+			type,
 		});
 		if (!res) return;
 		this.init();
@@ -95,16 +92,6 @@ class simpleFn {
 		// console.log('sUrl：', sUrl);
 		// window.open(sUrl, '_blank');
 		this.props.history.push(sUrl); // bj路由跳转
-	}
-	// 
-	oRouteChanged(props){
-		// let {type} = props.match.params || {};
-		// type = type * 1 || -1;
-		// const isSame = type === this.iType;
-		// if (isSame) return;
-		// this.iType = type;
-		// // console.log('新-type：', type);
-		// this.init(true);
 	}
 }
 

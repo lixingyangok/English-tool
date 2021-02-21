@@ -33,13 +33,23 @@ export const oneStory = styled.li`
 	}
 	.story-info{
 		color: #999;
-		margin: 0;
-		& + .story-info{
-			margin: 0 0 15px;
-		}
+		margin: 3px 0;
 		span + span{
 			margin-left: 15px;
 		}
+	}
+	.state{
+		button{
+			opacity: 0;
+		}
+		&:Hover{
+			button{
+				opacity: 1;
+			}
+		}
+	}
+	.last{
+		margin: 0 0 12px;
 	}
 `;
 
