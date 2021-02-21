@@ -154,20 +154,22 @@ export default class Tool extends MyClass {
 	// ▼提示单词
 	getWordsList({aMatched, aWords, aNames, sTyped}){
 		const arr = aMatched.map((cur, idx)=>{
-			const isName = aNames.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
-			const isWord = aWords.find(curWord => curWord.toLowerCase() === cur.toLowerCase());
-			const kind = isName ? 'names' : (isWord ? 'words' : '');
+			let sKind = hasIn(aNames, cur) ? 'names' : '';
+			if (!sKind) sKind = hasIn(aWords, cur) ? 'words' : '';
+			const sClass = sKind + (cur.match(/\s/) ? ' underline' : '');
 			const sRight = cur.slice(sTyped.length).trim();
-			const inner = <cpnt.oneWord key={idx} kind={kind}>
+			const inner = <cpnt.oneWord key={idx} >
 				{sTyped ? <i className="idx">{idx+1}</i> : null}
-				<em className="left">{sTyped}</em>
-				{(sTyped && sRight) ? '·' : ''}
-				<span className="right">{sRight}</span>
+				<span className={sClass} >
+					<em className="left">{sTyped}</em>
+					{(sTyped && sRight) ? '·' : ''}
+					<span className="right">{sRight}</span>
+				</span>
 			</cpnt.oneWord>
-			if (!kind) return inner;
+			if (!sKind) return inner;
 			const result = <Popconfirm title="确定删除？" key={idx}
 				okText="删除" cancelText="取消" placement="topLeft"
-				onConfirm={()=>this.delWord(kind, cur)}
+				onConfirm={()=>this.delWord(sKind, cur)}
 			>
 				{inner}
 			</Popconfirm>
@@ -245,20 +247,23 @@ export default class Tool extends MyClass {
 			aSteps, iCurStep, aWords, aNames,
 		} = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
-		const spanArr = text => text.split(/\s+/).map((curWord, order)=>{
-			const getDom = cName => <span key={order} className={cName} >{curWord}</span>;
-			const {'0': trueWord, index} = curWord.match(/[\w-]+/) || []; // 英文部分
-			if (!trueWord) return getDom();
-			let cName = hasIn(aWords, trueWord) ? 'red' : '';
-			if (!cName) cName = hasIn(aNames, trueWord) ? 'blue' : '';
-			if (!cName) return getDom();
-			if (trueWord===curWord) return getDom(cName);
-			const sHead = curWord.slice(0, index);
-			const sTail = curWord.slice(index + trueWord.length);
-			return <span key={order}>
-				{sHead}<span className={cName}>{trueWord}</span>{sTail}
-			</span>
-		});
+		const spanArr = text => {
+			const aText = text.match(/\S+\s{0,}/g) || [];
+			return aText.map((curWord, order)=>{
+				const getDom = cName => <span key={order} className={cName} >{curWord}</span>;
+				const {'0': trueWord, index} = curWord.match(/[\w-']+/) || []; // 英文部分
+				if (!trueWord) return getDom();
+				let cName = hasIn(aWords, trueWord) ? 'red' : '';
+				if (!cName) cName = hasIn(aNames, trueWord) ? 'blue' : '';
+				if (!cName) return getDom();
+				if (trueWord===curWord) return getDom(cName);
+				const sHead = curWord.slice(0, index);
+				const sTail = curWord.slice(index + trueWord.length);
+				return <span key={order}>
+					{sHead}<span className={cName}>{trueWord}</span>{sTail}
+				</span>
+			});
+		}
 		const arr = aLines.map((cur, idx) => {
 			return <li key={idx} onClick={() => this.goLine(idx)}
 				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
@@ -286,20 +291,48 @@ export default class Tool extends MyClass {
 			this.setState({iBright: newVal ? newVal : -1});
 		};
 		const {text=''} = oThisLine;
-		const aText = text.match(/\S+\s{0,}/g) || [];
+		let aText = text.match(/\S+\s{0,}/g) || [];
+		aText = aText.reduce((aResult, cur, idx)=>{
+			if (idx === 0) return [cur];
+			const len = aResult.length;
+			const sLast = aResult[len - 1];
+			const {'0': sBack01} = sLast.match(/\w.*/) || [''];
+			const {'0': sBack02} = (aResult[len - 2] || '').match(/\w.*/) || [''];
+			const {'0': sCurFixed} = cur.match(/\S\w*/) || [''];
+			const sNewOne = sBack01 + sCurFixed;
+			const isIn = hasIn(aWords, sNewOne) || hasIn(aNames, sNewOne);
+			// ▲短-长▼
+			const isLonger = (()=>{
+				if (len < 2) return false;
+				const longText = sBack02 + sLast + sCurFixed;
+				return hasIn(aWords, longText) || hasIn(aNames, longText);
+			})();
+			if (isIn) {
+				aResult[len-1] = sLast + cur;
+			}else if (isLonger){
+				const sNew = aResult[len - 2] + sLast + cur;
+				aResult.splice(len - 2, 2, sNew);
+			}else{
+				aResult.push(cur);
+			}
+			return aResult;
+		}, []);
+		// console.log('aTest'); console.log(aTest);
 		const aWordsList = aText.map((cur, idx)=>{
-			const {'0': body='', index=-1} = cur.match(/[\w-']+/) || [];
-			const tail = index===-1 ? '' : cur.slice(index + body.length) || '';
+			const hasSpace = cur.match(/\s\S/);
+			const {'0': body, index} = cur.match(/\w.*\w+/) || {'0': '', index: -1};
 			const head = index===-1 ? cur : cur.slice(0, index) || '';
+			const tail = index===-1 ? '' : cur.slice(index + body.length) || '';
 			let cName = hasIn(aWords, body) ? 'red' : '';
 			if (!cName) cName = hasIn(aNames, body) ? 'blue' : '';
 			if (iBright === idx) cName += ' hover';
+			if (hasSpace) cName += ' underline';
 			cName += ' word';
 			return <span key={idx}>
 				{head}
-				<Popover trigger="hover" placement="topLeft"
-					visible={iBright === idx}
+				<Popover trigger="hover" placement="topLeft" 
 					onVisibleChange={newVal=>handleVisibleChange(newVal)}
+					visible={iBright === idx}
 					content={<Button>按钮1</Button>}
 				>
 					<span className={cName}>{body}</span>
@@ -307,6 +340,7 @@ export default class Tool extends MyClass {
 				{tail}
 			</span>
 		});
+		// ▲得到背景单词
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
 			{aWordsList}
 			{/* TODO 下面的id要取缔 */}
@@ -448,9 +482,11 @@ export default class Tool extends MyClass {
 	}
 }
 
+// ▼校验二参是否在一参中
 function hasIn(arr, str){
 	// 如人名是 li da 且被收藏，再输入 li 会被点亮，要注意
 	return arr.find(cur => {
-		return cur.toLowerCase().split(/\s+/).includes(str.toLowerCase());
+		// return cur.toLowerCase().split(/\s+/).includes(str.toLowerCase());
+		return cur.toLowerCase() === str.toLowerCase();
 	});
 }

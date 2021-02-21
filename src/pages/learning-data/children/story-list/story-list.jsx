@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 17:33:03
+ * @LastEditTime: 2021-02-21 17:38:02
  * @Description: 
  */
 
@@ -55,9 +55,6 @@ export default class extends MyClass{
 					<span>创建时间：{oCurStory.time_}</span>
 					<span>媒体数量：{oCurStory.kids}</span>
 				</p>
-				<p className="story-info state">
-					
-				</p>
 				<p className="story-info last">
 					备注信息：{oCurStory.note || '无备注'}
 				</p>
@@ -70,9 +67,7 @@ export default class extends MyClass{
 				<Dropdown overlay={
 					<Menu onClick={key=>this.setType(oCurStory, key)} >
 						{aStoryType.map(cur=>{
-							return <Menu.Item key={cur.val}>
-								{cur.name}
-							</Menu.Item>
+							return <Menu.Item key={cur.val}> {cur.name} </Menu.Item>
 						})}
 					</Menu>
 				}>

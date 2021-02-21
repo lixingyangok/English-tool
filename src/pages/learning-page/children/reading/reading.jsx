@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-19 20:57:32
+ * @LastEditTime: 2021-02-21 17:51:38
  * @Description: 
  */
 
@@ -63,7 +63,7 @@ export default class Reading extends MyClass{
 	getAllLines(){
 		const { curLine, aSubtitle, iPlaying,  fPlayRate} = this.state;
 		const aAllLine = aSubtitle.map((cur, idx)=>{
-			const {text} = cur; //iTimes
+			const {text} = cur; 
 			const textVal = (()=>{
 				if (iPlaying !== idx) return '';
 				const end = ~~(text.length / 100 * fPlayRate);
@@ -71,7 +71,6 @@ export default class Reading extends MyClass{
 			})();
 			const lineClass = (()=>{
 				let result = idx === curLine ? 'current ' : '';
-				// if (iTimes) result += ' done';
 				if (iPlaying === idx && fPlayRate>=100) {
 					result += ' done';
 				}

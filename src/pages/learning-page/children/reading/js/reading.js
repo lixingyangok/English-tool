@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-19 21:11:56
+ * @LastEditTime: 2021-02-21 17:52:28
  * @Description: 
  */
 
@@ -55,7 +55,9 @@ export class Fn01 {
 		});
 		if (!oFn[key]) return;
 		oFn[key]();
-		// console.log("当前行", curLine);
+		ev.preventDefault();
+		ev.stopPropagation();
+		return;
 	}
 	keyUpFn(ev){
 		const {key} = ev;
@@ -80,9 +82,9 @@ export class Fn01 {
 				this.setState({fPlayRate: 0});
 			}else{
 				fPlayRate += stepLong / 1000 / long * 100; 
-				if (fPlayRate>=100) {
+				if (fPlayRate >= 100) {
 					fPlayRate = 100;
-					aSubtitle[iPlaying].iTimes = iTimes + 1;
+					aSubtitle[iPlaying].iTimes = iTimes + 1; // 阅读次数？
 				}
 				this.setState({fPlayRate, aSubtitle});
 			}

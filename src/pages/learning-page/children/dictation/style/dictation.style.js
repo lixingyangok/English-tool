@@ -272,6 +272,17 @@ export const TextareaWrap = styled.div`
 		.blue{
 			color: blue;
 		}
+		.underline{
+			position: relative;
+			&:after{
+				content: '';
+				position: absolute;
+				left: 0;
+				bottom: 3px;
+				right: 0;
+				border-top: solid 1px red;
+			}
+		}
 	}
 	textarea{
 		position: absolute;
@@ -309,19 +320,15 @@ export const WordsBar = styled.div`
 	transition-delay: 0.5s;
 `;
 
+/* BJ: 接收参数 */
+/* ${({hasSpace}) => hasSpace && 'text-decoration: underline;'}  */
 export const oneWord = styled.span`
 	margin-right: 15px;
 	font-size: 18px;
 	padding: 0;
 	color: #444;
-	&[kind=words],
-	&[kind=names]{
-		cursor: pointer;
-		color: blue;
-	}
-	&[kind=words]{
-		color: #d80000;
-	}
+	display: flex;
+    align-items: center;
 	.idx{
 		display: inline-block;
 		width: 16px;
@@ -333,6 +340,19 @@ export const oneWord = styled.span`
 		margin-right: 5px;
 		color: white;
 		font-size: 16px;
+		/* position: relative; top: 1px; */
+	}
+	.words,
+	.names{
+		cursor: pointer;
+		color: blue;
+	}
+	.words{
+		color: red;
+	}
+	.underline{
+		text-decoration: underline;
+		/* text-decoration-color: #aaa; */
 	}
 	&:nth-child(n+5) .idx{
 		background: deepskyblue;

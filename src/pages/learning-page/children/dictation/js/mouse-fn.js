@@ -141,7 +141,7 @@ export default class {
 		if (iBright < 0 || iBright === this.state.iBright) return;
 		this.wordHoverTimer = setTimeout(()=>{
 			this.setState({iBright});
-		}, 300);
+		}, 250);
 	}
 }
 
