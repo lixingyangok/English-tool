@@ -4,6 +4,9 @@
  * @Description: 处理文件上传、下载
  */
 import React from 'react';
+import {trainingDB, timeAgo} from 'assets/js/common.js';
+import {getMediaByStoryId, getSubtitle, getQiniuToken} from 'assets/js/learning-api.js';
+import {Modal} from 'antd';
 import {
 	fileToTimeLines, 
 	fileToBlob,
@@ -14,17 +17,12 @@ import {
 	// getStrFromFile,
 	// getFaleBuffer, 
 } from 'assets/js/pure-fn.js';
-import {trainingDB, timeAgo} from 'assets/js/common.js';
-import {getMediaByStoryId, getSubtitle, getQiniuToken} from 'assets/js/learning-api.js';
-
-
-import {Modal} from 'antd';
 
 const { confirm } = Modal;
 const {axios} = window;
 const {media: mediaTB} = trainingDB;
 
-export default class FileList {
+class beforeUpload {
 	// ▼将选中的文件整理，配对，返回
 	toMatchFiles(targetFiles=[]){
 		const [aMedia, oSubtitle] = [...targetFiles].reduce((aResult, curFile)=>{
@@ -98,12 +96,23 @@ export default class FileList {
 			this.setState({ aQueuer });
 		}
 	}
-	/*
-		▲上传之前
-		▼开始上传及上传之后
-	*/
+}
+
+/*
+	▲上传之前
+	▼开始上传及上传之后
+*/
+
+class upload {
+	async uploadAll(){
+		const {length, '0': oCur} = this.state.aQueuer;
+		if (!length) return;
+		const oState = await this.toUpload(oCur, 0, length===1);
+		if (!oState || !oState.iRest) return;
+		this.uploadAll();
+	}
 	// ▼上传一个媒体文件+字幕
-	async toUpload(oFileInfo, iFileIdx) {
+	async toUpload(oFileInfo, iFileIdx, toFresh=true) {
 		const sst = this.setState.bind(this);
 		sst({sLoadingAction: '正在上传'}); // 开始loading
 		const sUrl = 'http://upload-z2.qiniup.com';
@@ -140,8 +149,9 @@ export default class FileList {
 		sst({sLoadingAction: false}); // 无论如何关闭loading
 		if (!uploadRes) return this.message.error('保存媒体记录未成功');
 		this.message.success('上传成功');
-		this.deleteOneCandidate(iFileIdx); //删除【排除文件】
-		this.getMediaForOneStory(); //刷新【已上传】文件
+		if (toFresh) this.getMediaForOneStory(); //刷新【已上传】文件
+		const iRest = this.deleteOneCandidate(iFileIdx); //删除【排除文件】
+		return {iRest};
 	}
 	// ▼ 处理要上传（要拿去覆盖旧资源）的文件
 	checkForUpload(ev, oMedia, iType) {
@@ -193,11 +203,17 @@ export default class FileList {
 		});
 		return res;
 	}
+}
+
+
+
+class FileList {
 	// ▼删除一个【待上传】的文件
 	deleteOneCandidate(iFileIdx){
 		const {aQueuer} = this.state;
 		aQueuer.splice(iFileIdx, 1);
 		this.setState({aQueuer});
+		return aQueuer.length;
 	}
 	// ▼查询某个故事下的媒体列表
 	async getMediaForOneStory(storyId){
@@ -287,3 +303,8 @@ export default class FileList {
 		}
 	}
 };
+
+
+export default window.mix(
+	beforeUpload, upload, FileList,
+);

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 18:13:42
+ * @LastEditTime: 2021-02-21 11:47:19
  * @Description: 
  */
 
@@ -149,10 +149,17 @@ export default class extends MyClass {
 			</li>;
 			return oLi;
 		});
-		const ul = <cpnt.fileList>
-			{myLiArr}
-		</cpnt.fileList>
-		return ul;
+		const HTML = <div>
+			<div>
+				<Button onClick={()=>this.uploadAll()} >
+					上传全部
+				</Button>
+			</div>
+			<cpnt.fileList>
+				{myLiArr}
+			</cpnt.fileList>
+		</div>
+		return HTML;
 	}
 	getBtnForTable(oMedia){
 		const HTML = <>
@@ -198,8 +205,8 @@ export default class extends MyClass {
 		});
 		return <Table dataSource={dataForTable} bordered
 			pagination={{position: ['none', 'none'], pageSize: 200}}
-			scroll={{ y: 560 }}
 		>
+			{/* scroll={{ y: 560 }} */}
 			<Column title="序号" key="idx_" dataIndex="idx_" width="65px"/>
 			<Column title="文件" key="fileName" 
 				render={oMedia=>{
