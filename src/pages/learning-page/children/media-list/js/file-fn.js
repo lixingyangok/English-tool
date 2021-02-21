@@ -302,8 +302,18 @@ class FileList {
 			this.setState({aMedia});
 		}
 	}
+	// ▼变成媒体状态
+	async changeFinishState(oMedia, oNew){
+		const iNewVal = oNew.key * 1;
+		// console.log(iNewVal);
+		const {data} = await axios.put('/media/set-finish', { // 上传【媒体】到七牛
+			mediaId: oMedia.ID,
+			finish: iNewVal,
+		});
+		if (!data) return;
+		this.getMediaForOneStory();
+	}
 };
-
 
 export default window.mix(
 	beforeUpload, upload, FileList,

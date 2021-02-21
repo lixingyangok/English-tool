@@ -161,3 +161,4 @@ function aa (){
 	// 滚动事件
 	window.addEventListener('scroll', debounce(handle, 1000));
 }
+if (0) aa();

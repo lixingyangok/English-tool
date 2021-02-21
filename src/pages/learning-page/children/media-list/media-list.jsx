@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 11:47:19
+ * @LastEditTime: 2021-02-21 13:38:30
  * @Description: 
  */
 
@@ -16,7 +16,7 @@ import {MyLoading} from 'components/loading/loading02.jsx';
 import {timeAgo} from 'assets/js/common.js';
 import {
 	Button, Popconfirm, message, Table, Popover,
-	Divider, Modal,
+	Divider, Modal, Tag, Menu, Dropdown,
 } from 'antd';
 
 const { Column } = Table;
@@ -193,21 +193,30 @@ export default class extends MyClass {
 			<Button type="text" size="small" onClick={()=>this.toExport(oMedia)}>
 				导出字幕
 			</Button>
+			<br/>
+			<Dropdown overlay={
+				<Menu onClick={key=>this.changeFinishState(oMedia, key)} >
+					<Menu.Item key={0} >未完成</Menu.Item>
+					<Menu.Item key={1} >进行中</Menu.Item>
+					<Menu.Item key={2} >已完成</Menu.Item>
+				</Menu>
+			}>
+				<Button type="text" size="small">变更状态</Button>
+			</Dropdown>
 		</>
 		return HTML;
 	}
-	getTable(){
-		const {aMedia} = this.state;
-		const dataForTable = aMedia.map((cur, idx)=>{
-			cur.key = cur.ID;
-			cur.idx_ = idx+1;
-			return cur;
+	getTable(doing=false){
+		const dataForTable = this.state.aMedia.filter((cur, idx)=>{
+			cur.key = cur.idx_ = idx + 1;
+			return doing ? cur.finish === 1 : true;
 		});
+		if (!dataForTable.length) return null;
 		return <Table dataSource={dataForTable} bordered
 			pagination={{position: ['none', 'none'], pageSize: 200}}
 		>
 			{/* scroll={{ y: 560 }} */}
-			<Column title="序号" key="idx_" dataIndex="idx_" width="65px"/>
+			<Column title="#" key="idx_" dataIndex="idx_" width="58px"/>
 			<Column title="文件" key="fileName" 
 				render={oMedia=>{
 					const {hasMedia_} = oMedia;
@@ -237,6 +246,14 @@ export default class extends MyClass {
 							字幕状态：{oMedia.compare_}
 						</small>
 					</cpnt.cell>
+				}}
+			/>
+			<Column title="状态" key="finish" width="100px"
+				render={oMedia => {
+					const {finish: iVal} = oMedia;
+					if (!iVal) return <Tag color="#ff1e00">未完成</Tag>
+					if (iVal === 1) return <Tag color="#d49c00">进行中</Tag>
+					if (iVal === 2) return <Tag color="#87d068">已完成</Tag>
 				}}
 			/>
 			<Column title="操作" key="action" width="215px"
@@ -274,6 +291,8 @@ export default class extends MyClass {
 			<MyLoading {...{sLoadingAction}}/>
 			{this.getInfoBox()}
 			{this.showTheFileListReadyForUpload()}
+			{this.getTable(true)}
+			<br/>
 			{this.getTable()}
 			<DictDialog word={sSearching} />
 			<Divider plain>共 {aMedia.length} 条音频</Divider>
