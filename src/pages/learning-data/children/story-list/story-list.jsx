@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 13:48:33
+ * @LastEditTime: 2021-02-21 14:16:33
  * @Description: 
  */
 
@@ -24,6 +24,7 @@ export default class extends MyClass{
 	Modal = Modal;
 	message = message;
 	oForm = React.createRef(); //窗口中的表单
+	isAtLearningPage = false;
 	state = {
 		visible: false, //窗口显示
 		aStory: [], // 故事列表
@@ -33,6 +34,11 @@ export default class extends MyClass{
 			pageSize: 20,
 		},
 		total: 0,
+	}
+	constructor(props){
+		super(props);
+		const {pathname} = props.location;
+		this.isAtLearningPage = pathname.includes('/learning-list');
 	}
 	getStoryList(){
 		const {aStory} = this.state;
@@ -49,6 +55,9 @@ export default class extends MyClass{
 				</Button>
 				<Button size='small' type="link" onClick={()=>this.showModal(oCurStory)}>
 					修改信息
+				</Button>
+				<Button size='small' type="link" onClick={()=>this.setType(oCurStory)}>
+					变更状态{oCurStory.type}
 				</Button>
 				<Popconfirm placement="topRight" okText="确定" cancelText="取消"
 					title="确定删除？" onConfirm={()=>this.delOneStory(oCurStory)}
@@ -120,7 +129,6 @@ export default class extends MyClass{
 	// ▲render
 	// ▼生命周期
 	async componentDidMount(){
-		// console.log("componentDidMount", this.state.pageInfo);
 		this.init();
 	}
 }

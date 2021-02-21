@@ -11,10 +11,11 @@ const {axios} = window;
 export default class{
 	// ▼初始化，即查询【故事数据】
 	async init(){
-		const {pageInfo} = this.state;
-		// console.log("pageInfo", pageInfo);
 		const {data: res} = await axios.get('/story', {
-			params: pageInfo,
+			params: {
+				...this.state.pageInfo,
+				type: this.isAtLearningPage ? 1 : -1,
+			},
 		});
 		if (!res || !res.rows) return;
 		this.setState({
@@ -76,6 +77,15 @@ export default class{
 		// console.log('sUrl：', sUrl);
 		// window.open(sUrl, '_blank');
 		this.props.history.push(sUrl); // bj路由跳转
+	}
+	// ▼设定状态
+	async setType(oStory){
+		const {data: res} = await axios.put('/story/set-type', {
+			storyId: oStory.ID,
+			type: oStory.type === 0 ? 1 : 0,
+		});
+		if (!res) return;
+		this.init();
 	}
 }
 

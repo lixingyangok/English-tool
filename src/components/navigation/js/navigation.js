@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-14 12:24:53
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 11:55:35
+ * @LastEditTime: 2021-02-21 13:50:33
  * @Description: 
  */
 import React from "react";
@@ -19,7 +19,11 @@ export const aLearningData = [{
 	name: '列表',
 	path: '/list',
 	component: React.lazy(() => import('pages/learning-data/children/story-list/story-list.jsx')),
-}];
+},{
+	name: '进行中',
+	path: '/learning-list',
+	component: React.lazy(() => import('pages/learning-data/children/story-list/story-list.jsx')),
+},];
 
 export const dictationPath = 'dictation';
 export const readingPath = 'reading';
