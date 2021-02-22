@@ -216,7 +216,7 @@ export default class {
 		const end = ~~((scrollLeft + offsetWidth) / fPerSecPx + 1);
 		return [start > 0 ? start : 0, end];
 	}
-	// ▼动画滚动事件，波形横向滚动动画
+	// 波形横向滚动动画
 	// 会触发 onScroll 事件，所以一直在 render 
 	goThere(oDom, sDirection, iNewVal){
 		console.log("开始滚动");
@@ -224,7 +224,7 @@ export default class {
 		const sType = `scroll${sDirection}`;
 		const iOldVal = oDom[sType];
 		if (~~iOldVal === ~~iNewVal) return;
-		const [iTakeTime, iTimes] = [400, 35]; //走完全程耗时, x毫秒走一步
+		const [iTakeTime, iTimes] = [350, 40]; //走完全程耗时, x毫秒走一步
 		const iOneStep = ~~((iNewVal - iOldVal) / (iTakeTime / iTimes));
 		const scrollTimer = setInterval(()=>{
 			let iAimTo = oDom[sType] + iOneStep;

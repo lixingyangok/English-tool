@@ -48,13 +48,16 @@ export default class {
 	}
 	// 监听滚动
 	onScrollFn() {
+		// console.log('监听到滚动');
 		let {buffer, iPerSecPx} = this.state;
 		let {offsetWidth, scrollLeft} = this.oWaveWrap.current;
 		const {aPeaks, fPerSecPx} = this.getPeaks(
 			buffer, iPerSecPx, scrollLeft, offsetWidth,
 		);
-		this.setState({aPeaks, fPerSecPx});
 		this.toDraw(aPeaks);
+		const newObj = {aPeaks};
+		if (fPerSecPx !== this.state.fPerSecPx) newObj.fPerSecPx = fPerSecPx;;
+		this.setState(newObj);
 	}
 	// ▼使其横向滚动
 	scrollToFn(deltaY) {
