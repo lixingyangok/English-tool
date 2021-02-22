@@ -13,7 +13,7 @@ import DictDialog from 'components/dict-dialog/dict-dialog.jsx';
 import {dictationPath} from 'components/navigation/js/navigation.js';
 import {
 	Modal, Button, message, Space, 
-	Spin, Popconfirm, Popover,
+	Spin, Popconfirm, // Popover,
 } from 'antd';
 
 const { confirm } = Modal;
@@ -242,105 +242,9 @@ export default class Tool extends MyClass {
 			<cpnt.matchUl>{aLi}</cpnt.matchUl>
 		</Modal>;
 	}
-	getAllSentence(){
-		const {
-			aSteps, iCurStep, aWords, aNames,
-		} = this.state;
-		const {aLines, iCurLine} = aSteps[iCurStep];
-		const spanArr = text => {
-			const aText = text.match(/\S+\s{0,}/g) || [];
-			return aText.map((curWord, order)=>{
-				const getDom = cName => <span key={order} className={cName} >{curWord}</span>;
-				const {'0': trueWord, index} = curWord.match(/[\w-']+/) || []; // 英文部分
-				if (!trueWord) return getDom();
-				let cName = hasIn(aWords, trueWord) ? 'red' : '';
-				if (!cName) cName = hasIn(aNames, trueWord) ? 'blue' : '';
-				if (!cName) return getDom();
-				if (trueWord===curWord) return getDom(cName);
-				const sHead = curWord.slice(0, index);
-				const sTail = curWord.slice(index + trueWord.length);
-				return <span key={order}>
-					{sHead}<span className={cName}>{trueWord}</span>{sTail}
-				</span>
-			});
-		}
-		const arr = aLines.map((cur, idx) => {
-			return <li key={idx} onClick={() => this.goLine(idx)}
-				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
-			>
-				<i className="idx">{idx + 1}</i>
-				<span className="time">
-					<em>{secToStr(cur.start)}</em>
-					<i>-</i>
-					<em>{secToStr(cur.end)}</em>
-				</span>
-				<cpnt.oneSentence>{spanArr(cur.text)}</cpnt.oneSentence>
-			</li>;
-		});
-		const HTML = <cpnt.SentenceWrap
-			ref={this.oSententList}
-			style={{'--width': `${String(aLines.length || 0).length}em`}}
-		>
-			{arr}
-		</cpnt.SentenceWrap>
-		return HTML;
-	}
 	getTextArea(oThisLine){
-		const {aWords, aNames, iBright} = this.state;
-		const handleVisibleChange = (newVal) => {
-			this.setState({iBright: newVal ? newVal : -1});
-		};
 		const {text=''} = oThisLine;
-		let aText = text.match(/\S+\s{0,}/g) || [];
-		aText = aText.reduce((aResult, cur, idx)=>{
-			if (idx === 0) return [cur];
-			const len = aResult.length;
-			const sLast = aResult[len - 1];
-			const {'0': sBack01} = sLast.match(/\w.*/) || [''];
-			const {'0': sBack02} = (aResult[len - 2] || '').match(/\w.*/) || [''];
-			const {'0': sCurFixed} = cur.match(/\S\w*/) || [''];
-			const sNewOne = sBack01 + sCurFixed;
-			const isIn = hasIn(aWords, sNewOne) || hasIn(aNames, sNewOne);
-			// ▲短-长▼
-			const isLonger = (()=>{
-				if (len < 2) return false;
-				const longText = sBack02 + sLast + sCurFixed;
-				return hasIn(aWords, longText) || hasIn(aNames, longText);
-			})();
-			if (isIn) {
-				aResult[len-1] = sLast + cur;
-			}else if (isLonger){
-				const sNew = aResult[len - 2] + sLast + cur;
-				aResult.splice(len - 2, 2, sNew);
-			}else{
-				aResult.push(cur);
-			}
-			return aResult;
-		}, []);
-		// console.log('aTest'); console.log(aTest);
-		const aWordsList = aText.map((cur, idx)=>{
-			const hasSpace = cur.match(/\s\S/);
-			const {'0': body, index} = cur.match(/\w.*\w+/) || {'0': '', index: -1};
-			const head = index===-1 ? cur : cur.slice(0, index) || '';
-			const tail = index===-1 ? '' : cur.slice(index + body.length) || '';
-			let cName = hasIn(aWords, body) ? 'red' : '';
-			if (!cName) cName = hasIn(aNames, body) ? 'blue' : '';
-			if (iBright === idx) cName += ' hover';
-			if (hasSpace) cName += ' underline';
-			cName += ' word';
-			return <span key={idx}>
-				{head}
-				<Popover trigger="hover" placement="topLeft" 
-					onVisibleChange={newVal=>handleVisibleChange(newVal)}
-					visible={iBright === idx}
-					content={<Button>按钮1</Button>}
-				>
-					<span className={cName}>{body}</span>
-				</Popover>
-				{tail}
-			</span>
-		});
-		// ▲得到背景单词
+		const aWordsList = this.markWords(text);
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
 			{aWordsList}
 			{/* TODO 下面的id要取缔 */}
@@ -352,6 +256,34 @@ export default class Tool extends MyClass {
 				onKeyDown={ev => this.enterKeyDown(ev)}
 			></textarea>
 		</cpnt.TextareaWrap>;
+	}
+	getAllSentence(){
+		const { aSteps, iCurStep } = this.state;
+		const {aLines, iCurLine} = aSteps[iCurStep];
+		const arr = aLines.map((cur, idx) => {
+			return <li key={idx} onClick={() => this.goLine(idx)}
+				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
+			>
+				<i className="idx">{idx + 1}</i>
+				<span className="time">
+					<em>{secToStr(cur.start)}</em>
+					<i>-</i>
+					<em>{secToStr(cur.end)}</em>
+				</span>
+				<cpnt.oneSentence>
+					{/* {cur.text} */}
+					{/* {this.spanArr(cur.text)} */}
+					{this.markWords(cur.text)}
+				</cpnt.oneSentence>
+			</li>;
+		});
+		const HTML = <cpnt.SentenceWrap
+			ref={this.oSententList}
+			style={{'--width': `${String(aLines.length || 0).length}em`}}
+		>
+			{arr}
+		</cpnt.SentenceWrap>
+		return HTML;
 	}
 	render() {
 		console.log("开始render");

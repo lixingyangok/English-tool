@@ -30,6 +30,24 @@ export const Container = styled.div`
 	.ant-spin-dot-item{
 		background: white;
 	}
+	.name{
+		color: blue;
+	}
+	.new-word{
+		color: red;
+	}
+	.underline,
+	.word-group{
+		position: relative;
+		&:after{
+			content: '';
+			position: absolute;
+			left: 0;
+			bottom: 3px;
+			right: 0;
+			border-top: solid 1px;
+		}
+	}
 `;
 
 
@@ -253,22 +271,6 @@ export const TextareaWrap = styled.div`
 		background: rgba(255, 255, 0, 0.2);
 		z-index: 2;
 	}
-	.red{
-		color: red;
-	}
-	.blue{
-		color: blue;
-	}
-	.underline{
-		&:after{
-			content: '';
-			position: absolute;
-			left: 0;
-			bottom: 3px;
-			right: 0;
-			border-top: solid 1px;
-		}
-	}
 	&, textarea{
 		display: block;
 		box-sizing: border-box;
@@ -448,14 +450,8 @@ export const oneSentence = styled.p`
 	padding: 0.4em 0;
 	box-sizing: content-box;
 	/* word-break: break-all; */
+	/* white-space: break-spaces; */
 	word-break: break-word;
-	& > span + span{
-		margin: 0 0 0 4px;
-		/* background: pink; */
-	}
-	.blue{
-		color: blue;
-	}
 `;
 
 // ▼历史记录

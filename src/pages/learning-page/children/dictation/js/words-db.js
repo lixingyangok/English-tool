@@ -3,9 +3,10 @@
  * @LastEditors: 李星阳
  * @Description: 
  */ 
-
+import React from "react";
 import {setWrods} from 'assets/js/learning-api.js';
 import {wordsDB, aAlphabet} from 'assets/js/common.js'
+// import {Popover, Button} from 'antd';
 
 export default class {
 	// ▼控制词库窗口可见性
@@ -118,4 +119,90 @@ export default class {
 		this.message.success(`保存成功`);
 		this.context.updateStoryInfo();
 	}
+	handleVisibleChange (newVal){
+		this.setState({iBright: newVal ? newVal : -1});
+	};
+	strToDom({txt, sClass=''}, idx){
+		// const {iBright} = this.state;
+		const {'0': body, index} = txt.match(/\w.*\w+/) || {'0': '', index: -1};
+		const head = index===-1 ? txt : txt.slice(0, index) || '';
+		const tail = index===-1 ? '' : txt.slice(index + body.length) || '';
+		// if (iBright === idx) sClass += ' hover';
+		return <span key={idx}>
+			{head}
+			{/* <Popover trigger="hover" placement="topLeft" 
+				onVisibleChange={this.handleVisibleChange.bind(this)}
+				visible={iBright === idx}
+				content={<Button>按钮1</Button>}
+			>
+				<span className={sClass}>{body}</span>
+			</Popover> */}
+			<span className={'word ' + sClass}>{body}</span>
+			{tail}
+		</span>
+	}
+	
+	// 
+	markWords(sText=''){
+		const {aWords, aNames} = this.state;
+		let aText = sText.match(/\S+\s{0,}/g) || [];
+		// if (aWords.length + aNames.length === 0) return aText;
+		console.time('计算');
+		const aWordsList = aText.reduce((aResult, cur, idx)=>{
+			if (idx === 0) return [{txt: cur, sClass: ''}];
+			const len = aResult.length;
+			const sBack02Txt = (aResult[len - 2] || {}).txt || '';
+			const sBack01Txt = aResult[len - 1].txt;
+			const {'0': sCurFixed} = cur.match(/\S+/) || [''];
+			// ▼开始计算
+			let [isLonger, isIn, sClass] = [false, false, ''];
+			if (len>=2){
+				[isLonger, sClass] = (()=>{
+					if (len < 2) return [false, ''];
+					const {'0': sBack02Fixed} = sBack02Txt.match(/\w.*/) || [''];
+					const longText = sBack02Fixed + sBack01Txt + sCurFixed;
+					if (hasIn(aWords, longText)) return [true, 'new-word word-group'];
+					if (hasIn(aNames, longText)) return [true, 'name word-group'];
+					return [false, ''];
+				})();
+			}
+			// ▲短-长▼
+			[isIn, sClass] = (()=>{
+				if (isLonger) return [false, sClass];
+				const {'0': sBack01Fixed} = sBack01Txt.match(/\w.*/) || [''];
+				const sNewOne = sBack01Fixed + sCurFixed;
+				if (hasIn(aWords, sNewOne)) return [true, 'new-word word-group'];
+				if (hasIn(aNames, sNewOne)) return [true, 'name word-group'];
+				return [false, ''];
+			})();
+			if (isLonger) {
+				const txt = sBack02Txt + sBack01Txt + cur;
+				aResult.splice(len - 2, 2, {txt, sClass});
+			}else if (isIn){
+				aResult[len-1] = {txt: sBack01Txt + cur, sClass};
+			}else{
+				sClass = hasIn(aWords, sCurFixed) && 'new-word';
+				if (!sClass) sClass = hasIn(aNames, sCurFixed) && 'name';
+				aResult.push({txt: cur, sClass});
+			}
+			return aResult;
+		}, []);
+		const {'0': txt} = sText.match(/^\s+/) || [''];
+		if (txt) aWordsList.unshift({txt});
+		const aaa = aWordsList.map((oCur, idx)=>{
+			return this.strToDom(oCur, idx);
+		});
+		console.log(aaa);
+		console.timeEnd('计算');
+		return aaa;
+	}
+}
+
+// ▼校验二参是否在一参中
+function hasIn(arr, str){
+	// 如人名是 li da 且被收藏，再输入 li 会被点亮，要注意
+	return arr.find(cur => {
+		// return cur.toLowerCase().split(/\s+/).includes(str.toLowerCase());
+		return cur.toLowerCase() === str.toLowerCase();
+	});
 }
