@@ -246,6 +246,29 @@ export const TextareaWrap = styled.div`
 	flex: none;
 	position: relative;
 	white-space: break-spaces;
+	.word{
+		position: relative;
+	}
+	.hover{
+		background: rgba(255, 255, 0, 0.2);
+		z-index: 2;
+	}
+	.red{
+		color: red;
+	}
+	.blue{
+		color: blue;
+	}
+	.underline{
+		&:after{
+			content: '';
+			position: absolute;
+			left: 0;
+			bottom: 3px;
+			right: 0;
+			border-top: solid 1px;
+		}
+	}
 	&, textarea{
 		display: block;
 		box-sizing: border-box;
@@ -256,33 +279,8 @@ export const TextareaWrap = styled.div`
 		font-size: 22px;
 		resize: none;
 		border-radius: 2px;
+		border: 1px solid transparent;
 		/* vertical-align: bottom; */
-	}
-	&{
-		.word{
-			position: relative;
-		}
-		.hover{
-			background: rgba(255, 255, 0, 0.2);
-			z-index: 2;
-		}
-		.red{
-			color: red;
-		}
-		.blue{
-			color: blue;
-		}
-		.underline{
-			position: relative;
-			&:after{
-				content: '';
-				position: absolute;
-				left: 0;
-				bottom: 3px;
-				right: 0;
-				border-top: solid 1px red;
-			}
-		}
 	}
 	textarea{
 		position: absolute;

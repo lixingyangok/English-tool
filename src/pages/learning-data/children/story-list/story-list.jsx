@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-12-15 21:50:40
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 17:38:02
+ * @LastEditTime: 2021-02-22 19:50:26
  * @Description: 
  */
 
@@ -61,7 +61,7 @@ export default class extends MyClass{
 				<Button size='small' className="thin" type="link" onClick={()=>this.goInfoPage02(oCurStory)}>
 					详情
 				</Button>
-				<Button size='small' className="hide thin gap" type="text" thin onClick={()=>this.showModal(oCurStory)}>
+				<Button size='small' className="hide thin gap" type="text" onClick={()=>this.showModal(oCurStory)}>
 					修改
 				</Button>
 				<Dropdown overlay={
