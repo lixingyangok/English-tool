@@ -154,13 +154,13 @@ export default class Tool extends MyClass {
 	// ▼提示单词
 	getWordsList({aMatched, aWords, aNames, sTyped}){
 		const arr = aMatched.map((cur, idx)=>{
-			let sKind = hasIn(aNames, cur) ? 'names' : '';
-			if (!sKind) sKind = hasIn(aWords, cur) ? 'words' : '';
-			const sClass = sKind + (cur.match(/\s/) ? ' underline' : '');
+			let sKind = hasIn(aNames, cur) ? 'name' : '';
+			if (!sKind) sKind = hasIn(aWords, cur) ? 'new-word' : '';
+			const sClass = sKind + (cur.match(/\s/) ? ' word-group' : '');
 			const sRight = cur.slice(sTyped.length).trim();
 			const inner = <cpnt.oneWord key={idx} >
 				{sTyped ? <i className="idx">{idx+1}</i> : null}
-				<span className={sClass} >
+				<span className={sClass}>
 					<em className="left">{sTyped}</em>
 					{(sTyped && sRight) ? '·' : ''}
 					<span className="right">{sRight}</span>
@@ -271,9 +271,9 @@ export default class Tool extends MyClass {
 					<em>{secToStr(cur.end)}</em>
 				</span>
 				<cpnt.oneSentence>
-					{/* {cur.text} */}
+					{cur.text}
 					{/* {this.spanArr(cur.text)} */}
-					{this.markWords(cur.text)}
+					{/* {this.markWords(cur.text)} */}
 				</cpnt.oneSentence>
 			</li>;
 		});

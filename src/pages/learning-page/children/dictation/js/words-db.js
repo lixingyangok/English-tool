@@ -110,7 +110,7 @@ export default class {
 	// ▼删除一个保存的单词
 	async delWord(sKey, sWord) {
 		const {oStory} = this.state;
-		const keyName = {names: "aNames", words: "aWords"}[sKey];
+		const keyName = {name: "aNames", 'new-word': "aWords"}[sKey];
 		const arrToSubmit = this.state[keyName].filter(cur => {
 			return cur !== sWord;
 		});
@@ -145,9 +145,7 @@ export default class {
 	// 
 	markWords(sText=''){
 		const {aWords, aNames} = this.state;
-		let aText = sText.match(/\S+\s{0,}/g) || [];
-		// if (aWords.length + aNames.length === 0) return aText;
-		console.time('计算');
+		const aText = sText.match(/\S+\s{0,}/g) || [];
 		const aWordsList = aText.reduce((aResult, cur, idx)=>{
 			if (idx === 0) return [{txt: cur, sClass: ''}];
 			const len = aResult.length;
@@ -189,12 +187,10 @@ export default class {
 		}, []);
 		const {'0': txt} = sText.match(/^\s+/) || [''];
 		if (txt) aWordsList.unshift({txt});
-		const aaa = aWordsList.map((oCur, idx)=>{
+		const aResult = aWordsList.map((oCur, idx)=>{
 			return this.strToDom(oCur, idx);
 		});
-		console.log(aaa);
-		console.timeEnd('计算');
-		return aaa;
+		return aResult;
 	}
 }
 

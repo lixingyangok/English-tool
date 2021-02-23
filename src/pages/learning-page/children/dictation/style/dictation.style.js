@@ -36,9 +36,9 @@ export const Container = styled.div`
 	.new-word{
 		color: red;
 	}
-	.underline,
 	.word-group{
-		position: relative;
+		text-decoration: underline;
+		/* position: relative;
 		&:after{
 			content: '';
 			position: absolute;
@@ -46,7 +46,7 @@ export const Container = styled.div`
 			bottom: 3px;
 			right: 0;
 			border-top: solid 1px;
-		}
+		} */
 	}
 `;
 
@@ -342,17 +342,9 @@ export const oneWord = styled.span`
 		font-size: 16px;
 		/* position: relative; top: 1px; */
 	}
-	.words,
-	.names{
+	.new-word,
+	.name{
 		cursor: pointer;
-		color: blue;
-	}
-	.words{
-		color: red;
-	}
-	.underline{
-		text-decoration: underline;
-		/* text-decoration-color: #aaa; */
 	}
 	&:nth-child(n+5) .idx{
 		background: deepskyblue;

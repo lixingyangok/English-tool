@@ -224,6 +224,9 @@ export default class {
 		const sType = `scroll${sDirection}`;
 		const iOldVal = oDom[sType];
 		if (~~iOldVal === ~~iNewVal) return;
+		if ('不要动画效果'){
+			oDom[sType] = iNewVal; return;
+		}
 		const [iTakeTime, iTimes] = [350, 40]; //走完全程耗时, x毫秒走一步
 		const iOneStep = ~~((iNewVal - iOldVal) / (iTakeTime / iTimes));
 		const scrollTimer = setInterval(()=>{
