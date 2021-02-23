@@ -45,14 +45,18 @@ export async function fileToBuffer(oFile, isWantFakeBuffer=false){
 }
 
 // ▼浮点秒，转为时间轴的时间
-export function secToStr(fSecond){
+export function secToStr(fSecond, forShow){
 	const iHour = Math.floor(fSecond / 3600) + ''; //时
 	const iMinut = Math.floor((fSecond - iHour * 3600) / 60) + ''; //分
 	const fSec = fSecond - (iHour*3600 + iMinut*60) + ''; //秒
 	const [sec01, sec02='000'] = fSec.split('.');
-	const sTime = `${iHour.padStart(2, 0)}:${iMinut.padStart(2, 0)}:${sec01.padStart(2, 0)}`;
-	const sTail = `,${sec02.slice(0, 3).padEnd(3, 0)}`;
-	return sTime + sTail;
+	let sTime = `${iHour.padStart(2, 0)}:${iMinut.padStart(2, 0)}:${sec01.padStart(2, 0)}`;
+	let iTail = `,${sec02.slice(0, 3).padEnd(3, 0)}`;
+	if (forShow){
+		sTime = sTime.slice(1);
+		iTail = '.' + iTail.slice(1, 3);
+	}
+	return sTime + iTail;
 }
 
 // ▼时间轴的时间转秒
@@ -66,6 +70,8 @@ export function getSeconds(text) {
 export function fixTime(oTarget){
 	const {start, end, text} = oTarget;
 	oTarget.long = (end - start).toFixed(2) * 1;
+	oTarget.start_ = secToStr(start, true);
+	oTarget.end_ = secToStr(end, true);
 	oTarget.text = text || '';
 	return oTarget;
 }
@@ -173,10 +179,13 @@ export function getFakeBuffer(buffer){
 
 // ▼数组转 Blob，用于上传字幕
 export function arrToblob(arr){
-	arr = arr.dc_; // 深拷贝，不影响原值
-	arr.forEach(cur => delete cur.long);
+	const newArr = arr.map(cur=>({ // 净化
+		start: cur.start.toFixed(2) * 1,
+		end: cur.end.toFixed(2) * 1,
+		text: cur.text, // 考虑加上 trim 
+	}));
 	const file = new Blob(
-		[JSON.stringify(arr)],
+		[JSON.stringify(newArr)],
 		{type: 'application/json;charset=utf-8'},
 	);
 	return file;

@@ -44,7 +44,10 @@ export default class Tool extends MyClass {
 	oTextArea = React.createRef();
 	oTextBg = React.createRef();
 	oSententList = React.createRef();
+	doingTimer = null;
+	oOldSentence = [];
 	state = {
+		isDoing: false,
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
 		iHeight: 0.3, // 波形高
@@ -258,30 +261,43 @@ export default class Tool extends MyClass {
 		</cpnt.TextareaWrap>;
 	}
 	getAllSentence(){
+		if (this.state.isDoing) return this.oOldSentence;
 		const { aSteps, iCurStep } = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
+		const oSententList = this.oSententList.current || {};
+		const {scrollTop=0, children=[]} = oSententList;
+		let topIdx = 0;
+		if (children[0]){
+			topIdx = ~~(scrollTop / children[0].offsetHeight);
+		}
+		console.time("显示句子");
 		const arr = aLines.map((cur, idx) => {
+			const thingsToShow = (
+				((idx >= topIdx) && (idx < topIdx + 15))
+				? this.markWords(cur.text)
+				: cur.text
+			);
 			return <li key={idx} onClick={() => this.goLine(idx)}
 				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
 			>
 				<i className="idx">{idx + 1}</i>
 				<span className="time">
-					<em>{secToStr(cur.start)}</em>
-					<i>-</i>
-					<em>{secToStr(cur.end)}</em>
+					<em>{cur.start_}</em><i>-</i><em>{cur.end_}</em>
 				</span>
 				<cpnt.oneSentence>
-					{/* {cur.text} */}
-					{this.markWords(cur.text)}
+					{thingsToShow}
 				</cpnt.oneSentence>
 			</li>;
 		});
+		const sWidth = {'--width': `${String(aLines.length || 0).length}em`};
 		const HTML = <cpnt.SentenceWrap
-			ref={this.oSententList}
-			style={{'--width': `${String(aLines.length || 0).length}em`}}
+			ref={this.oSententList} style={sWidth}
+			onScroll={(ev)=>this.sentenceScroll(ev)}
 		>
 			{arr}
 		</cpnt.SentenceWrap>
+		console.timeEnd("显示句子");
+		this.oOldSentence = HTML;
 		return HTML;
 	}
 	render() {
