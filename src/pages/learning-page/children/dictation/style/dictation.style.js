@@ -283,6 +283,8 @@ export const TextareaWrap = styled.div`
 		border-radius: 2px;
 		border: 1px solid transparent;
 		/* vertical-align: bottom; */
+		word-break: break-word;
+		white-space: pre-wrap;
 	}
 	textarea{
 		position: absolute;
