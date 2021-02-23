@@ -110,6 +110,7 @@ export default class {
 
 	// ▼ 输入框文字改变
 	valChanged(ev) {
+		this.debounceFn();
 		const { value: sText, selectionStart: idx } = ev.target;
 		let sTyped = ''; // 单词开头（用于搜索的）
 		const [sLeft, sRight] = [sText.slice(0, idx), sText.slice(idx)];
@@ -117,12 +118,12 @@ export default class {
 		const { iCurLine, aLines } = aSteps[iCurStep]; // 当前步骤
 		if (sLeft.match(/.+[^a-zA-Z]$/)) { // 如果键入了【非】英文字母，【需要】生成新历史
 			this.setCurLine({ ...aLines[iCurLine], text: sText });
-			this.setState({ sTyped }); // 进入判断 sTyped 一定是空字符
+			this.setState({ sTyped}); // 进入判断 sTyped 一定是空字符
 		} else { // 英文字母结尾，【不要】生成新历史
 			const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 			aLines[iCurLine].text = sText;
-			this.setState({ aSteps, sTyped });
+			this.setState({ aSteps, sTyped});
 		}
 		this.getMatchedWords(sTyped);
 	}
@@ -319,5 +320,8 @@ export default class {
 		this.setTime('end', newEnd);
 		this.goToCurLine();
 	}
-	
+	sentenceScroll(ev){
+		// console.log('ev', ev);
+		this.debounceFn(50);
+	}
 }

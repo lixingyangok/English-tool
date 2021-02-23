@@ -49,6 +49,7 @@ export default class {
 	// 监听滚动
 	onScrollFn() {
 		// console.log('监听到滚动');
+		this.debounceFn();
 		let {buffer, iPerSecPx} = this.state;
 		let {offsetWidth, scrollLeft} = this.oWaveWrap.current;
 		const {aPeaks, fPerSecPx} = this.getPeaks(

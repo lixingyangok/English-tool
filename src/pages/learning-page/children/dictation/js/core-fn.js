@@ -347,5 +347,13 @@ export default class {
 		this.setState({ aSteps, changeTs });
 		mediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
 	}
+	// ▼防抖
+	debounceFn(iLong=350){
+		clearTimeout(this.doingTimer);
+		this.state.isDoing || this.setState({isDoing: true});
+		this.doingTimer = setTimeout(()=>{
+			this.setState({isDoing: false});
+		}, iLong);
+	}
 }
 

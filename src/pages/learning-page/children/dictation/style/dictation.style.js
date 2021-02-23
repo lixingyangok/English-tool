@@ -418,7 +418,7 @@ export const SentenceWrap = styled.ol`
 	}
 	.time{
 		flex: none;
-		width: 216px;
+		width: 180px;
 		border: solid #aaa;
 		border-width: 0 1px;
 		margin: 0 0.6em 0 0;
