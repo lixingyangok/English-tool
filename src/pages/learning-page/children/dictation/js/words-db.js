@@ -219,6 +219,7 @@ function checkInArr(arr, str01, str02){
 	}
 }
 
+if (0) console.log(checkInArr);
 
 // const aWordsList = aText.reduce((aResult, cur, idx)=>{
 // 	if (idx === 0) return [{txt: cur, sClass: ''}];
