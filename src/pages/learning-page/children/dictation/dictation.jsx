@@ -271,9 +271,8 @@ export default class Tool extends MyClass {
 					<em>{secToStr(cur.end)}</em>
 				</span>
 				<cpnt.oneSentence>
-					{cur.text}
-					{/* {this.spanArr(cur.text)} */}
-					{/* {this.markWords(cur.text)} */}
+					{/* {cur.text} */}
+					{this.markWords(cur.text)}
 				</cpnt.oneSentence>
 			</li>;
 		});

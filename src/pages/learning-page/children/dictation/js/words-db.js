@@ -147,7 +147,7 @@ export default class {
 		const {aWords, aNames} = this.state;
 		const aText = sText.match(/\S+\s*/g) || [];
 		const iLength = aText.length;
-		console.time('计时');
+		// console.time('计时');
 		const aWordsList = [];
 		const regExp01 = /\S\w*/;
 		const regExp011 = /[\w-]+/;
@@ -187,7 +187,7 @@ export default class {
 				aWordsList.push({txt: cur, sClass});
 			}
 		}
-		console.timeEnd('计时');
+		// console.timeEnd('计时');
 		const {'0': txt} = sText.match(/^\s+/) || [''];
 		if (txt) aWordsList.unshift({txt});
 		const aResult = aWordsList.map((oCur, idx)=>{
