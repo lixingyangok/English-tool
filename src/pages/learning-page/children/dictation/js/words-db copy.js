@@ -152,6 +152,7 @@ export default class {
 		const regExp01 = /\S\w*/;
 		const regExp011 = /[\w-]+/;
 		const regExp02 = /\w.*/; // 用于 back01 & back02
+		const regDoubleSpace = /\s\S+\s/; // 检查是否包含2个空格
 		for (let idx = 0; idx < iLength; idx++) {
 			if (idx === 0) {
 				aWordsList.push({txt: aText[idx], sClass: ''});
@@ -162,27 +163,29 @@ export default class {
 			const len = aWordsList.length;
 			const sBack02Txt = (aWordsList[len - 2] || {}).txt || '';
 			const sBack01Txt = aWordsList[len - 1].txt;
-			const [isLonger, sClass, isGoBackTwo] = (()=>{
+			let [isLonger, sClass, isGoBackTwo] = (()=>{
 				const sBack02Fixed = (sBack02Txt.match(regExp02) || [''])[0];
-				const longText = sBack02Fixed + sBack01Txt + sCurFixed;
-				if (hasIn(aWords, longText)) return [true, 'new-word word-group', true];
-				if (hasIn(aNames, longText)) return [true, 'name word-group', true];
 				const sBack01Fixed = (sBack01Txt.match(regExp02) || [''])[0];
+				const longText = sBack02Fixed + sBack01Txt + sCurFixed;
 				const sNewOne = sBack01Fixed + sCurFixed;
-				if (hasIn(aWords, sNewOne)) return [true, 'new-word word-group'];
-				if (hasIn(aNames, sNewOne)) return [true, 'name word-group'];
+				const sTry01 = checkInArr(aWords, longText, sNewOne);
+				if (sTry01) return [true, 'new-word',  sTry01.match(regDoubleSpace)];
+				const sTry02 = checkInArr(aWords, longText, sNewOne);
+				if (sTry02)  return [true, 'name', sTry02.match(regDoubleSpace)];
 				return [false, ''];
 			})();
 			if (isLonger) {
+				sClass += ' word-group';
+				let txt = sBack01Txt + cur;
 				if (isGoBackTwo){
-					const txt = sBack02Txt + sBack01Txt + cur;
+					txt = sBack02Txt + txt;
 					aWordsList.splice(len - 2, 2, {txt, sClass});
 				}else{
-					aWordsList[len-1] = {txt: sBack01Txt + cur, sClass};
+					aWordsList[len-1] = {txt, sClass};
 				}
 			}else{
 				const sCurFixed= (cur.match(regExp011) || [''])[0];
-				let sClass = hasIn(aWords, sCurFixed) && 'new-word';
+				sClass = hasIn(aWords, sCurFixed) && 'new-word';
 				if (!sClass) sClass = hasIn(aNames, sCurFixed) && 'name';
 				aWordsList.push({txt: cur, sClass});
 			}
@@ -213,9 +216,7 @@ function checkInArr(arr, str01, str02){
 	str02 = str02.toLowerCase();
 	for (let idx = arr.length; idx--;){
 		const cur = arr[idx].toLowerCase();
-		if (cur === str01 || cur === str02) {
-			return cur;
-		}
+		if (cur === str01 || cur === str02) return cur;
 	}
 }
 
