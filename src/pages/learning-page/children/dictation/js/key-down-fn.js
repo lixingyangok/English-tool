@@ -320,8 +320,4 @@ export default class {
 		this.setTime('end', newEnd);
 		this.goToCurLine();
 	}
-	sentenceScroll(ev){
-		// console.log('ev', ev);
-		this.debounceFn(50);
-	}
 }

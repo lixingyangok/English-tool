@@ -262,6 +262,7 @@ export default class Tool extends MyClass {
 	}
 	getAllSentence(){
 		if (this.state.isDoing) return this.oOldSentence;
+		console.time("显示句子");
 		const { aSteps, iCurStep } = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oSententList = this.oSententList.current || {};
@@ -270,7 +271,6 @@ export default class Tool extends MyClass {
 		if (children[0]){
 			topIdx = ~~(scrollTop / children[0].offsetHeight);
 		}
-		console.time("显示句子");
 		const arr = aLines.map((cur, idx) => {
 			const thingsToShow = (
 				((idx >= topIdx) && (idx < topIdx + 15))

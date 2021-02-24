@@ -147,6 +147,11 @@ export default class {
 			this.setState({iBright});
 		}, 250);
 	}
+	sentenceScroll(ev){
+		// console.log('ev', ev);
+		console.log('字幕，滚动了！');
+		this.debounceFn(35);
+	}
 }
 
 function aa (){
