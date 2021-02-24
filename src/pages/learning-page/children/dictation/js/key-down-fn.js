@@ -110,7 +110,7 @@ export default class {
 
 	// ▼ 输入框文字改变
 	valChanged(ev) {
-		this.debounceFn();
+		// this.debounceFn();
 		const { value: sText, selectionStart: idx } = ev.target;
 		let sTyped = ''; // 单词开头（用于搜索的）
 		const [sLeft, sRight] = [sText.slice(0, idx), sText.slice(idx)];

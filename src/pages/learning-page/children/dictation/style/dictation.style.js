@@ -4,6 +4,7 @@ import {iHeaderHeight} from 'pages/learning-page/style/learning-page.style.js';
 export const iMarkWrapHeight = 18;
 export const iCanvasHeight = 110;
 export const iScrollHeight = 12;
+export const iLineHeight = 35; // 一行字幕的高度
 
 export const Container = styled.div`
 	box-sizing: border-box;
@@ -260,20 +261,12 @@ export const RegionWrap = styled.section`
 `;
 
 export const TextareaWrap = styled.div`
-	margin: 0;
 	flex: none;
 	position: relative;
-	white-space: break-spaces;
-	.word{
-		position: relative;
-	}
-	.hover{
-		background: rgba(255, 255, 0, 0.2);
-		z-index: 2;
-	}
 	&, textarea{
 		display: block;
 		box-sizing: border-box;
+		margin: 0;
 		width: 100%;
 		height: 90px;
 		line-height: 1.5;
@@ -284,7 +277,23 @@ export const TextareaWrap = styled.div`
 		border: 1px solid transparent;
 		/* vertical-align: bottom; */
 		word-break: break-word;
+		/* white-space: pre-wrap;
+		white-space: break-spaces; */
+		/* ▼默认的 */
+		-webkit-writing-mode: horizontal-tb !important;
+		text-rendering: auto;
+		letter-spacing: normal;
+		word-spacing: normal;
+		text-transform: none;
+		text-indent: 0px;
+		text-shadow: none;
+		text-align: start;
+		appearance: textarea;
+		-webkit-rtl-ordering: logical;
+		flex-direction: column;
 		white-space: pre-wrap;
+		overflow-wrap: break-word;
+		column-count: initial !important;
 	}
 	textarea{
 		position: absolute;
@@ -305,6 +314,13 @@ export const TextareaWrap = styled.div`
 			outline: 0;
 			box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
 		}
+	}
+	.word{
+		position: relative;
+	}
+	.hover{
+		background: rgba(255, 255, 0, 0.2);
+		z-index: 2;
 	}
 `;
 
@@ -387,7 +403,6 @@ export const InfoBar = styled.div`
 export const SentenceWrap = styled.ol`
 	overflow-y: auto;
 	list-style: none;
-	padding: 0 0 100px;
 	margin: 20px 0 0;
 	border: solid #aaa;
 	border-width: 1px 0;
@@ -397,7 +412,12 @@ export const SentenceWrap = styled.ol`
 		border-width:  0 0 1px;
 		font-size: 16px;
 		font-weight: 500;
+		height: ${iLineHeight}px;
 		cursor: pointer;
+		overflow: hidden;
+		&:hover{
+			height: auto;
+		}
 		&[class~=cur]{
 			background: #ceffe7;
 		}

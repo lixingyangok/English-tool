@@ -6,6 +6,7 @@ import {
 } from 'assets/js/pure-fn.js';
 import {trainingDB} from 'assets/js/common.js';
 import {getQiniuToken} from 'assets/js/learning-api.js';
+import {iLineHeight} from '../style/dictation.style.js';
 
 const {media: mediaTB} = trainingDB;
 const axios = window.axios;
@@ -55,12 +56,12 @@ export default class {
         this.goLine(iCurLine, false, true);
     }
 	// ▼跳至某行
-	async goLine(idx, oNewLine, doNotSave) {
+	async goLine(iAimLine, oNewLine, doNotSave) {
 		const oWaveWrap = this.oWaveWrap.current;
 		const {offsetWidth} = oWaveWrap;
 		const {fPerSecPx} = this.state;
-		const {start, long} = oNewLine || this.getCurLine(idx);
-		const iTopVal = (() => {
+		const {start, long} = oNewLine || this.getCurLine(iAimLine);
+		const iTopVal = (() => { // 计算波形框定位的位置
 			const startPx = fPerSecPx * start;
 			const restPx = offsetWidth - long * fPerSecPx;
 			if (restPx <= 0) return startPx - 100; //100表示起点距离左边100
@@ -69,12 +70,32 @@ export default class {
 		this.goThere(oWaveWrap, 'Left', iTopVal);
 		// ▲波形定位，▼下方句子定位
 		const oSententList = this.oSententList.current;
+		const {scrollTop: sTop, offsetHeight: oHeight} = oSententList;
+		const abloveCurLine = iAimLine * iLineHeight; // 当前行以上高度
+		oSententList.scrollTop = (()=>{
+			if (abloveCurLine < sTop + iLineHeight) return abloveCurLine - iLineHeight;
+			// ▲上方超出可视区，▼下方超出可视区（以下代码没能深刻理解）
+			if (abloveCurLine > sTop + oHeight - iLineHeight * 2) {
+				return abloveCurLine - oHeight + iLineHeight * 2;
+			}
+			return sTop;
+		})();
+        if (doNotSave) return;
+		const { oCurStepDc } = this.getCurStep();
+		oCurStepDc.iCurLine = iAimLine;
+		if (oNewLine) oCurStepDc.aLines.push(oNewLine);
+		this.setCurStep(oCurStepDc);
+	}
+	oldFn(){
+		let iAimLine = 0;
+		const oSententList = this.oSententList.current;
 		const {offsetHeight, scrollTop, children} = oSententList;
 		const [top01, abloveCurLine, curLine, bottom01] = [...children].reduce((result, {offsetHeight}, iCurIdx)=>{
-			if (iCurIdx === idx - 1) result[0] = offsetHeight; //取得目标行【上一行】高度
-			if (iCurIdx < idx) result[1] += offsetHeight; //当前行小于目标行，累计高度
-			if (iCurIdx === idx) result[2] = offsetHeight; //取得【目标行】高度
-			if (iCurIdx === idx + 1) result[3] = offsetHeight; //取得目标行【下一行】高度
+			// iLineHeight
+			if (iCurIdx === iAimLine - 1) result[0] = offsetHeight; //取得目标行【上一行】高度
+			if (iCurIdx < iAimLine) result[1] += offsetHeight; //当前行小于目标行，累计高度
+			if (iCurIdx === iAimLine) result[2] = offsetHeight; //取得【目标行】高度
+			if (iCurIdx === iAimLine + 1) result[3] = offsetHeight; //取得目标行【下一行】高度
 			return result;
 		}, [0, 0, 0, 50]);
 		oSententList.scrollTop = (()=>{
@@ -85,11 +106,6 @@ export default class {
 			}
 			return scrollTop;
 		})();
-        if (doNotSave) return;
-		const { oCurStepDc } = this.getCurStep();
-		oCurStepDc.iCurLine = idx;
-		if (oNewLine) oCurStepDc.aLines.push(oNewLine);
-		this.setCurStep(oCurStepDc);
 	}
 	// ▼清空画布
 	cleanCanvas() {

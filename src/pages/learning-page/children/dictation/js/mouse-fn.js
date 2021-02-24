@@ -4,6 +4,8 @@
  * @Description: 
  */
 
+import {iLineHeight} from "../style/dictation.style.js";
+
 export default class {
 	// ▼处理左键点击和拖动
 	mouseDownFn(ev01) {
@@ -47,9 +49,8 @@ export default class {
 		ev.returnValue = false;
 	}
 	// 监听滚动
-	onScrollFn() {
+	waveWrapScroll() {
 		// console.log('监听到滚动');
-		// this.debounceFn();
 		let {buffer, iPerSecPx} = this.state;
 		let {offsetWidth, scrollLeft} = this.oWaveWrap.current;
 		const {aPeaks, fPerSecPx} = this.getPeaks(
@@ -147,10 +148,17 @@ export default class {
 			this.setState({iBright});
 		}, 250);
 	}
+	// ▼字幕滚动事件
 	sentenceScroll(ev){
-		// console.log('ev', ev);
-		console.log('字幕，滚动了！');
-		// this.debounceFn(35);
+		// console.log('字幕，滚动了！');
+		clearInterval(this.sentenceScrollTimer);
+		const {current: oWrap} = this.oSententList;
+		if (!oWrap) return;
+		const iTopLine = ~~(oWrap.scrollTop / iLineHeight);
+		this.setState({iTopLine, sentenceScrolling: true});
+		this.sentenceScrollTimer = setTimeout(cur=>{
+			this.setState({sentenceScrolling: false});
+		}, 30);
 	}
 }
 

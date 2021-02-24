@@ -45,8 +45,8 @@ export default class Tool extends MyClass {
 	oTextArea = React.createRef();
 	oTextBg = React.createRef();
 	oSententList = React.createRef();
-	doingTimer = null;
-	oOldSentence = [];
+	doingTimer = null; // TODO 考虑删除
+	sentenceScrollTimer = null;
 	state = {
 		isDoing: false,
 		buffer: {}, //音频数据
@@ -83,6 +83,9 @@ export default class Tool extends MyClass {
 		sSearching: '',  // 正在搜索的单词
 		mediaFile_: {}, // 媒体文件
 		iBright: -1,
+		iTopLine: 0,
+		sentenceScrolling: false,
+
 	};
 	constructor(props) {
 		super(props);
@@ -95,7 +98,7 @@ export default class Tool extends MyClass {
 			'beforeUseNetSubtitle', 
 			'clickOnWave', 
 			'mouseDownFn', 
-			'onScrollFn', 
+			'waveWrapScroll', 
 			'valChanged',
 			'enterKeyDown',
 			'sentenceScroll',
@@ -278,23 +281,15 @@ export default class Tool extends MyClass {
 		</cpnt.TextareaWrap>;
 	}
 	getAllSentence(){
-		if (this.state.isDoing) return this.oOldSentence;
 		console.time("显示句子");
-		const { aSteps, iCurStep } = this.state;
+		const { aSteps, iCurStep, iTopLine } = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
-		const oSententList = this.oSententList.current || {};
-		const {scrollTop=0, children=[]} = oSententList;
-		let topIdx = 0;
-		if (children[0]){
-			topIdx = ~~(scrollTop / children[0].offsetHeight);
-		}
-		const arr = aLines.map((cur, idx) => {
-			const thingsToShow = (
-				((idx >= topIdx) && (idx < topIdx + 15))
-				? this.markWords(cur.text)
-				: cur.text
-			);
-			return <li key={idx} onClick={() => this.goLine(idx)}
+		const {length: iLen} = aLines;
+		const aSentences = [];
+		const iEnd = Math.min(iTopLine + 15, iLen);
+		for (let idx = iTopLine; idx < iEnd; idx++ ){
+			const cur = aLines[idx];
+			const oLi = <li key={idx} onClick={() => this.goLine(idx)}
 				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
 			>
 				<i className="idx">{idx + 1}</i>
@@ -302,18 +297,27 @@ export default class Tool extends MyClass {
 					<em>{cur.start_}</em><i>-</i><em>{cur.end_}</em>
 				</span>
 				<cpnt.oneSentence>
-					{thingsToShow}
+					{
+						this.state.sentenceScrolling
+						? cur.text
+						: this.markWords(cur.text)
+					}
 				</cpnt.oneSentence>
 			</li>;
-		});
-		const sWidth = {'--width': `${String(aLines.length || 0).length}em`};
+			aSentences.push(oLi);
+		}
+		const iHeight = cpnt.iLineHeight;
+		const oTopGap = {height: `${iHeight * iTopLine}px`};
+		const oBottomGap = {height: `${iHeight * (iLen - iEnd) + 100}px`};
+		const oStyle = {'--width': `${String(iLen || 0).length}em`};
 		const HTML = <cpnt.SentenceWrap ref={this.oSententList} 
-			style={sWidth} onScroll={this.sentenceScroll}
+			style={oStyle} onScroll={this.sentenceScroll}
 		>
-			{arr}
+			<li style={oTopGap}></li>
+			{aSentences}
+			<li style={oBottomGap}></li>
 		</cpnt.SentenceWrap>
 		console.timeEnd("显示句子");
-		this.oOldSentence = HTML;
 		return HTML;
 	}
 	render() {
@@ -353,7 +357,7 @@ export default class Tool extends MyClass {
 		const WaveRight = <div className="right">
 			<cpnt.WaveBox>
 				<canvas height={iCanvasHeight} ref={this.oCanvas}/>
-				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={this.onScrollFn}>
+				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={this.waveWrapScroll}>
 					<cpnt.LongBar style={oLongBarStyle}
 						onContextMenu={this.clickOnWave}
 						onMouseDown={this.mouseDownFn}
