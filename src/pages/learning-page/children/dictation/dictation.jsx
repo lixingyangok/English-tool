@@ -25,7 +25,8 @@ const MyClass = window.mix(
 );
 
 // TODO
-// textare 的输入动效，校对功能
+// textarea 的输入动效，输入后听写校对功能
+// textarea 用 canvas 实现？ 
 
 export default class Tool extends MyClass {
 	static contextType = MyContext;
@@ -86,6 +87,24 @@ export default class Tool extends MyClass {
 	constructor(props) {
 		super(props);
 		this.checkWordsDB();
+		[
+			'delWord', 
+			'initWordsDB', 
+			'cleanWordsList', 
+			'uploadToCloudBefore', 
+			'beforeUseNetSubtitle', 
+			'clickOnWave', 
+			'mouseDownFn', 
+			'onScrollFn', 
+			'valChanged',
+			'enterKeyDown',
+			'sentenceScroll',
+			'commander',
+			'toHideWordModal',
+			'toHideCompareModal',
+		].forEach(cur=>{
+			this[cur] = this[cur].bind(this);
+		});
 	}
 	// ▼时间刻度
 	getMarkBar({fPerSecPx}){
@@ -182,9 +201,11 @@ export default class Tool extends MyClass {
 			{arr}
 		</cpnt.WordsBar>;
 	}
-	getDialog({aWords, aWordsDBState}){
+	// ▼单词库的窗口
+	getWordsDialog({aWords, aWordsDBState}){
 		const arr = aWords.sort().map((cur, idx)=>{
-			return <Popconfirm title="确定删除？" okText="删除" cancelText="取消" placement="topLeft"
+			return <Popconfirm title="确定删除？"
+				okText="删除" cancelText="取消" placement="topLeft"
 				onConfirm={()=>this.delWord(cur)} key={idx}
 			>
 				<span className="one-word">{cur}</span>
@@ -192,18 +213,17 @@ export default class Tool extends MyClass {
 		});
 		const noWrods = <p className="no-words">暂无单词</p>;
 		const isWordsDBOK = aWordsDBState.length === 26;
-		return <Modal title="单词库"
-			visible={this.state.visible} footer={null}
-			onCancel={()=>this.setState({visible: false})}
+		return <Modal title="单词库" visible={this.state.visible} 
+			footer={null} onCancel={this.toHideWordModal}
 		>
 			<cpnt.WordsDialog>
 				<div className="btn-bar">
 					<Button type={isWordsDBOK && "primary"}
-						onClick={()=>this.initWordsDB()}
+						onClick={this.initWordsDB}
 					>
 						{isWordsDBOK ? '词库已经初始化' : '初始化单词库'}
 					</Button>
-					<Button onClick={()=>this.cleanWordsList()}>清空</Button>
+					<Button onClick={this.cleanWordsList}>清空</Button>
 				</div>
 				<div className="words-list">
 					{arr.length ? arr : noWrods}
@@ -219,10 +239,10 @@ export default class Tool extends MyClass {
 		const iLong = String(iMax).length;
 		const [tips01, tips02] = this.getSubtitleInfo();
 		const btnBar = <Space>
-			<Button type="primary" onClick={()=>this.uploadToCloudBefore()} >
+			<Button type="primary" onClick={this.uploadToCloudBefore}>
 				上传本地字幕
 			</Button>
-			<Button onClick={()=>this.beforeUseNetSubtitle()} >
+			<Button onClick={this.beforeUseNetSubtitle}>
 				使用网络字幕
 			</Button>
 			<em>{tips01}，{tips02}</em>
@@ -236,10 +256,10 @@ export default class Tool extends MyClass {
 				<div className="right">{bb.text || ''}</div>
 			</cpnt.oneMatchLine>
 		});
-		return <Modal title="对比窗口" width="92%"
-			style={{ top: 20,  }}
+		const oStyle = { top: 20 };
+		return <Modal title="对比窗口" width="92%" style={oStyle}
 			visible={this.state.matchDialogVisible} footer={null}
-			onCancel={()=>this.setState({matchDialogVisible: false})}
+			onCancel={this.toHideCompareModal}
 		>
 			{btnBar}
 			<cpnt.matchUl>{aLi}</cpnt.matchUl>
@@ -250,13 +270,10 @@ export default class Tool extends MyClass {
 		const aWordsList = this.markWords(text);
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
 			{aWordsList}
-			{/* TODO 下面的id要取缔 */}
-			<textarea className="textarea"
-				id="myTextArea"
-				ref={this.oTextArea}
+			<textarea className="textarea" ref={this.oTextArea}
 				value={text}
-				onChange={ev => this.valChanged(ev)}
-				onKeyDown={ev => this.enterKeyDown(ev)}
+				onChange={this.valChanged}
+				onKeyDown={this.enterKeyDown}
 			></textarea>
 		</cpnt.TextareaWrap>;
 	}
@@ -290,9 +307,8 @@ export default class Tool extends MyClass {
 			</li>;
 		});
 		const sWidth = {'--width': `${String(aLines.length || 0).length}em`};
-		const HTML = <cpnt.SentenceWrap
-			ref={this.oSententList} style={sWidth}
-			onScroll={(ev)=>this.sentenceScroll(ev)}
+		const HTML = <cpnt.SentenceWrap ref={this.oSententList} 
+			style={sWidth} onScroll={this.sentenceScroll}
 		>
 			{arr}
 		</cpnt.SentenceWrap>
@@ -333,19 +349,21 @@ export default class Tool extends MyClass {
 			</p>
 		</cpnt.VideoWrap>
 		// 左右分界
+		const oLongBarStyle = {width: `${fPerSecPx * buffer.duration + 100}px`};
 		const WaveRight = <div className="right">
 			<cpnt.WaveBox>
 				<canvas height={iCanvasHeight} ref={this.oCanvas}/>
-				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={() => this.onScrollFn()}>
-					<cpnt.LongBar style={{width: `${fPerSecPx * buffer.duration + 100}px`}}
-						onContextMenu={ev => this.clickOnWave(ev)} onMouseDown={ev=>this.mouseDownFn(ev)}
+				<cpnt.WaveWrap ref={this.oWaveWrap} onScroll={this.onScrollFn}>
+					<cpnt.LongBar style={oLongBarStyle}
+						onContextMenu={this.clickOnWave}
+						onMouseDown={this.mouseDownFn}
 					>
 						{this.getMarkBar(this.state)}
 						{this.getRegions(this.state)}
 					</cpnt.LongBar>
 				</cpnt.WaveWrap>
 			</cpnt.WaveBox>
-			<Menu commander={(sFnName, ...aRest)=>this.commander(sFnName, aRest)} />
+			<Menu commander={this.commander} />
 			{this.getInfoBar(this.state)}
 			<cpnt.HistoryBar>
 				{aSteps.map((cur,idx)=>{
@@ -363,7 +381,7 @@ export default class Tool extends MyClass {
 				{WaveRight}
 			</cpnt.MediaAndWave>
 			{this.getAllSentence()}
-			{this.getDialog(this.state)}
+			{this.getWordsDialog(this.state)}
 			{this.getMatchDialog(this.state)}
 			<DictDialog word={sSearching} />
 		</cpnt.Container>;
@@ -422,10 +440,7 @@ export default class Tool extends MyClass {
 	}
 	// ▼销毁前
 	componentWillUnmount(){
-		// this.setState = (state, callback) => {return};
-		// ReactDOM.unmountComponentAtNode(document.getElementById("tool"));
 		this.setState = (state, callback) => null;
-		document.onkeydown = null; // xx=>xx;
 	}
 }
 

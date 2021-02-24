@@ -142,7 +142,7 @@ export default class {
 		</span>
 	}
 	
-	// 
+	// ▼渲染句子样式
 	markWords(sText=''){
 		const {aWords, aNames} = this.state;
 		const aText = sText.match(/\S+\s*/g) || [];
@@ -194,6 +194,15 @@ export default class {
 			return this.strToDom(oCur, idx);
 		});
 		return aResult;
+	}
+	// 
+	// ▼关闭【单词库】窗口
+	toHideWordModal(){
+		this.setState({visible: false});
+	}
+	// ▼关闭
+	toHideCompareModal(){
+		this.setState({matchDialogVisible: false});
 	}
 }
 

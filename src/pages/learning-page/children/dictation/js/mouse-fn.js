@@ -49,7 +49,7 @@ export default class {
 	// 监听滚动
 	onScrollFn() {
 		// console.log('监听到滚动');
-		this.debounceFn();
+		// this.debounceFn();
 		let {buffer, iPerSecPx} = this.state;
 		let {offsetWidth, scrollLeft} = this.oWaveWrap.current;
 		const {aPeaks, fPerSecPx} = this.getPeaks(
@@ -150,9 +150,11 @@ export default class {
 	sentenceScroll(ev){
 		// console.log('ev', ev);
 		console.log('字幕，滚动了！');
-		this.debounceFn(35);
+		// this.debounceFn(35);
 	}
 }
+
+
 
 function aa (){
 	// 防抖
@@ -171,3 +173,4 @@ function aa (){
 	window.addEventListener('scroll', debounce(handle, 1000));
 }
 if (0) aa();
+

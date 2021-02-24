@@ -228,10 +228,7 @@ export default class {
 	}
 	// ▼一刀两段
 	split() {
-		const selectionStart = (
-			this.oTextArea.current.selectionStart ||
-			document.getElementById('myTextArea').selectionStart
-		);
+		const {selectionStart} = this.oTextArea.current;
 		const { currentTime } = this.oAudio.current;
 		const { oCurStepDc, iCurLine } = this.getCurStep();
 		const oCurLine = this.getCurLine();
@@ -304,7 +301,7 @@ export default class {
 		const { sTyped, aMatched } = this.state;
 		const theWord = (aMatched[idx] || '').slice(sTyped.length);
 		if (!theWord) return;
-		const myTextArea = document.getElementById('myTextArea');
+		const myTextArea = this.oTextArea.current;
 		const cursorIdx = myTextArea.selectionStart;
 		const { dc_: oCurLine, text } = this.getCurLine();
 		const [left, right] = [text.slice(0, cursorIdx), text.slice(cursorIdx)]

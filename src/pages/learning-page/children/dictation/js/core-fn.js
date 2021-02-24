@@ -201,10 +201,10 @@ export default class {
 		return aLines[iCurLine];
 	}
 	// ▼传递给子级的方法
-	commander(sFnName, aRest) {
-		// console.log('收到函数名，和参数', sFnName, aRest);
+	commander(sFnName, aRest=[]) {
 		const theFn = this[sFnName];
-		theFn && theFn.call(this, ...aRest);
+		if (!theFn) return;
+		theFn.call(this, ...aRest);
 	}
 	// ▼得到可视区域的起点/终点的秒数，例：[3,9] 表示3-9秒
 	getArea(){
