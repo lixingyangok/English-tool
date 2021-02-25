@@ -147,22 +147,18 @@ export default class {
 		const {aWords, aNames} = this.state;
 		const aText = sText.match(/\S+\s*/g) || [];
 		const iLength = aText.length;
-		// console.time('计时');
 		const aWordsList = [];
 		const regExp01 = /\S\w*/;
-		const regExp011 = /[\w-]+/;
 		const regExp02 = /\w.*/; // 用于 back01 & back02
+		const regExpForOneWord = /[\w-]+/;
 		for (let idx = 0; idx < iLength; idx++) {
-			if (idx === 0) {
-				aWordsList.push({txt: aText[idx], sClass: ''});
-				continue;
-			}
 			const cur = aText[idx];
-			const sCurFixed = cur.match(regExp01)[0];
 			const len = aWordsList.length;
+			const sCurFixed = cur.match(regExp01)[0];
 			const sBack02Txt = (aWordsList[len - 2] || {}).txt || '';
-			const sBack01Txt = aWordsList[len - 1].txt;
+			const sBack01Txt = (aWordsList[len - 1] || {}).txt || '';
 			const [isLonger, sClass, isGoBackTwo] = (()=>{
+				if (idx===0) return [false, ''];
 				const sBack02Fixed = (sBack02Txt.match(regExp02) || [''])[0];
 				const longText = sBack02Fixed + sBack01Txt + sCurFixed;
 				if (hasIn(aWords, longText)) return [true, 'new-word word-group', true];
@@ -181,13 +177,12 @@ export default class {
 					aWordsList[len-1] = {txt: sBack01Txt + cur, sClass};
 				}
 			}else{
-				const sCurFixed= (cur.match(regExp011) || [''])[0];
+				const sCurFixed = (cur.match(regExpForOneWord) || [''])[0];
 				let sClass = hasIn(aWords, sCurFixed) && 'new-word';
 				if (!sClass) sClass = hasIn(aNames, sCurFixed) && 'name';
 				aWordsList.push({txt: cur, sClass});
 			}
 		}
-		// console.timeEnd('计时');
 		const {'0': txt} = sText.match(/^\s+/) || [''];
 		if (txt) aWordsList.unshift({txt});
 		const aResult = aWordsList.map((oCur, idx)=>{
@@ -216,6 +211,7 @@ function hasIn(arr, str){
 		}
 	}
 }
+
 // ▼校验二参是否在一参中
 function checkInArr(arr, str01, str02){
 	str01 = str01.toLowerCase();

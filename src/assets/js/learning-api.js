@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 13:24:44
+ * @LastEditTime: 2021-02-26 06:27:17
  * @Description: 
  */
 
@@ -83,6 +83,35 @@ export async function getQiniuToken(keyToOverwrite=''){
 	return [data.token, oTime];
 }
 
+// ▼得到查询七牛 token 的方法
+export function getRequestTokenFn(){
+	let iTs = 0;
+	let sToken = '';
+	let sOldKey = '';
+	const iHalfHour = 1000 * 60 * 30; // 半小时
+	return async function(keyToOverwrite=''){
+		if (sToken && !keyToOverwrite && new Date() - iTs < iHalfHour) {
+			return sToken;
+		}
+		const sUrl = '/qiniu/gettoken';
+		const {data, headers} = await axios.get(sUrl, {
+			params: {keyToOverwrite},
+		});
+		if (!data || !data.token) {
+			message.error('查询token未成功');
+			return [];
+		}
+		iTs = new Date() * 1;
+		sToken = data.token 
+		sOldKey = keyToOverwrite;
+		const oTime = new Date(headers.date);
+		return [data.token, oTime];
+	}
+}
+
+// export const getQiniuToken = getRequestTokenFn();
+
+// ▼将来可能需要
 // ▼上传字幕到七牛（暂时停用）
 // export async function uploadSubtitle(oParams){
 // 	const sUrl = 'http://upload-z2.qiniup.com';

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 13:38:30
+ * @LastEditTime: 2021-02-26 07:35:07
  * @Description: 
  */
 
@@ -206,10 +206,10 @@ export default class extends MyClass {
 		</>
 		return HTML;
 	}
-	getTable(doing=false){
+	getTable(checkFn=Boolean){
 		const dataForTable = this.state.aMedia.filter((cur, idx)=>{
 			cur.key = cur.idx_ = idx + 1;
-			return doing ? cur.finish === 1 : true;
+			return checkFn(cur);
 		});
 		if (!dataForTable.length) return null;
 		return <Table dataSource={dataForTable} bordered
@@ -291,9 +291,9 @@ export default class extends MyClass {
 			<MyLoading {...{sLoadingAction}}/>
 			{this.getInfoBox()}
 			{this.showTheFileListReadyForUpload()}
-			{this.getTable(true)}
+			{this.getTable(oMedia => oMedia.finish!==2)}
 			<br/>
-			{this.getTable()}
+			{this.getTable(oMedia => oMedia.finish===2)}
 			<DictDialog word={sSearching} />
 			<Divider plain>共 {aMedia.length} 条音频</Divider>
 			{this.choseSubmitModal()}

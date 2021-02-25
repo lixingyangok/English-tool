@@ -66,7 +66,7 @@ export const MediaAndWave = styled.div`
 		flex-shrink: 1; */
 		max-width: 100%;
 		/* ▼如果 hidden 了，textarea 的投影被剪掉了 */
-		/* overflow: hidden; */
+		overflow: hidden;
 	}
 `;
 
@@ -304,23 +304,24 @@ export const TextareaWrap = styled.div`
 		left: 0;
 		right: 0;
 		bottom: 0;
-		color: rgba(0, 0, 0, 0.3) !important;
+		color: rgba(0, 0, 0, 0.1) !important;
 		caret-color: red;
 		background-color: transparent;
 		background-image: none;
 		transition: all 0.3s;
 		/* border: 1px solid #d9d9d9; */
-		box-shadow: 0 0 0 1px #d9d9d9;
+		box-shadow: 0 0 0 1px #d9d9d9 inset;
 		overflow: hidden;
 		&:focus,
 		&:hover{
 			/* border-color: #40a9ff; */
-			box-shadow: 0 0 0 1px #40a9ff;
+			box-shadow: 0 0 0 1px #40a9ff inset;
 		}
 		&:focus{
 			outline: 0;
 			/* box-shadow: 0 0 0 2px rgb(24 144 255 / 20%); */
-			box-shadow: 0 0 3px 1px #40a9ff;
+			/* box-shadow: 0 0 3px 1px #40a9ff inset; */
+			box-shadow: 0 0 2px 1px #2489dc inset;
 		}
 	}
 	.word{
