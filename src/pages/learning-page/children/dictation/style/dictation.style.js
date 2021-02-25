@@ -51,17 +51,22 @@ export const Container = styled.div`
 	}
 `;
 
-
+// ▼视频与波形的大窗口
 export const MediaAndWave = styled.div`
 	display: flex;
 	justify-content: space-between;
 	flex: none;
-	overflow: hidden;
+	/* overflow: hidden; */
 	align-items: stretch;
 	max-height: 400px;
+	width: 100%;
 	.right{
 		flex: auto;
-		overflow: hidden;
+		/* flex-grow: 0;
+		flex-shrink: 1; */
+		max-width: 100%;
+		/* ▼如果 hidden 了，textarea 的投影被剪掉了 */
+		/* overflow: hidden; */
 	}
 `;
 
@@ -224,7 +229,7 @@ export const RegionWrap = styled.section`
 	}
 	.idx{
 		padding: 102px 0 0 5px;
-    	display: inline-block;
+		display: inline-block;
 		font-size: 12px;
 		color: rgba(255,255,255, 0.7);
 	}
@@ -269,18 +274,16 @@ export const TextareaWrap = styled.div`
 		margin: 0;
 		width: 100%;
 		height: 90px;
-		line-height: 1.5;
+		line-height: 1.25;
 		padding: 5px 10px;
 		font-size: 22px;
 		resize: none;
 		border-radius: 2px;
-		border: 1px solid transparent;
+		border: none;
 		/* vertical-align: bottom; */
 		word-break: break-word;
-		/* white-space: pre-wrap;
-		white-space: break-spaces; */
 		/* ▼默认的 */
-		-webkit-writing-mode: horizontal-tb !important;
+		writing-mode: horizontal-tb !important;
 		text-rendering: auto;
 		letter-spacing: normal;
 		word-spacing: normal;
@@ -299,20 +302,25 @@ export const TextareaWrap = styled.div`
 		position: absolute;
 		top: 0;
 		left: 0;
-		color: rgba(0, 0, 0, 0.1) !important;
+		right: 0;
+		bottom: 0;
+		color: rgba(0, 0, 0, 0.3) !important;
 		caret-color: red;
 		background-color: transparent;
 		background-image: none;
-		border: 1px solid #d9d9d9;
 		transition: all 0.3s;
+		/* border: 1px solid #d9d9d9; */
+		box-shadow: 0 0 0 1px #d9d9d9;
+		overflow: hidden;
 		&:focus,
 		&:hover{
-			border-color: #40a9ff;
-			border-right-width: 1px !important;
+			/* border-color: #40a9ff; */
+			box-shadow: 0 0 0 1px #40a9ff;
 		}
 		&:focus{
 			outline: 0;
-			box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
+			/* box-shadow: 0 0 0 2px rgb(24 144 255 / 20%); */
+			box-shadow: 0 0 3px 1px #40a9ff;
 		}
 	}
 	.word{
@@ -328,7 +336,6 @@ export const TextareaWrap = styled.div`
 export const WordsBar = styled.div`
 	display: flex;
 	flex-flow: row nowrap;
-	overflow: hidden;
 	overflow: hidden;
 	flex: none;
 	height: 28px;
