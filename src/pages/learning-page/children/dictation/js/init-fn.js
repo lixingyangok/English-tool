@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 10:35:16
+ * @LastEditTime: 2021-02-26 19:29:44
  * @Description: 
  */
 
@@ -18,7 +18,7 @@ import {trainingDB} from 'assets/js/common.js';
 const {media: mediaTB, story: storyTB} = trainingDB;
 const axios = window.axios;
 
-export default class {
+const part01 = class {
 	// ▼初始化的方法（查询故事信息并保存）
 	async init(){
 		const oStory = this.context.oStoryInfo;
@@ -26,7 +26,13 @@ export default class {
 		const oStoryFromTB = await storyTB.where('ID').equals(ID).first();
 		const aWords = words ? words.split(',') : [];
 		const aNames = names ? names.split(',') : [];
-		this.setState({oStory, aWords, aNames});
+		const oWords = aWords.reduce((oResult, cur)=>({
+			...oResult, [cur.toLowerCase()]: true,
+		}), {});
+		const oNames = aNames.reduce((oResult, cur)=>({
+			...oResult, [cur.toLowerCase()]: true,
+		}), {});
+		this.setState({oStory, aWords, aNames, oWords, oNames});
 		if (oStoryFromTB) { // 更新本地故事数据
 			storyTB.put({...oStory, id: oStoryFromTB.id}); //全量更新
 		}else{
@@ -142,6 +148,25 @@ export default class {
 		this.setState({oMediaInfo});
 		this.setSubtitle({oMediaInfo, oMediaInTB}); // 查询字幕
 	}
+	
+	// ▼音频数据转换波峰数据
+	bufferToPeaks(perSecPx_) {
+		const oWaveWrap = this.oWaveWrap.current;
+		const {offsetWidth, scrollLeft} = oWaveWrap || {};
+		const {buffer, iPerSecPx} = this.state;
+		if (!buffer || !oWaveWrap) return;
+		const obackData = this.getPeaks(
+			buffer, (perSecPx_ || iPerSecPx), scrollLeft, offsetWidth,
+		);
+		this.setState({ ...obackData });
+		this.toDraw();
+		return obackData.aPeaks;
+	}
+}
+
+// ▲其它，▼字幕
+
+const aboutSubtitle = class {
 	// ▼加载字幕
 	setSubtitle({oMediaInfo, oMediaInTB}){
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
@@ -172,20 +197,11 @@ export default class {
 		this.setState({aSubtitleFromNet});
 		toSave && this.useSubtitleFromNet(aSubtitleFromNet);
 	}
-	// ▼音频数据转换波峰数据
-	bufferToPeaks(perSecPx_) {
-		const oWaveWrap = this.oWaveWrap.current;
-		const {offsetWidth, scrollLeft} = oWaveWrap || {};
-		const {buffer, iPerSecPx} = this.state;
-		if (!buffer || !oWaveWrap) return;
-		const obackData = this.getPeaks(
-			buffer, (perSecPx_ || iPerSecPx), scrollLeft, offsetWidth,
-		);
-		this.setState({ ...obackData });
-		this.toDraw();
-		return obackData.aPeaks;
-	}
 }
+
+export default window.mix(
+	part01, aboutSubtitle,
+);
 
 
 // if (0) {

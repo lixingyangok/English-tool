@@ -151,14 +151,14 @@ export default class {
 	// ▼字幕滚动事件
 	sentenceScroll(ev){
 		// console.log('字幕，滚动了！');
-		clearInterval(this.sentenceScrollTimer);
+		// clearInterval(this.sentenceScrollTimer);
 		const {current: oWrap} = this.oSententList;
 		if (!oWrap) return;
 		const iTopLine = ~~(oWrap.scrollTop / iLineHeight);
-		this.setState({iTopLine, sentenceScrolling: true});
-		this.sentenceScrollTimer = setTimeout(cur=>{
-			this.setState({sentenceScrolling: false});
-		}, 30);
+		this.setState({iTopLine});
+		// sentenceScrolling: true
+		// this.setState({sentenceScrolling: false});
+		// this.sentenceScrollTimer = setTimeout(cur=>{ }, 30);
 	}
 }
 
