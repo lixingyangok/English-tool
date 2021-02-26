@@ -28,16 +28,11 @@ const MyClass = window.mix(
 // textarea 的输入动效，输入后听写校对功能
 // textarea 用 canvas 实现？ 
 
-export default class Tool extends MyClass {
+export default class Dictation extends MyClass {
 	static contextType = MyContext;
-	// ▼ 若使用修饰符 static 则在 constructor、componentDidMount 拿不到值
-	/*static*/ confirm = confirm;
+	confirm = confirm; // 使用修饰符(static)之后后，在 constructor、componentDidMount 拿不到值
 	message = message;
-	oldContext = undefined;
-	oldMediaId = undefined;
-	sOldText = '';
-	aWordDom = [];
-	wordHoverTimer = null;
+	// ▲外部介入，▼内部生成
 	oAudio = React.createRef();
 	oCanvas = React.createRef();
 	oPointer = React.createRef();
@@ -45,11 +40,24 @@ export default class Tool extends MyClass {
 	oTextArea = React.createRef();
 	oTextBg = React.createRef();
 	oSententList = React.createRef();
+	oldContext = undefined; // 记录父级页下发的数据
+	oldMediaId = undefined; // 旧的媒体 id 
+	sOldText = ''; // 需要研究
+	aWordDom = []; // 需要研究
+	wordHoverTimer = null; // 在输入框的hover的计时器
 	doingTimer = null; // TODO 考虑删除
 	sentenceScrollTimer = null;
 	// aStepsEmpty = [] // 考虑添加
 	state = {
-		isDoing: false,
+		isDoing: false, // 用于防抖，考虑删除
+		loading: false, //是否在加载中（解析文件
+		playing: false, //储存播放的定时器setInterval的返回值
+		sTyped: '', //已经输入的，用于搜索
+		aMatched: [], //与当前输入匹配到的单词
+		visible: false, // 控制词汇弹出窗口的可见性
+		aWordsDBState: [],
+		scrollTimer: null, // 滚动条滚动的定时器
+		// ▼波形
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
 		iHeight: 0.3, // 波形高
@@ -57,15 +65,6 @@ export default class Tool extends MyClass {
 		iPerSecPx: 100, //人为定义的每秒宽度
 		fPerSecPx: 100, //实际算出每秒像素数
 		drawing: false, //是否在绘制中（用于防抖
-		loading: false, //是否在加载中（解析文件
-		playing: false, //储存播放的定时器setInterval的返回值
-		sTyped: '', //已经输入的，用于搜索
-		aMatched: [], //与当前输入匹配到的单词
-		visible: false, // 控制词汇弹出窗口的可见性
-		aWordsDBState: [],
-		scrollTimer: null,
-		// ▼波形
-
 		// ▼新版--------------------------------
 		aWords: [], // 考虑删除
 		aNames: [], // 考虑删除
@@ -89,22 +88,22 @@ export default class Tool extends MyClass {
 		mediaId: null, // 媒体id
 		sSearching: '',  // 正在搜索的单词
 		mediaFile_: {}, // 媒体文件
-		iBright: -1,
-		iTopLine: 0,
-		sentenceScrolling: false,
+		iBright: -1, // 输入框上的 hover 单词
+		iTopLine: 0, // 应从第几行字幕开始显示
+		sentenceScrolling: false, // 记录是否正在滚动
 	};
 	constructor(props) {
 		super(props);
 		this.checkWordsDB();
 		[
-			'delWord', 
-			'initWordsDB', 
-			'cleanWordsList', 
-			'uploadToCloudBefore', 
-			'beforeUseNetSubtitle', 
-			'clickOnWave', 
-			'mouseDownFn', 
-			'waveWrapScroll', 
+			'delWord',
+			'initWordsDB',
+			'cleanWordsList',
+			'uploadToCloudBefore',
+			'beforeUseNetSubtitle',
+			'clickOnWave',
+			'mouseDownFn',
+			'waveWrapScroll',
 			'valChanged',
 			'enterKeyDown',
 			'sentenceScroll',
@@ -138,7 +137,7 @@ export default class Tool extends MyClass {
 		}
 		return <cpnt.MarkWrap>{myArr}</cpnt.MarkWrap>;
 	}
-	// ▼句子区间
+	// ▼句子波形上的【区间标记】
 	getRegions({playing, aSteps, iCurStep, fPerSecPx}){
 		const myArr = [];
 		let [nowSec, endSec] = this.getArea();
@@ -172,7 +171,7 @@ export default class Tool extends MyClass {
 		return <cpnt.InfoBar>
 			<span>
 				章节：
-				<em title={oMediaInfo.fileName} className="ellipsis">
+				<em title={oMediaInfo.fileName} className="ellipsis red">
 					{oMediaInfo.fileName}
 				</em>
 			</span>
