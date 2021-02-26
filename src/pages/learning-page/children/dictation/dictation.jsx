@@ -17,7 +17,7 @@ import {
 } from 'antd';
 
 const { confirm } = Modal;
-const oFirstLine = fixTime({start: 0.1, end: 5});
+const oFirstLine = fixTime({start: 0.1, end: 5}); // 考虑挂到 this 上
 const MyClass = window.mix(
 	React.Component,
 	coreFn, keyDownFn, MouseFn, wordsDbFn,
@@ -47,6 +47,7 @@ export default class Tool extends MyClass {
 	oSententList = React.createRef();
 	doingTimer = null; // TODO 考虑删除
 	sentenceScrollTimer = null;
+	// aStepsEmpty = [] // 考虑添加
 	state = {
 		isDoing: false,
 		buffer: {}, //音频数据
@@ -58,25 +59,27 @@ export default class Tool extends MyClass {
 		drawing: false, //是否在绘制中（用于防抖
 		loading: false, //是否在加载中（解析文件
 		playing: false, //储存播放的定时器setInterval的返回值
-		iCurStep: 0, //当前步骤
 		sTyped: '', //已经输入的，用于搜索
 		aMatched: [], //与当前输入匹配到的单词
 		visible: false, // 控制词汇弹出窗口的可见性
 		aWordsDBState: [],
 		scrollTimer: null,
+		// ▼波形
+
 		// ▼新版--------------------------------
-		aWords: [], // 生词
-		aNames: [], // 专有名词（proper noun
+		aWords: [], // 考虑删除
+		aNames: [], // 考虑删除
 		oWords: {}, // 生词
 		oNames: {}, // 专有名词（proper noun
-
-		// ▲词汇
+		// ▼字幕
+		iCurStep: 0, //当前步骤
 		oFirstLine, //默认行
-		fileSrc: "", //文件地址
 		aSteps: [{ //历史记录
 			iCurLine: 0, // 当前所在行
 			aLines: [oFirstLine.dc_], //字幕
 		}],
+		// ▼
+		fileSrc: "", //文件地址
 		oStory: {}, // 故事信息
 		oMediaInfo: {}, // 媒体信息
 		oMediaInTB: {}, // 媒体信息（在本地
@@ -89,7 +92,6 @@ export default class Tool extends MyClass {
 		iBright: -1,
 		iTopLine: 0,
 		sentenceScrolling: false,
-
 	};
 	constructor(props) {
 		super(props);

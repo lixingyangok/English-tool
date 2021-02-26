@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-26 19:29:44
+ * @LastEditTime: 2021-02-26 20:37:26
  * @Description: 
  */
 
@@ -41,21 +41,23 @@ const part01 = class {
 	}
 	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
 	async setMedia(mediaId){
-		const {oFirstLine} = this.state;
+		const {oFirstLine} = this.state; // 取出来，用于清空字幕
+		this.setState({
+			iCurStep: 0,
+			aSteps: [{iCurLine: 0, aLines: [oFirstLine.dc_]}], 
+		});
 		const [oMediaInfo, oMediaInTB={}] = await Promise.all([
 			getOneMedia(mediaId),
 			mediaTB.where('ID').equals(mediaId*1).first(),
 		]);
 		if (!oMediaInfo) return; // 查不到媒体信息
-		this.context.setMedia(oMediaInfo);
-		this.setState({
-			iCurStep: 0,
-			aSteps: [{iCurLine: 0, aLines: [oFirstLine.dc_]}],
-		});
+		this.context.setMedia(oMediaInfo); // 汇报父级页面当前媒体信息
 		const {
 			id, changeTs_: changeTs,
 			subtitleFile_ = [oFirstLine.dc_], 
 		} = oMediaInTB; // 先加载本地字幕
+		// TODO ▼在此查询字幕
+		// this.setSubtitle(oMediaInfo, oMediaInTB.subtitleFile_); // 查询字幕
 		const {
 			buffer, // 媒体buffer
 			mediaFile_, // 媒体文件
