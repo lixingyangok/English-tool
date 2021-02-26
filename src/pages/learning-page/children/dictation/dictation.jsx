@@ -65,14 +65,18 @@ export default class Tool extends MyClass {
 		aWordsDBState: [],
 		scrollTimer: null,
 		// ▼新版--------------------------------
+		aWords: [], // 生词
+		aNames: [], // 专有名词（proper noun
+		oWords: {}, // 生词
+		oNames: {}, // 专有名词（proper noun
+
+		// ▲词汇
 		oFirstLine, //默认行
 		fileSrc: "", //文件地址
 		aSteps: [{ //历史记录
 			iCurLine: 0, // 当前所在行
 			aLines: [oFirstLine.dc_], //字幕
 		}],
-		aWords: [], // 生词
-		aNames: [], // 专有名词（proper noun
 		oStory: {}, // 故事信息
 		oMediaInfo: {}, // 媒体信息
 		oMediaInTB: {}, // 媒体信息（在本地
@@ -177,10 +181,11 @@ export default class Tool extends MyClass {
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词
-	getWordsList({aMatched, aWords, aNames, sTyped}){
+	getWordsList({aMatched, oWords, oNames, sTyped}){
 		const arr = aMatched.map((cur, idx)=>{
-			let sKind = hasIn(aNames, cur) ? 'name' : '';
-			if (!sKind) sKind = hasIn(aWords, cur) ? 'new-word' : '';
+			const curLower = cur.toLowerCase();
+			let sKind = oNames[curLower] && 'name';
+			sKind = sKind || (oWords[curLower] ? 'new-word' : '');
 			const sClass = sKind + (cur.match(/\s/) ? ' word-group' : '');
 			const sRight = cur.slice(sTyped.length).trim();
 			const inner = <cpnt.oneWord key={idx} >
@@ -297,11 +302,7 @@ export default class Tool extends MyClass {
 					<em>{cur.start_}</em><i>-</i><em>{cur.end_}</em>
 				</span>
 				<cpnt.oneSentence>
-					{
-						this.state.sentenceScrolling
-						? cur.text
-						: this.markWords(cur.text)
-					}
+					{this.markWords(cur.text)}
 				</cpnt.oneSentence>
 			</li>;
 			aSentences.push(oLi);
@@ -446,13 +447,4 @@ export default class Tool extends MyClass {
 	componentWillUnmount(){
 		this.setState = (state, callback) => null;
 	}
-}
-
-// ▼校验二参是否在一参中
-function hasIn(arr, str){
-	// 如人名是 li da 且被收藏，再输入 li 会被点亮，要注意
-	return arr.find(cur => {
-		// return cur.toLowerCase().split(/\s+/).includes(str.toLowerCase());
-		return cur.toLowerCase() === str.toLowerCase();
-	});
 }

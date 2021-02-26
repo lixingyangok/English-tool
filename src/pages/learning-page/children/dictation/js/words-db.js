@@ -141,10 +141,9 @@ export default class {
 			{tail}
 		</span>
 	}
-	
 	// ▼渲染句子样式
 	markWords(sText=''){
-		const {aWords, aNames} = this.state;
+		const {oWords, oNames} = this.state;
 		const aText = sText.match(/\S+\s*/g) || [];
 		const iLength = aText.length;
 		const aWordsList = [];
@@ -154,22 +153,23 @@ export default class {
 		for (let idx = 0; idx < iLength; idx++) {
 			const cur = aText[idx];
 			const len = aWordsList.length;
-			const sCurFixed = cur.match(regExp01)[0];
 			const sBack02Txt = (aWordsList[len - 2] || {}).txt || '';
 			const sBack01Txt = (aWordsList[len - 1] || {}).txt || '';
-			const [isLonger, sClass, isGoBackTwo] = (()=>{
-				if (idx===0) return [false, ''];
+			let sCurFixed = cur.match(regExp01)[0];
+			let [sClass, isGoBackTwo] = (()=>{
+				if (idx===0) return [''];
 				const sBack02Fixed = (sBack02Txt.match(regExp02) || [''])[0];
-				const longText = sBack02Fixed + sBack01Txt + sCurFixed;
-				if (hasIn(aWords, longText)) return [true, 'new-word word-group', true];
-				if (hasIn(aNames, longText)) return [true, 'name word-group', true];
+				const longText = (sBack02Fixed + sBack01Txt + sCurFixed).toLowerCase();
+				if (oWords[longText]) return ['new-word', true];
+				if (oNames[longText]) return ['name', true];
 				const sBack01Fixed = (sBack01Txt.match(regExp02) || [''])[0];
-				const sNewOne = sBack01Fixed + sCurFixed;
-				if (hasIn(aWords, sNewOne)) return [true, 'new-word word-group'];
-				if (hasIn(aNames, sNewOne)) return [true, 'name word-group'];
-				return [false, ''];
+				const sNewOne = (sBack01Fixed + sCurFixed).toLowerCase();
+				if (oWords[sNewOne]) return ['new-word'];
+				if (oNames[sNewOne]) return ['name'];
+				return [''];
 			})();
-			if (isLonger) {
+			if (sClass) {
+				sClass += ' word-group';
 				if (isGoBackTwo){
 					const txt = sBack02Txt + sBack01Txt + cur;
 					aWordsList.splice(len - 2, 2, {txt, sClass});
@@ -177,9 +177,10 @@ export default class {
 					aWordsList[len-1] = {txt: sBack01Txt + cur, sClass};
 				}
 			}else{
-				const sCurFixed = (cur.match(regExpForOneWord) || [''])[0];
-				let sClass = hasIn(aWords, sCurFixed) && 'new-word';
-				if (!sClass) sClass = hasIn(aNames, sCurFixed) && 'name';
+				sCurFixed = (cur.match(regExpForOneWord) || [''])[0];
+				sCurFixed = sCurFixed.toLowerCase();
+				sClass = oWords[sCurFixed] && 'new-word';
+				sClass = sClass || (oNames[sCurFixed] ? 'name' : '');
 				aWordsList.push({txt: cur, sClass});
 			}
 		}
@@ -201,30 +202,6 @@ export default class {
 	}
 }
 
-// ▼校验二参是否在一参中
-function hasIn(arr, str){
-	// 如人名是 li da 且被收藏，再输入 li 会被点亮，要注意
-	const strLower = str.toLowerCase();
-	for (let idx = arr.length; idx--;){
-		if (arr[idx].toLowerCase() === strLower) {
-			return true;
-		}
-	}
-}
-
-// ▼校验二参是否在一参中
-function checkInArr(arr, str01, str02){
-	str01 = str01.toLowerCase();
-	str02 = str02.toLowerCase();
-	for (let idx = arr.length; idx--;){
-		const cur = arr[idx].toLowerCase();
-		if (cur === str01 || cur === str02) {
-			return cur;
-		}
-	}
-}
-
-if (0) console.log(checkInArr);
 
 // const aWordsList = aText.reduce((aResult, cur, idx)=>{
 // 	if (idx === 0) return [{txt: cur, sClass: ''}];
