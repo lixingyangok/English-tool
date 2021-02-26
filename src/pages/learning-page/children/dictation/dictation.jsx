@@ -17,10 +17,10 @@ import {
 } from 'antd';
 
 const { confirm } = Modal;
-const oFirstLine = fixTime({start: 0.1, end: 5}); // 考虑挂到 this 上
-const aStepsEmpty = [{ // 历史记录
+const oEmptyLine = fixTime({start: 0.1, end: 5}); // 考虑挂到 this 上
+const aEmptySteps = [{ // 历史记录
 	iCurLine: 0, // 当前所在行
-	aLines: [oFirstLine.dc_], //字幕
+	aLines: [oEmptyLine.dc_], //字幕
 }];
 const MyClass = window.mix(
 	React.Component,
@@ -30,7 +30,6 @@ const MyClass = window.mix(
 
 // TODO
 // textarea 的输入动效，输入后听写校对功能
-// textarea 用 canvas 实现？ 
 
 export default class Dictation extends MyClass {
 	static contextType = MyContext;
@@ -51,10 +50,10 @@ export default class Dictation extends MyClass {
 	wordHoverTimer = null; // 在输入框的hover的计时器
 	sOldText = ''; // 保存上次输入内容，用于对比变化
 	aWordDom = []; // 把输入框背景的span保存起来，用于判断鼠标hover
-	// 
-	doingTimer = null; // TODO 考虑删除
-	oFirstLine = oFirstLine.dc_; // 默认行对象
-	aStepsEmpty = aStepsEmpty.dc_;
+	// ▼其它
+	doingTimer = null; // 防抖（目前没有应用）
+	oEmptyLine = oEmptyLine.dc_; // 空行
+	aEmptySteps = aEmptySteps.dc_; // 空历史记录
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
 		loading: false, //是否在加载中（解析文件
@@ -80,7 +79,7 @@ export default class Dictation extends MyClass {
 		// ▼字幕
 		iCurStep: 0, // 当前步骤
 		changeTs: 0, // 字幕修改时间
-		aSteps: aStepsEmpty.dc_,
+		aSteps: aEmptySteps.dc_,
 		// ▼
 		fileSrc: "", //文件地址
 		oStory: {}, // 故事信息

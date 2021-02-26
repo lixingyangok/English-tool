@@ -47,13 +47,13 @@ const part01 = class {
 		]);
 		this.setState({ // 清空字幕，必须放在 await 之后执行
 			iCurStep: 0,
-			aSteps: this.aStepsEmpty.dc_,
+			aSteps: this.aEmptySteps.dc_,
 		});
 		if (!oMediaInfo) return; // 查不到媒体信息
 		this.context.setMedia(oMediaInfo); // 汇报父级页面当前媒体信息
 		const {
 			id, changeTs_: changeTs,
-			subtitleFile_ = [this.oFirstLine.dc_],  // 默认值
+			subtitleFile_ = [this.oEmptyLine.dc_],  // 默认值
 		} = oMediaInTB; // 先加载本地字幕
 		// TODO ▼在此查询字幕
 		// this.setSubtitle(oMediaInfo, oMediaInTB.subtitleFile_); // 查询字幕
