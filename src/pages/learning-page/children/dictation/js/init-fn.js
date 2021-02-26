@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-26 20:51:49
+ * @LastEditTime: 2021-02-27 07:17:01
  * @Description: 
  */
 
@@ -45,17 +45,15 @@ const part01 = class {
 			getOneMedia(mediaId),
 			mediaTB.where('ID').equals(mediaId*1).first(),
 		]);
-		// ▼ 取出来，用于清空字幕，必须放在 await 之后执行
-		const {oFirstLine} = this.state; 
-		this.setState({
+		this.setState({ // 清空字幕，必须放在 await 之后执行
 			iCurStep: 0,
-			aSteps: [{iCurLine: 0, aLines: [oFirstLine.dc_]}], 
+			aSteps: this.aStepsEmpty.dc_,
 		});
 		if (!oMediaInfo) return; // 查不到媒体信息
 		this.context.setMedia(oMediaInfo); // 汇报父级页面当前媒体信息
 		const {
 			id, changeTs_: changeTs,
-			subtitleFile_ = [oFirstLine.dc_], 
+			subtitleFile_ = [this.oFirstLine.dc_],  // 默认值
 		} = oMediaInTB; // 先加载本地字幕
 		// TODO ▼在此查询字幕
 		// this.setSubtitle(oMediaInfo, oMediaInTB.subtitleFile_); // 查询字幕

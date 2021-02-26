@@ -18,6 +18,10 @@ import {
 
 const { confirm } = Modal;
 const oFirstLine = fixTime({start: 0.1, end: 5}); // 考虑挂到 this 上
+const aStepsEmpty = [{ // 历史记录
+	iCurLine: 0, // 当前所在行
+	aLines: [oFirstLine.dc_], //字幕
+}];
 const MyClass = window.mix(
 	React.Component,
 	coreFn, keyDownFn, MouseFn, wordsDbFn,
@@ -40,6 +44,7 @@ export default class Dictation extends MyClass {
 	oTextArea = React.createRef();
 	oTextBg = React.createRef();
 	oSententList = React.createRef();
+	// ▲dom，▼其它
 	oldContext = undefined; // 记录父级页下发的数据
 	oldMediaId = undefined; // 旧的媒体 id 
 	sOldText = ''; // 需要研究
@@ -47,17 +52,18 @@ export default class Dictation extends MyClass {
 	wordHoverTimer = null; // 在输入框的hover的计时器
 	doingTimer = null; // TODO 考虑删除
 	sentenceScrollTimer = null;
-	// aStepsEmpty = [] // 考虑添加
+	oFirstLine = oFirstLine.dc_; // 默认行对象
+	aStepsEmpty = aStepsEmpty.dc_;
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
 		loading: false, //是否在加载中（解析文件
-		playing: false, //储存播放的定时器setInterval的返回值
 		sTyped: '', //已经输入的，用于搜索
 		aMatched: [], //与当前输入匹配到的单词
 		visible: false, // 控制词汇弹出窗口的可见性
-		aWordsDBState: [],
+		aWordsDBState: [], // 考虑删除
 		scrollTimer: null, // 滚动条滚动的定时器
 		// ▼波形
+		playing: false, //储存播放的定时器setInterval的返回值
 		buffer: {}, //音频数据
 		aPeaks: [], //波形数据
 		iHeight: 0.3, // 波形高
@@ -71,18 +77,14 @@ export default class Dictation extends MyClass {
 		oWords: {}, // 生词
 		oNames: {}, // 专有名词（proper noun
 		// ▼字幕
-		iCurStep: 0, //当前步骤
-		oFirstLine, //默认行
-		aSteps: [{ //历史记录
-			iCurLine: 0, // 当前所在行
-			aLines: [oFirstLine.dc_], //字幕
-		}],
+		iCurStep: 0, // 当前步骤
+		changeTs: 0, // 字幕修改时间
+		aSteps: aStepsEmpty.dc_,
 		// ▼
 		fileSrc: "", //文件地址
 		oStory: {}, // 故事信息
 		oMediaInfo: {}, // 媒体信息
 		oMediaInTB: {}, // 媒体信息（在本地
-		changeTs: 0, // 字幕修改时间
 		matchDialogVisible: false, // 
 		aSubtitleFromNet: [], //网上字幕
 		mediaId: null, // 媒体id
@@ -287,7 +289,7 @@ export default class Dictation extends MyClass {
 		</cpnt.TextareaWrap>;
 	}
 	getAllSentence(){
-		console.time("显示句子");
+		// console.time("显示句子");
 		const { aSteps, iCurStep, iTopLine } = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const {length: iLen} = aLines;
@@ -319,7 +321,7 @@ export default class Dictation extends MyClass {
 			{aSentences}
 			<li style={oBottomGap}></li>
 		</cpnt.SentenceWrap>
-		console.timeEnd("显示句子");
+		// console.timeEnd("显示句子");
 		return HTML;
 	}
 	render() {
