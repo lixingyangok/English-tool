@@ -44,14 +44,15 @@ export default class Dictation extends MyClass {
 	oTextArea = React.createRef();
 	oTextBg = React.createRef();
 	oSententList = React.createRef();
-	// ▲dom，▼其它
+	// ▼父级下发数据
 	oldContext = undefined; // 记录父级页下发的数据
-	oldMediaId = undefined; // 旧的媒体 id 
-	sOldText = ''; // 需要研究
-	aWordDom = []; // 需要研究
+	oldMediaId = undefined; // 旧的媒体id, 用于判断新旧变化
+	// ▼关于输入框
 	wordHoverTimer = null; // 在输入框的hover的计时器
+	sOldText = ''; // 保存上次输入内容，用于对比变化
+	aWordDom = []; // 把输入框背景的span保存起来，用于判断鼠标hover
+	// 
 	doingTimer = null; // TODO 考虑删除
-	sentenceScrollTimer = null;
 	oFirstLine = oFirstLine.dc_; // 默认行对象
 	aStepsEmpty = aStepsEmpty.dc_;
 	state = {
@@ -92,7 +93,6 @@ export default class Dictation extends MyClass {
 		mediaFile_: {}, // 媒体文件
 		iBright: -1, // 输入框上的 hover 单词
 		iTopLine: 0, // 应从第几行字幕开始显示
-		sentenceScrolling: false, // 记录是否正在滚动
 	};
 	constructor(props) {
 		super(props);
@@ -414,13 +414,11 @@ export default class Dictation extends MyClass {
 	}
 	// ▼以下是生命周期
 	componentDidUpdate(){
-		// document.onkeydown = this.keyDowned.bind(this);
 		const { aSteps, iCurStep } = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oThisLine = aLines[iCurLine] || {};
-		if (this.sOldText !== oThisLine.text ) {
-			// console.log('文字变了');
-			this.setSpanArr();
+		if (this.sOldText !== oThisLine.text ) { 
+			this.setSpanArr(); // 文字变化了就执行
 		}
 		this.sOldText = oThisLine.text;
 	}

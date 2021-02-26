@@ -120,17 +120,12 @@ export default class {
 		else if (iWidth>max) iWidth = max;
 		target.width = iWidth;
 	}
+	// ▼输入文字变化后执行
 	setSpanArr(){
-		const aWordDom = this.oTextBg.current.querySelectorAll('.word');
-		if (!aWordDom[0]) return this.aWordDom = [];
+		const aWordDom = this.oTextBg.current.querySelectorAll('.word') || [];
 		this.aWordDom = [...aWordDom];
-		// .map((dom, idx)=>{
-		// 	const {top, left} = dom.getBoundingClientRect();
-		// 	const {offsetWidth: width, offsetHeight: height, innerText} = dom;
-		// 	return { dom, top, left, width, height, innerText, idx };
-		// });
-		// console.log(aWordDom[0]);
 	}
+	// ▼检测鼠标是否进入文字区域
 	mouseMoveFn(ev){
 		clearTimeout(this.wordHoverTimer);
 		const {aWordDom} = this;
@@ -142,7 +137,7 @@ export default class {
 				(evX > left && evX < right) && (evY > top && evY < bottom)
 			);
 		});
-		// console.log('有目标：', !!oTarget);
+		// console.log('有目标：', iBright);
 		if (iBright < 0 || iBright === this.state.iBright) return;
 		this.wordHoverTimer = setTimeout(()=>{
 			this.setState({iBright});
@@ -151,17 +146,12 @@ export default class {
 	// ▼字幕滚动事件
 	sentenceScroll(ev){
 		// console.log('字幕，滚动了！');
-		// clearInterval(this.sentenceScrollTimer);
 		const {current: oWrap} = this.oSententList;
 		if (!oWrap) return;
 		const iTopLine = ~~(oWrap.scrollTop / iLineHeight);
 		this.setState({iTopLine});
-		// sentenceScrolling: true
-		// this.setState({sentenceScrolling: false});
-		// this.sentenceScrollTimer = setTimeout(cur=>{ }, 30);
 	}
 }
-
 
 
 function aa (){
