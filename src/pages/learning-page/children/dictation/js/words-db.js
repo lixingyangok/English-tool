@@ -122,18 +122,22 @@ export default class {
 	handleVisibleChange (newVal){
 		this.setState({iBright: newVal ? newVal : -1});
 	};
+	toSplit(str){
+		const iStart = str.search(/[a-z0-9]/i);
+		if (iStart === -1) return [str, '', ''];
+		const iEnd = str.slice(iStart).match(/.*[a-z0-9]/i)[0].length + iStart;
+		return [
+			str.slice(0, iStart), str.slice(iStart, iEnd), str.slice(iEnd),
+		];
+	}
 	strToDom({txt, sClass=''}, idx){
-		// const {iBright} = this.state;
-		const {'0': body, index} = txt.match(/\w.*\w+/) || {'0': '', index: -1};
-		const head = index===-1 ? txt : txt.slice(0, index) || '';
-		const tail = index===-1 ? '' : txt.slice(index + body.length) || '';
+		const [head, body, tail] = this.toSplit(txt);
 		// if (iBright === idx) sClass += ' hover';
 		return <span key={idx}>
 			{head}
 			{/* <Popover trigger="hover" placement="topLeft" 
 				onVisibleChange={this.handleVisibleChange.bind(this)}
-				visible={iBright === idx}
-				content={<Button>按钮1</Button>}
+				visible={iBright === idx} content={<Button>按钮1</Button>}
 			>
 				<span className={sClass}>{body}</span>
 			</Popover> */}
@@ -155,13 +159,15 @@ export default class {
 			const len = aWordsList.length;
 			const sBack02Txt = (aWordsList[len - 2] || {}).txt || '';
 			const sBack01Txt = (aWordsList[len - 1] || {}).txt || '';
-			let sCurFixed = cur.match(regExp01)[0];
 			let [sClass, isGoBackTwo] = (()=>{
 				if (idx===0) return [''];
+				const sCurFixed = cur.match(regExp01)[0];
 				const sBack02Fixed = (sBack02Txt.match(regExp02) || [''])[0];
-				const longText = (sBack02Fixed + sBack01Txt + sCurFixed).toLowerCase();
-				if (oWords[longText]) return ['new-word', true];
-				if (oNames[longText]) return ['name', true];
+				if (sBack02Fixed){
+					const longText = (sBack02Fixed + sBack01Txt + sCurFixed).toLowerCase();
+					if (oWords[longText]) return ['new-word', true];
+					if (oNames[longText]) return ['name', true];
+				}
 				const sBack01Fixed = (sBack01Txt.match(regExp02) || [''])[0];
 				const sNewOne = (sBack01Fixed + sCurFixed).toLowerCase();
 				if (oWords[sNewOne]) return ['new-word'];
@@ -176,13 +182,13 @@ export default class {
 				}else{
 					aWordsList[len-1] = {txt: sBack01Txt + cur, sClass};
 				}
-			}else{
-				sCurFixed = (cur.match(regExpForOneWord) || [''])[0];
-				sCurFixed = sCurFixed.toLowerCase();
-				sClass = oWords[sCurFixed] && 'new-word';
-				sClass = sClass || (oNames[sCurFixed] ? 'name' : '');
-				aWordsList.push({txt: cur, sClass});
+				continue;
 			}
+			let sCurFixed = (cur.match(regExpForOneWord) || [''])[0];
+			sCurFixed = sCurFixed.toLowerCase();
+			sClass = oWords[sCurFixed] && 'new-word';
+			sClass = sClass || (oNames[sCurFixed] ? 'name' : '');
+			aWordsList.push({txt: cur, sClass});
 		}
 		const {'0': txt} = sText.match(/^\s+/) || [''];
 		if (txt) aWordsList.unshift({txt});
@@ -242,3 +248,17 @@ export default class {
 // 	}
 // 	return aResult;
 // }, []);
+
+
+		// return <>
+		// 	{head}
+		// 	{/* <Popover trigger="hover" placement="topLeft" 
+		// 		onVisibleChange={this.handleVisibleChange.bind(this)}
+		// 		visible={iBright === idx}
+		// 		content={<Button>按钮1</Button>}
+		// 	>
+		// 		<span className={sClass}>{body}</span>
+		// 	</Popover> */}
+		// 	<span key={idx} className={'word ' + sClass}>{body}</span>
+		// 	{tail}
+		// </>

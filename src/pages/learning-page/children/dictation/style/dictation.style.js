@@ -474,6 +474,11 @@ export const oneSentence = styled.p`
 	/* word-break: break-all; */
 	/* white-space: break-spaces; */
 	word-break: break-word;
+	.word{
+		&:hover{
+			background: yellow;
+		}
+	}
 `;
 
 // ▼历史记录
