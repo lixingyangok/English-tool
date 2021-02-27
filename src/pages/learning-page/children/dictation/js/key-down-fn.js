@@ -123,7 +123,7 @@ export default class {
 			const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 			aLines[iCurLine].text = sText;
-			this.setState({ aSteps, sTyped});
+			this.setState({aSteps, sTyped});
 		}
 		this.getMatchedWords(sTyped);
 	}

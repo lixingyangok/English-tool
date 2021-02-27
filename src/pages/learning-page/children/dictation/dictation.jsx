@@ -57,8 +57,6 @@ export default class Dictation extends MyClass {
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
 		loading: false, //是否在加载中（解析文件
-		sTyped: '', //已经输入的，用于搜索
-		aMatched: [], //与当前输入匹配到的单词
 		visible: false, // 控制词汇弹出窗口的可见性
 		aWordsDBState: [], // 考虑删除
 		scrollTimer: null, // 滚动条滚动的定时器
@@ -71,7 +69,9 @@ export default class Dictation extends MyClass {
 		iPerSecPx: 100, //人为定义的每秒宽度
 		fPerSecPx: 100, //实际算出每秒像素数
 		drawing: false, //是否在绘制中（用于防抖
-		// ▼新版--------------------------------
+		// ▼输入相关--------------------------------
+		sTyped: '', //已经输入的，用于搜索
+		aMatched: [], //与当前输入匹配到的单词
 		aWords: [], // 考虑删除
 		aNames: [], // 考虑删除
 		oWords: {}, // 生词
