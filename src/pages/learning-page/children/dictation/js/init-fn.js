@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-27 11:43:58
+ * @LastEditTime: 2021-02-27 16:55:31
  * @Description: 
  */
 
@@ -15,15 +15,14 @@ import {getOneMedia, getSubtitle} from 'assets/js/learning-api.js';
 import {trainingDB} from 'assets/js/common.js';
 // import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
-const {media: mediaTB, story: storyTB} = trainingDB;
+const {media: mediaTB} = trainingDB;
 const axios = window.axios;
 
 const part01 = class {
-	// ▼初始化的方法（查询故事信息并保存）
+	// ▼初始化（查询故事信息
 	async init(){
 		const oStory = this.context.oStoryInfo;
-		const {ID, words, names} = oStory;
-		const oStoryFromTB = await storyTB.where('ID').equals(ID).first();
+		const {words, names} = oStory;
 		const aWords = words ? words.split(',') : [];
 		const aNames = names ? names.split(',') : [];
 		const oWords = aWords.reduce((oResult, cur)=>({
@@ -32,26 +31,31 @@ const part01 = class {
 		const oNames = aNames.reduce((oResult, cur)=>({
 			...oResult, [cur.toLowerCase()]: true,
 		}), {});
-		this.setState({oStory, aWords, aNames, oWords, oNames});
-		if (oStoryFromTB) { // 更新本地故事数据
-			storyTB.put({...oStory, id: oStoryFromTB.id}); //全量更新
-		}else{
-			storyTB.add(oStory);
-		}
+		// if (0) console.log('init', oWords, oNames);
+		setTimeout(()=>{
+			this.setState({oStory, aWords, aNames, oWords, oNames});
+		}, 1 * 1000);
 	}
-	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
-	async setMedia(mediaId){
+	// ▼查询媒体信息，做一些清空操作等
+	async getMediaInfo(mediaId){
 		const [oMediaInfo, oMediaInTB={}] = await Promise.all([
 			getOneMedia(mediaId),
-			mediaTB.where('ID').equals(mediaId*1).first(),
+			mediaTB.where('ID').equals(mediaId * 1).first(),
 		]);
-		this.setState({ // 清空字幕，必须放在 await 之后执行
-			iCurStep: 0,
-			aSteps: this.aEmptySteps.dc_,
-		});
 		if (!oMediaInfo) return; // 查不到媒体信息
+		const oWaveWrap = this.oWaveWrap.current;
+		if (oWaveWrap) oWaveWrap.scrollLeft = 0; // 滚动条归位
 		this.context.setMedia(oMediaInfo); // 汇报父级页面当前媒体信息
 		this.setSubtitle(oMediaInfo, oMediaInTB); // 查询字幕
+		this.setMedia(oMediaInfo, oMediaInTB); // 查询媒体
+	}
+}
+
+
+// ▼媒体文件
+const aboutMedia = class {
+	// ▼ 加载本地/云端媒体文件（2参是本地的媒体数据）
+	async setMedia(oMediaInfo, oMediaInTB){
 		const { id, changeTs_: changeTs, } = oMediaInTB; // 先加载本地字幕
 		const {
 			buffer, // 媒体buffer
@@ -60,10 +64,9 @@ const part01 = class {
 		} = await this.getMediaAndButter({oMediaInfo, oMediaInTB});
 		if (!buffer) return this.setState({loading: false});
 		const oMediaInTBForSave = (()=>{
-			// console.log('是否需要更新本地数据：', needUpDateDB);
 			if (!needUpDateDB) { // 不用更新
 				oMediaInfo.id = id;
-				return {oMediaInTB}; // 保存到state
+				return {oMediaInTB}; // 保存保存到state
 			}
 			this.saveMediaToTb({ // 保存到浏览 db
 				oMediaInfo, oMediaInTB, mediaFile_, buffer,
@@ -79,6 +82,7 @@ const part01 = class {
 		this.bufferToPeaks();
 		oMediaInTB.subtitleFile_ || this.giveUpThisOne(0); // 智能处理第一句
 	}
+	
 	// ▼取得媒体文件、和buffer
 	async getMediaAndButter({oMediaInfo, oMediaInTB}){
 		let {fileModifyTs: fTs, subtitleFile_, oBuffer_} = oMediaInTB; // 本地媒体信息
@@ -134,7 +138,7 @@ const part01 = class {
 		const dataToDB = {
 			...oMediaInfo, mediaFile_, subtitleFile_, oBuffer_,
 			...(id ? {id} : null),
-			// ▼添加一个记号方便调试
+			// ▼ 0开头方便调试
 			'0': `${oMediaInfo.fileName} ● ${oStory.storyName}`,
 		};
 		oMediaInfo.id = await mediaTB[id ? 'put' : 'add'](dataToDB);
@@ -156,8 +160,9 @@ const part01 = class {
 	}
 }
 
-// ▲其它，▼字幕
 
+
+// ▼字幕
 const aboutSubtitle = class {
 	// ▼加载字幕
 	setSubtitle(oMediaInfo, oMediaInTB){
@@ -193,7 +198,7 @@ const aboutSubtitle = class {
 }
 
 export default window.mix(
-	part01, aboutSubtitle,
+	part01, aboutMedia, aboutSubtitle,
 );
 
 

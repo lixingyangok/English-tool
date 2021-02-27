@@ -80,14 +80,15 @@ export default class Dictation extends MyClass {
 		iCurStep: 0, // 当前步骤
 		changeTs: 0, // 字幕修改时间
 		aSteps: aEmptySteps.dc_,
-		// ▼
-		fileSrc: "", //文件地址
+		// ▼故事
 		oStory: {}, // 故事信息
+		// ▼媒体
+		mediaId: null, // 媒体id
+		fileSrc: "", //文件地址
 		oMediaInfo: {}, // 媒体信息
 		oMediaInTB: {}, // 媒体信息（在本地
 		matchDialogVisible: false, // 
 		aSubtitleFromNet: [], //网上字幕
-		mediaId: null, // 媒体id
 		sSearching: '',  // 正在搜索的单词
 		mediaFile_: {}, // 媒体文件
 		iBright: -1, // 输入框上的 hover 单词
@@ -334,9 +335,8 @@ export default class Dictation extends MyClass {
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const oThisLine = aLines[iCurLine] || {};
 		if ((this.oldMediaId !== mediaId) && mediaId) {
-			console.log('媒体id变成了--', mediaId);
 			this.oldMediaId = mediaId;
-			this.setMedia(mediaId);
+			this.getMediaInfo(mediaId);
 		}
 		const {oldContext={}, context={}} = this;
 		const {UpdatedAt: UpdatedAtNew} = context.oStoryInfo || {};
@@ -407,7 +407,11 @@ export default class Dictation extends MyClass {
 		const mediaId = params.mediaId * 1;
 		let newObj = null;
 		if (mediaId && mediaId !== prevState.mediaId) {
-			newObj = {mediaId}; 
+			newObj = {
+				mediaId,
+				iCurStep: 0, // 清空
+				aSteps: aEmptySteps.dc_, // 清空
+			};
 		}
 		return newObj;
 	}
