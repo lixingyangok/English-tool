@@ -83,6 +83,9 @@ export default class {
 			return this.setState({drawing: false});
 		}
 		const oWaveWrap = this.oWaveWrap.current;
+		if (!oWaveWrap) {
+			return console.log('波形外套的dom没得到');
+		}
 		const {parentElement:{offsetLeft}, children:[markBar]} = oWaveWrap;
 		const iPerSecPx = (() => { //新-每秒宽度
 			const result = perSecPxOld + iStep * (deltaY <= 0 ? 1 : -1);
