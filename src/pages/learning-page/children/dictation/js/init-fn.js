@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-27 07:17:01
+ * @LastEditTime: 2021-02-27 11:43:58
  * @Description: 
  */
 
@@ -51,25 +51,18 @@ const part01 = class {
 		});
 		if (!oMediaInfo) return; // 查不到媒体信息
 		this.context.setMedia(oMediaInfo); // 汇报父级页面当前媒体信息
-		const {
-			id, changeTs_: changeTs,
-			subtitleFile_ = [this.oEmptyLine.dc_],  // 默认值
-		} = oMediaInTB; // 先加载本地字幕
-		// TODO ▼在此查询字幕
-		// this.setSubtitle(oMediaInfo, oMediaInTB.subtitleFile_); // 查询字幕
+		this.setSubtitle(oMediaInfo, oMediaInTB); // 查询字幕
+		const { id, changeTs_: changeTs, } = oMediaInTB; // 先加载本地字幕
 		const {
 			buffer, // 媒体buffer
 			mediaFile_, // 媒体文件
-			needUpDateDB, // 值为true表示需要更新DB
+			needUpDateDB, // true = 需要更新DB
 		} = await this.getMediaAndButter({oMediaInfo, oMediaInTB});
 		if (!buffer) return this.setState({loading: false});
-		const {aSteps} = this.state;
-		aSteps.last_.aLines = subtitleFile_;
 		const oMediaInTBForSave = (()=>{
-			console.log('是否需要更新本地数据：', needUpDateDB);
-			if (!needUpDateDB) { // 有 oMediaInTB 且不用更新
+			// console.log('是否需要更新本地数据：', needUpDateDB);
+			if (!needUpDateDB) { // 不用更新
 				oMediaInfo.id = id;
-				this.setSubtitle({oMediaInfo, oMediaInTB}); // 查询字幕
 				return {oMediaInTB}; // 保存到state
 			}
 			this.saveMediaToTb({ // 保存到浏览 db
@@ -78,7 +71,7 @@ const part01 = class {
 		})();
 		this.setState({
 			oMediaInfo, mediaFile_, buffer,
-			aSteps, changeTs, loading: false,
+			changeTs, loading: false,
 			fileSrc: URL.createObjectURL(mediaFile_), // 10兆以下小文件 < 1毫秒
 			// fileSrc: URL.createObjectURL(mediaFile_, {type: 'video/aac'}),
 			...oMediaInTBForSave,
@@ -123,7 +116,6 @@ const part01 = class {
 	// ▼保存数据（不涉及字幕文件）
 	async saveMediaToTb(oData){
 		const {
-			oMediaInTB,
 			oMediaInTB: {id},
 			oMediaInfo, mediaFile_, buffer,
 		} = oData;
@@ -147,7 +139,6 @@ const part01 = class {
 		};
 		oMediaInfo.id = await mediaTB[id ? 'put' : 'add'](dataToDB);
 		this.setState({oMediaInfo});
-		this.setSubtitle({oMediaInfo, oMediaInTB}); // 查询字幕
 	}
 	
 	// ▼音频数据转换波峰数据
@@ -169,24 +160,25 @@ const part01 = class {
 
 const aboutSubtitle = class {
 	// ▼加载字幕
-	setSubtitle({oMediaInfo, oMediaInTB}){
+	setSubtitle(oMediaInfo, oMediaInTB){
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
-		const {changeTs_, subtitleFile_} = oMediaInTB;
+		const {changeTs_, subtitleFile_, id} = oMediaInTB; // 可能得不到值
 		const {aSteps} = this.state;
-		if (!changeTs_) { // 本地无字幕
+		if (!changeTs_ || !subtitleFile_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
 				this.getSubtitleFromNet(true); // 查询网络字幕
 			}else{ // 网上也没有
 				aSteps.last_.aLines[0].text = '★没有字幕★';
 				this.setState({aSteps});
-				this.toSaveInDb();
+				this.toSaveInDb(id);
 			}
 			return;
 		}
-		// ▼两地相同
-		if (subtitleFile_ && changeTs_ === subtitleFileModifyTs){
-			aSteps.last_.aLines = subtitleFile_;
-			this.setState({aSteps});
+		// 本地有，就先把本地字幕显示出来
+		aSteps.last_.aLines = subtitleFile_;
+		this.setState({aSteps});
+		if (changeTs_ !== subtitleFileModifyTs){
+			this.message.warning('需要对比字幕');
 		}
 	}
 	// ▼从云上获取字幕

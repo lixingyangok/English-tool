@@ -148,7 +148,7 @@ export default class {
 		const fStartTime = start + (isFromHalf ? long * 0.4 : 0);
 		style.left = `${fStartTime * fPerSecPx}px`;
 		Audio.currentTime = fStartTime;
-		Audio.play();
+		Audio.play && Audio.play();
 		const playing = setInterval(() => {
 			const { currentTime: cTime } = Audio;
 			if (cTime < this.getCurLine().end && this.state.playing) {
@@ -294,7 +294,6 @@ export default class {
 	}
 	// ▼提示是否上传字幕
 	uploadToCloudBefore(){
-		const toHide = this.message.loading('开始保存');
 		const {oMediaInfo, changeTs} =  this.state;
 		const {
 			name_,
@@ -303,6 +302,7 @@ export default class {
 			subtitleFileModifyTs,
 		} = oMediaInfo;
 		const onOk = async () => { // 上传的方法
+			const toHide = this.message.loading('开始保存');
 			await this.uploadToCloud({
 				fileName: subtitleFileName || (name_ + '.srt'),
 				key: subtitleFileId || '',
@@ -350,7 +350,7 @@ export default class {
 	beforeUseNetSubtitle(){
 		this.confirm({
 			title: '提示',
-			content: '确定网络字幕？此操作会覆盖本地字幕！',
+			content: '确定使用网络字幕？此操作会覆盖本地字幕！',
 			onOk: () => this.useSubtitleFromNet(),
 		});
 	}

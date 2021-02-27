@@ -170,8 +170,8 @@ export default class {
 		this.goToCurLine();
 	}
 	// ▼保存字幕到浏览器
-	async toSaveInDb() {
-		const { oMediaInfo: {id} } = this.state;
+	async toSaveInDb(dataId) {
+		const { oMediaInfo: {id=dataId} } = this.state;
 		const { aLines: subtitleFile_ } = this.getCurStep();
 		const [,oTime] = await getQiniuToken();
 		const changeTs_ = oTime.getTime();
