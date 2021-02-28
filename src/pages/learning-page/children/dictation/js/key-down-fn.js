@@ -120,7 +120,7 @@ export default class {
 		const aLines = oCurStep.aLines;
 		let sTyped = ''; // 单词开头（用于搜索的）
 		aLines[iCurLine].text = sText;
-		if (sLeft.match(/.+[^a-zA-Z]$/)) {
+		if (/.+[^a-zA-Z]$/.test(sLeft)) {
 			// 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
 			this.setCurLine(aLines[iCurLine].dc_);
@@ -135,18 +135,25 @@ export default class {
 	}
 	async getMatchedWords(sTyped = '') {
 		sTyped = sTyped.toLocaleLowerCase().trim();
+		const iMax = 7;
 		const aMatched = (() => {
 			const {aWords, aNames} = this.state;
 			const allWords = aWords.concat(aNames);
 			if (!sTyped) return allWords;
-			const aFiltered = allWords.filter(cur => {
-				return cur.toLocaleLowerCase().startsWith(sTyped);
-			});
-			return aFiltered.slice(0, 9); //最多9个，再多也没法按数字键去选取
+			const aFiltered = [];
+			// ▼遍历耗时 ≈ 0.0x 毫秒
+			for (let idx = allWords.length; idx--;){
+				if (allWords[idx].toLocaleLowerCase().startsWith(sTyped)){
+					aFiltered.push(allWords[idx]);
+					if (aFiltered.length===iMax) break; // 最多x个，再多也没法按数字键去选取
+				}
+			}
+			return aFiltered;
 		})();
-		if (sTyped && aMatched.length < 9) {
+		if (sTyped && aMatched.length < iMax) {
 			const theTB = wordsDB[sTyped[0]].where('word').startsWith(sTyped);
-			const res = await theTB.limit(9 - aMatched.length).toArray();
+			const res = await theTB.limit(iMax - aMatched.length).toArray();
+			// ▲此处检索耗时 > 100ms
 			res.forEach(({word})=>{
 				const hasIn = aMatched.find(one=>{
 					return one.toLocaleLowerCase() === word.toLocaleLowerCase();

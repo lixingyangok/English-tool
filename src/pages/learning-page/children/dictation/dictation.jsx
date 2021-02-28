@@ -190,7 +190,7 @@ export default class Dictation extends MyClass {
 			const curLower = cur.toLowerCase();
 			let sKind = oNames[curLower] && 'name';
 			sKind = sKind || (oWords[curLower] ? 'new-word' : '');
-			const sClass = sKind + (cur.match(/\s/) ? ' word-group' : '');
+			const sClass = sKind + (/\s/.test(cur) ? ' word-group' : '');
 			const sRight = cur.slice(sTyped.length).trim();
 			const inner = <cpnt.oneWord key={idx} >
 				{sTyped ? <i className="idx">{idx+1}</i> : null}
@@ -290,7 +290,7 @@ export default class Dictation extends MyClass {
 		</cpnt.TextareaWrap>;
 	}
 	getAllSentence(){
-		// console.time("显示句子");
+		console.time("显示句子");
 		const { aSteps, iCurStep, iTopLine } = this.state;
 		const {aLines, iCurLine} = aSteps[iCurStep];
 		const {length: iLen} = aLines;
@@ -322,11 +322,11 @@ export default class Dictation extends MyClass {
 			{aSentences}
 			<li style={oBottomGap}></li>
 		</cpnt.SentenceWrap>
-		// console.timeEnd("显示句子");
+		console.timeEnd("显示句子");
 		return HTML;
 	}
 	render() {
-		console.log("开始render");
+		console.log("开始render ■■■■■■■■■■■■■■■■■■");
 		const {
 			aSteps, iCurStep, iCanvasHeight,
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
