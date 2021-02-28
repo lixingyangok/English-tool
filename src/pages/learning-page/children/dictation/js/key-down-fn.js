@@ -207,6 +207,7 @@ export default class {
 	// ▼重新定位起点，终点
 	cutHere(sKey) {
 		const oAudio = this.oAudio.current;
+		if (!oAudio) return;
 		this.setTime(sKey, oAudio.currentTime);
 	}
 	// ▼合并

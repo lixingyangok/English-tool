@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-26 08:07:52
+ * @LastEditTime: 2021-02-28 18:24:47
  * @Description: 
  */
 
@@ -31,6 +31,11 @@ export async function getMediaByStoryId(storyId){
 		cur.fileSize_ = size01;
 		cur.fisubtitleFileSize_ = `${(size02 > 1) ? size02.toFixed(1) * 1 : '<1'}kb`;
 		cur.name_ = cur.fileName.replace(/\.[^.]+$/, '');
+	});
+	data.sort((aa,bb)=>{
+		const i01 = (aa.fileName.match(/\d+/) || [0])[0];
+		const i02 = (bb.fileName.match(/\d+/) || [0])[0];
+		return i01 - i02;
 	});
 	return data;
 }

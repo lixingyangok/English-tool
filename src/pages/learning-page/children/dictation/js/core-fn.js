@@ -58,6 +58,7 @@ export default class {
 	// ▼跳至某行
 	async goLine(iAimLine, oNewLine, doNotSave) {
 		const oWaveWrap = this.oWaveWrap.current;
+		if (!oWaveWrap) return console.log('没有波形外套DOM');
 		const {offsetWidth} = oWaveWrap;
 		const {fPerSecPx} = this.state;
 		const {start, long} = oNewLine || this.getCurLine(iAimLine);
@@ -303,7 +304,7 @@ export default class {
 			subtitleFileName, 
 			subtitleFileModifyTs,
 		} = oMediaInfo;
-		const onOk = async () => { // 上传的方法
+		const onOkFn = async () => { // 上传的方法
 			const toHide = this.message.loading('开始保存');
 			await this.uploadToCloud({
 				fileName: subtitleFileName || (name_ + '.srt'),
@@ -311,12 +312,12 @@ export default class {
 			});
 			toHide();
 		};
-		if (changeTs >= subtitleFileModifyTs) return onOk();
+		if (changeTs >= subtitleFileModifyTs) return onOkFn();
 		// ▲本新新，直接提交，▼本地旧，询问
 		this.confirm({
 			title: '提示',
 			content: '本地数据比上网络数据更旧！确定上传？上传后会覆盖云端的文件！',
-			onOk,
+			onOk: () => onOkFn(),
 		});
 	}
 	// ▼保存字幕到云（上传字幕）
