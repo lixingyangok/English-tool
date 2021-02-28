@@ -143,6 +143,9 @@ export default class {
 		const { fPerSecPx } = this.state;
 		const { start, long } = this.getCurLine();
 		const Audio = this.oAudio.current;
+		if (!Audio) {
+			return console.log('有没音频对象');
+		}
 		const { style={} } = this.oPointer.current || {}; 
 		const fStartTime = start + (isFromHalf ? long * 0.4 : 0);
 		style.left = `${fStartTime * fPerSecPx}px`;

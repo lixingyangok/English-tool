@@ -54,6 +54,7 @@ export default class Dictation extends MyClass {
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
 	aEmptySteps = aEmptySteps.dc_; // 空历史记录
+	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
 		loading: false, //是否在加载中（解析文件
