@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-21 14:31:01
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-28 14:27:38
+ * @LastEditTime: 2021-02-28 17:35:04
  * @Description: 
  */
 
@@ -93,15 +93,12 @@ function mix(...mixins) {
 }
 
 function toClone(source) {
-	if ((source instanceof Object) === false || typeof source !== 'object' || !source) {
-		return source; // 不处理值类型，即忽略非数组、非对象
+	if ((typeof source !== 'object') || (source instanceof Object) === false || !source){
+		return source; //不处理值类型，即忽略非数组、非对象
 	}
 	const newObj = new source.constructor();
-	const iterator = Array.isArray(source) ? source.keys() : Object.keys(source);
-	while (true) {
-		const thisOne = iterator.next();
-		if (thisOne.done) break;
-		const key = thisOne.value;
+	const aKeyArr = Array.isArray(source) ? source.keys() : Object.keys(source);
+	for (const key of aKeyArr) {
 		const val = source[key];
 		newObj[key] = val instanceof Object ? toClone(val) : val;
 	}
