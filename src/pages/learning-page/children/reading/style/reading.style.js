@@ -28,16 +28,16 @@ export const mediaTitle = styled.h1`
 `;
 
 export const oneLine = styled.li`
-	font-size: 18px;
+	font-size: 20px;
 	cursor: pointer;
 	padding: 0.3em 1em;
 	display: flex;
-	color: #666;
+	color: #333;
 	transition: 0.5s all;
 	/* margin: 0 0 0.5em; */
 	&:hover,
 	&[class~=current]{
-		background: #f0f0f0;
+		background: #e9ebff;
 		color: #000;
 	}
 	&[class~=done] .bg::after{
@@ -53,6 +53,8 @@ export const oneLine = styled.li`
 	}
 	.text{
 		position: relative; 
+		width: 100%;
+		/* &, & *{ white-space: pre-wrap; } */
 	}
 	p{
 		margin: 0;
@@ -76,6 +78,21 @@ export const oneLine = styled.li`
 			background: rgba(255, 255, 0, 0.45);
 			color: transparent;
 			transition: all 0.5s;
+		}
+	}
+	.cover{
+		.word{
+			&:Hover{
+				background: yellow;
+			}
+		}
+		.name{
+			color: blue;
+			font-weight: bold;
+		}
+		.new-word{
+			color: red;
+			font-weight: bold;
 		}
 	}
 `;

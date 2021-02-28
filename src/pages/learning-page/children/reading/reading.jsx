@@ -2,12 +2,12 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 17:51:38
+ * @LastEditTime: 2021-02-28 21:05:56
  * @Description: 
  */
 
 import React from "react";
-import {Fn01} from './js/reading.js';
+import Fn01 from './js/reading.js';
 import {readingPath} from 'components/navigation/js/navigation.js';
 import * as cpnt from './style/reading.style.js';
 import DictDialog from 'components/dict-dialog/dict-dialog.jsx';
@@ -23,6 +23,8 @@ const MyClass = window.mix(
 export default class Reading extends MyClass{
 	static contextType = MyContext;
 	oAudio = React.createRef();
+	oldContext = undefined; // 记录父级页下发的数据
+
 	state = {
 		mediaId: 0, // 媒体id
 		oMedia: {}, // 媒体信息
@@ -37,6 +39,12 @@ export default class Reading extends MyClass{
 		// ▼长按阅读
 		iStartTs: 0, //开始时间
 		isKeyPressing: false, // true 表示正按着键
+		// ▼词汇
+		oStory: {},
+		aWords: [],
+		aNames: [],
+		oWords: {},
+		oNames: {},
 	};
 	constructor(props){
 		super(props);
@@ -84,7 +92,10 @@ export default class Reading extends MyClass{
 				<div className={"text"} >
 					<p className={'support'}>{text}</p>
 					<p className={'bg'} text={textVal}></p>
-					<p className='cover' >{text}</p>
+					{/* <p className='cover' >{text}</p> */}
+					<p className='cover' onClick={ev=>this.clickWord(ev)} >
+						{this.markWords(text)}
+					</p>
 				</div>
 			</cpnt.oneLine>
 		})
@@ -92,6 +103,14 @@ export default class Reading extends MyClass{
 	}
 	render(){
 		const { oMedia, sSearching } = this.state;
+		const {oldContext={}, context={}} = this;
+		const {UpdatedAt: UpdatedAtNew} = context.oStoryInfo || {};
+		const {UpdatedAt: UpdatedAtOld} = oldContext.oStoryInfo || {};
+		if (UpdatedAtNew && UpdatedAtNew !== UpdatedAtOld){
+			console.log("context数据更新了");
+			this.oldContext = context;
+			this.initStoryInfo();
+		}
 		const HTML = <cpnt.outer className="" >
 			{this.getMediaPlayer()}
 			<hr/>

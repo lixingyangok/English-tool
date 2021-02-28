@@ -2,19 +2,20 @@
  * @Author: 李星阳
  * @Date: 2021-02-15 21:00:05
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 17:52:28
+ * @LastEditTime: 2021-02-28 21:14:57
  * @Description: 
  */
 
-// import React, {useState} from "react";
+import React from "react";
 import {getOneMedia, getSubtitle} from 'assets/js/learning-api.js';
 import {trainingDB} from 'assets/js/common.js';
 import {setWrods} from 'assets/js/learning-api.js';
+import {message} from 'antd';
 
 const {media: mediaTB} = trainingDB;
 
 
-export class Fn01 {
+class Fn01 {
 	async init(mediaId){
 		// this.setState({mediaId});
 		const [oMedia, mediaInTB={}] = await Promise.all([
@@ -31,6 +32,22 @@ export class Fn01 {
 			return URL.createObjectURL(mediaInTB.mediaFile_);
 		})();
 		this.setState({oMedia, fileSrc});
+	}
+	initStoryInfo(){
+		const oStory = this.context.oStoryInfo;
+		const {words, names} = oStory;
+		const aWords = words ? words.split(',') : [];
+		const aNames = names ? names.split(',') : [];
+		const oWords = aWords.reduce((oResult, cur)=>({
+			...oResult, [cur.toLowerCase()]: true,
+		}), {});
+		const oNames = aNames.reduce((oResult, cur)=>({
+			...oResult, [cur.toLowerCase()]: true,
+		}), {});
+		// if (0) console.log('init', oWords, oNames);
+		setTimeout(()=>{
+			this.setState({oStory, aWords, aNames, oWords, oNames});
+		}, 1 * 1000);
 	}
 	async setSubtitle(oMedia){
 		oMedia = oMedia || this.state.oMedia;
@@ -127,23 +144,7 @@ export class Fn01 {
 			this.setState({sSearching});
 		});
 	}
-	// ▼公共方法▼要提取
-	async saveWord(sSearching='') {
-		const {oStory, aWords, aNames} = this.state;
-		const sWord = sSearching || window.getSelection().toString().trim();
-		const canSave = this.checkWord(sWord, !sSearching);
-		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 2;
-		if (!canSave || tooMuchSpace) return;
-		// ▲通过考验，▼保存
-		const isCapitalize = /[A-Z]/.test(sWord[0]);
-		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
-		const arrToSubmit = isCapitalize ? aNames : aWords;
-		arrToSubmit.push(sWord);
-		this.setState({aWords, aNames});
-		this.message.success(`保存成功`);
-		await setWrods(oStory.ID, sKey, arrToSubmit);
-		this.context.updateStoryInfo();
-	}
+	
 	// ▼设定当前行
 	setCurLine(iDirection){
 		const {aSubtitle: {length}, curLine: curLineOld} = this.state;
@@ -156,3 +157,129 @@ export class Fn01 {
 		this.setState({curLine});
 	}
 }
+
+class aboutWords {
+	toSplit(str){
+		const iStart = str.search(/[a-z0-9]/i);
+		if (iStart === -1) return [str, '', ''];
+		const iEnd = str.slice(iStart).match(/.*[a-z0-9]/i)[0].length + iStart;
+		return [
+			str.slice(0, iStart), str.slice(iStart, iEnd), str.slice(iEnd),
+		];
+	}
+	strToDom({txt, sClass=''}, idx){
+		const [head, body, tail] = this.toSplit(txt);
+		// if (iBright === idx) sClass += ' hover';
+		return <span key={idx}>
+			{head}
+			{/* <Popover trigger="hover" placement="topLeft" 
+				onVisibleChange={this.handleVisibleChange.bind(this)}
+				visible={iBright === idx} content={<Button>按钮1</Button>}
+			>
+				<span className={sClass}>{body}</span>
+			</Popover> */}
+			<span className={'word ' + sClass}>{body}</span>
+			{tail}
+		</span>
+	}
+	// ▼渲染句子样式
+	markWords(sText=''){
+		const {oWords=[], oNames=[]} = this.state;
+		const aText = sText.match(/\S+\s*/g) || [];
+		const iLength = aText.length;
+		const aWordsList = [];
+		const regExp01 = /\S\w*/;
+		const regExp02 = /\w.*/; // 用于 back01 & back02
+		const regExpForOneWord = /[\w-]+/;
+		for (let idx = 0; idx < iLength; idx++) {
+			const cur = aText[idx];
+			const len = aWordsList.length;
+			const sBack02Txt = (aWordsList[len - 2] || {}).txt || '';
+			const sBack01Txt = (aWordsList[len - 1] || {}).txt || '';
+			let [sClass, isGoBackTwo] = (()=>{
+				if (idx===0) return [''];
+				const sCurFixed = cur.match(regExp01)[0];
+				const sBack02Fixed = (sBack02Txt.match(regExp02) || [''])[0];
+				if (sBack02Fixed){
+					const longText = (sBack02Fixed + sBack01Txt + sCurFixed).toLowerCase();
+					if (oWords[longText]) return ['new-word', true];
+					if (oNames[longText]) return ['name', true];
+				}
+				const sBack01Fixed = (sBack01Txt.match(regExp02) || [''])[0];
+				const sNewOne = (sBack01Fixed + sCurFixed).toLowerCase();
+				if (oWords[sNewOne]) return ['new-word'];
+				if (oNames[sNewOne]) return ['name'];
+				return [''];
+			})();
+			if (sClass) {
+				sClass += ' word-group';
+				if (isGoBackTwo){
+					const txt = sBack02Txt + sBack01Txt + cur;
+					aWordsList.splice(len - 2, 2, {txt, sClass});
+				}else{
+					aWordsList[len-1] = {txt: sBack01Txt + cur, sClass};
+				}
+				continue;
+			}
+			let sCurFixed = (cur.match(regExpForOneWord) || [''])[0];
+			sCurFixed = sCurFixed.toLowerCase();
+			sClass = oWords[sCurFixed] && 'new-word';
+			sClass = sClass || (oNames[sCurFixed] ? 'name' : '');
+			aWordsList.push({txt: cur, sClass});
+		}
+		const {'0': txt} = sText.match(/^\s+/) || [''];
+		if (txt) aWordsList.unshift({txt});
+		const aResult = aWordsList.map((oCur, idx)=>{
+			return this.strToDom(oCur, idx);
+		});
+		return aResult;
+	}
+	clickWord(ev){
+		const oTarget = ev.target; 
+		const sClass = oTarget.className;
+		const txt = oTarget.innerText.trim();
+		if (!sClass.includes('word') || !txt) return;
+		this.saveWord(txt);
+	}
+	// ▼公共方法▼要提取
+	async saveWord(sSearching='') {
+		const {oStory, aWords, aNames, oWords, oNames,} = this.state;
+		const sWord = sSearching || window.getSelection().toString().trim();
+		const canSave = this.checkWord(sWord, !sSearching);
+		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 2;
+		if (!canSave || tooMuchSpace) return;
+		// ▲通过考验，▼保存
+		const isCapitalize = /[A-Z]/.test(sWord[0]);
+		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
+		const arrToSubmit = isCapitalize ? aNames : aWords;
+		const oAim = isCapitalize ? oNames : oWords;
+		arrToSubmit.push(sWord);
+		oAim[sWord.toLowerCase()] = true;
+		this.setState({ aWords, aNames, oWords, oNames });
+		message.success(`保存成功`);
+		await setWrods(oStory.ID, sKey, arrToSubmit);
+		this.context.updateStoryInfo();
+	}
+	checkWord(sWord, showTip){
+		const {aWords, aNames} = this.state;
+		const aAll = aWords.concat(aNames);
+		const {error} = message;
+		if (aAll.find(cur => cur.toLowerCase() === sWord.toLowerCase())) {
+			showTip && error(`已经保存不可重复添加`);
+			return;
+		}
+		if (sWord.length < 2 || sWord.length > 30) {
+			showTip && error(`单词长度超出范围：2-30字母`);
+			return;
+		}
+		if (sWord.includes(',')) {
+			showTip && error('不能包含英文逗号');
+			return;
+		}
+		return true;
+	}
+}
+
+export default window.mix(
+	Fn01, aboutWords,
+)
