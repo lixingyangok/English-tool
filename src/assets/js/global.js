@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-21 14:31:01
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-21 14:35:19
+ * @LastEditTime: 2021-02-28 14:27:38
  * @Description: 
  */
 
@@ -28,24 +28,12 @@ export default function (){
 	Object.defineProperties(Object.prototype, { // eslint-disable-line
 		dc_: { // dc = deep copy = 深拷贝
 			get: function () {
-				// console.time('%c克隆耗时■■■');
-				function toClone(source) {
-					const isNeed = source && typeof source == 'object' && source instanceof Object;
-					if (!isNeed) return source; //不处理值类型，即忽略非数组、非对象
-					const newObj = new source.constructor();
-					const iterator = Array.isArray(source) ? source.entries() : Object.entries(source);
-					for (let [key, val] of iterator) {
-						newObj[key] = val instanceof Object ? toClone(val) : val;
-					}
-					return newObj;
-				}
-				const result = (() => {
-					try {return toClone(this)} 
-					catch (err) {console.error('拷贝没成功', err)}
+				try {
+					return toClone(this);
+				} catch (err) {
+					console.error('拷贝未成功', err)
 					return JSON.parse(JSON.stringify(this));
-				})();
-				// console.timeEnd('%c克隆耗时■■■');
-				return result;
+				}
 			},
 		},
 	});
@@ -102,4 +90,20 @@ function mix(...mixins) {
 		copyProperties(Mix.prototype, mixin.prototype); // 拷贝原型属性
 	}
 	return Mix;
+}
+
+function toClone(source) {
+	if ((source instanceof Object) === false || typeof source !== 'object' || !source) {
+		return source; // 不处理值类型，即忽略非数组、非对象
+	}
+	const newObj = new source.constructor();
+	const iterator = Array.isArray(source) ? source.keys() : Object.keys(source);
+	while (true) {
+		const thisOne = iterator.next();
+		if (thisOne.done) break;
+		const key = thisOne.value;
+		const val = source[key];
+		newObj[key] = val instanceof Object ? toClone(val) : val;
+	}
+	return newObj;
 }
