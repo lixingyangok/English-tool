@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import * as cpnt from './style/about.js';
 import rabbit from './img/rabbit.jpg';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import Test01 from './children/test01.jsx';
 // import { createFFmpegCore } from '@ffmpeg/core';
 
 export default function(){
@@ -10,6 +11,7 @@ export default function(){
 	console.log( oLocation );
 	return <div className="center-box" >
 		<cpnt.myImg src={rabbit} />
+		<Test01/>
 		<div className="be-center">
 			联系邮箱：176840078@qq.com
 		</div>
