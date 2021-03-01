@@ -22,15 +22,16 @@ const aEmptySteps = [{ // 历史记录
 	iCurLine: 0, // 当前所在行
 	aLines: [oEmptyLine.dc_], //字幕
 }];
+
+
+// TODO
+// textarea 的输入动效，输入后听写校对功能
+
 const MyClass = window.mix(
 	React.Component,
 	coreFn, keyDownFn, MouseFn, wordsDbFn,
 	figureOutRegion, initFn,
 );
-
-// TODO
-// textarea 的输入动效，输入后听写校对功能
-
 export default class Dictation extends MyClass {
 	static contextType = MyContext;
 	confirm = confirm; // 使用修饰符(static)之后后，在 constructor、componentDidMount 拿不到值
@@ -94,6 +95,7 @@ export default class Dictation extends MyClass {
 		mediaFile_: {}, // 媒体文件
 		iBright: -1, // 输入框上的 hover 单词
 		iTopLine: 0, // 应从第几行字幕开始显示
+		myTxt: '默认文字',
 	};
 	constructor(props) {
 		super(props);
@@ -277,6 +279,11 @@ export default class Dictation extends MyClass {
 			<cpnt.matchUl>{aLi}</cpnt.matchUl>
 		</Modal>;
 	}
+	toChange(ev){
+		this.setState({
+			myTxt: ev.target.value,
+		});
+	}
 	getTextArea(oThisLine){
 		const {text=''} = oThisLine;
 		const aWordsList = this.markWords(text);
@@ -285,8 +292,12 @@ export default class Dictation extends MyClass {
 			<textarea className="textarea" ref={this.oTextArea}
 				value={text}
 				onChange={this.valChanged}
-				onKeyDown={this.enterKeyDown}
 			></textarea>
+			{/* onKeyDown={this.enterKeyDown} */}
+			{/* <textarea className="textarea" ref={this.oTextArea}
+				value={this.state.myTxt}
+				onChange={ev=>this.toChange(ev)}
+			></textarea> */}
 		</cpnt.TextareaWrap>;
 	}
 	getAllSentence(){

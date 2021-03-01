@@ -7,7 +7,8 @@ const {media: mediaTB} = trainingDB;
 
 export default class {
 	getFn(keyStr) {
-		const type01 = { //单键系列
+		const fnLib = {
+			// 单键系列 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 			'`': () => this.toPlay(true), //播放后半句
 			'Tab': () => this.toPlay(), //播放
 			'Prior': () => this.previousAndNext(-1),
@@ -16,54 +17,46 @@ export default class {
 			'F2': () => this.cutHere('end'),
 			'F3': () => this.giveUpThisOne(),
 			'F4': () => this.searchWord(), //保存单词到云
-		};
-		const type02 = { // ctrl 系列
+			// ctrl 系列 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 			'ctrl + d': () => this.toDel(), //删除一行
 			'ctrl + z': () => this.setHistory(-1), //撤销
 			'ctrl + s': () => this.uploadToCloudBefore(), // 保存到云（字幕）
 			'ctrl + j': () => this.putTogether('prior'), // 合并上一句
 			'ctrl + k': () => this.putTogether('next'), // 合并下一句
-			...{ // +shift
-				'ctrl + Enter': () => this.toPlay(), //播放
-				'ctrl + shift + Enter': () => this.toPlay(true), //播放
-				'ctrl + shift + z': () => this.setHistory(1), //恢复
-				'ctrl + shift + c': () => this.split(), //分割
-				'ctrl + shift + s': () => this.toSaveInDb(), // 保存到本地
-			},
-		};
-		const type03 = { // alt 系列
-			...{ //修改选区系列
-				'alt + ]': () => this.chooseMore(), //扩选
-				'alt + u': () => this.fixRegion('start', -0.07), //起点向左
-				'alt + i': () => this.fixRegion('start', 0.07), //起点向右
-				'alt + n': () => this.fixRegion('end', -0.07), //终点向左
-				'alt + m': () => this.fixRegion('end', 0.07), //终点向右
-			},
-			...{ // +shift
-				'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
-				'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
-				'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
-				'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
-				'alt + shift + d': () => this.saveWord(), //保存单词到云
-				'alt + shift + c': () => this.toStop(), //停止播放
-			},
+			// ctrl + shift
+			'ctrl + Enter': () => this.toPlay(), //播放
+			'ctrl + shift + Enter': () => this.toPlay(true), //播放
+			'ctrl + shift + z': () => this.setHistory(1), //恢复
+			'ctrl + shift + c': () => this.split(), //分割
+			'ctrl + shift + s': () => this.toSaveInDb(), // 保存到本地
+			// alt 系列  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+			// 修改选区
+			'alt + ]': () => this.chooseMore(), //扩选
+			'alt + u': () => this.fixRegion('start', -0.07), //起点向左
+			'alt + i': () => this.fixRegion('start', 0.07), //起点向右
+			'alt + n': () => this.fixRegion('end', -0.07), //终点向左
+			'alt + m': () => this.fixRegion('end', 0.07), //终点向右
+			// 选词
+			'alt + a': () => this.toInset(0),
+			'alt + s': () => this.toInset(1),
+			'alt + d': () => this.toInset(2),
+			'alt + f': () => this.toInset(3),
+			// 未分类
 			'alt + j': () => this.previousAndNext(-1),
 			'alt + k': () => this.previousAndNext(1),
 			'alt + l': () => this.goLastLine(), // 跳到最后一句 l = last
 			'alt + ,': () => this.zoomWave({deltaY: 1}), //波形横向缩放
 			'alt + .': () => this.zoomWave({deltaY: -1}), //波形横向缩放
-			'alt + number': number => this.toInset(number - 1), //取词
-		}
-		const fnLib = { ...type01, ...type02, ...type03 };
-		let fn = fnLib[keyStr];
-		if (!fn) {
-			const isMatch = keyStr.match(/alt \+ [asdf\d]/);
-			if (!isMatch) return false; //没有相关方法
-			const last = keyStr.slice(-1);
-			const number = { a: 1, s: 2, d: 3, f: 4 }[last];
-			return type03['alt + number'].bind(this, number || last);
-		}
-		return fn.bind(this);
+			// alt + shift
+			'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
+			'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
+			'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
+			'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
+			'alt + shift + d': () => this.saveWord(), //保存单词到云
+			'alt + shift + c': () => this.toStop(), //停止播放
+		};
+		const fn = fnLib[keyStr];
+		if (fn) return fn.bind(this);
 	}
 	// ▼按下按键事件（全局）
 	keyDowned(ev) {
@@ -123,7 +116,7 @@ export default class {
 		if (/.+[^a-zA-Z]$/.test(sLeft)) {
 			// 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
-			this.setCurLine(aLines[iCurLine].dc_);
+			// this.setCurLine(aLines[iCurLine].dc_);
 			this.setState({sTyped}); 
 		} else {
 			// 英文字母结尾，【不要】生成新历史
