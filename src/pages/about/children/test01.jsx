@@ -7,6 +7,10 @@ const Div = styled.div`
 	button{
 		margin-left: 20px;
 	}
+	textarea{
+		width: 100%;
+		height: 080px;
+	}
 `;
 
 export default class extends React.Component {
@@ -14,6 +18,7 @@ export default class extends React.Component {
 	state = {
 		v02: 1,
 		v03: 1,
+		txt: '默认文字',
 	}
 	changeV01(){
 		// 这个方法没有修改 state 不会触发视图更新
@@ -25,6 +30,10 @@ export default class extends React.Component {
 			[sKeyName]: this.state[sKeyName] + 1,
 		});
 		console.log(`${sKeyName} - 新值`, this.state[sKeyName]);
+	}
+	txtChangeFn(ev){
+		const txt = ev.target.value;
+		this.setState({txt});
 	}
 	render(){
 		console.log('render');
@@ -47,6 +56,9 @@ export default class extends React.Component {
 					v03值+1
 				</button>
 			</p>
+			<textarea value={this.state.txt} 
+				onChange={ev => this.txtChangeFn(ev)}
+			></textarea>
 		</Div>
 		return HTML;
 	}
