@@ -1,9 +1,22 @@
-import keyMap from './key-map.js';
+/*
+ * @Author: 李星阳
+ * @Date: 2021-02-19 16:35:07
+ * @LastEditors: 李星阳
+ * @LastEditTime: 2021-03-01 21:03:16
+ * @Description: 
+ */
+
+import {keyMap} from './key-map.js';
 import {fixTime } from 'assets/js/pure-fn.js';
 import {trainingDB, wordsDB} from 'assets/js/common.js';
 import {getQiniuToken} from 'assets/js/learning-api.js';
+import {aAlphabet} from 'assets/js/common.js';
 
 const {media: mediaTB} = trainingDB;
+const oAlphabet = aAlphabet.reduce((oResult, cur)=>{
+	oResult[cur] = true;
+	return oResult;
+}, {});
 
 export default class {
 	getFn(keyStr) {
@@ -60,15 +73,15 @@ export default class {
 	}
 	// ▼按下按键事件（全局）
 	keyDowned(ev) {
-		const { ctrlKey, shiftKey, altKey, keyCode } = ev;
-		const ctrl = ctrlKey ? 'ctrl + ' : '';
-		const alt = altKey ? 'alt + ' : '';
-		const shift = shiftKey ? 'shift + ' : '';
-		const keyName = [16, 17, 18].includes(keyCode) ? '' : keyMap[keyCode];
+		const ctrl = ev.ctrlKey ? 'ctrl + ' : '';
+		const alt = ev.altKey ? 'alt + ' : '';
+		const shift = ev.shiftKey ? 'shift + ' : '';
+		const keyName = keyMap[ev.keyCode] || '';
 		const keyStr = ctrl + alt + shift + keyName;
+		if (oAlphabet[keyStr] || !keyName) return; // 单字母不处理
 		const theFn = this.getFn(keyStr);
-		keyName && console.log('按下了：', keyCode, keyStr);
 		if (!theFn) return;
+		// keyName && console.log('按下了：', ev.keyCode, keyStr);
 		theFn();
 		ev.preventDefault();
 		ev.stopPropagation();
