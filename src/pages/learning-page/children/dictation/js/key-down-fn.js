@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-01 21:03:16
+ * @LastEditTime: 2021-03-02 20:48:31
  * @Description: 
  */
 
@@ -78,7 +78,7 @@ export default class {
 		const shift = ev.shiftKey ? 'shift + ' : '';
 		const keyName = keyMap[ev.keyCode] || '';
 		const keyStr = ctrl + alt + shift + keyName;
-		if (oAlphabet[keyStr] || !keyName) return; // 单字母不处理
+		if (oAlphabet[keyStr]) return; // 单字母不处理
 		const theFn = this.getFn(keyStr);
 		if (!theFn) return;
 		// keyName && console.log('按下了：', ev.keyCode, keyStr);

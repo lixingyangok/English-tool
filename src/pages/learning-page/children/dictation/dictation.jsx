@@ -55,6 +55,7 @@ export default class Dictation extends MyClass {
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
 	aEmptySteps = aEmptySteps.dc_; // 空历史记录
+	aHistory = [];
 	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
@@ -292,8 +293,9 @@ export default class Dictation extends MyClass {
 			<textarea className="textarea" ref={this.oTextArea}
 				value={text}
 				onChange={this.valChanged}
+				onKeyDown={this.enterKeyDown}
 			></textarea>
-			{/* onKeyDown={this.enterKeyDown} */}
+			{/*  */}
 			{/* <textarea className="textarea" ref={this.oTextArea}
 				value={this.state.myTxt}
 				onChange={ev=>this.toChange(ev)}
@@ -413,6 +415,8 @@ export default class Dictation extends MyClass {
 	//     console.log( 'B-shouldComponentUpdate（更新调用' );
 	//     return true;
 	// }
+	// ▼ 在render之前调用，state已更新。必须有返回值
+	// getSnapshotBeforeUpdate(){}
 	static getDerivedStateFromProps(nextProps, prevState){ // nextProps, prevState
 		// console.log('%c02-A-getDerivedStateFromProps（双重调用【开始更新】', 'background:yellow');
 		const {params={}} = nextProps.match;
@@ -436,6 +440,7 @@ export default class Dictation extends MyClass {
 			this.setSpanArr(); // 文字变化了就执行
 		}
 		this.sOldText = oThisLine.text;
+		// TODO 在这里记录历史，记录在 aHistory 中
 	}
 	async componentDidMount() {
 		const oWaveWrap = this.oWaveWrap.current;
