@@ -94,6 +94,9 @@ export const oneLine = styled.li`
 			color: red;
 			font-weight: bold;
 		}
+		.word-group{
+			text-decoration: underline;
+		}
 	}
 `;
 
