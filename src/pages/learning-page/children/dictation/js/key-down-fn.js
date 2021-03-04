@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-03 21:14:38
+ * @LastEditTime: 2021-03-04 21:02:44
  * @Description: 
  */
 
@@ -88,8 +88,8 @@ export default class {
 	}
 	// ▼切换当前句子（上一句，下一句）
 	previousAndNext(iDirection, isWantSave) {
-		const { aSteps, iCurStep, buffer, aLineArr, iCurLineIdx } = this.state;
-		// const { iCurLine, aLines } = aSteps[iCurStep];
+		const { iCurStep, buffer, aLineArr, iCurLineIdx } = this.state;
+		
 		if (iCurLineIdx === 0 && iDirection === -1) return; //不可退
 		const iCurLineNew = iCurLineIdx + iDirection;
 		const newLine = (() => {
@@ -103,13 +103,9 @@ export default class {
 		// ▼处理保存相关事宜
 		if (!(isWantSave && iCurStep > 0 && iCurLineNew % 2)) return; // 不满足保存条件 return
 		const isNeedSave = (() => {
-			if (newLine) return true; //新建行了，得保存！
-			const { aLineArr: aOldlines } = aSteps[iCurStep - 1]; //提取上一步的行数据
-			if (!aOldlines[iCurLineIdx]) { //当前行在上一步历史中不存在，保存！（此判断好像不会判断通过，观察观察
-				this.message.error(`当前行在上一步历史中不存在`);
-				return true;
-			}
-			return aOldlines[iCurLineIdx].text !== aLineArr[iCurLineIdx].text; //当前行与上一行不一样，保存！
+			if (newLine) return true; // 新建行了，得保存！
+			const aOldlines = this.aHistory[iCurStep - 1]; // 提取上一步的行数据
+			return aOldlines[iCurLineIdx].text !== aLineArr[iCurLineIdx].text; // 当前行与上一行不一样，保存！
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
@@ -271,7 +267,7 @@ export default class {
 	}
 	// ▼撤销-恢复
 	setHistory(iType) {
-		const { aSteps: { length } } = this.state;
+		const { length } = this.aHistory;
 		let iCurStep = this.state.iCurStep + iType;
 		if (iCurStep < 0 || iCurStep > length - 1) {
 			const actionName = { '-1': '上', '1': '下' }[iType];

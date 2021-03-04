@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-03 20:03:02
+ * @LastEditTime: 2021-03-04 20:55:06
  * @Description: 
  */
 
@@ -123,8 +123,7 @@ const aboutMedia = class {
 			oMediaInTB: {id},
 			oMediaInfo, mediaFile_, buffer,
 		} = oData;
-		const {oStory, aSteps} = this.state;
-		const subtitleFile_ = aSteps.last_.aLines;
+		const {oStory, aLineArr: subtitleFile_} = this.state;
 		const oBuffer_ = Object.entries(buffer).reduce((result, [key, val])=>{
 			if (key === 'aChannelData_') {
 				result[key] = [];
