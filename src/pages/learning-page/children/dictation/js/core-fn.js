@@ -42,26 +42,22 @@ export default class {
 	}
 	// ▼导出文件 TODO 文件名不正确
 	async toExport() {
-		const {aLines} = this.getCurStep();
-		downloadSrt(aLines, '文件名', 'srt');
+		downloadSrt(this.state.aLineArr, '文件名', 'srt');
 	}
 	// ▼打开对比字幕窗口
 	compareSubtitle(){
 		this.setState({matchDialogVisible: true})
 		this.getSubtitleFromNet();
 	}
-	// ▼跳转到当前行（可以删除）因为 goLine 没收到目标行，即跳到当前行
-    goToCurLine(){
-        const {iCurLine} = this.getCurStep();
-        this.goLine(iCurLine, false, true);
-    }
 	// ▼跳至某行
 	async goLine(iAimLine, oNewLine, doNotSave) {
+		console.log('跳至某行=>')
 		const oWaveWrap = this.oWaveWrap.current;
 		if (!oWaveWrap) return console.log('没有波形外套DOM');
 		const {offsetWidth} = oWaveWrap;
 		const {fPerSecPx} = this.state;
 		const {start, long} = oNewLine || this.getCurLine(iAimLine);
+		this.setState({ iCurLineIdx: iAimLine });
 		const iTopVal = (() => { // 计算波形框定位的位置
 			const startPx = fPerSecPx * start;
 			const restPx = offsetWidth - long * fPerSecPx;
@@ -82,10 +78,10 @@ export default class {
 			return sTop;
 		})();
         if (doNotSave) return;
-		const { oCurStepDc } = this.getCurStep();
-		oCurStepDc.iCurLine = iAimLine;
-		if (oNewLine) oCurStepDc.aLines.push(oNewLine);
-		this.setCurStep(oCurStepDc);
+		// const { oCurStepDc } = this.getCurStep();
+		// oCurStepDc.iCurLine = iAimLine;
+		// if (oNewLine) oCurStepDc.aLines.push(oNewLine);
+		// this.setCurStep(oCurStepDc);
 	}
 	oldFn(){
 		let iAimLine = 0;
@@ -188,21 +184,28 @@ export default class {
 	}
 	// ▼得到当前步骤
 	getCurStep(isJustCurStep = false) {
-		const oCurStep = this.state.aSteps[this.state.iCurStep];
-		if (isJustCurStep) return oCurStep; //简化版
-		const { iCurLine, aLines, dc_ } = oCurStep;
-		return { oCurStep, iCurLine, aLines, oCurStepDc: dc_ }; //丰富信息版
+		return {
+			iCurLine: this.state.iCurLineIdx, // 当前所在行
+			aLines: this.state.aLineArr, //字幕
+		};
+		// const oCurStep = this.state.aSteps[this.state.iCurStep];
+		// if (isJustCurStep) return oCurStep; //简化版
+		// const { iCurLine, aLines, dc_ } = oCurStep;
+		// return { oCurStep, iCurLine, aLines, oCurStepDc: dc_ }; //丰富信息版
 	}
 	// ▼更新当前步骤的数据
 	setCurStep(oNewStep) {
 		const maxStep = 30; //最多x步
 		const iCurStep = this.state.iCurStep;
-		this.setState({
-			// ▼如果最大步数是10，那“当前步”最大值为9，例：8+1 < 10 ? 9 : 8; 例：9+1 < 10 ? 10 : 9;
-			iCurStep: iCurStep + 1 < maxStep ? iCurStep + 1 : iCurStep,
-			// ▼如 [0]【1】[2] 在当前第1步产生新历史，则：[].slice(0, 1+1) 第1步留下，第2步用新历史数据代替
-			aSteps: this.state.aSteps.slice(0, iCurStep + 1).concat(oNewStep).slice(-1 * maxStep),
-		});
+		// this.setState({
+		// 	// ▼如果最大步数是10，那“当前步”最大值为9，例：8+1 < 10 ? 9 : 8; 例：9+1 < 10 ? 10 : 9;
+		// 	iCurStep: iCurStep + 1 < maxStep ? iCurStep + 1 : iCurStep,
+		// 	// ▼如 [0]【1】[2] 在当前第1步产生新历史，则：[].slice(0, 1+1) 第1步留下，第2步用新历史数据代替
+		// 	aSteps: this.state.aSteps.slice(0, iCurStep + 1).concat(oNewStep).slice(-1 * maxStep),
+		// });
+		const aHistory = this.aHistory;
+		aHistory.splice(iCurStep + 1, Infinity, oNewStep);
+		if (aHistory.length > maxStep) aHistory.shift();
 	}
 	// ▼设定当前行
 	setCurLine(oLine) {
@@ -212,12 +215,14 @@ export default class {
 	}
 	// ▼得到当前行，或某个指定行
 	getCurLine(idx) {
-		const { iCurLine, aLines } = this.getCurStep(true);
-		if (typeof idx === 'number') {
-			if (!aLines[idx]) console.log('目标行-1');
-			return aLines[idx] || aLines[idx - 1];
-		}
-		return aLines[iCurLine];
+		// const { iCurLine, aLines } = this.getCurStep(true);
+		const iTarget = typeof idx === 'number' ? idx : this.state.iCurLineIdx;
+		return this.state.aLineArr[iTarget];
+		// if (typeof idx === 'number') {
+		// 	if (!aLines[idx]) console.log('目标行-1');
+		// 	return aLines[idx] || aLines[idx - 1];
+		// }
+		// return aLines[iCurLine];
 	}
 	// ▼传递给子级的方法
 	commander(sFnName, aRest=[]) {
@@ -322,8 +327,8 @@ export default class {
 	}
 	// ▼保存字幕到云（上传字幕）
 	async uploadToCloud(oParams){
-		const {oMediaInfo, aSteps, iCurStep} =  this.state;
-		const subtitleFile_ = aSteps[iCurStep].aLines; // 字幕
+		const {oMediaInfo, aLineArr} =  this.state;
+		const subtitleFile_ = aLineArr;
 		const file = arrToblob(subtitleFile_);
 		const {fileName, key} = oParams;
 		const [token, oTime] = await getQiniuToken(key);
@@ -360,10 +365,10 @@ export default class {
 	// ▼使用网络字幕
 	useSubtitleFromNet(subtitleFile_){
 		subtitleFile_ = subtitleFile_ || this.state.aSubtitleFromNet || [];
-		const { aSteps, oMediaInfo } = this.state;
+		const { oMediaInfo, aLineArr } = this.state;
 		const {id, subtitleFileModifyTs: changeTs} = oMediaInfo;
-		aSteps.last_.aLines = subtitleFile_;
-		this.setState({ aSteps, changeTs });
+		aLineArr = subtitleFile_;
+		this.setState({ aLineArr, changeTs });
 		mediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
 	}
 	// ▼防抖方法

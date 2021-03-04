@@ -56,6 +56,7 @@ export default class Dictation extends MyClass {
 	oEmptyLine = oEmptyLine.dc_; // 空行
 	aEmptySteps = aEmptySteps.dc_; // 空历史记录
 	aHistory = [];
+	typeingTimer = null;
 	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
@@ -82,7 +83,6 @@ export default class Dictation extends MyClass {
 		// ▼字幕
 		iCurStep: 0, // 当前步骤
 		changeTs: 0, // 字幕修改时间
-		aSteps: aEmptySteps.dc_,
 		// ▼故事
 		oStory: {}, // 故事信息
 		// ▼媒体
@@ -97,6 +97,11 @@ export default class Dictation extends MyClass {
 		iBright: -1, // 输入框上的 hover 单词
 		iTopLine: 0, // 应从第几行字幕开始显示
 		myTxt: '默认文字',
+		// ▼新版
+		aLines: [],
+		aLineArr: [],
+		iCurLineIdx: 0,
+		sCurLineTxt: '',
 	};
 	constructor(props) {
 		super(props);
@@ -144,16 +149,16 @@ export default class Dictation extends MyClass {
 		return <cpnt.MarkWrap>{myArr}</cpnt.MarkWrap>;
 	}
 	// ▼句子波形上的【区间标记】
-	getRegions({playing, aSteps, iCurStep, fPerSecPx}){
+	getRegions(){
+		const {aLineArr, iCurLineIdx, playing, fPerSecPx} = this.state;
 		const myArr = [];
 		let [nowSec, endSec] = this.getArea();
-		const {aLines, iCurLine} = aSteps[iCurStep];
-		for (let idx = 0, len = aLines.length; idx < len; idx++){
-			const {end, start, long} = aLines[idx];
+		for (let idx = 0, len = aLineArr.length; idx < len; idx++){
+			const {end, start, long} = aLineArr[idx];
 			const IsShow = end > nowSec || end > endSec;
 			if (!IsShow) continue;
 			myArr.push(
-				<span key={idx} className={idx === iCurLine ? "cur region" : "region"}
+				<span key={idx} className={idx === iCurLineIdx ? "cur region" : "region"}
 					style={{left: `${start * fPerSecPx}px`, width: `${long * fPerSecPx}px`}}
 				>
 					<span className="idx">{idx + 1}</span>
@@ -169,10 +174,8 @@ export default class Dictation extends MyClass {
 	// ▼故事信息等
 	getInfoBar(oState){ 
 		const {
-			oMediaInfo,
-			buffer, iPerSecPx, aSteps, iCurStep,
+			oMediaInfo, buffer, iPerSecPx, aLineArr,
 		} = oState;
-		const oCurStep = aSteps[iCurStep];
 		const [tips01, tips02] = this.getSubtitleInfo();
 		return <cpnt.InfoBar>
 			<span>
@@ -182,7 +185,7 @@ export default class Dictation extends MyClass {
 				</em>
 			</span>
 			<span>时长：<em>{buffer.sDuration_}</em></span>
-			<span>共计：<em>{oCurStep.aLines.length || 0}句</em></span>
+			<span>共计：<em>{aLineArr.length || 0}句</em></span>
 			<span>每秒：<em>{iPerSecPx}px</em></span>
 			<span>字幕：<em title={tips02}>{tips01}</em></span>
 		</cpnt.InfoBar>
@@ -248,9 +251,8 @@ export default class Dictation extends MyClass {
 	}
 	// ▼字幕对比窗口
 	getMatchDialog(){
-		const { aSteps, iCurStep, aSubtitleFromNet } = this.state;
-		const { aLines } = aSteps[iCurStep];
-		const iMax = Math.max(aSubtitleFromNet.length, aLines.length);
+		const { aSubtitleFromNet, aLineArr } = this.state;
+		const iMax = Math.max(aSubtitleFromNet.length, aLineArr.length);
 		const iLong = String(iMax).length;
 		const [tips01, tips02] = this.getSubtitleInfo();
 		const btnBar = <Space>
@@ -263,7 +265,7 @@ export default class Dictation extends MyClass {
 			<em>{tips01}，{tips02}</em>
 		</Space>
 		const aLi = [...Array(iMax).keys()].map(idx=>{
-			const aa = aLines[idx] || {};
+			const aa = aLineArr[idx] || {};
 			const bb = aSubtitleFromNet[idx] || {};
 			return <cpnt.oneMatchLine key={idx}>
 				<span className="idx">{String(idx+1).padStart(iLong, '0')}</span>
@@ -285,8 +287,13 @@ export default class Dictation extends MyClass {
 			myTxt: ev.target.value,
 		});
 	}
-	getTextArea(oThisLine){
-		const {text=''} = oThisLine;
+	getTextArea(){
+		// oThisLine
+		// const {text=''} = oThisLine;
+		console.log('getTextArea');
+		// const {sCurLineTxt=''} = this.state;
+		const {aLineArr, iCurLineIdx} = this.state;
+		const {text=''} = aLineArr[iCurLineIdx] || {};
 		const aWordsList = this.markWords(text);
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
 			{aWordsList}
@@ -303,16 +310,17 @@ export default class Dictation extends MyClass {
 		</cpnt.TextareaWrap>;
 	}
 	getAllSentence(){
-		console.time("显示句子");
-		const { aSteps, iCurStep, iTopLine } = this.state;
-		const {aLines, iCurLine} = aSteps[iCurStep];
-		const {length: iLen} = aLines;
+		// console.time("显示句子");
+		const {
+			iTopLine, aLineArr, iCurLineIdx,
+		} = this.state;
+		const {length: iLen} = aLineArr;
 		const aSentences = [];
 		const iEnd = Math.min(iTopLine + 15, iLen);
 		for (let idx = iTopLine; idx < iEnd; idx++ ){
-			const cur = aLines[idx];
+			const cur = aLineArr[idx];
 			const oLi = <li key={idx} onClick={() => this.goLine(idx)}
-				className={`one-line ${idx === iCurLine ? "cur" : ""}`}
+				className={`one-line ${idx === iCurLineIdx ? "cur" : ""}`}
 			>
 				<i className="idx">{idx + 1}</i>
 				<span className="time">
@@ -335,19 +343,19 @@ export default class Dictation extends MyClass {
 			{aSentences}
 			<li style={oBottomGap}></li>
 		</cpnt.SentenceWrap>
-		console.timeEnd("显示句子");
+		// console.timeEnd("显示句子");
 		return HTML;
 	}
 	render() {
-		console.log("开始render ■■■■■■■■■■■■■■■■■■");
+		// console.log("开始render ■■■■■■■■■■■■■■■■■■");
 		const {
-			aSteps, iCurStep, iCanvasHeight,
+			iCanvasHeight,
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
 			sSearching,
 			mediaFile_,
+			aLineArr, iCurLineIdx,
 		} = this.state;
-		const {aLines, iCurLine} = aSteps[iCurStep];
-		const oThisLine = aLines[iCurLine] || {};
+		const oThisLine = aLineArr[iCurLineIdx] || {};
 		if ((this.oldMediaId !== mediaId) && mediaId) {
 			this.oldMediaId = mediaId;
 			this.getMediaInfo(mediaId);
@@ -387,12 +395,12 @@ export default class Dictation extends MyClass {
 			<Menu commander={this.commander} />
 			{this.getInfoBar(this.state)}
 			<cpnt.HistoryBar>
-				{aSteps.map((cur,idx)=>{
-					return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
+				{this.aHistory.map((cur,idx)=>{
+					return <span key={idx} className={iCurLineIdx === idx ? 'cur' : ''} />
 				})}
 			</cpnt.HistoryBar>
 			{this.getTextArea(oThisLine)}
-			{this.getWordsList(this.state)}
+			{/* {this.getWordsList(this.state)} */}
 		</div>
 		// ===============================================
 		const resultHTML = <cpnt.Container>
@@ -403,7 +411,7 @@ export default class Dictation extends MyClass {
 			</cpnt.MediaAndWave>
 			{this.getAllSentence()}
 			{this.getWordsDialog(this.state)}
-			{this.getMatchDialog(this.state)}
+			{/* {this.getMatchDialog(this.state)} */}
 			<DictDialog word={sSearching} />
 		</cpnt.Container>;
 		return resultHTML;
@@ -425,22 +433,20 @@ export default class Dictation extends MyClass {
 		if (mediaId && mediaId !== prevState.mediaId) {
 			newObj = {
 				mediaId,
-				iCurStep: 0, // 清空
-				aSteps: aEmptySteps.dc_, // 清空
+				iCurLineIdx: 0, // 清空
+				aLineArr: [oEmptyLine.dc_], // 清空
 			};
 		}
 		return newObj;
 	}
 	// ▼以下是生命周期
 	componentDidUpdate(){
-		const { aSteps, iCurStep } = this.state;
-		const {aLines, iCurLine} = aSteps[iCurStep];
-		const oThisLine = aLines[iCurLine] || {};
+		const { aLineArr, iCurLineIdx } = this.state;
+		const oThisLine = aLineArr[iCurLineIdx] || {};
 		if (this.sOldText !== oThisLine.text ) { 
 			this.setSpanArr(); // 文字变化了就执行
 		}
 		this.sOldText = oThisLine.text;
-		// TODO 在这里记录历史，记录在 aHistory 中
 	}
 	async componentDidMount() {
 		const oWaveWrap = this.oWaveWrap.current;

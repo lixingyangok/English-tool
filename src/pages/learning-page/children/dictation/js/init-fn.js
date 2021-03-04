@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-27 16:55:31
+ * @LastEditTime: 2021-03-03 20:03:02
  * @Description: 
  */
 
@@ -168,20 +168,20 @@ const aboutSubtitle = class {
 	setSubtitle(oMediaInfo, oMediaInTB){
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
 		const {changeTs_, subtitleFile_, id} = oMediaInTB; // 可能得不到值
-		const {aSteps} = this.state;
+		let {aLineArr} = this.state;
 		if (!changeTs_ || !subtitleFile_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
 				this.getSubtitleFromNet(true); // 查询网络字幕
 			}else{ // 网上也没有
-				aSteps.last_.aLines[0].text = '★没有字幕★';
-				this.setState({aSteps});
+				aLineArr[0].text = '★没有字幕★';
+				this.setState({aLineArr});
 				this.toSaveInDb(id);
 			}
 			return;
 		}
 		// 本地有，就先把本地字幕显示出来
-		aSteps.last_.aLines = subtitleFile_;
-		this.setState({aSteps});
+		aLineArr = subtitleFile_;
+		this.setState({aLineArr});
 		if (changeTs_ !== subtitleFileModifyTs){
 			this.message.warning('需要对比字幕');
 		}
@@ -190,10 +190,10 @@ const aboutSubtitle = class {
 	async getSubtitleFromNet(toSave=false){
 		const {oMediaInfo} = this.state;
 		if (!oMediaInfo.subtitleFileId) return; //没有字幕就不用查询
-		const aSubtitleFromNet = await getSubtitle(oMediaInfo);
-		if (!aSubtitleFromNet) return;
-		this.setState({aSubtitleFromNet});
-		toSave && this.useSubtitleFromNet(aSubtitleFromNet);
+		const aLineArr = await getSubtitle(oMediaInfo);
+		if (!aLineArr) return;
+		this.setState({aLineArr});
+		// toSave && this.useSubtitleFromNet(aLineArr);
 	}
 }
 

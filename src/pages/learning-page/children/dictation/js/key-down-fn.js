@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-02 20:48:31
+ * @LastEditTime: 2021-03-03 21:14:38
  * @Description: 
  */
 
@@ -88,14 +88,14 @@ export default class {
 	}
 	// ▼切换当前句子（上一句，下一句）
 	previousAndNext(iDirection, isWantSave) {
-		const { aSteps, iCurStep, buffer } = this.state;
-		const { iCurLine, aLines } = aSteps[iCurStep];
-		if (iCurLine === 0 && iDirection === -1) return; //不可退
-		const iCurLineNew = iCurLine + iDirection;
+		const { aSteps, iCurStep, buffer, aLineArr, iCurLineIdx } = this.state;
+		// const { iCurLine, aLines } = aSteps[iCurStep];
+		if (iCurLineIdx === 0 && iDirection === -1) return; //不可退
+		const iCurLineNew = iCurLineIdx + iDirection;
 		const newLine = (() => {
-			if (aLines[iCurLineNew]) return false; //有数据，不新增
-			if ((buffer.duration - aLines[iCurLine].end) < 0.1) return null; //临近终点，不新增
-			return this.figureOut(aLines.last_.end); // 要新增一行，返回下行数据
+			if (aLineArr[iCurLineNew]) return false; //有数据，不新增
+			if ((buffer.duration - aLineArr[iCurLineIdx].end) < 0.1) return null; //临近终点，不新增
+			return this.figureOut(aLineArr.last_.end); // 要新增一行，返回下行数据
 		})();
 		if (newLine === null) return this.message.error(`已经到头了`);
 		this.goLine(iCurLineNew, newLine);
@@ -104,40 +104,42 @@ export default class {
 		if (!(isWantSave && iCurStep > 0 && iCurLineNew % 2)) return; // 不满足保存条件 return
 		const isNeedSave = (() => {
 			if (newLine) return true; //新建行了，得保存！
-			const { aLines: aOldlines } = aSteps[iCurStep - 1]; //提取上一步的行数据
-			if (!aOldlines[iCurLine]) { //当前行在上一步历史中不存在，保存！（此判断好像不会判断通过，观察观察
+			const { aLineArr: aOldlines } = aSteps[iCurStep - 1]; //提取上一步的行数据
+			if (!aOldlines[iCurLineIdx]) { //当前行在上一步历史中不存在，保存！（此判断好像不会判断通过，观察观察
 				this.message.error(`当前行在上一步历史中不存在`);
 				return true;
 			}
-			return aOldlines[iCurLine].text !== aLines[iCurLine].text; //当前行与上一行不一样，保存！
+			return aOldlines[iCurLineIdx].text !== aLineArr[iCurLineIdx].text; //当前行与上一行不一样，保存！
 		})();
 		isNeedSave && this.toSaveInDb();
 	}
 
 	// ▼ 输入框文字改变
 	valChanged(ev) {
+		clearTimeout(this.typeingTimer);
+		console.time('输入了');
+		const sText = ev.target.value; // 当前文字
 		const idx = ev.target.selectionStart;
-		const sText = ev.target.value;
 		const sLeft = sText.slice(0, idx);
-		const sRight = sText.slice(idx);
-		const aSteps = this.state.aSteps;
-		const oCurStep = aSteps[this.state.iCurStep];
-		const iCurLine = oCurStep.iCurLine;
-		const aLines = oCurStep.aLines;
 		let sTyped = ''; // 单词开头（用于搜索的）
-		aLines[iCurLine].text = sText;
+		const aLineArr = this.state.aLineArr;
+		aLineArr[this.state.iCurLineIdx].text = sText;
 		if (/.+[^a-zA-Z]$/.test(sLeft)) {
 			// 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
 			// this.setCurLine(aLines[iCurLine].dc_);
-			this.setState({sTyped}); 
 		} else {
 			// 英文字母结尾，【不要】生成新历史
+			const sRight = sText.slice(idx);
 			const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
-			this.setState({aSteps, sTyped});
 		}
-		this.getMatchedWords(sTyped);
+		this.setState({sTyped, aLineArr});
+		console.timeEnd('输入了');
+		this.typeingTimer = setTimeout(()=>{
+			this.getMatchedWords(sTyped);
+			console.log('开始提示词汇 ★★★');
+		}, 500);
 	}
 	async getMatchedWords(sTyped = '') {
 		sTyped = sTyped.toLocaleLowerCase().trim();
