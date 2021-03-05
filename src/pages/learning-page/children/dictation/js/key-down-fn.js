@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-05 19:26:03
+ * @LastEditTime: 2021-03-05 19:27:47
  * @Description: 
  */
 
@@ -106,13 +106,9 @@ class keyDownFn {
 		const aLineArr = this.state.aLineArr;
 		const iCurLineIdx = this.state.iCurLineIdx; 
 		aLineArr[iCurLineIdx].text = sText;
-		if (/.+[^a-zA-Z]$/.test(sLeft)) {
-			// 进入判断 sTyped 一定是空字符
+		if (/.+[^a-zA-Z]$/.test(sLeft)) { // 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
-			this.setCurStep({
-				aLineArr: aLineArr.dc_,
-				iCurLineIdx,
-			});
+			this.setCurStep({aLineArr: aLineArr.dc_, iCurLineIdx});
 		} else {
 			// 英文字母结尾，【不要】生成新历史
 			const sRight = sText.slice(idx);

@@ -222,9 +222,14 @@ export default class {
 	// ▼设定当前行
 	// TODO 废弃了？
 	setCurLine(oLine) {
-		const { oCurStepDc, iCurLine } = this.getCurStep();
-		oCurStepDc.aLines[iCurLine] = oLine;
-		this.setCurStep(oCurStepDc);
+		// const { oCurStepDc, iCurLine } = this.getCurStep();
+		// oCurStepDc.aLines[iCurLine] = oLine;
+		const aLineArr = this.state.aLineArr;
+		const iCurLineIdx = this.state.iCurLineIdx;
+		aLineArr[iCurLineIdx] = oLine;
+		// const iCurLineIdx = this.state.iCurLineIdx; 
+		this.setCurStep({ aLineArr,iCurLineIdx });
+		this.setState({aLineArr});
 	}
 	// ▼得到当前行，或某个指定行
 	getCurLine(idx) {
