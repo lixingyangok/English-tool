@@ -62,6 +62,7 @@ export default class {
 		const {offsetWidth} = oWaveWrap;
 		const {fPerSecPx, aLineArr, iCurLineIdx} = this.state;
 		if (typeof iAimLine !== 'number') { // 观察：能不能进来？
+			this.message.error('没有当前行数值');
 			iAimLine = iCurLineIdx;
 		}else{
 			this.setState({ iCurLineIdx: iAimLine });
@@ -219,6 +220,7 @@ export default class {
 		if (aHistory.length > maxStep) aHistory.shift();
 	}
 	// ▼设定当前行
+	// TODO 废弃了？
 	setCurLine(oLine) {
 		const { oCurStepDc, iCurLine } = this.getCurStep();
 		oCurStepDc.aLines[iCurLine] = oLine;

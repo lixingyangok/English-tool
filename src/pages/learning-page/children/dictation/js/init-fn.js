@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-04 20:55:06
+ * @LastEditTime: 2021-03-05 19:04:40
  * @Description: 
  */
 
@@ -179,8 +179,13 @@ const aboutSubtitle = class {
 			return;
 		}
 		// 本地有，就先把本地字幕显示出来
-		aLineArr = subtitleFile_;
-		this.setState({aLineArr});
+		const oFirst = {
+			aLineArr: subtitleFile_,
+			iCurLineIdx: 0,
+		}; 
+		this.aHistory.splice(0, Infinity, oFirst);
+		this.setState(oFirst);
+		
 		if (changeTs_ !== subtitleFileModifyTs){
 			this.message.warning('需要对比字幕');
 		}
@@ -191,7 +196,12 @@ const aboutSubtitle = class {
 		if (!oMediaInfo.subtitleFileId) return; //没有字幕就不用查询
 		const aLineArr = await getSubtitle(oMediaInfo);
 		if (!aLineArr) return;
-		this.setState({aLineArr});
+		const oFirst = {
+			aLineArr,
+			iCurLineIdx: 0,
+		}; 
+		this.aHistory.splice(0, Infinity, oFirst);
+		this.setState(oFirst);
 		// toSave && this.useSubtitleFromNet(aLineArr);
 	}
 }

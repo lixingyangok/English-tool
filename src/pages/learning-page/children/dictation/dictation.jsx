@@ -55,7 +55,10 @@ export default class Dictation extends MyClass {
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
 	aEmptySteps = aEmptySteps.dc_; // 空历史记录
-	aHistory = [];
+	aHistory = [{
+		iCurLineIdx: 0,
+		aLineArr: [oEmptyLine.dc_],
+	}];
 	typeingTimer = null;
 	// ▼state
 	state = {
@@ -98,8 +101,7 @@ export default class Dictation extends MyClass {
 		iTopLine: 0, // 应从第几行字幕开始显示
 		myTxt: '默认文字',
 		// ▼新版
-		aLines: [],
-		aLineArr: [],
+		aLineArr: [oEmptyLine.dc_],
 		iCurLineIdx: 0,
 		sCurLineTxt: '',
 	};
@@ -290,7 +292,7 @@ export default class Dictation extends MyClass {
 	getTextArea(){
 		// oThisLine
 		// const {text=''} = oThisLine;
-		console.log('getTextArea');
+		// console.log('getTextArea');
 		// const {sCurLineTxt=''} = this.state;
 		const {aLineArr, iCurLineIdx} = this.state;
 		const {text=''} = aLineArr[iCurLineIdx] || {};
@@ -398,7 +400,7 @@ export default class Dictation extends MyClass {
 			{this.getInfoBar(this.state)}
 			<cpnt.HistoryBar>
 				{this.aHistory.map((cur,idx)=>{
-					return <span key={idx} className={iCurStep-1 === idx ? 'cur' : ''} />
+					return <span key={idx} className={iCurStep === idx ? 'cur' : ''} />
 				})}
 			</cpnt.HistoryBar>
 			{this.getTextArea(oThisLine)}
