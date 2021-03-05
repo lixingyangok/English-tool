@@ -49,15 +49,24 @@ export default class {
 		this.setState({matchDialogVisible: true})
 		this.getSubtitleFromNet();
 	}
+	goToCurLine(){
+		// this.goLine();
+		// const {iCurLine} = this.getCurStep();
+        this.goLine(this.state.iCurLineIdx, false, true);
+	}
 	// ▼跳至某行
 	async goLine(iAimLine, oNewLine, doNotSave) {
 		console.log('跳至某行=>')
 		const oWaveWrap = this.oWaveWrap.current;
 		if (!oWaveWrap) return console.log('没有波形外套DOM');
 		const {offsetWidth} = oWaveWrap;
-		const {fPerSecPx} = this.state;
-		const {start, long} = oNewLine || this.getCurLine(iAimLine);
-		this.setState({ iCurLineIdx: iAimLine });
+		const {fPerSecPx, aLineArr, iCurLineIdx} = this.state;
+		if (typeof iAimLine !== 'number') { // 观察：能不能进来？
+			iAimLine = iCurLineIdx;
+		}else{
+			this.setState({ iCurLineIdx: iAimLine });
+		}
+		const {start, long} = oNewLine || aLineArr[iAimLine];
 		const iTopVal = (() => { // 计算波形框定位的位置
 			const startPx = fPerSecPx * start;
 			const restPx = offsetWidth - long * fPerSecPx;
@@ -78,10 +87,12 @@ export default class {
 			return sTop;
 		})();
         if (doNotSave) return;
-		// const { oCurStepDc } = this.getCurStep();
-		// oCurStepDc.iCurLine = iAimLine;
-		// if (oNewLine) oCurStepDc.aLines.push(oNewLine);
-		// this.setCurStep(oCurStepDc);
+		const aNewHistory = {
+			aLineArr: aLineArr.dc_,
+			iCurLineIdx,
+		};
+		if (oNewLine) aNewHistory.aLineArr.push(oNewLine.dc_);
+		this.setCurStep(aNewHistory);
 	}
 	oldFn(){
 		let iAimLine = 0;
@@ -189,7 +200,7 @@ export default class {
 			aLines: this.state.aLineArr, //字幕
 		};
 		// const oCurStep = this.state.aSteps[this.state.iCurStep];
-		// if (isJustCurStep) return oCurStep; //简化版
+		// if (isJustCurStep) return oCurStep; //简化版，返回当前阶段的历史记录
 		// const { iCurLine, aLines, dc_ } = oCurStep;
 		// return { oCurStep, iCurLine, aLines, oCurStepDc: dc_ }; //丰富信息版
 	}
@@ -197,14 +208,14 @@ export default class {
 	setCurStep(oNewStep) {
 		const maxStep = 30; //最多x步
 		const iCurStep = this.state.iCurStep;
-		// this.setState({
-		// 	// ▼如果最大步数是10，那“当前步”最大值为9，例：8+1 < 10 ? 9 : 8; 例：9+1 < 10 ? 10 : 9;
-		// 	iCurStep: iCurStep + 1 < maxStep ? iCurStep + 1 : iCurStep,
-		// 	// ▼如 [0]【1】[2] 在当前第1步产生新历史，则：[].slice(0, 1+1) 第1步留下，第2步用新历史数据代替
-		// 	aSteps: this.state.aSteps.slice(0, iCurStep + 1).concat(oNewStep).slice(-1 * maxStep),
-		// });
+		this.setState({
+			// ▼如果最大步数是10，那“当前步”最大值为9，例：8+1 < 10 ? 9 : 8; 例：9+1 < 10 ? 10 : 9;
+			iCurStep: iCurStep + 1 < maxStep ? iCurStep + 1 : iCurStep,
+			// ▼如 [0]【1】[2] 在当前第1步产生新历史，则：[].slice(0, 1+1) 第1步留下，第2步用新历史数据代替
+			// aSteps: this.state.aSteps.slice(0, iCurStep + 1).concat(oNewStep).slice(-1 * maxStep),
+		});
 		const aHistory = this.aHistory;
-		aHistory.splice(iCurStep + 1, Infinity, oNewStep);
+		aHistory.splice(iCurStep + 1, Infinity, oNewStep.dc_);
 		if (aHistory.length > maxStep) aHistory.shift();
 	}
 	// ▼设定当前行
@@ -215,14 +226,14 @@ export default class {
 	}
 	// ▼得到当前行，或某个指定行
 	getCurLine(idx) {
-		// const { iCurLine, aLines } = this.getCurStep(true);
-		const iTarget = typeof idx === 'number' ? idx : this.state.iCurLineIdx;
-		return this.state.aLineArr[iTarget];
-		// if (typeof idx === 'number') {
-		// 	if (!aLines[idx]) console.log('目标行-1');
-		// 	return aLines[idx] || aLines[idx - 1];
-		// }
-		// return aLines[iCurLine];
+		const { aLineArr } = this.state;
+		if (typeof idx === 'number') {
+			if (!aLineArr[idx]) {
+				console.log('请注意，目标行-1');
+			}
+			return aLineArr[idx] || aLineArr[idx - 1];
+		}
+		return aLineArr[this.state.iCurLineIdx];
 	}
 	// ▼传递给子级的方法
 	commander(sFnName, aRest=[]) {
@@ -365,7 +376,7 @@ export default class {
 	// ▼使用网络字幕
 	useSubtitleFromNet(subtitleFile_){
 		subtitleFile_ = subtitleFile_ || this.state.aSubtitleFromNet || [];
-		const { oMediaInfo, aLineArr } = this.state;
+		let { oMediaInfo, aLineArr } = this.state;
 		const {id, subtitleFileModifyTs: changeTs} = oMediaInfo;
 		aLineArr = subtitleFile_;
 		this.setState({ aLineArr, changeTs });

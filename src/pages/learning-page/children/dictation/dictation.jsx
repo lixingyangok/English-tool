@@ -319,8 +319,9 @@ export default class Dictation extends MyClass {
 		const iEnd = Math.min(iTopLine + 15, iLen);
 		for (let idx = iTopLine; idx < iEnd; idx++ ){
 			const cur = aLineArr[idx];
-			const oLi = <li key={idx} onClick={() => this.goLine(idx)}
+			const oLi = <li key={idx}
 				className={`one-line ${idx === iCurLineIdx ? "cur" : ""}`}
+				onClick={() => this.goLine(idx)}
 			>
 				<i className="idx">{idx + 1}</i>
 				<span className="time">
@@ -354,6 +355,7 @@ export default class Dictation extends MyClass {
 			sSearching,
 			mediaFile_,
 			aLineArr, iCurLineIdx,
+			iCurStep,
 		} = this.state;
 		const oThisLine = aLineArr[iCurLineIdx] || {};
 		if ((this.oldMediaId !== mediaId) && mediaId) {
@@ -396,7 +398,7 @@ export default class Dictation extends MyClass {
 			{this.getInfoBar(this.state)}
 			<cpnt.HistoryBar>
 				{this.aHistory.map((cur,idx)=>{
-					return <span key={idx} className={iCurLineIdx === idx ? 'cur' : ''} />
+					return <span key={idx} className={iCurStep-1 === idx ? 'cur' : ''} />
 				})}
 			</cpnt.HistoryBar>
 			{this.getTextArea(oThisLine)}

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-04 21:02:44
+ * @LastEditTime: 2021-03-05 18:51:57
  * @Description: 
  */
 
@@ -89,7 +89,6 @@ export default class {
 	// ▼切换当前句子（上一句，下一句）
 	previousAndNext(iDirection, isWantSave) {
 		const { iCurStep, buffer, aLineArr, iCurLineIdx } = this.state;
-		
 		if (iCurLineIdx === 0 && iDirection === -1) return; //不可退
 		const iCurLineNew = iCurLineIdx + iDirection;
 		const newLine = (() => {
@@ -273,8 +272,11 @@ export default class {
 			const actionName = { '-1': '上', '1': '下' }[iType];
 			return this.message.error(`没有${actionName}一步数据，已经到头了`);
 		}
-		this.setState({ iCurStep });
-		this.goToCurLine();
+		const aLineArr = this.aHistory[iCurStep].aLineArr;
+		const iCurLineIdx = this.aHistory[iCurStep].iCurLineIdx;
+		this.setState({ iCurStep, aLineArr, iCurLineIdx });
+		// this.goToCurLine();
+		this.goLine(iCurLineIdx, false, true);
 	}
 	// ▼插入一句。 参数说明：-1=向左，1=向右
 	toInsert(iDirection) {
