@@ -48,14 +48,10 @@ export default class Dictation extends MyClass {
 	sOldText = ''; // 保存上次输入内容，用于对比变化
 	aWordDom = []; // 把输入框背景的span保存起来，用于判断鼠标hover
 	// ▼其它
+	oFnLib = {}; // 快捷键方法库
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
-	aHistory = [{
-		iCurLineIdx: 0,
-		aLineArr: [oEmptyLine.dc_],
-	}];
-	typeingTimer = null;
-	oFnLib = {}; // 快捷键方法库
+	aHistory = [{ iCurLineIdx: 0, aLineArr: [oEmptyLine.dc_] }];
 	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
@@ -84,7 +80,7 @@ export default class Dictation extends MyClass {
 		changeTs: 0, // 字幕修改时间
 		aSubtitleFromNet: [], //网上字幕
 		aLineArr: [oEmptyLine.dc_],
-		iCurLineIdx: 0,
+		iCurLineIdx: 0, // 当前行
 		sCurLineTxt: '',
 		// ▼故事
 		oStory: {}, // 故事信息

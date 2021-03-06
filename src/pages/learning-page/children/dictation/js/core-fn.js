@@ -247,14 +247,12 @@ export default class {
 	// 波形横向滚动动画
 	// 会触发 onScroll 事件，所以一直在 render 
 	goThere(oDom, sDirection, iNewVal){
-		console.log("开始滚动");
+		// console.log("开始滚动");
 		clearInterval(this.state.scrollTimer);
 		const sType = `scroll${sDirection}`;
 		const iOldVal = oDom[sType];
 		if (~~iOldVal === ~~iNewVal) return;
-		if ('不要动画效果'){
-			oDom[sType] = iNewVal; return;
-		}
+		// if ('不要动画效果') return (oDom[sType] = iNewVal);
 		const [iTakeTime, iTimes] = [350, 40]; //走完全程耗时, x毫秒走一步
 		const iOneStep = ~~((iNewVal - iOldVal) / (iTakeTime / iTimes));
 		const scrollTimer = setInterval(()=>{

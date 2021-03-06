@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-06 15:10:17
+ * @LastEditTime: 2021-03-06 19:12:26
  * @Description: 
  */
 
@@ -10,13 +10,13 @@ import {keyMap} from './key-map.js';
 import {fixTime } from 'assets/js/pure-fn.js';
 import {trainingDB, wordsDB} from 'assets/js/common.js';
 import {getQiniuToken} from 'assets/js/learning-api.js';
-// import {aAlphabet} from 'assets/js/common.js';
+import {aAlphabet} from 'assets/js/common.js';
 
 const {media: mediaTB} = trainingDB;
-// const oAlphabet = aAlphabet.reduce((oResult, cur)=>{
-// 	oResult[cur] = true;
-// 	return oResult;
-// }, {});
+const oAlphabet = aAlphabet.reduce((oResult, cur)=>{
+	oResult[cur] = true;
+	return oResult;
+}, {});
 
 class keyDownFn {
 	getFnArr(getAll){
@@ -78,6 +78,7 @@ class keyDownFn {
 		const shift = ev.shiftKey ? 'shift + ' : '';
 		const keyName = keyMap[ev.keyCode] || '';
 		const keyStr = ctrl + alt + shift + keyName;
+		if (oAlphabet[keyStr]) return;
 		const theFn = this.oFnLib[keyStr];
 		if (!theFn) return;
 		theFn();
@@ -86,21 +87,20 @@ class keyDownFn {
 	}
 	// ▼ 输入框文字改变
 	valChanged(ev) {
-		// clearTimeout(this.typeingTimer);
+		clearTimeout(this.typeingTimer);
 		const sText = ev.target.value; // 当前文字
 		if (/\n/.test(sText)) {
 			return this.previousAndNext(1, true);
 		}
-		console.time('输入了');
 		const idx = ev.target.selectionStart;
 		const sLeft = sText.slice(0, idx);
-		let sTyped = ''; // 单词开头（用于搜索的）
 		const aLineArr = this.state.aLineArr;
 		const iCurLineIdx = this.state.iCurLineIdx; 
 		aLineArr[iCurLineIdx].text = sText;
+		let sTyped = ''; // 单词开头（用于搜索的）
 		if (/.+[^a-zA-Z]$/.test(sLeft)) { // 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
-			this.setCurStep({aLineArr: aLineArr.dc_, iCurLineIdx});
+			this.setCurStep({aLineArr, iCurLineIdx});
 		} else {
 			// 英文字母结尾，【不要】生成新历史
 			const sRight = sText.slice(idx);
@@ -108,11 +108,10 @@ class keyDownFn {
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 		}
 		this.setState({sTyped, aLineArr});
-		console.timeEnd('输入了');
-		// this.typeingTimer = setTimeout(()=>{
+		this.typeingTimer = setTimeout(()=>{
 			this.getMatchedWords(sTyped);
 			console.log('开始提示词汇 ★★★');
-		// }, 500);
+		}, 500);
 	}
 }
 
@@ -180,7 +179,7 @@ class part02 {
 	}
 	// ▼删除某条
 	toDel() {
-		const { aLineArr, iCurLineIdx } = this.state;
+		let { aLineArr, iCurLineIdx } = this.state;
 		if (aLineArr.length <= 1) return;
 		aLineArr.splice(iCurLineIdx, 1);
 		const iMax = aLineArr.length - 1;
