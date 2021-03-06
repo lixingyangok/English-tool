@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-06 15:02:17
+ * @LastEditTime: 2021-03-06 15:10:17
  * @Description: 
  */
 
@@ -190,8 +190,10 @@ class part02 {
 	}
 	// ▼保存字幕到浏览器
 	async toSaveInDb(dataId) {
-		const { oMediaInfo: {id=dataId} } = this.state;
-		const { aLines: subtitleFile_ } = this.getCurStep();
+		const { 
+			oMediaInfo: {id=dataId},
+			aLineArr: subtitleFile_,
+		} = this.state;
 		const [,oTime] = await getQiniuToken();
 		const changeTs_ = oTime.getTime();
 		if (id) { //有本地数据, //增量更新
@@ -203,10 +205,10 @@ class part02 {
 	}
 	// ▼微调区域（1参可能是 start、end。2参是调整步幅
 	fixRegion(sKey, iDirection) {
-		const { iCurLine, aLines } = this.getCurStep(true);
-		const oOld = aLines[iCurLine];
-		const previous = aLines[iCurLine - 1];
-		const next = aLines[iCurLine + 1];
+		const {aLineArr, iCurLineIdx} = this.state;
+		const oOld = aLineArr[iCurLineIdx];
+		const previous = aLineArr[iCurLineIdx - 1];
+		const next = aLineArr[iCurLineIdx + 1];
 		let fNewVal = oOld[sKey] + iDirection;
 		if (fNewVal < 0) fNewVal = 0;
 		if (previous && fNewVal < previous.end) {
@@ -249,7 +251,7 @@ class part02 {
 	split() {
 		const {selectionStart} = this.oTextArea.current;
 		const { currentTime } = this.oAudio.current;
-		const { iCurLineIdx, aLineArr } = this.getCurStep();
+		const { iCurLineIdx, aLineArr } = this.state;
 		const oCurLine = this.getCurLine();
 		const aNewItems = [
 			fixTime({
@@ -316,7 +318,7 @@ class part02 {
 	}
 	// ▼到最后一行
 	goLastLine() {
-		const { aLineArr, iCurLineIdx } = this.getCurStep();
+		const { aLineArr, iCurLineIdx } = this.state;
 		let idx = aLineArr.findIndex(cur => cur.text.length <= 1);
 		if (idx === -1 || idx === iCurLineIdx) idx = aLineArr.length - 1;
 		this.goLine(idx);

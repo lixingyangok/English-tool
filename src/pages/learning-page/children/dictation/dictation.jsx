@@ -18,16 +18,9 @@ import {
 
 const { confirm } = Modal;
 const oEmptyLine = fixTime({start: 0.1, end: 5}); // 考虑挂到 this 上
-const aEmptySteps = [{ // 历史记录
-	iCurLine: 0, // 当前所在行
-	aLines: [oEmptyLine.dc_], //字幕
-}];
-
 
 // TODO
 // textarea 的输入动效，输入后听写校对功能
-// 删除： oCurStepDc aLines iCurLine
-// 新名： const {aLineArr, iCurLineIdx} = this.state;
 
 
 const MyClass = window.mix(
@@ -57,7 +50,6 @@ export default class Dictation extends MyClass {
 	// ▼其它
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
-	aEmptySteps = aEmptySteps.dc_; // 空历史记录
 	aHistory = [{
 		iCurLineIdx: 0,
 		aLineArr: [oEmptyLine.dc_],

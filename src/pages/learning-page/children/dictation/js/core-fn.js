@@ -198,20 +198,6 @@ export default class {
 		fixTime(oCurLine);
 		this.setCurLine(oCurLine);
 	}
-	// ▼得到当前步骤
-	getCurStep(isJustCurStep = false) {
-		// const oCurStep = this.state.aSteps[this.state.iCurStep];
-		// if (isJustCurStep) return oCurStep; //简化版，返回当前阶段的历史记录
-		return {
-			iCurLine: this.state.iCurLineIdx, // 当前所在行
-			aLines: this.state.aLineArr, //字幕
-			// 
-			iCurLineIdx: this.state.iCurLineIdx, // 当前所在行
-			aLineArr: this.state.aLineArr, //字幕
-		};
-		// const { iCurLine, aLines, dc_ } = oCurStep;
-		// return { oCurStep, iCurLine, aLines, oCurStepDc: dc_ }; //丰富信息版
-	}
 	// ▼更新当前步骤的数据
 	setCurStep(oNewStep) {
 		const maxStep = 30; //最多x步
@@ -225,12 +211,9 @@ export default class {
 	// ▼设定当前行
 	// TODO 废弃了？
 	setCurLine(oLine) {
-		// const { oCurStepDc, iCurLine } = this.getCurStep();
-		// oCurStepDc.aLines[iCurLine] = oLine;
 		const aLineArr = this.state.aLineArr;
 		const iCurLineIdx = this.state.iCurLineIdx;
 		aLineArr[iCurLineIdx] = oLine;
-		// const iCurLineIdx = this.state.iCurLineIdx; 
 		this.setCurStep({ aLineArr,iCurLineIdx });
 		this.setState({aLineArr});
 	}
