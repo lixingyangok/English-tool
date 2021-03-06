@@ -60,6 +60,7 @@ export default class Dictation extends MyClass {
 		aLineArr: [oEmptyLine.dc_],
 	}];
 	typeingTimer = null;
+	oFnLib = {}; // 快捷键方法库
 	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
@@ -125,6 +126,9 @@ export default class Dictation extends MyClass {
 			'toHideCompareModal',
 		].forEach(cur=>{
 			this[cur] = this[cur].bind(this);
+		});
+		this.getFnArr(true).forEach(cur=>{
+			this.oFnLib[cur.key] = cur.fn;
 		});
 	}
 	// ▼时间刻度

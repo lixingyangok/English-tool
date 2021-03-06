@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-05 19:27:47
+ * @LastEditTime: 2021-03-06 10:45:49
  * @Description: 
  */
 
@@ -13,63 +13,63 @@ import {getQiniuToken} from 'assets/js/learning-api.js';
 import {aAlphabet} from 'assets/js/common.js';
 
 const {media: mediaTB} = trainingDB;
-const oAlphabet = aAlphabet.reduce((oResult, cur)=>{
-	oResult[cur] = true;
-	return oResult;
-}, {});
+// const oAlphabet = aAlphabet.reduce((oResult, cur)=>{
+// 	oResult[cur] = true;
+// 	return oResult;
+// }, {});
 
 class keyDownFn {
-	getFn(keyStr) {
-		const fnLib = {
-			// 单键系列 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-			'`': () => this.toPlay(true), //播放后半句
-			'Tab': () => this.toPlay(), //播放
-			'Prior': () => this.previousAndNext(-1),
-			'Next': () => this.previousAndNext(1),
-			'F1': () => this.cutHere('start'),
-			'F2': () => this.cutHere('end'),
-			'F3': () => this.giveUpThisOne(),
-			'F4': () => this.searchWord(), //保存单词到云
-			// ctrl 系列 ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-			'ctrl + d': () => this.toDel(), //删除一行
-			'ctrl + z': () => this.setHistory(-1), //撤销
-			'ctrl + s': () => this.uploadToCloudBefore(), // 保存到云（字幕）
-			'ctrl + j': () => this.putTogether('prior'), // 合并上一句
-			'ctrl + k': () => this.putTogether('next'), // 合并下一句
-			// ctrl + shift
-			'ctrl + Enter': () => this.toPlay(), //播放
-			'ctrl + shift + Enter': () => this.toPlay(true), //播放
-			'ctrl + shift + z': () => this.setHistory(1), //恢复
-			'ctrl + shift + c': () => this.split(), //分割
-			'ctrl + shift + s': () => this.toSaveInDb(), // 保存到本地
-			// alt 系列  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	getFnArr(getAll){
+		const withNothing = [
+			{key: '`' , name: '播放后半句', fn: this.toPlay.bind(this, true) },
+			{key: 'Tab', name: '播放当前句', fn: this.toPlay.bind(this) },
+			{key: 'Prior', name: '上一句', fn: this.previousAndNext.bind(this, -1) },
+			{key: 'Next', name: '下一句', fn: this.previousAndNext.bind(this, 1) },
+			{key: 'F1', name: '设定起点', fn: this.cutHere.bind(this, 'start') },
+			{key: 'F2', name: '设定起点', fn: this.cutHere.bind(this, 'end') },
+			{key: 'F3', name: '删除当前句', fn: this.giveUpThisOne.bind(this) },
+			{key: 'F4', name: '查询选中单词', fn: this.searchWord.bind(this) },
+		];
+		const withCtrl = [
+			{key: 'ctrl + d', name: '删除一行',  fn: this.toDel.bind(this)},
+			{key: 'ctrl + z', name: '撤销',  fn: this.setHistory.bind(this, -1)},
+			{key: 'ctrl + s', name: '保存到云（字幕）',  fn: this.uploadToCloudBefore.bind(this)}, 
+			{key: 'ctrl + j', name: '合并上一句',  fn: this.putTogether.bind(this, 'prior')}, 
+			{key: 'ctrl + k', name: '合并下一句',  fn: this.putTogether.bind(this, 'next')}, 
+			{key: 'ctrl + Enter', name: '播放',  fn: this.toPlay.bind(this)},
+			{key: 'ctrl + shift + Enter', name: '播放',  fn: this.toPlay.bind(this, true)},
+			{key: 'ctrl + shift + z', name: '恢复',  fn: this.setHistory.bind(this, 1)},
+			{key: 'ctrl + shift + c', name: '分割',  fn: this.split.bind(this)},
+			{key: 'ctrl + shift + s', name: '保存到本地',  fn: this.toSaveInDb.bind(this)}, 
+		];
+		const withAlt = [
 			// 修改选区
-			'alt + ]': () => this.chooseMore(), //扩选
-			'alt + u': () => this.fixRegion('start', -0.07), //起点向左
-			'alt + i': () => this.fixRegion('start', 0.07), //起点向右
-			'alt + n': () => this.fixRegion('end', -0.07), //终点向左
-			'alt + m': () => this.fixRegion('end', 0.07), //终点向右
+			{key: 'alt + ]', name: '扩选', fn: this.chooseMore.bind(this)}, 
+			{key: 'alt + u', name: '起点向左', fn: this.fixRegion.bind(this, 'start', -0.07)}, 
+			{key: 'alt + i', name: '起点向右', fn: this.fixRegion.bind(this, 'start', 0.07)}, 
+			{key: 'alt + n', name: '终点向左', fn: this.fixRegion.bind(this, 'end', -0.07)}, 
+			{key: 'alt + m', name: '终点向右', fn: this.fixRegion.bind(this, 'end', 0.07)}, 
 			// 选词
-			'alt + a': () => this.toInset(0),
-			'alt + s': () => this.toInset(1),
-			'alt + d': () => this.toInset(2),
-			'alt + f': () => this.toInset(3),
+			{key: 'alt + a', name: '', fn: this.toInset.bind(this, 0)},
+			{key: 'alt + s', name: '', fn: this.toInset.bind(this, 1)},
+			{key: 'alt + d', name: '', fn: this.toInset.bind(this, 2)},
+			{key: 'alt + f', name: '', fn: this.toInset.bind(this, 3)},
 			// 未分类
-			'alt + j': () => this.previousAndNext(-1),
-			'alt + k': () => this.previousAndNext(1),
-			'alt + l': () => this.goLastLine(), // 跳到最后一句 l = last
-			'alt + ,': () => this.zoomWave({deltaY: 1}), //波形横向缩放
-			'alt + .': () => this.zoomWave({deltaY: -1}), //波形横向缩放
+			{key: 'alt + j', name: '', fn: this.previousAndNext.bind(this, -1)},
+			{key: 'alt + k', name: '', fn: this.previousAndNext.bind(this, 1)},
+			{key: 'alt + l', name: '跳到最后一句 l = last', fn: this.goLastLine.bind(this)},
+			{key: 'alt + ,', name: '波形横向缩放', fn: this.zoomWave.bind(this, {deltaY: 1})},
+			{key: 'alt + .', name: '波形横向缩放', fn: this.zoomWave.bind(this, {deltaY: -1})},
 			// alt + shift
-			'alt + shift + ,': () => this.changeWaveHeigh(-1), //波形高低
-			'alt + shift + .': () => this.changeWaveHeigh(1), //波形高低
-			'alt + shift + j': () => this.toInsert(-1), // 向【左】插入一句
-			'alt + shift + k': () => this.toInsert(1), // 向【右】插入一句
-			'alt + shift + d': () => this.saveWord(), //保存单词到云
-			'alt + shift + c': () => this.toStop(), //停止播放
-		};
-		const fn = fnLib[keyStr];
-		if (fn) return fn.bind(this);
+			{key: 'alt + shift + ,', name: '', fn: this.changeWaveHeigh.bind(this, -1)}, // 波形高低
+			{key: 'alt + shift + .', name: '', fn: this.changeWaveHeigh.bind(this, 1)}, // 波形高低
+			{key: 'alt + shift + j', name: '', fn: this.toInsert.bind(this, -1) }, // 向【左】插入一句
+			{key: 'alt + shift + k', name: '', fn: this.toInsert.bind(this, 1) }, // 向【右】插入一句
+			{key: 'alt + shift + d', name: '', fn: this.saveWord.bind(this)}, // 保存单词到云
+			{key: 'alt + shift + c', name: '', fn: this.toStop.bind(this)}, // 停止播放
+		];
+		if (getAll) return [...withNothing, ...withCtrl, ...withAlt];
+		return [withNothing, withCtrl, withAlt];
 	}
 	// ▼按下按键事件（全局）
 	keyDowned(ev) {
@@ -78,10 +78,8 @@ class keyDownFn {
 		const shift = ev.shiftKey ? 'shift + ' : '';
 		const keyName = keyMap[ev.keyCode] || '';
 		const keyStr = ctrl + alt + shift + keyName;
-		if (oAlphabet[keyStr]) return; // 单字母不处理
-		const theFn = this.getFn(keyStr);
+		const theFn = this.oFnLib[keyStr];
 		if (!theFn) return;
-		// keyName && console.log('按下了：', ev.keyCode, keyStr);
 		theFn();
 		ev.preventDefault();
 		ev.stopPropagation();
