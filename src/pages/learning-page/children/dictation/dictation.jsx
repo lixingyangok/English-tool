@@ -119,7 +119,6 @@ export default class Dictation extends MyClass {
 			'mouseDownFn',
 			'waveWrapScroll',
 			'valChanged',
-			'enterKeyDown',
 			'sentenceScroll',
 			'commander',
 			'toHideWordModal',
@@ -306,9 +305,7 @@ export default class Dictation extends MyClass {
 			<textarea className="textarea" ref={this.oTextArea}
 				value={text}
 				onChange={this.valChanged}
-				onKeyDown={this.enterKeyDown}
 			></textarea>
-			{/*  */}
 			{/* <textarea className="textarea" ref={this.oTextArea}
 				value={this.state.myTxt}
 				onChange={ev=>this.toChange(ev)}
@@ -419,7 +416,7 @@ export default class Dictation extends MyClass {
 			</cpnt.MediaAndWave>
 			{this.getAllSentence()}
 			{this.getWordsDialog(this.state)}
-			{/* {this.getMatchDialog(this.state)} */}
+			{this.getMatchDialog(this.state)}
 			<DictDialog word={sSearching} />
 		</cpnt.Container>;
 		return resultHTML;

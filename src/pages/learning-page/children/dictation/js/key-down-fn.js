@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-06 10:45:49
+ * @LastEditTime: 2021-03-06 11:07:26
  * @Description: 
  */
 
@@ -10,7 +10,7 @@ import {keyMap} from './key-map.js';
 import {fixTime } from 'assets/js/pure-fn.js';
 import {trainingDB, wordsDB} from 'assets/js/common.js';
 import {getQiniuToken} from 'assets/js/learning-api.js';
-import {aAlphabet} from 'assets/js/common.js';
+// import {aAlphabet} from 'assets/js/common.js';
 
 const {media: mediaTB} = trainingDB;
 // const oAlphabet = aAlphabet.reduce((oResult, cur)=>{
@@ -84,20 +84,14 @@ class keyDownFn {
 		ev.preventDefault();
 		ev.stopPropagation();
 	}
-	// ▼ 在输入框按下回车键
-	enterKeyDown(ev) {
-		const { keyCode, altKey, ctrlKey, shiftKey } = ev;
-		const willDo = keyCode === 13 && !altKey && !ctrlKey && !shiftKey;
-		if (!willDo) return;
-		this.previousAndNext(1, true);
-		ev.preventDefault();
-		return false;
-	}
 	// ▼ 输入框文字改变
 	valChanged(ev) {
 		clearTimeout(this.typeingTimer);
-		console.time('输入了');
 		const sText = ev.target.value; // 当前文字
+		if (/\n/.test(sText)) {
+			return this.previousAndNext(1, true);
+		}
+		console.time('输入了');
 		const idx = ev.target.selectionStart;
 		const sLeft = sText.slice(0, idx);
 		let sTyped = ''; // 单词开头（用于搜索的）

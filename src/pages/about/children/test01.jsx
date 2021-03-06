@@ -20,6 +20,10 @@ export default class extends React.Component {
 		v03: 1,
 		txt: '默认文字',
 	}
+	constructor(props){
+		super(props);
+		this.txtChangeFn = this.txtChangeFn.bind(this);
+	}
 	changeV01(){
 		// 这个方法没有修改 state 不会触发视图更新
 		this.v01++;
@@ -56,9 +60,9 @@ export default class extends React.Component {
 					v03值+1
 				</button>
 			</p>
-			<textarea value={this.state.txt} 
-				onChange={ev => this.txtChangeFn(ev)}
-			></textarea>
+			<textarea value={this.state.txt} onChange={this.txtChangeFn}>
+				{/*  */}
+			</textarea>
 		</Div>
 		return HTML;
 	}
