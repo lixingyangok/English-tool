@@ -50,8 +50,6 @@ export default class {
 		this.getSubtitleFromNet();
 	}
 	goToCurLine(){
-		// this.goLine();
-		// const {iCurLine} = this.getCurStep();
         this.goLine(this.state.iCurLineIdx, false, true);
 	}
 	// ▼跳至某行
@@ -61,12 +59,18 @@ export default class {
 		if (!oWaveWrap) return console.log('没有波形外套DOM');
 		const {offsetWidth} = oWaveWrap;
 		const {fPerSecPx, aLineArr, iCurLineIdx} = this.state;
-		if (typeof iAimLine !== 'number') { // 观察：能不能进来？
+		const oNewState = {};
+		if (typeof iAimLine === 'number') { // 观察：能不能进来？
+			oNewState.iCurLineIdx = iAimLine;
+		}else{
 			this.message.error('没有当前行数值');
 			iAimLine = iCurLineIdx;
-		}else{
-			this.setState({ iCurLineIdx: iAimLine });
 		}
+		if (oNewLine) {
+			aLineArr.push(oNewLine);
+			oNewState.aLineArr = aLineArr;
+		}
+		this.setState(oNewState);
 		const {start, long} = oNewLine || aLineArr[iAimLine];
 		const iTopVal = (() => { // 计算波形框定位的位置
 			const startPx = fPerSecPx * start;
@@ -196,25 +200,24 @@ export default class {
 	}
 	// ▼得到当前步骤
 	getCurStep(isJustCurStep = false) {
+		// const oCurStep = this.state.aSteps[this.state.iCurStep];
+		// if (isJustCurStep) return oCurStep; //简化版，返回当前阶段的历史记录
 		return {
 			iCurLine: this.state.iCurLineIdx, // 当前所在行
 			aLines: this.state.aLineArr, //字幕
+			// 
+			iCurLineIdx: this.state.iCurLineIdx, // 当前所在行
+			aLineArr: this.state.aLineArr, //字幕
 		};
-		// const oCurStep = this.state.aSteps[this.state.iCurStep];
-		// if (isJustCurStep) return oCurStep; //简化版，返回当前阶段的历史记录
 		// const { iCurLine, aLines, dc_ } = oCurStep;
 		// return { oCurStep, iCurLine, aLines, oCurStepDc: dc_ }; //丰富信息版
 	}
 	// ▼更新当前步骤的数据
 	setCurStep(oNewStep) {
 		const maxStep = 30; //最多x步
-		const iCurStep = this.state.iCurStep;
-		this.setState({
-			// ▼如果最大步数是10，那“当前步”最大值为9，例：8+1 < 10 ? 9 : 8; 例：9+1 < 10 ? 10 : 9;
-			iCurStep: iCurStep + 1 < maxStep ? iCurStep + 1 : iCurStep,
-			// ▼如 [0]【1】[2] 在当前第1步产生新历史，则：[].slice(0, 1+1) 第1步留下，第2步用新历史数据代替
-			// aSteps: this.state.aSteps.slice(0, iCurStep + 1).concat(oNewStep).slice(-1 * maxStep),
-		});
+		let iCurStep = this.state.iCurStep;
+		if (iCurStep + 1 < maxStep) iCurStep++;
+		this.setState({ iCurStep });
 		const aHistory = this.aHistory;
 		aHistory.splice(iCurStep + 1, Infinity, oNewStep.dc_);
 		if (aHistory.length > maxStep) aHistory.shift();

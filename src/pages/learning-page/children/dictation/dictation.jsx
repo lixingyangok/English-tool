@@ -26,6 +26,9 @@ const aEmptySteps = [{ // 历史记录
 
 // TODO
 // textarea 的输入动效，输入后听写校对功能
+// 删除： oCurStepDc aLines iCurLine
+// 新名： const {aLineArr, iCurLineIdx} = this.state;
+
 
 const MyClass = window.mix(
 	React.Component,
@@ -87,6 +90,10 @@ export default class Dictation extends MyClass {
 		// ▼字幕
 		iCurStep: 0, // 当前步骤
 		changeTs: 0, // 字幕修改时间
+		aSubtitleFromNet: [], //网上字幕
+		aLineArr: [oEmptyLine.dc_],
+		iCurLineIdx: 0,
+		sCurLineTxt: '',
 		// ▼故事
 		oStory: {}, // 故事信息
 		// ▼媒体
@@ -95,16 +102,11 @@ export default class Dictation extends MyClass {
 		oMediaInfo: {}, // 媒体信息
 		oMediaInTB: {}, // 媒体信息（在本地
 		matchDialogVisible: false, // 
-		aSubtitleFromNet: [], //网上字幕
 		sSearching: '',  // 正在搜索的单词
 		mediaFile_: {}, // 媒体文件
 		iBright: -1, // 输入框上的 hover 单词
 		iTopLine: 0, // 应从第几行字幕开始显示
 		myTxt: '默认文字',
-		// ▼新版
-		aLineArr: [oEmptyLine.dc_],
-		iCurLineIdx: 0,
-		sCurLineTxt: '',
 	};
 	constructor(props) {
 		super(props);
@@ -405,7 +407,7 @@ export default class Dictation extends MyClass {
 				})}
 			</cpnt.HistoryBar>
 			{this.getTextArea(oThisLine)}
-			{/* {this.getWordsList(this.state)} */}
+			{this.getWordsList(this.state)}
 		</div>
 		// ===============================================
 		const resultHTML = <cpnt.Container>

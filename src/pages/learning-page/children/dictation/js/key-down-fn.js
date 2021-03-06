@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-06 11:07:26
+ * @LastEditTime: 2021-03-06 15:02:17
  * @Description: 
  */
 
@@ -86,7 +86,7 @@ class keyDownFn {
 	}
 	// ▼ 输入框文字改变
 	valChanged(ev) {
-		clearTimeout(this.typeingTimer);
+		// clearTimeout(this.typeingTimer);
 		const sText = ev.target.value; // 当前文字
 		if (/\n/.test(sText)) {
 			return this.previousAndNext(1, true);
@@ -109,10 +109,10 @@ class keyDownFn {
 		}
 		this.setState({sTyped, aLineArr});
 		console.timeEnd('输入了');
-		this.typeingTimer = setTimeout(()=>{
+		// this.typeingTimer = setTimeout(()=>{
 			this.getMatchedWords(sTyped);
 			console.log('开始提示词汇 ★★★');
-		}, 500);
+		// }, 500);
 	}
 }
 
@@ -180,12 +180,12 @@ class part02 {
 	}
 	// ▼删除某条
 	toDel() {
-		const { oCurStepDc, iCurLine } = this.getCurStep();
-		if (oCurStepDc.aLines.length <= 1) return;
-		oCurStepDc.aLines.splice(iCurLine, 1);
-		const iMax = oCurStepDc.aLines.length - 1;
-		if (oCurStepDc.iCurLine >= iMax) oCurStepDc.iCurLine = iMax;
-		this.setCurStep(oCurStepDc);
+		const { aLineArr, iCurLineIdx } = this.state;
+		if (aLineArr.length <= 1) return;
+		aLineArr.splice(iCurLineIdx, 1);
+		const iMax = aLineArr.length - 1;
+		if (iCurLineIdx >= iMax) iCurLineIdx = iMax;
+		this.setCurStep({ aLineArr, iCurLineIdx });
 		this.goToCurLine();
 	}
 	// ▼保存字幕到浏览器
@@ -225,15 +225,14 @@ class part02 {
 	}
 	// ▼合并
 	putTogether(sType) {
-		const { oCurStepDc, iCurLine } = this.getCurStep();
-		const { aLines } = oCurStepDc;
+		let {aLineArr, iCurLineIdx} = this.state;
 		const isMergeNext = sType === 'next';
 		const oTarget = ({
-			prior: aLines[iCurLine - 1], //合并上一条
-			next: aLines[iCurLine + 1], //合并下一条
+			prior: aLineArr[iCurLineIdx - 1], //合并上一条
+			next: aLineArr[iCurLineIdx + 1], //合并下一条
 		}[sType]);
 		if (!oTarget) return; //没有邻居不再执行
-		const oCur = aLines[iCurLine];
+		const oCur = aLineArr[iCurLineIdx];
 		oTarget.start = Math.min(oTarget.start, oCur.start);
 		oTarget.end = Math.max(oTarget.end, oCur.end);
 		oTarget.text = (() => {
@@ -242,15 +241,15 @@ class part02 {
 			return aResult.join(' ').replace(/\s{2,}/g, ' ');
 		})();
 		fixTime(oTarget);
-		aLines.splice(iCurLine, 1);
-		oCurStepDc.iCurLine = isMergeNext ? iCurLine : iCurLine - 1;
-		this.setCurStep(oCurStepDc);
+		aLineArr.splice(iCurLineIdx, 1);
+		if (!isMergeNext) iCurLineIdx--;
+		this.setCurStep({aLineArr, iCurLineIdx});
 	}
 	// ▼一刀两段
 	split() {
 		const {selectionStart} = this.oTextArea.current;
 		const { currentTime } = this.oAudio.current;
-		const { oCurStepDc, iCurLine } = this.getCurStep();
+		const { iCurLineIdx, aLineArr } = this.getCurStep();
 		const oCurLine = this.getCurLine();
 		const aNewItems = [
 			fixTime({
@@ -264,8 +263,10 @@ class part02 {
 				text: oCurLine.text.slice(selectionStart).trim(),
 			}),
 		];
-		oCurStepDc.aLines.splice(iCurLine, 1, ...aNewItems);
-		this.setCurStep(oCurStepDc);
+		aLineArr.splice(iCurLineIdx, 1, ...aNewItems);
+		this.setCurStep({ aLineArr, iCurLineIdx });
+		this.setState({aLineArr});
+		
 	}
 	// ▼撤销-恢复
 	setHistory(iType) {
@@ -284,22 +285,25 @@ class part02 {
 	// ▼插入一句。 参数说明：-1=向左，1=向右
 	toInsert(iDirection) {
 		const isToLeft = iDirection === -1;
-		const { iCurLine, aLines, oCurStepDc } = this.getCurStep(); //丰富信息版
-		const { start, end } = aLines[iCurLine]; //当前行
+		let {aLineArr, iCurLineIdx} = this.state;
+		const { start, end } = aLineArr[iCurLineIdx]; //当前行
 		if (start === 0) return; //0开头，不可向前插入
-		const oAim = aLines[iCurLine + iDirection] || {};
-		const newIdx = isToLeft ? iCurLine : iCurLine + 1;
+		const oAim = aLineArr[iCurLineIdx + iDirection] || {};
+		const newIdx = isToLeft ? iCurLineIdx : iCurLineIdx + 1;
 		const oNewLine = fixTime({
 			start: isToLeft ? (oAim.end || 0) : end,
 			end: (
-				isToLeft ? start 
+				isToLeft
+				? start 
 				: Math.min(oAim.start || end + 10, this.state.buffer.duration + 0.5)
 			),
 		});
 		if (oNewLine.start === oNewLine.end) return;
-		oCurStepDc.aLines.splice(newIdx, 0, oNewLine);
-		oCurStepDc.iCurLine += isToLeft ? 0 : 1;
-		this.setCurStep(oCurStepDc);
+		aLineArr.splice(newIdx, 0, oNewLine);
+		iCurLineIdx += isToLeft ? 0 : 1;
+		const oNewState = {aLineArr, iCurLineIdx};
+		this.setCurStep(oNewState);
+		this.setState(oNewState);
 	}
 	// ▼抛弃当前行，或处理第一行
 	giveUpThisOne(start = this.getCurLine().end){
@@ -312,9 +316,9 @@ class part02 {
 	}
 	// ▼到最后一行
 	goLastLine() {
-		const { aLines, iCurLine } = this.getCurStep(true);
-		let idx = aLines.findIndex(cur => cur.text.length <= 1);
-		if (idx === -1 || idx === iCurLine) idx = aLines.length - 1;
+		const { aLineArr, iCurLineIdx } = this.getCurStep();
+		let idx = aLineArr.findIndex(cur => cur.text.length <= 1);
+		if (idx === -1 || idx === iCurLineIdx) idx = aLineArr.length - 1;
 		this.goLine(idx);
 		document.querySelectorAll('textarea')[0].focus();
 	}

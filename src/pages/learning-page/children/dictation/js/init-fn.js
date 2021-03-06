@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-05 19:04:40
+ * @LastEditTime: 2021-03-06 14:21:15
  * @Description: 
  */
 
@@ -168,7 +168,8 @@ const aboutSubtitle = class {
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
 		const {changeTs_, subtitleFile_, id} = oMediaInTB; // 可能得不到值
 		let {aLineArr} = this.state;
-		if (!changeTs_ || !subtitleFile_) { // 本地无字幕
+		console.log('加载字幕');
+		if (!changeTs_ && !subtitleFile_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
 				this.getSubtitleFromNet(true); // 查询网络字幕
 			}else{ // 网上也没有
@@ -185,7 +186,6 @@ const aboutSubtitle = class {
 		}; 
 		this.aHistory.splice(0, Infinity, oFirst);
 		this.setState(oFirst);
-		
 		if (changeTs_ !== subtitleFileModifyTs){
 			this.message.warning('需要对比字幕');
 		}
@@ -196,13 +196,8 @@ const aboutSubtitle = class {
 		if (!oMediaInfo.subtitleFileId) return; //没有字幕就不用查询
 		const aLineArr = await getSubtitle(oMediaInfo);
 		if (!aLineArr) return;
-		const oFirst = {
-			aLineArr,
-			iCurLineIdx: 0,
-		}; 
-		this.aHistory.splice(0, Infinity, oFirst);
-		this.setState(oFirst);
-		// toSave && this.useSubtitleFromNet(aLineArr);
+		this.setState({aSubtitleFromNet: aLineArr});
+		toSave && this.useSubtitleFromNet(aLineArr);
 	}
 }
 
