@@ -220,13 +220,8 @@ export default class {
 	// ▼得到当前行，或某个指定行
 	getCurLine(idx) {
 		const { aLineArr } = this.state;
-		if (typeof idx === 'number') {
-			if (!aLineArr[idx]) {
-				console.log('请注意，目标行-1');
-			}
-			return aLineArr[idx] || aLineArr[idx - 1];
-		}
-		return aLineArr[this.state.iCurLineIdx];
+		if (typeof idx !== 'number') idx = this.state.iCurLineIdx;
+		return aLineArr[idx] || aLineArr[idx - 1];
 	}
 	// ▼传递给子级的方法
 	commander(sFnName, aRest=[]) {
@@ -252,7 +247,7 @@ export default class {
 		const sType = `scroll${sDirection}`;
 		const iOldVal = oDom[sType];
 		if (~~iOldVal === ~~iNewVal) return;
-		// if ('不要动画效果') return (oDom[sType] = iNewVal);
+		if ('不要动画效果') return (oDom[sType] = iNewVal);
 		const [iTakeTime, iTimes] = [350, 40]; //走完全程耗时, x毫秒走一步
 		const iOneStep = ~~((iNewVal - iOldVal) / (iTakeTime / iTimes));
 		const scrollTimer = setInterval(()=>{
