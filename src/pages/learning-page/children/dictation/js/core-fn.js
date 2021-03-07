@@ -349,6 +349,8 @@ export default class {
 			subtitleFileName: fileName,
 			subtitleFileSize: file.size,
 			...getTimeInfo(oTime, 's'),
+		}, {
+			msg_: ['保存字幕未成功', '字幕保存成功'],
 		});
 		if (!res) return;
 		mediaTB.update(oMediaInfo.id, {

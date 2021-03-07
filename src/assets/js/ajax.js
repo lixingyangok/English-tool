@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-09-18 20:44:43
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-17 09:19:08
+ * @LastEditTime: 2021-03-07 20:39:08
  * @Description: 
  */
 import axios from 'axios';
@@ -35,18 +35,15 @@ myAxios.interceptors.request.use(config => {
 
 // ▼响应拦截器
 myAxios.interceptors.response.use(response => {
-	const {status, config:{method}} = response;
+	const {status, config:{msg_=[]}} = response;
 	if (status !== 200) {
-		message.error("未成功");
-		return {data:false, response};
-	}else if(method !== 'get'){
-		message.success("成功");
+		message.error(msg_[0] || "未成功");
+		return {data: false, response};
 	}
-	// console.log("response\n", response);
+	msg_[1] && message.success(msg_[1]);
 	return response;
 }, (error)=>{
 	console.log("请求报错：\n", error);
-	// return Promise.reject(error);
 	return {};
 });
 

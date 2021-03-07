@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-06 14:21:15
+ * @LastEditTime: 2021-03-07 20:59:57
  * @Description: 
  */
 
@@ -171,7 +171,7 @@ const aboutSubtitle = class {
 		console.log('加载字幕');
 		if (!changeTs_ && !subtitleFile_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
-				this.getSubtitleFromNet(true); // 查询网络字幕
+				this.getSubtitleFromNet(true); // 查询网络字幕，并应用
 			}else{ // 网上也没有
 				aLineArr[0].text = '★没有字幕★';
 				this.setState({aLineArr});
@@ -186,9 +186,12 @@ const aboutSubtitle = class {
 		}; 
 		this.aHistory.splice(0, Infinity, oFirst);
 		this.setState(oFirst);
-		if (changeTs_ !== subtitleFileModifyTs){
-			this.message.warning('需要对比字幕');
+		const gap = changeTs_ - subtitleFileModifyTs;
+		if (gap === 0) return;
+		if (subtitleFileModifyTs > changeTs_ ){
+			return this.message.warning('网络字幕新，需要同步');
 		}
+		this.message.warning('本地字幕新，需要同步');
 	}
 	// ▼从云上获取字幕
 	async getSubtitleFromNet(toSave=false){
