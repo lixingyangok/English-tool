@@ -99,6 +99,7 @@ export default class {
 		if (oNewLine) aNewHistory.aLineArr.push(oNewLine.dc_);
 		this.setCurStep(aNewHistory);
 	}
+	// TODO 旧的换行定位，可能将来删除它
 	oldFn(){
 		let iAimLine = 0;
 		const oSententList = this.oSententList.current;
@@ -214,7 +215,7 @@ export default class {
 		const aLineArr = this.state.aLineArr;
 		const iCurLineIdx = this.state.iCurLineIdx;
 		aLineArr[iCurLineIdx] = oLine;
-		this.setCurStep({ aLineArr,iCurLineIdx });
+		this.setCurStep({ aLineArr, iCurLineIdx });
 		this.setState({aLineArr});
 	}
 	// ▼得到当前行，或某个指定行
@@ -225,6 +226,7 @@ export default class {
 	}
 	// ▼传递给子级的方法
 	commander(sFnName, aRest=[]) {
+		console.log('收到信号：', sFnName);
 		const theFn = this[sFnName];
 		if (!theFn) return;
 		theFn.call(this, ...aRest);
@@ -299,6 +301,8 @@ export default class {
 	}
 	// ▼提示是否上传字幕
 	uploadToCloudBefore(){
+		if (this.isSaving) return this.message.error('重复保存');
+		this.isSaving = true;
 		const {oMediaInfo, changeTs} =  this.state;
 		const {
 			name_,
@@ -306,20 +310,22 @@ export default class {
 			subtitleFileName, 
 			subtitleFileModifyTs,
 		} = oMediaInfo;
-		const onOkFn = async () => { // 上传的方法
+		const onOk = async () => {
 			const toHide = this.message.loading('开始保存');
 			await this.uploadToCloud({
 				fileName: subtitleFileName || (name_ + '.srt'),
 				key: subtitleFileId || '',
 			});
 			toHide();
+			this.isSaving = false;
 		};
-		if (changeTs >= subtitleFileModifyTs) return onOkFn();
+		if (changeTs >= subtitleFileModifyTs) return onOk();
 		// ▲本新新，直接提交，▼本地旧，询问
 		this.confirm({
 			title: '提示',
 			content: '本地数据比上网络数据更旧！确定上传？上传后会覆盖云端的文件！',
-			onOk: () => onOkFn(),
+			onOk,
+			onCancel: () => this.isSaving = false,
 		});
 	}
 	// ▼保存字幕到云（上传字幕）

@@ -52,6 +52,7 @@ export default class Dictation extends MyClass {
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
 	aHistory = [{ iCurLineIdx: 0, aLineArr: [oEmptyLine.dc_] }];
+	isSaving = false; // 正在保存
 	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除

@@ -102,7 +102,11 @@ export default class {
 		oWaveWrap.scrollLeft = iNewLeftPx;
 		this.oPointer.current.style.left = `${this.oAudio.current.currentTime * fPerSecPx}px`;
 		this.setState({iPerSecPx, drawing: true});
-		if (iNewLeftPx<=0) this.onScrollFn();
+		if (iNewLeftPx <= 0) {
+			// this.onScrollFn();
+			console.log('this.onScrollFn');
+			// TODO 这个方法丢失了，当滚动条在起点时无法缩放
+		}
 	}
 	// 改变波形高度
 	changeWaveHeigh(deltaY) {
