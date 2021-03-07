@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-06 19:53:33
+ * @LastEditTime: 2021-03-07 12:10:16
  * @Description: 
  */
 
@@ -87,7 +87,7 @@ class keyDownFn {
 	}
 	// ▼ 输入框文字改变
 	valChanged(ev) {
-		// clearTimeout(this.typeingTimer);
+		clearTimeout(this.typeingTimer);
 		const sText = ev.target.value; // 当前文字
 		if (/\n/.test(sText)) {
 			return this.previousAndNext(1, true);
@@ -108,19 +108,12 @@ class keyDownFn {
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 		}
 		this.setState({sTyped, aLineArr});
-		// this.typeingTimer = setTimeout(()=>{
+		this.typeingTimer = setTimeout(()=>{
 			this.getMatchedWords(sTyped);
 			console.log('开始提示词汇 ★★★');
-		// }, 400);
+		}, 120);
 	}
-}
-
-
-// ▲处理按键
-// ▼其它
-
-
-class part02 {
+	// ▼搜索匹配的单词
 	async getMatchedWords(sTyped = '') {
 		sTyped = sTyped.toLocaleLowerCase().trim();
 		const iMax = 7;
@@ -151,7 +144,16 @@ class part02 {
 		}
 		this.setState({aMatched});
 	}
+	// ▼
 	
+}
+
+
+// ▲处理按键
+// ▼其它
+
+
+class part02 {
 	// ▼切换当前句子（上一句，下一句）
 	previousAndNext(iDirection, isWantSave) {
 		const { iCurStep, buffer, aLineArr, iCurLineIdx } = this.state;

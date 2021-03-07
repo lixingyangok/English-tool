@@ -74,7 +74,7 @@ export default class {
 	}
 	// ▼保存生词到云
 	async saveWord(sSearching='') {
-		const {oStory, aWords, aNames} = this.state;
+		const {oStory, aWords, aNames, oWords, oNames} = this.state;
 		const sWord = sSearching || window.getSelection().toString().trim();
 		const canSave = this.checkWord(sWord, !sSearching);
 		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 3; // 有2个空格得保存，如：Dulcinea del Toboso
@@ -83,8 +83,10 @@ export default class {
 		const isCapitalize = /[A-Z]/.test(sWord[0]);
 		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
 		const arrToSubmit = isCapitalize ? aNames : aWords;
+		const objToChange = isCapitalize ? oNames : oWords;
 		arrToSubmit.push(sWord);
-		this.setState({aWords, aNames});
+		objToChange[sWord.toLowerCase()] = true;
+		this.setState({aWords, aNames, oWords, oNames});
 		this.message.success(`保存成功`);
 		await setWrods(oStory.ID, sKey, arrToSubmit);
 		this.context.updateStoryInfo();
