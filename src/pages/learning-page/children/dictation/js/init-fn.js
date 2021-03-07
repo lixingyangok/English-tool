@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-07 20:59:57
+ * @LastEditTime: 2021-03-07 21:10:16
  * @Description: 
  */
 
@@ -18,7 +18,7 @@ import {trainingDB} from 'assets/js/common.js';
 const {media: mediaTB} = trainingDB;
 const axios = window.axios;
 
-const part01 = class {
+class part01{
 	// ▼初始化（查询故事信息
 	async init(){
 		const oStory = this.context.oStoryInfo;
@@ -31,7 +31,6 @@ const part01 = class {
 		const oNames = aNames.reduce((oResult, cur)=>({
 			...oResult, [cur.toLowerCase()]: true,
 		}), {});
-		// if (0) console.log('init', oWords, oNames);
 		setTimeout(()=>{
 			this.setState({oStory, aWords, aNames, oWords, oNames});
 		}, 1 * 1000);
@@ -162,13 +161,12 @@ const aboutMedia = class {
 
 
 // ▼字幕
-const aboutSubtitle = class {
+class aboutSubtitle{
 	// ▼加载字幕
 	setSubtitle(oMediaInfo, oMediaInTB){
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
 		const {changeTs_, subtitleFile_, id} = oMediaInTB; // 可能得不到值
-		let {aLineArr} = this.state;
-		console.log('加载字幕');
+		const {aLineArr} = this.state;
 		if (!changeTs_ && !subtitleFile_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
 				this.getSubtitleFromNet(true); // 查询网络字幕，并应用
