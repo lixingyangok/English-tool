@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-03 19:53:23
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-28 18:24:47
+ * @LastEditTime: 2021-03-10 06:42:51
  * @Description: 
  */
 
@@ -56,6 +56,8 @@ export async function setWrods(storyId, key, aWords){
 		storyId,
 		key,
 		words: aWords.join(','),
+	}, {
+		msg_: ['保存单词未成功', '保存成功'],
 	});
 	return res;
 }

@@ -87,7 +87,6 @@ export default class {
 		arrToSubmit.push(sWord);
 		objToChange[sWord.toLowerCase()] = true;
 		this.setState({aWords, aNames, oWords, oNames});
-		this.message.success(`保存成功`);
 		await setWrods(oStory.ID, sKey, arrToSubmit);
 		this.context.updateStoryInfo();
 	}
@@ -118,7 +117,6 @@ export default class {
 		});
 		this.setState({[keyName]: arrToSubmit});
 		await setWrods(oStory.ID, sKey, arrToSubmit);
-		this.message.success(`保存成功`);
 		this.context.updateStoryInfo();
 	}
 	handleVisibleChange (newVal){

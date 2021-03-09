@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-07 12:10:16
+ * @LastEditTime: 2021-03-10 06:47:17
  * @Description: 
  */
 
@@ -81,6 +81,7 @@ class keyDownFn {
 		if (oAlphabet[keyStr]) return;
 		const theFn = this.oFnLib[keyStr];
 		if (!theFn) return;
+		console.log('触发方法：', keyStr);
 		theFn();
 		ev.preventDefault();
 		ev.stopPropagation();
