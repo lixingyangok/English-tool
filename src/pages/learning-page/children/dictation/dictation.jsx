@@ -114,6 +114,8 @@ export default class Dictation extends MyClass {
 			'commander',
 			'toHideWordModal',
 			'toHideCompareModal',
+			'keyDowned',
+			'mouseMoveFn',
 		].forEach(cur=>{
 			this[cur] = this[cur].bind(this);
 		});
@@ -447,8 +449,6 @@ export default class Dictation extends MyClass {
 	async componentDidMount() {
 		const oWaveWrap = this.oWaveWrap.current;
 		const oAudio = this.oAudio.current;
-		const keyDownFn = this.keyDowned.bind(this);
-		const mouseMoveFn = this.mouseMoveFn.bind(this);
 		oWaveWrap.addEventListener( //在【波形图】上滚轮
 			"mousewheel", ev => this.wheelOnWave(ev), {passive: false},
 		);
@@ -456,18 +456,24 @@ export default class Dictation extends MyClass {
 			"mousewheel", ev => this.changeVideoSize(ev),
 		);
 		this.cleanCanvas();
-		document.addEventListener('keydown', keyDownFn);
-		document.addEventListener('mousemove', mouseMoveFn);
+		document.addEventListener('keydown', this.keyDowned);
+		document.addEventListener('mousemove', this.mouseMoveFn);
 		this.props.history.listen(oRoute => { // bj监听路由变化
 			const {pathname} = oRoute;
-			const hasLeft = !pathname.includes(`/${dictationPath}/`);
-			const type = hasLeft ? 'removeEventListener' : 'addEventListener';
-			document[type]('keydown', keyDownFn);
-			document[type]('mousemove', mouseMoveFn);
+			const goIn = pathname.includes(`/${dictationPath}/`);
+			if (goIn){
+				document.addEventListener('keydown', this.keyDowned);
+				document.addEventListener('mousemove', this.mouseMoveFn);
+			}else{
+				document.removeEventListener('keydown', this.keyDowned);
+				document.removeEventListener('mousemove', this.mouseMoveFn);
+			}
 		});
 	}
 	// ▼销毁前
 	componentWillUnmount(){
 		this.setState = (state, callback) => null;
+		document.removeEventListener('keydown', this.keyDowned);
+		document.removeEventListener('mousemove', this.mouseMoveFn);
 	}
 }
