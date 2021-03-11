@@ -18,7 +18,7 @@ import {
 
 const { confirm } = Modal;
 const oEmptyLine = fixTime({start: 0.1, end: 5}); // 考虑挂到 this 上
-
+let unlistenFn = xx=>xx;
 // TODO
 // textarea 的输入动效，输入后听写校对功能
 
@@ -458,22 +458,22 @@ export default class Dictation extends MyClass {
 		this.cleanCanvas();
 		document.addEventListener('keydown', this.keyDowned);
 		document.addEventListener('mousemove', this.mouseMoveFn);
-		this.props.history.listen(oRoute => { // bj监听路由变化
-			const {pathname} = oRoute;
-			const goIn = pathname.includes(`/${dictationPath}/`);
-			if (goIn){
-				document.addEventListener('keydown', this.keyDowned);
-				document.addEventListener('mousemove', this.mouseMoveFn);
-			}else{
-				document.removeEventListener('keydown', this.keyDowned);
-				document.removeEventListener('mousemove', this.mouseMoveFn);
-			}
+		unlistenFn = this.props.history.listen(oRoute => { // bj监听路由变化
+			console.log('路由已经改变');
+			document.removeEventListener('keydown', this.keyDowned);
+			document.removeEventListener('mousemove', this.mouseMoveFn);
+			const goIn = oRoute.pathname.includes(`/${dictationPath}/`);
+			if (!goIn) return;
+			document.addEventListener('keydown', this.keyDowned);
+			document.addEventListener('mousemove', this.mouseMoveFn);
 		});
 	}
 	// ▼销毁前
 	componentWillUnmount(){
 		this.setState = (state, callback) => null;
+		console.log('组件即将销毁');
 		document.removeEventListener('keydown', this.keyDowned);
 		document.removeEventListener('mousemove', this.mouseMoveFn);
+		unlistenFn();
 	}
 }

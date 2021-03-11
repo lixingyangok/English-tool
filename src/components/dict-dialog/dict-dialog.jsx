@@ -2,18 +2,13 @@ import React, {useState} from "react";
 import { Modal, Button } from 'antd';
 import * as cpnt from './style/dict-dialog.js';
 
+// same
 const aDict = [{
-	name: '有道',
-	getUrl: word => `http://dict.youdao.com/w/${word}`,
-},{
-	name: '金山',
-	getUrl: word => `http://www.iciba.com/word?w=${word}`,
-},{
-	name: '百度',
-	getUrl: word => `https://fanyi.baidu.com/#en/zh/${word}`,
-},{
 	name: '剑桥',
 	getUrl: word => `https://dictionary.cambridge.org/us/dictionary/english/${word}`,
+},{
+	name: '牛津',
+	getUrl: word => `https://www.oxfordlearnersdictionaries.com/definition/english/${word}`,
 },{
 	name: '朗文(新窗口)',
 	getUrl: word => {
@@ -21,6 +16,12 @@ const aDict = [{
 		window.open(url, '_blank');
 		return;
 	},
+},{
+	name: '有道',
+	getUrl: word => `http://dict.youdao.com/w/${word}`,
+},{
+	name: '金山',
+	getUrl: word => `http://www.iciba.com/word?w=${word}`,
 }];
 
 export default function (props){
