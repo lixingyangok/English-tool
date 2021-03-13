@@ -25,6 +25,12 @@ const MyClass = window.mix(
 );
 let unlistenFn = xx=>xx;
 
+// TODO 合并临近行出错
+// TODO 跳到下一篇
+// TODO 显示完成率
+// TODO 上传时标记音频长度？
+// TODO 上传时压缩？
+
 export default class Dictation extends MyClass {
 	static contextType = MyContext;
 	confirm = confirm; // 使用修饰符(static)之后后，在 constructor、componentDidMount 拿不到值

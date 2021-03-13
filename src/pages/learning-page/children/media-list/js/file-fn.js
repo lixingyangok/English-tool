@@ -220,7 +220,16 @@ class FileList {
 		storyId = storyId || this.state.oStory.ID;
 		const aMedia = await getMediaByStoryId(storyId);
 		if (!aMedia) return;
-		this.setState({aMedia});
+		const aMediaFinished = aMedia.filter(cur => cur.finish === 2);
+		const iFinished = aMediaFinished.length;
+		const fRate = (iFinished / aMedia.length * 100).toFixed(2) * 1;
+		const iRest = aMedia.length - iFinished;
+		this.setState({
+			aMedia,
+			aMediaFinished,
+			fRate,
+			iRest,
+		});
 		this.checkMediaListInTB();
 	}
 	// ▼删除一个已上传的文件

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-26 07:35:07
+ * @LastEditTime: 2021-03-13 20:58:55
  * @Description: 
  */
 
@@ -16,7 +16,7 @@ import {MyLoading} from 'components/loading/loading02.jsx';
 import {timeAgo} from 'assets/js/common.js';
 import {
 	Button, Popconfirm, message, Table, Popover,
-	Divider, Modal, Tag, Menu, Dropdown,
+	Divider, Modal, Tag, Menu, Dropdown, Progress,
 } from 'antd';
 
 const { Column } = Table;
@@ -41,6 +41,9 @@ export default class extends MyClass {
 		sLoadingAction: '', // 加载事项
 		tipForChoseSrt: null, // 
 		oDownLoading: {}, //正在下载的字幕信息
+		aMediaFinished: [],
+		fRate: 0,
+		iRest: 0,
 	}
 	// constructor(props) {
 	// 	super(props);
@@ -80,7 +83,7 @@ export default class extends MyClass {
 		return aResult;
 	}
 	getInfoBox(){
-		const {oStory, aMedia} = this.state;
+		const {oStory, aMedia, aMediaFinished, fRate, iRest} = this.state;
 		const {CreatedAt, words='', names=''} = oStory;
 		const sTime = new Date(CreatedAt).toLocaleString();
 		const wordsLength = words.split(',').filter(Boolean).length;
@@ -88,8 +91,15 @@ export default class extends MyClass {
 		const part01 = <>
 			<h1>{oStory.storyName}</h1>
 			<div className="story-info">
-				<span>创建时间：{sTime}</span>&emsp;&emsp;
-				<span>媒体数量：{aMedia.length}</span>&emsp;&emsp;
+				<span>
+					创建时间：{sTime}
+				</span>&emsp;&emsp;
+				<span>
+					完成率：{aMediaFinished.length}/{aMedia.length}（{fRate}%）
+				</span>&nbsp;&emsp;
+				<span> 
+					未完成：{iRest}个 
+				</span>&emsp;&emsp;
 				操作：
 				<label className="btn">
 					导入文件
@@ -161,6 +171,7 @@ export default class extends MyClass {
 		</div>
 		return HTML;
 	}
+	
 	getBtnForTable(oMedia){
 		const HTML = <>
 			<Button type="text" size="small" onClick={()=>this.goDictation(oMedia)}>
@@ -205,6 +216,12 @@ export default class extends MyClass {
 			</Dropdown>
 		</>
 		return HTML;
+	}
+	getProgressBar(){
+		const {fRate} = this.state;
+		return <cpnt.ProgressBar>
+			<Progress percent={fRate} steps={100} />
+		</cpnt.ProgressBar>
 	}
 	getTable(checkFn=Boolean){
 		const dataForTable = this.state.aMedia.filter((cur, idx)=>{
@@ -290,6 +307,7 @@ export default class extends MyClass {
 		const resultHTML = <cpnt.outer className="">
 			<MyLoading {...{sLoadingAction}}/>
 			{this.getInfoBox()}
+			{this.getProgressBar()}
 			{this.showTheFileListReadyForUpload()}
 			{this.getTable(oMedia => oMedia.finish!==2)}
 			<br/>

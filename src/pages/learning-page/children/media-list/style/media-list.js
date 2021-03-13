@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:43:26
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 14:34:48
+ * @LastEditTime: 2021-03-13 20:42:08
  * @Description: 
  */
 
@@ -51,6 +51,24 @@ export const wordsBar = styled.div`
 	span {
 		display: inline-block;
 		margin: 0 5px 0 0;
+	}
+`;
+
+export const ProgressBar = styled.div`
+	margin: 5px 0 15px;
+	.ant-progress{
+		width: 100%;
+		max-width: 100% !important;
+	}
+	.ant-progress-steps-outer{
+		.ant-progress-steps-item{
+			width: auto !important;
+			flex: auto;
+		}
+		.ant-progress-text{
+			flex: none;
+			width: auto !important;
+		}
 	}
 `;
 
