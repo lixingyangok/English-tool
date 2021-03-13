@@ -18,16 +18,13 @@ import {
 
 const { confirm } = Modal;
 const oEmptyLine = fixTime({start: 0.1, end: 5}); // 考虑挂到 this 上
-let unlistenFn = xx=>xx;
-// TODO
-// textarea 的输入动效，输入后听写校对功能
-
-
 const MyClass = window.mix(
 	React.Component,
 	coreFn, keyDownFn, MouseFn, wordsDbFn,
 	figureOutRegion, initFn,
 );
+let unlistenFn = xx=>xx;
+
 export default class Dictation extends MyClass {
 	static contextType = MyContext;
 	confirm = confirm; // 使用修饰符(static)之后后，在 constructor、componentDidMount 拿不到值
@@ -83,9 +80,8 @@ export default class Dictation extends MyClass {
 		aLineArr: [oEmptyLine.dc_],
 		iCurLineIdx: 0, // 当前行
 		sCurLineTxt: '',
-		// ▼故事
+		// ▼故事与媒体
 		oStory: {}, // 故事信息
-		// ▼媒体
 		mediaId: null, // 媒体id
 		fileSrc: "", //文件地址
 		oMediaInfo: {}, // 媒体信息
@@ -95,7 +91,6 @@ export default class Dictation extends MyClass {
 		mediaFile_: {}, // 媒体文件
 		iBright: -1, // 输入框上的 hover 单词
 		iTopLine: 0, // 应从第几行字幕开始显示
-		myTxt: '默认文字',
 	};
 	constructor(props) {
 		super(props);
@@ -282,25 +277,21 @@ export default class Dictation extends MyClass {
 	}
 	toChange(ev){
 		this.setState({
-			myTxt: ev.target.value,
+			sCurLineTxt: ev.target.value,
 		});
 	}
 	getTextArea(){
-		// oThisLine
-		// const {text=''} = oThisLine;
-		// console.log('getTextArea');
-		// const {sCurLineTxt=''} = this.state;
-		const {aLineArr, iCurLineIdx} = this.state;
-		const {text=''} = aLineArr[iCurLineIdx] || {};
-		const aWordsList = this.markWords(text);
+		const sCurLineTxt = this.state.sCurLineTxt;
+		// console.log('sCurLineTxt = ', sCurLineTxt);
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
-			{aWordsList}
-			<textarea className="textarea" ref={this.oTextArea}
-				value={text}
+			{this.markWords(sCurLineTxt)}
+			<textarea className="textarea"
+				ref={this.oTextArea}
+				value={sCurLineTxt}
 				onChange={this.valChanged}
 			></textarea>
 			{/* <textarea className="textarea" ref={this.oTextArea}
-				value={this.state.myTxt}
+				value={this.state.curTxt}
 				onChange={ev=>this.toChange(ev)}
 			></textarea> */}
 		</cpnt.TextareaWrap>;

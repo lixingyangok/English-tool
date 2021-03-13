@@ -50,28 +50,40 @@ export default class {
 		this.getSubtitleFromNet();
 	}
 	goToCurLine(){
-        this.goLine(this.state.iCurLineIdx, false, true);
+		this.goLine(this.state.iCurLineIdx, false, true);
 	}
 	// ▼跳至某行
 	async goLine(iAimLine, oNewLine, doNotSave) {
-		console.log('跳至某行=>')
-		const oWaveWrap = this.oWaveWrap.current;
-		if (!oWaveWrap) return console.log('没有波形外套DOM');
-		const {offsetWidth} = oWaveWrap;
-		const {fPerSecPx, aLineArr, iCurLineIdx} = this.state;
-		const oNewState = {};
+		const {aLineArr, iCurLineIdx, sCurLineTxt} = this.state;
+		const oNewState = {aLineArr};
 		if (typeof iAimLine === 'number') { // 观察：能不能进来？
 			oNewState.iCurLineIdx = iAimLine;
 		}else{
 			this.message.error('没有当前行数值');
 			iAimLine = iCurLineIdx;
 		}
+		console.log(`行号：${iCurLineIdx}-${iAimLine}`);
+		oNewState.aLineArr[iCurLineIdx].text = sCurLineTxt; // 旧的值，存起来
 		if (oNewLine) {
-			aLineArr.push(oNewLine);
-			oNewState.aLineArr = aLineArr;
+			oNewState.aLineArr.push(oNewLine);
+			oNewState.sCurLineTxt = oNewLine.text;
+		}else{
+			oNewState.sCurLineTxt = aLineArr[iAimLine].text;
 		}
 		this.setState(oNewState);
-		const {start, long} = oNewLine || aLineArr[iAimLine];
+		this.setWavePosition(oNewLine || aLineArr[iAimLine], iAimLine);
+		if (doNotSave) return;
+		this.setCurStep({
+			aLineArr: oNewState.aLineArr,
+			iCurLineIdx,
+		});
+	}
+	// ▼跳行定位
+	setWavePosition(oLine, iAimLine){
+		const oWaveWrap = this.oWaveWrap.current;
+		const {offsetWidth} = oWaveWrap;
+		const {fPerSecPx} = this.state;
+		const {start, long} = oLine;
 		const iTopVal = (() => { // 计算波形框定位的位置
 			const startPx = fPerSecPx * start;
 			const restPx = offsetWidth - long * fPerSecPx;
@@ -79,7 +91,8 @@ export default class {
 			return startPx - restPx / 2;
 		})();
 		this.goThere(oWaveWrap, 'Left', iTopVal);
-		// ▲波形定位，▼下方句子定位
+		// ▲波形定位
+		// ▼字幕定位
 		const oSententList = this.oSententList.current;
 		const {scrollTop: sTop, offsetHeight: oHeight} = oSententList;
 		const abloveCurLine = iAimLine * iLineHeight; // 当前行以上高度
@@ -91,36 +104,8 @@ export default class {
 			}
 			return sTop;
 		})();
-        if (doNotSave) return;
-		const aNewHistory = {
-			aLineArr: aLineArr.dc_,
-			iCurLineIdx,
-		};
-		if (oNewLine) aNewHistory.aLineArr.push(oNewLine.dc_);
-		this.setCurStep(aNewHistory);
 	}
-	// TODO 旧的换行定位，可能将来删除它
-	oldFn(){
-		let iAimLine = 0;
-		const oSententList = this.oSententList.current;
-		const {offsetHeight, scrollTop, children} = oSententList;
-		const [top01, abloveCurLine, curLine, bottom01] = [...children].reduce((result, {offsetHeight}, iCurIdx)=>{
-			// iLineHeight
-			if (iCurIdx === iAimLine - 1) result[0] = offsetHeight; //取得目标行【上一行】高度
-			if (iCurIdx < iAimLine) result[1] += offsetHeight; //当前行小于目标行，累计高度
-			if (iCurIdx === iAimLine) result[2] = offsetHeight; //取得【目标行】高度
-			if (iCurIdx === iAimLine + 1) result[3] = offsetHeight; //取得目标行【下一行】高度
-			return result;
-		}, [0, 0, 0, 50]);
-		oSententList.scrollTop = (()=>{
-			if (abloveCurLine < scrollTop + top01) return abloveCurLine - top01;
-			// ▲上方超出可视区，▼下方超出可视区（以下代码没能深刻理解）
-			if (abloveCurLine > scrollTop + offsetHeight - curLine - bottom01) {
-				return abloveCurLine - offsetHeight + curLine + bottom01;
-			}
-			return scrollTop;
-		})();
-	}
+
 	// ▼清空画布
 	cleanCanvas() {
 		const oCanvas = this.oCanvas.current;
@@ -303,7 +288,7 @@ export default class {
 	uploadToCloudBefore(){
 		if (this.isSaving) return this.message.error('重复保存');
 		this.isSaving = true;
-		const {oMediaInfo, changeTs} =  this.state;
+		const {oMediaInfo, changeTs} = this.state;
 		const {
 			name_,
 			subtitleFileId,
@@ -386,3 +371,26 @@ export default class {
 	}
 }
 
+
+// TODO 旧的换行定位，可能将来删除它
+// oldFn(){
+// 	let iAimLine = 0;
+// 	const oSententList = this.oSententList.current;
+// 	const {offsetHeight, scrollTop, children} = oSententList;
+// 	const [top01, abloveCurLine, curLine, bottom01] = [...children].reduce((result, {offsetHeight}, iCurIdx)=>{
+// 		// iLineHeight
+// 		if (iCurIdx === iAimLine - 1) result[0] = offsetHeight; //取得目标行【上一行】高度
+// 		if (iCurIdx < iAimLine) result[1] += offsetHeight; //当前行小于目标行，累计高度
+// 		if (iCurIdx === iAimLine) result[2] = offsetHeight; //取得【目标行】高度
+// 		if (iCurIdx === iAimLine + 1) result[3] = offsetHeight; //取得目标行【下一行】高度
+// 		return result;
+// 	}, [0, 0, 0, 50]);
+// 	oSententList.scrollTop = (()=>{
+// 		if (abloveCurLine < scrollTop + top01) return abloveCurLine - top01;
+// 		// ▲上方超出可视区，▼下方超出可视区（以下代码没能深刻理解）
+// 		if (abloveCurLine > scrollTop + offsetHeight - curLine - bottom01) {
+// 			return abloveCurLine - offsetHeight + curLine + bottom01;
+// 		}
+// 		return scrollTop;
+// 	})();
+// }

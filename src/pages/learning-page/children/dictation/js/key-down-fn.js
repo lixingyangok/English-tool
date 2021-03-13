@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-10 06:47:17
+ * @LastEditTime: 2021-03-13 14:44:37
  * @Description: 
  */
 
@@ -97,7 +97,6 @@ class keyDownFn {
 		const sLeft = sText.slice(0, idx);
 		const aLineArr = this.state.aLineArr;
 		const iCurLineIdx = this.state.iCurLineIdx; 
-		aLineArr[iCurLineIdx].text = sText;
 		let sTyped = ''; // 单词开头（用于搜索的）
 		if (/.+[^a-zA-Z]$/.test(sLeft)) { // 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
@@ -108,7 +107,8 @@ class keyDownFn {
 			const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 		}
-		this.setState({sTyped, aLineArr});
+		this.setState({sTyped, sCurLineTxt: sText});
+		// aLineArr, 
 		this.typeingTimer = setTimeout(()=>{
 			this.getMatchedWords(sTyped);
 			console.log('开始提示词汇 ★★★');
@@ -169,18 +169,20 @@ class part02 {
 		this.goLine(iCurLineNew, newLine);
 		// ▲跳转
 		// ▼处理保存相关事宜
-		if (!(isWantSave && iCurStep > 0 && iCurLineNew % 2)) return; // 不满足保存条件 return
-		const isNeedSave = (() => {
-			if (newLine) return true; // 新建行了，得保存！
-			const aOldlines = this.aHistory[iCurStep - 1].aLineArr; // 提取上一步的行数据
-			if (!aOldlines[iCurLineIdx]) {
-				debugger;
-			}
-			return aOldlines[iCurLineIdx].text !== aLineArr[iCurLineIdx].text; // 当前行与上一行不一样，保存！
-		})();
-		isNeedSave && this.toSaveInDb();
+		// TODO 保存相关判断最好放在 【goLine】中统一处理
+		// console.log('需要计算：', !!isWantSave);
+		// if (!(isWantSave && iCurStep > 0 && iCurLineNew % 2)) return; // 不满足保存条件 return
+		// const isNeedSave = (() => {
+		// 	if (newLine) return true; // 新建行了，得保存！
+		// 	const aOldlines = this.aHistory[iCurStep - 1].aLineArr; // 提取上一步的行数据
+		// 	if (!aOldlines[iCurLineIdx]) debugger;
+		// 	const bResult = aOldlines[iCurLineIdx].text !== aLineArr[iCurLineIdx].text;
+		// 	console.log('bResult', bResult);
+		// 	return bResult; // 当前行与上一行不一样，保存！
+		// })();
+		// isNeedSave && this.toSaveInDb();
 	}
-	// ▼删除某条
+	// ▼删除某行
 	toDel() {
 		let { aLineArr, iCurLineIdx } = this.state;
 		if (aLineArr.length <= 1) return;

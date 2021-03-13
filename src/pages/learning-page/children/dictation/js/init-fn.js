@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-07 21:10:16
+ * @LastEditTime: 2021-03-13 14:18:17
  * @Description: 
  */
 
@@ -159,7 +159,6 @@ const aboutMedia = class {
 }
 
 
-
 // ▼字幕
 class aboutSubtitle{
 	// ▼加载字幕
@@ -181,7 +180,8 @@ class aboutSubtitle{
 		const oFirst = {
 			aLineArr: subtitleFile_,
 			iCurLineIdx: 0,
-		}; 
+			sCurLineTxt: subtitleFile_[0].text,
+		};
 		this.aHistory.splice(0, Infinity, oFirst);
 		this.setState(oFirst);
 		const gap = changeTs_ - subtitleFileModifyTs;
