@@ -6,7 +6,7 @@
 import React from "react";
 import {setWrods} from 'assets/js/learning-api.js';
 import {wordsDB, aAlphabet} from 'assets/js/common.js'
-// import {Popover, Button} from 'antd';
+import {Modal} from 'antd';
 
 export default class {
 	// ▼控制词库窗口可见性
@@ -64,10 +64,10 @@ export default class {
 		this.setState({visible: true});
 	}
 	// ▼搜索
-	async searchWord() {
+	async searchWord(toSave) {
 		const sSearching = window.getSelection().toString().trim();
 		if (!sSearching) return;
-		this.saveWord(sSearching);
+		toSave && this.saveWord(sSearching);
 		this.setState({sSearching: ''}, ()=>{
 			this.setState({sSearching});
 		});
@@ -76,9 +76,8 @@ export default class {
 	async saveWord(sSearching='') {
 		const {oStory, aWords, aNames, oWords, oNames} = this.state;
 		const sWord = sSearching || window.getSelection().toString().trim();
-		const canSave = this.checkWord(sWord, !sSearching);
-		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 3; // 有2个空格得保存，如：Dulcinea del Toboso
-		if (!canSave || tooMuchSpace) return;
+		const canSave = await this.checkWord(sWord, !sSearching);
+		if (!canSave) return;
 		// ▲通过考验，▼保存
 		const isCapitalize = /[A-Z]/.test(sWord[0]);
 		const sKey = isCapitalize ? 'names' : 'words'; // 如大写字母开头视为专有名词
@@ -90,7 +89,7 @@ export default class {
 		await setWrods(oStory.ID, sKey, arrToSubmit);
 		this.context.updateStoryInfo();
 	}
-	checkWord(sWord, showTip){
+	async checkWord(sWord, showTip){
 		const {aWords, aNames} = this.state;
 		const aAll = aWords.concat(aNames);
 		const {error} = this.message;
@@ -98,13 +97,25 @@ export default class {
 			showTip && error(`已经保存不可重复添加`);
 			return;
 		}
-		if (sWord.length < 2 || sWord.length > 30) {
-			showTip && error(`单词长度超出范围：2-30字母`);
-			return;
-		}
-		if (sWord.includes(',')) {
+		if (sWord.includes(',')) { // "--\054--" === '--,--'
 			showTip && error('不能包含英文逗号');
 			return;
+		}
+		const tooMuchSpace = (sWord.match(/\s/g) || []).length >= 3; // 有2个空格得保存，如：Dulcinea del Toboso
+		const toLong = sWord.length < 2 || sWord.length > 30;
+		let resolveFn;
+		const oPeomise = new Promise(fn => resolveFn=fn);
+		if (tooMuchSpace || toLong) {
+			// showTip && error(`包含过多空格，或单词长度超出范围：2-30字母`);
+			showTip && Modal.confirm({
+				okText: '保存',
+				cancelText: '取消',
+				title: '提示',
+				content: `包含过多空格，或单词长度超出范围：2-30字母`,
+				onOk: () => resolveFn(true),
+				onCancel: () => resolveFn(false),
+			});
+			return oPeomise;
 		}
 		return true;
 	}

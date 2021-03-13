@@ -49,7 +49,6 @@ export default class Dictation extends MyClass {
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
 	aHistory = [{ iCurLineIdx: 0, aLineArr: [oEmptyLine.dc_] }];
-	isSaving = false; // 正在保存
 	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除
@@ -282,7 +281,6 @@ export default class Dictation extends MyClass {
 	}
 	getTextArea(){
 		const sCurLineTxt = this.state.sCurLineTxt;
-		// console.log('sCurLineTxt = ', sCurLineTxt);
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
 			{this.markWords(sCurLineTxt)}
 			<textarea className="textarea"
@@ -290,10 +288,6 @@ export default class Dictation extends MyClass {
 				value={sCurLineTxt}
 				onChange={this.valChanged}
 			></textarea>
-			{/* <textarea className="textarea" ref={this.oTextArea}
-				value={this.state.curTxt}
-				onChange={ev=>this.toChange(ev)}
-			></textarea> */}
 		</cpnt.TextareaWrap>;
 	}
 	getAllSentence(){

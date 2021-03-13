@@ -54,16 +54,18 @@ export default class {
 	}
 	// ▼跳至某行
 	async goLine(iAimLine, oNewLine, doNotSave) {
-		const {aLineArr, iCurLineIdx, sCurLineTxt} = this.state;
+		const {aLineArr, iCurLineIdx, sCurLineTxt=''} = this.state;
 		const oNewState = {aLineArr};
 		if (typeof iAimLine === 'number') { // 观察：能不能进来？
 			oNewState.iCurLineIdx = iAimLine;
 		}else{
-			this.message.error('没有当前行数值');
 			iAimLine = iCurLineIdx;
 		}
-		console.log(`行号：${iCurLineIdx}-${iAimLine}`);
-		oNewState.aLineArr[iCurLineIdx].text = sCurLineTxt; // 旧的值，存起来
+		if (aLineArr[iCurLineIdx].text !== sCurLineTxt){
+			aLineArr[iCurLineIdx].text = sCurLineTxt.trim(); // 旧的值，存起来
+			if (iAimLine % 2) this.toSaveInDb();
+		}
+		// console.log(`行号：${iCurLineIdx}-${iAimLine}`);
 		if (oNewLine) {
 			oNewState.aLineArr.push(oNewLine);
 			oNewState.sCurLineTxt = oNewLine.text;
@@ -71,15 +73,15 @@ export default class {
 			oNewState.sCurLineTxt = aLineArr[iAimLine].text;
 		}
 		this.setState(oNewState);
-		this.setWavePosition(oNewLine || aLineArr[iAimLine], iAimLine);
+		this.setLinePosition(oNewLine || aLineArr[iAimLine], iAimLine);
 		if (doNotSave) return;
 		this.setCurStep({
 			aLineArr: oNewState.aLineArr,
 			iCurLineIdx,
 		});
 	}
-	// ▼跳行定位
-	setWavePosition(oLine, iAimLine){
+	// ▼跳行后定位
+	setLinePosition(oLine, iAimLine){
 		const oWaveWrap = this.oWaveWrap.current;
 		const {offsetWidth} = oWaveWrap;
 		const {fPerSecPx} = this.state;
@@ -286,8 +288,7 @@ export default class {
 	}
 	// ▼提示是否上传字幕
 	uploadToCloudBefore(){
-		if (this.isSaving) return this.message.error('重复保存');
-		this.isSaving = true;
+		this.goLine();
 		const {oMediaInfo, changeTs} = this.state;
 		const {
 			name_,
@@ -302,7 +303,6 @@ export default class {
 				key: subtitleFileId || '',
 			});
 			toHide();
-			this.isSaving = false;
 		};
 		if (changeTs >= subtitleFileModifyTs) return onOk();
 		// ▲本新新，直接提交，▼本地旧，询问
@@ -310,7 +310,6 @@ export default class {
 			title: '提示',
 			content: '本地数据比上网络数据更旧！确定上传？上传后会覆盖云端的文件！',
 			onOk,
-			onCancel: () => this.isSaving = false,
 		});
 	}
 	// ▼保存字幕到云（上传字幕）

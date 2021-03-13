@@ -2,11 +2,11 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-13 14:44:37
+ * @LastEditTime: 2021-03-13 17:44:55
  * @Description: 
  */
 
-import {keyMap} from './key-map.js';
+import {keyMap} from 'assets/js/key-map.js';
 import {fixTime } from 'assets/js/pure-fn.js';
 import {trainingDB, wordsDB} from 'assets/js/common.js';
 import {getQiniuToken} from 'assets/js/learning-api.js';
@@ -28,7 +28,8 @@ class keyDownFn {
 			{key: 'F1', name: '设定起点', fn: this.cutHere.bind(this, 'start') },
 			{key: 'F2', name: '设定起点', fn: this.cutHere.bind(this, 'end') },
 			{key: 'F3', name: '删除当前句', fn: this.giveUpThisOne.bind(this) },
-			{key: 'F4', name: '查询选中单词', fn: this.searchWord.bind(this) },
+			{key: 'F4', name: '查询选中单词', fn: this.searchWord.bind(this, true) },
+			{key: 'Escape', name: '', fn: this.toStop.bind(this)}, // 停止播放
 		];
 		const withCtrl = [
 			{key: 'ctrl + d', name: '删除一行',  fn: this.toDel.bind(this)},
@@ -61,12 +62,12 @@ class keyDownFn {
 			{key: 'alt + ,', name: '波形横向缩放', fn: this.zoomWave.bind(this, {deltaY: 1})},
 			{key: 'alt + .', name: '波形横向缩放', fn: this.zoomWave.bind(this, {deltaY: -1})},
 			// alt + shift
-			{key: 'alt + shift + ,', name: '', fn: this.changeWaveHeigh.bind(this, -1)}, // 波形高低
-			{key: 'alt + shift + .', name: '', fn: this.changeWaveHeigh.bind(this, 1)}, // 波形高低
-			{key: 'alt + shift + j', name: '', fn: this.toInsert.bind(this, -1) }, // 向【左】插入一句
-			{key: 'alt + shift + k', name: '', fn: this.toInsert.bind(this, 1) }, // 向【右】插入一句
-			{key: 'alt + shift + d', name: '', fn: this.saveWord.bind(this)}, // 保存单词到云
-			{key: 'alt + shift + c', name: '', fn: this.toStop.bind(this)}, // 停止播放
+			{key: 'alt + shift + ,', name: '波形高低', fn: this.changeWaveHeigh.bind(this, -1)},
+			{key: 'alt + shift + .', name: '波形高低', fn: this.changeWaveHeigh.bind(this, 1)},
+			{key: 'alt + shift + j', name: '向【左】插入一句', fn: this.toInsert.bind(this, -1) },
+			{key: 'alt + shift + k', name: ' 向【右】插入一句', fn: this.toInsert.bind(this, 1) },
+			{key: 'alt + shift + d', name: '保存单词到云', fn: this.saveWord.bind(this)},
+			{key: 'alt + shift + c', name: '查字典', fn: this.searchWord.bind(this)},
 		];
 		if (getAll) return [...withNothing, ...withCtrl, ...withAlt];
 		return [withNothing, withCtrl, withAlt];
@@ -157,7 +158,7 @@ class keyDownFn {
 class part02 {
 	// ▼切换当前句子（上一句，下一句）
 	previousAndNext(iDirection, isWantSave) {
-		const { iCurStep, buffer, aLineArr, iCurLineIdx } = this.state;
+		const { buffer, aLineArr, iCurLineIdx } = this.state; // iCurStep
 		if (iCurLineIdx === 0 && iDirection === -1) return; //不可退
 		const iCurLineNew = iCurLineIdx + iDirection;
 		const newLine = (() => {
@@ -189,12 +190,17 @@ class part02 {
 		aLineArr.splice(iCurLineIdx, 1);
 		const iMax = aLineArr.length - 1;
 		if (iCurLineIdx >= iMax) iCurLineIdx = iMax;
-		this.setCurStep({ aLineArr, iCurLineIdx });
-		this.goToCurLine();
+		const oNewState = {aLineArr, iCurLineIdx};
+		this.setState({
+			...oNewState,
+			sCurLineTxt: aLineArr[iCurLineIdx].text,
+		});
+		this.goLine(iCurLineIdx);
+		this.setCurStep(oNewState);
 	}
 	// ▼保存字幕到浏览器
 	async toSaveInDb(dataId) {
-		const { 
+		const {
 			oMediaInfo: {id=dataId},
 			aLineArr: subtitleFile_,
 		} = this.state;
@@ -255,26 +261,26 @@ class part02 {
 	}
 	// ▼一刀两段
 	split() {
-		const {selectionStart} = this.oTextArea.current;
+		this.goLine();
+		const { selectionStart } = this.oTextArea.current;
 		const { currentTime } = this.oAudio.current;
-		const { iCurLineIdx, aLineArr } = this.state;
-		const oCurLine = this.getCurLine();
+		const { iCurLineIdx, aLineArr, sCurLineTxt } = this.state;
+		const oCurLine = aLineArr[iCurLineIdx];
 		const aNewItems = [
 			fixTime({
 				...oCurLine,
 				end: currentTime,
-				text: oCurLine.text.slice(0, selectionStart).trim(),
+				text: sCurLineTxt.slice(0, selectionStart).trim(),
 			}),
 			fixTime({
 				...oCurLine,
 				start: currentTime + 0.01,
-				text: oCurLine.text.slice(selectionStart).trim(),
+				text: sCurLineTxt.slice(selectionStart).trim(),
 			}),
 		];
 		aLineArr.splice(iCurLineIdx, 1, ...aNewItems);
 		this.setCurStep({ aLineArr, iCurLineIdx });
-		this.setState({aLineArr});
-		
+		this.setState({aLineArr, sCurLineTxt: aNewItems[0].text});
 	}
 	// ▼撤销-恢复
 	setHistory(iType) {
@@ -286,8 +292,10 @@ class part02 {
 		}
 		const aLineArr = this.aHistory[iCurStep].aLineArr;
 		const iCurLineIdx = this.aHistory[iCurStep].iCurLineIdx;
-		this.setState({ iCurStep, aLineArr, iCurLineIdx });
-		// this.goToCurLine();
+		this.setState({ 
+			iCurStep, aLineArr, iCurLineIdx,
+			sCurLineTxt: aLineArr[iCurLineIdx].text || '',
+		});
 		this.goLine(iCurLineIdx, false, true);
 	}
 	// ▼插入一句。 参数说明：-1=向左，1=向右
@@ -333,16 +341,18 @@ class part02 {
 	// ▼插入选中的单词
 	toInset(idx) {
 		console.log('插入----', idx);
-		const { sTyped, aMatched } = this.state;
+		let { sTyped, aMatched, sCurLineTxt } = this.state;
 		const theWord = (aMatched[idx] || '').slice(sTyped.length);
 		if (!theWord) return;
 		const myTextArea = this.oTextArea.current;
 		const cursorIdx = myTextArea.selectionStart;
-		const { dc_: oCurLine, text } = this.getCurLine();
-		const [left, right] = [text.slice(0, cursorIdx), text.slice(cursorIdx)]
+		const [left, right] = [
+			sCurLineTxt.slice(0, cursorIdx),
+			sCurLineTxt.slice(cursorIdx),
+		];
 		const newLeft = left + theWord;
-		oCurLine.text = (newLeft + right).trim();
-		this.setCurLine(oCurLine);
+		sCurLineTxt = (newLeft + right).trim();
+		this.setState({ sCurLineTxt });
 		myTextArea.selectionStart = myTextArea.selectionEnd = newLeft.length;
 	}
 	// ▼扩选
