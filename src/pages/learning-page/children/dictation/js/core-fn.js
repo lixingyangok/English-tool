@@ -75,7 +75,7 @@ export default class {
 		this.setState(oNewState);
 		this.setLinePosition(oNewLine || aLineArr[iAimLine], iAimLine);
 		if (doNotSave) return;
-		this.setHistory({
+		this.saveHistory({
 			aLineArr: oNewState.aLineArr,
 			iCurLineIdx,
 		});
@@ -187,7 +187,7 @@ export default class {
 		this.setCurLine(oCurLine);
 	}
 	// ▼更新当前步骤的数据
-	setHistory(oNewStep) {
+	saveHistory(oNewStep) {
 		const maxStep = 30; //最多x步
 		let iCurStep = this.state.iCurStep;
 		if (iCurStep + 1 < maxStep) iCurStep++;
@@ -202,7 +202,7 @@ export default class {
 		const aLineArr = this.state.aLineArr;
 		const iCurLineIdx = this.state.iCurLineIdx;
 		aLineArr[iCurLineIdx] = oLine;
-		this.setHistory({ aLineArr, iCurLineIdx });
+		this.saveHistory({ aLineArr, iCurLineIdx });
 		this.setState({aLineArr});
 	}
 	// ▼得到当前行，或某个指定行
