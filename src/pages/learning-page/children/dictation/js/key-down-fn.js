@@ -101,7 +101,7 @@ class keyDownFn {
 		let sTyped = ''; // 单词开头（用于搜索的）
 		if (/.+[^a-zA-Z]$/.test(sLeft)) { // 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
-			this.setCurStep({aLineArr, iCurLineIdx});
+			this.setHistory({aLineArr, iCurLineIdx});
 		} else {
 			// 英文字母结尾，【不要】生成新历史
 			const sRight = sText.slice(idx);
@@ -191,7 +191,7 @@ class part02 {
 		const iMax = aLineArr.length - 1;
 		if (iCurLineIdx >= iMax) iCurLineIdx = iMax;
 		const oNewState = {aLineArr, iCurLineIdx};
-		this.setCurStep(oNewState);
+		this.setHistory(oNewState);
 		this.setState({
 			...oNewState,
 			sCurLineTxt: aLineArr[iCurLineIdx].text,
@@ -257,7 +257,7 @@ class part02 {
 		if (!isMergeNext) iCurLineIdx--;
 		const obj = {aLineArr, iCurLineIdx};
 		console.log('obj', obj);
-		this.setCurStep(obj);
+		this.setHistory(obj);
 		this.setState({...obj, sCurLineTxt: aLineArr[iCurLineIdx].text});
 	}
 	// ▼一刀两段
@@ -280,7 +280,7 @@ class part02 {
 			}),
 		];
 		aLineArr.splice(iCurLineIdx, 1, ...aNewItems);
-		this.setCurStep({ aLineArr, iCurLineIdx });
+		this.setHistory({ aLineArr, iCurLineIdx });
 		this.setState({aLineArr, sCurLineTxt: aNewItems[0].text});
 	}
 	// ▼撤销-恢复
@@ -320,7 +320,7 @@ class part02 {
 		aLineArr.splice(newIdx, 0, oNewLine);
 		iCurLineIdx += isToLeft ? 0 : 1;
 		const oNewState = {aLineArr, iCurLineIdx};
-		this.setCurStep(oNewState);
+		this.setHistory(oNewState);
 		this.setState(oNewState);
 	}
 	// ▼抛弃当前行，或处理第一行
