@@ -72,13 +72,9 @@ export default class {
 		}else{
 			oNewState.sCurLineTxt = aLineArr[iAimLine].text;
 		}
+		if(!doNotSave) this.saveHistory(oNewState); // 有报错补上 dc_
 		this.setState(oNewState);
 		this.setLinePosition(oNewLine || aLineArr[iAimLine], iAimLine);
-		if (doNotSave) return;
-		this.saveHistory({
-			aLineArr: oNewState.aLineArr,
-			iCurLineIdx,
-		});
 	}
 	// ▼跳行后定位
 	setLinePosition(oLine, iAimLine){
@@ -160,7 +156,7 @@ export default class {
 			Audio.pause();
 			clearInterval(this.state.playing);
 			this.setState({ playing: false });
-		}, 1000 / 70); //每秒执行次数70
+		}, ~~(1000 / 70)); //每秒执行次数70
 		this.setState({playing});
 	}
 	// ▼得到点击处的秒数，收受一个事件对象
@@ -187,22 +183,24 @@ export default class {
 		this.setCurLine(oCurLine);
 	}
 	// ▼更新当前步骤的数据
-	saveHistory(oNewStep) {
-		const maxStep = 30; //最多x步
+	saveHistory(oNewHistory) {
+		const maxStep = 10; //最多x步
 		let iCurStep = this.state.iCurStep;
 		if (iCurStep + 1 < maxStep) iCurStep++;
 		this.setState({ iCurStep });
 		const aHistory = this.aHistory;
-		aHistory.splice(iCurStep + 1, Infinity, oNewStep.dc_);
+		aHistory.splice(iCurStep, Infinity, oNewHistory);
 		if (aHistory.length > maxStep) aHistory.shift();
 	}
-	// ▼设定当前行
-	// TODO 废弃了？
+	// ▼设定当前行 TODO 要废弃？
 	setCurLine(oLine) {
 		const aLineArr = this.state.aLineArr;
 		const iCurLineIdx = this.state.iCurLineIdx;
 		aLineArr[iCurLineIdx] = oLine;
-		this.saveHistory({ aLineArr, iCurLineIdx });
+		this.saveHistory({
+			aLineArr: aLineArr.dc_, // 需要拷贝
+			iCurLineIdx,
+		});
 		this.setState({aLineArr});
 	}
 	// ▼得到当前行，或某个指定行

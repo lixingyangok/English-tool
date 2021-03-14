@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-14 14:55:29
+ * @LastEditTime: 2021-03-14 16:58:38
  * @Description: 
  */
 
@@ -91,17 +91,17 @@ class keyDownFn {
 	valChanged(ev) {
 		clearTimeout(this.typeingTimer);
 		const sText = ev.target.value; // 当前文字
-		if (/\n/.test(sText)) {
-			return this.previousAndNext(1, true);
-		}
+		if (/\n/.test(sText)) return this.previousAndNext(1, true);
 		const idx = ev.target.selectionStart;
 		const sLeft = sText.slice(0, idx);
-		const aLineArr = this.state.aLineArr;
-		const iCurLineIdx = this.state.iCurLineIdx; 
 		let sTyped = ''; // 单词开头（用于搜索的）
 		if (/.+[^a-zA-Z]$/.test(sLeft)) { // 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
-			this.saveHistory({aLineArr, iCurLineIdx});
+			this.saveHistory({
+				aLineArr: this.state.aLineArr,
+				iCurLineIdx: this.state.iCurLineIdx,
+				sCurLineTxt: sText,
+			});
 		} else {
 			// 英文字母结尾，【不要】生成新历史
 			const sRight = sText.slice(idx);
@@ -109,7 +109,6 @@ class keyDownFn {
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 		}
 		this.setState({sTyped, sCurLineTxt: sText});
-		// aLineArr, 
 		this.typeingTimer = setTimeout(()=>{
 			this.getMatchedWords(sTyped);
 			console.log('开始提示词汇 ★★★');
@@ -185,7 +184,8 @@ class part02 {
 	}
 	// ▼删除某行
 	toDel() {
-		let { aLineArr, iCurLineIdx } = this.state;
+		let { iCurLineIdx } = this.state;
+		const aLineArr = this.state.aLineArr.dc_;
 		if (aLineArr.length <= 1) return;
 		aLineArr.splice(iCurLineIdx, 1);
 		const iMax = aLineArr.length - 1;
@@ -196,7 +196,7 @@ class part02 {
 			...oNewState,
 			sCurLineTxt: aLineArr[iCurLineIdx].text,
 		});
-		this.goLine(iCurLineIdx);
+		this.goLine(iCurLineIdx, false, true);
 	}
 	// ▼保存字幕到浏览器
 	async toSaveInDb(dataId) {
@@ -237,7 +237,8 @@ class part02 {
 	}
 	// ▼合并
 	putTogether(sType) {
-		let {aLineArr, iCurLineIdx} = this.state;
+		let {iCurLineIdx} = this.state;
+		const aLineArr = this.state.aLineArr.dc_;
 		const isMergeNext = sType === 'next';
 		const oTarget = ({
 			prior: aLineArr[iCurLineIdx - 1], //合并上一条
@@ -256,7 +257,6 @@ class part02 {
 		aLineArr.splice(iCurLineIdx, 1);
 		if (!isMergeNext) iCurLineIdx--;
 		const obj = {aLineArr, iCurLineIdx};
-		console.log('obj', obj);
 		this.saveHistory(obj);
 		this.setState({...obj, sCurLineTxt: aLineArr[iCurLineIdx].text});
 	}
@@ -265,7 +265,8 @@ class part02 {
 		this.goLine();
 		const { selectionStart } = this.oTextArea.current;
 		const { currentTime } = this.oAudio.current;
-		const { iCurLineIdx, aLineArr, sCurLineTxt } = this.state;
+		const { iCurLineIdx, sCurLineTxt } = this.state;
+		const aLineArr = this.state.aLineArr.dc_;
 		const oCurLine = aLineArr[iCurLineIdx];
 		const aNewItems = [
 			fixTime({
@@ -292,18 +293,21 @@ class part02 {
 			const actionName = { '-1': '上', '1': '下' }[iType];
 			return this.message.error(`没有${actionName}一步数据，已经到头了`);
 		}
-		const aLineArr = this.aHistory[iCurStep].aLineArr;
-		const iCurLineIdx = this.aHistory[iCurStep].iCurLineIdx;
+		const oHistory = this.aHistory[iCurStep];
+		const {aLineArr, iCurLineIdx} = oHistory;
 		this.setState({ 
-			iCurStep, aLineArr, iCurLineIdx,
-			sCurLineTxt: aLineArr[iCurLineIdx].text || '',
+			iCurStep,
+			aLineArr,
+			iCurLineIdx,
+			sCurLineTxt: oHistory.sCurLineTxt || aLineArr[iCurLineIdx].text,
 		});
 		this.goLine(iCurLineIdx, false, true);
 	}
 	// ▼插入一句。 参数说明：-1=向左，1=向右
 	toInsert(iDirection) {
 		const isToLeft = iDirection === -1;
-		let {aLineArr, iCurLineIdx} = this.state;
+		let {iCurLineIdx} = this.state;
+		let aLineArr = this.state.aLineArr.dc_;
 		const { start, end } = aLineArr[iCurLineIdx]; //当前行
 		if (start === 0) return; //0开头，不可向前插入
 		const oAim = aLineArr[iCurLineIdx + iDirection] || {};
