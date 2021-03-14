@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-14 16:58:38
+ * @LastEditTime: 2021-03-14 17:42:30
  * @Description: 
  */
 
@@ -21,14 +21,14 @@ const oAlphabet = aAlphabet.reduce((oResult, cur)=>{
 class keyDownFn {
 	getFnArr(getAll){
 		const withNothing = [
-			{key: '`' , name: '播放后半句', fn: this.toPlay.bind(this, true) },
-			{key: 'Tab', name: '播放当前句', fn: this.toPlay.bind(this) },
-			{key: 'Prior', name: '上一句', fn: this.previousAndNext.bind(this, -1) },
-			{key: 'Next', name: '下一句', fn: this.previousAndNext.bind(this, 1) },
-			{key: 'F1', name: '设定起点', fn: this.cutHere.bind(this, 'start') },
-			{key: 'F2', name: '设定起点', fn: this.cutHere.bind(this, 'end') },
-			{key: 'F3', name: '删除当前句', fn: this.giveUpThisOne.bind(this) },
-			{key: 'F4', name: '查询选中单词', fn: this.searchWord.bind(this, true) },
+			{key: '`' , name: '播放后半句', fn: this.toPlay.bind(this, true)},
+			{key: 'Tab', name: '播放当前句', fn: this.toPlay.bind(this)},
+			{key: 'Prior', name: '上一句', fn: this.previousAndNext.bind(this, -1)},
+			{key: 'Next', name: '下一句', fn: this.previousAndNext.bind(this, 1)},
+			{key: 'F1', name: '设定起点', fn: this.cutHere.bind(this, 'start')},
+			{key: 'F2', name: '设定起点', fn: this.cutHere.bind(this, 'end')},
+			{key: 'F3', name: '删除当前句', fn: this.giveUpThisOne.bind(this)},
+			{key: 'F4', name: '查询选中单词', fn: this.searchWord.bind(this, true)},
 			{key: 'Escape', name: '取消播放', fn: this.toStop.bind(this)}, // 停止播放
 		];
 		const withCtrl = [
@@ -95,7 +95,7 @@ class keyDownFn {
 		const idx = ev.target.selectionStart;
 		const sLeft = sText.slice(0, idx);
 		let sTyped = ''; // 单词开头（用于搜索的）
-		if (/.+[^a-zA-Z]$/.test(sLeft)) { // 进入判断 sTyped 一定是空字符
+		if (sLeft.endsWith(' ')) { // 进入判断 sTyped 一定是空字符
 			// 如果键入了【非】英文字母，【需要】生成新历史
 			this.saveHistory({
 				aLineArr: this.state.aLineArr,
@@ -237,8 +237,9 @@ class part02 {
 	}
 	// ▼合并
 	putTogether(sType) {
-		let {iCurLineIdx} = this.state;
+		let {iCurLineIdx, sCurLineTxt} = this.state;
 		const aLineArr = this.state.aLineArr.dc_;
+		aLineArr[iCurLineIdx].text = sCurLineTxt;
 		const isMergeNext = sType === 'next';
 		const oTarget = ({
 			prior: aLineArr[iCurLineIdx - 1], //合并上一条

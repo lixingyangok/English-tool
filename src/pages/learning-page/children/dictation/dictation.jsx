@@ -101,6 +101,7 @@ export default class Dictation extends MyClass {
 	};
 	constructor(props) {
 		super(props);
+		window.tool = this;
 		this.checkWordsDB();
 		[
 			'delWord',
@@ -301,15 +302,16 @@ export default class Dictation extends MyClass {
 	getAllSentence(){
 		// console.time("显示句子");
 		const {
-			iTopLine, aLineArr, iCurLineIdx,
+			iTopLine, aLineArr, iCurLineIdx, sCurLineTxt,
 		} = this.state;
 		const {length: iLen} = aLineArr;
 		const aSentences = [];
 		const iEnd = Math.min(iTopLine + 15, iLen);
 		for (let idx = iTopLine; idx < iEnd; idx++ ){
+			const isCurrent = idx === iCurLineIdx;
 			const cur = aLineArr[idx];
 			const oLi = <li key={idx}
-				className={`one-line ${idx === iCurLineIdx ? "cur" : ""}`}
+				className={`one-line ${isCurrent ? "cur" : ""}`}
 				onClick={() => this.goLine(idx)}
 			>
 				<i className="idx">{idx + 1}</i>
@@ -317,7 +319,7 @@ export default class Dictation extends MyClass {
 					<em>{cur.start_}</em><i>-</i><em>{cur.end_}</em>
 				</span>
 				<cpnt.oneSentence>
-					{this.markWords(cur.text)}
+					{this.markWords(isCurrent ? sCurLineTxt : cur.text)}
 				</cpnt.oneSentence>
 			</li>;
 			aSentences.push(oLi);

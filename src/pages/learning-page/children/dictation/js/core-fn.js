@@ -55,12 +55,13 @@ export default class {
 	// ▼跳至某行
 	async goLine(iAimLine, oNewLine, doNotSave) {
 		const {aLineArr, iCurLineIdx, sCurLineTxt=''} = this.state;
-		const oNewState = {aLineArr};
+		const oNewState = {aLineArr, iCurLineIdx};
 		if (typeof iAimLine === 'number') { // 观察：能不能进来？
 			oNewState.iCurLineIdx = iAimLine;
 		}else{
 			iAimLine = iCurLineIdx;
 		}
+		console.log('当前行：', aLineArr, iCurLineIdx);
 		if (aLineArr[iCurLineIdx].text !== sCurLineTxt){
 			aLineArr[iCurLineIdx].text = sCurLineTxt.trim(); // 旧的值，存起来
 			if (iAimLine % 2) this.toSaveInDb();
@@ -184,13 +185,14 @@ export default class {
 	}
 	// ▼更新当前步骤的数据
 	saveHistory(oNewHistory) {
-		const maxStep = 10; //最多x步
-		let iCurStep = this.state.iCurStep;
-		if (iCurStep + 1 < maxStep) iCurStep++;
+		const iMax = 5; // 最大下标值（最多x步）
+		const iOldStepIdx = this.state.iCurStep;
+		const iCurStep =  Math.min(iOldStepIdx + 1, iMax);
 		this.setState({ iCurStep });
 		const aHistory = this.aHistory;
-		aHistory.splice(iCurStep, Infinity, oNewHistory);
-		if (aHistory.length > maxStep) aHistory.shift();
+		aHistory.splice(iOldStepIdx+1, Infinity, oNewHistory);
+		if (aHistory.length > iMax + 1) aHistory.shift();
+		// aSteps: this.state.aSteps.slice(0, iCurStep + 1).concat(oNewStep).slice(-1 * maxStep),
 	}
 	// ▼设定当前行 TODO 要废弃？
 	setCurLine(oLine) {
