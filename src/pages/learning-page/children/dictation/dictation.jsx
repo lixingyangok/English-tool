@@ -27,7 +27,6 @@ let unlistenFn = xx=>xx;
 
 // TODO 合并临近行出错
 // TODO 跳到下一篇
-// TODO 显示完成率
 // TODO 上传时标记音频长度？
 // TODO 上传时压缩？
 
@@ -54,7 +53,10 @@ export default class Dictation extends MyClass {
 	oFnLib = {}; // 快捷键方法库
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
-	aHistory = [{ iCurLineIdx: 0, aLineArr: [oEmptyLine.dc_] }];
+	aHistory = [{
+		iCurLineIdx: 0,
+		aLineArr: [oEmptyLine.dc_],
+	}];
 	// ▼state
 	state = {
 		isDoing: false, // 用于防抖，考虑删除

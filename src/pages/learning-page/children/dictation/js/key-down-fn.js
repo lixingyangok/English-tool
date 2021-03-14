@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-13 17:44:55
+ * @LastEditTime: 2021-03-14 14:45:29
  * @Description: 
  */
 
@@ -29,7 +29,7 @@ class keyDownFn {
 			{key: 'F2', name: '设定起点', fn: this.cutHere.bind(this, 'end') },
 			{key: 'F3', name: '删除当前句', fn: this.giveUpThisOne.bind(this) },
 			{key: 'F4', name: '查询选中单词', fn: this.searchWord.bind(this, true) },
-			{key: 'Escape', name: '', fn: this.toStop.bind(this)}, // 停止播放
+			{key: 'Escape', name: '取消播放', fn: this.toStop.bind(this)}, // 停止播放
 		];
 		const withCtrl = [
 			{key: 'ctrl + d', name: '删除一行',  fn: this.toDel.bind(this)},
@@ -58,14 +58,14 @@ class keyDownFn {
 			// 未分类
 			{key: 'alt + j', name: '', fn: this.previousAndNext.bind(this, -1)},
 			{key: 'alt + k', name: '', fn: this.previousAndNext.bind(this, 1)},
-			{key: 'alt + l', name: '跳到最后一句 l = last', fn: this.goLastLine.bind(this)},
+			{key: 'alt + l', name: '跳到最后一句', fn: this.goLastLine.bind(this)},
 			{key: 'alt + ,', name: '波形横向缩放', fn: this.zoomWave.bind(this, {deltaY: 1})},
 			{key: 'alt + .', name: '波形横向缩放', fn: this.zoomWave.bind(this, {deltaY: -1})},
 			// alt + shift
 			{key: 'alt + shift + ,', name: '波形高低', fn: this.changeWaveHeigh.bind(this, -1)},
 			{key: 'alt + shift + .', name: '波形高低', fn: this.changeWaveHeigh.bind(this, 1)},
 			{key: 'alt + shift + j', name: '向【左】插入一句', fn: this.toInsert.bind(this, -1) },
-			{key: 'alt + shift + k', name: ' 向【右】插入一句', fn: this.toInsert.bind(this, 1) },
+			{key: 'alt + shift + k', name: '向【右】插入一句', fn: this.toInsert.bind(this, 1) },
 			{key: 'alt + shift + d', name: '保存单词到云', fn: this.saveWord.bind(this)},
 			{key: 'alt + shift + c', name: '查字典', fn: this.searchWord.bind(this)},
 		];
@@ -191,12 +191,12 @@ class part02 {
 		const iMax = aLineArr.length - 1;
 		if (iCurLineIdx >= iMax) iCurLineIdx = iMax;
 		const oNewState = {aLineArr, iCurLineIdx};
+		this.setCurStep(oNewState);
 		this.setState({
 			...oNewState,
 			sCurLineTxt: aLineArr[iCurLineIdx].text,
 		});
 		this.goLine(iCurLineIdx);
-		this.setCurStep(oNewState);
 	}
 	// ▼保存字幕到浏览器
 	async toSaveInDb(dataId) {
@@ -256,8 +256,9 @@ class part02 {
 		aLineArr.splice(iCurLineIdx, 1);
 		if (!isMergeNext) iCurLineIdx--;
 		const obj = {aLineArr, iCurLineIdx};
+		console.log('obj', obj);
 		this.setCurStep(obj);
-		this.setState(obj);
+		this.setState({...obj, sCurLineTxt: aLineArr[iCurLineIdx].text});
 	}
 	// ▼一刀两段
 	split() {
@@ -286,6 +287,7 @@ class part02 {
 	setHistory(iType) {
 		const { length } = this.aHistory;
 		let iCurStep = this.state.iCurStep + iType;
+		console.log('前往：', iCurStep);
 		if (iCurStep < 0 || iCurStep > length - 1) {
 			const actionName = { '-1': '上', '1': '下' }[iType];
 			return this.message.error(`没有${actionName}一步数据，已经到头了`);
