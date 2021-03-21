@@ -2,17 +2,21 @@ import React, {useState} from "react";
 import { Modal, Button } from 'antd';
 import * as cpnt from './style/dict-dialog.js';
 
-// same
+
 const aDict = [{
 	name: '剑桥',
 	getUrl: word => `https://dictionary.cambridge.org/us/dictionary/english/${word}`,
 },{
-	name: '牛津',
-	getUrl: word => `https://www.oxfordlearnersdictionaries.com/definition/english/${word}`,
-},{
 	name: '朗文(新窗口)',
 	getUrl: word => {
 		const url = `https://www.ldoceonline.com/dictionary/${word}`;
+		window.open(url, '_blank');
+		return;
+	},
+},{
+	name: '百度(新窗口)',
+	getUrl: word => {
+		const url = `https://fanyi.baidu.com/#en/zh/${word}`;
 		window.open(url, '_blank');
 		return;
 	},

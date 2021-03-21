@@ -87,6 +87,7 @@ export default class Dictation extends MyClass {
 		aLineArr: [oEmptyLine.dc_],
 		iCurLineIdx: 0, // 当前行
 		sCurLineTxt: '',
+		isSearching: true,
 		// ▼故事与媒体
 		oStory: {}, // 故事信息
 		mediaId: null, // 媒体id
@@ -192,8 +193,12 @@ export default class Dictation extends MyClass {
 		</cpnt.InfoBar>
 	}
 	// ▼提示单词
-	getWordsList({aMatched, oWords, oNames, sTyped}){
-		const arr = aMatched.map((cur, idx)=>{
+	getWordsList(){
+		const {
+			aMatched, oWords, oNames,
+			sTyped, isSearching,
+		} = this.state;
+		const arr = isSearching ? null : aMatched.map((cur, idx)=>{
 			const curLower = cur.toLowerCase();
 			let sKind = oNames[curLower] && 'name';
 			sKind = sKind || (oWords[curLower] ? 'new-word' : '');

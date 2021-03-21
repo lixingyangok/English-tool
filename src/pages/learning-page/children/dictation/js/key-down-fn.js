@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-14 17:42:30
+ * @LastEditTime: 2021-03-21 19:28:14
  * @Description: 
  */
 
@@ -108,11 +108,15 @@ class keyDownFn {
 			const needToCheck = /\b[a-z]{1,20}$/i.test(sLeft) && /^(\s*|\s+.+)$/.test(sRight);
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 		}
-		this.setState({sTyped, sCurLineTxt: sText});
+		this.setState({
+			sTyped,
+			sCurLineTxt: sText,
+			isSearching: true,
+		});
 		this.typeingTimer = setTimeout(()=>{
 			this.getMatchedWords(sTyped);
 			console.log('开始提示词汇 ★★★');
-		}, 120);
+		}, 500);
 	}
 	// ▼搜索匹配的单词
 	async getMatchedWords(sTyped = '') {
@@ -143,7 +147,7 @@ class keyDownFn {
 				hasIn || aMatched.push(word);
 			});
 		}
-		this.setState({aMatched});
+		this.setState({aMatched, isSearching: false});
 	}
 	// ▼
 	
@@ -240,6 +244,7 @@ class part02 {
 		let {iCurLineIdx, sCurLineTxt} = this.state;
 		const aLineArr = this.state.aLineArr.dc_;
 		aLineArr[iCurLineIdx].text = sCurLineTxt;
+		this.saveHistory({aLineArr: aLineArr.dc_, iCurLineIdx});
 		const isMergeNext = sType === 'next';
 		const oTarget = ({
 			prior: aLineArr[iCurLineIdx - 1], //合并上一条
