@@ -61,12 +61,10 @@ export default class {
 		}else{
 			iAimLine = iCurLineIdx;
 		}
-		console.log('当前行：', aLineArr, iCurLineIdx);
 		if (aLineArr[iCurLineIdx].text !== sCurLineTxt){
 			aLineArr[iCurLineIdx].text = sCurLineTxt.trim(); // 旧的值，存起来
 			if (iAimLine % 2) this.toSaveInDb();
 		}
-		// console.log(`行号：${iCurLineIdx}-${iAimLine}`);
 		if (oNewLine) {
 			oNewState.aLineArr.push(oNewLine);
 			oNewState.sCurLineTxt = oNewLine.text;

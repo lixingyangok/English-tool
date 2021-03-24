@@ -53,6 +53,7 @@ export default class Dictation extends MyClass {
 	oFnLib = {}; // 快捷键方法库
 	doingTimer = null; // 防抖（目前没有应用）
 	oEmptyLine = oEmptyLine.dc_; // 空行
+	typeingTimer = null;
 	aHistory = [{
 		iCurLineIdx: 0,
 		aLineArr: [oEmptyLine.dc_],
@@ -87,7 +88,7 @@ export default class Dictation extends MyClass {
 		aLineArr: [oEmptyLine.dc_],
 		iCurLineIdx: 0, // 当前行
 		sCurLineTxt: '',
-		isSearching: true,
+		isSearching: true, // 废弃？
 		// ▼故事与媒体
 		oStory: {}, // 故事信息
 		mediaId: null, // 媒体id
@@ -192,13 +193,10 @@ export default class Dictation extends MyClass {
 			<span>字幕：<em title={tips02}>{tips01}</em></span>
 		</cpnt.InfoBar>
 	}
-	// ▼提示单词
+	// ▼提示单词（小于1毫秒）
 	getWordsList(){
-		const {
-			aMatched, oWords, oNames,
-			sTyped, isSearching,
-		} = this.state;
-		const arr = isSearching ? null : aMatched.map((cur, idx)=>{
+		const { aMatched, oWords, oNames, sTyped } = this.state;
+		const arr = aMatched.map((cur, idx)=>{
 			const curLower = cur.toLowerCase();
 			let sKind = oNames[curLower] && 'name';
 			sKind = sKind || (oWords[curLower] ? 'new-word' : '');
@@ -212,14 +210,15 @@ export default class Dictation extends MyClass {
 					<span className="right">{sRight}</span>
 				</span>
 			</cpnt.oneWord>
-			if (!sKind) return inner;
-			const result = <Popconfirm title="确定删除？" key={idx}
-				okText="删除" cancelText="取消" placement="topLeft"
-				onConfirm={()=>this.delWord(sKind, cur)}
-			>
-				{inner}
-			</Popconfirm>
-			return result;
+			return inner;
+			// if (!sKind) return inner;
+			// const result = <Popconfirm title="确定删除？" key={idx}
+			// 	okText="删除" cancelText="取消" placement="topLeft"
+			// 	onConfirm={()=>this.delWord(sKind, cur)}
+			// >
+			// 	{inner}
+			// </Popconfirm>
+			// return result;
 		});
 		return <cpnt.WordsBar>
 			{arr}

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-21 19:28:14
+ * @LastEditTime: 2021-03-24 21:08:55
  * @Description: 
  */
 
@@ -109,19 +109,15 @@ class keyDownFn {
 			if (needToCheck) sTyped = sLeft.match(/\b[a-z]+$/gi).pop();
 		}
 		this.setState({
-			sTyped,
-			sCurLineTxt: sText,
-			isSearching: true,
+			sTyped, sCurLineTxt: sText,
 		});
-		this.typeingTimer = setTimeout(()=>{
-			this.getMatchedWords(sTyped);
-			console.log('开始提示词汇 ★★★');
-		}, 500);
+		this.getMatchedWords(sTyped);
 	}
 	// ▼搜索匹配的单词
-	async getMatchedWords(sTyped = '') {
+	getMatchedWords(sTyped = '') {
+		console.time('本地查找★★');
 		sTyped = sTyped.toLocaleLowerCase().trim();
-		const iMax = 7;
+		const iMax = 8;
 		const aMatched = (() => {
 			const {aWords, aNames} = this.state;
 			const allWords = aWords.concat(aNames);
@@ -136,21 +132,29 @@ class keyDownFn {
 			}
 			return aFiltered;
 		})();
-		if (sTyped && aMatched.length < iMax) {
-			const theTB = wordsDB[sTyped[0]].where('word').startsWith(sTyped);
-			const res = await theTB.limit(iMax - aMatched.length).toArray();
-			// ▲此处检索耗时 > 100ms
-			res.forEach(({word})=>{
-				const hasIn = aMatched.find(one=>{
-					return one.toLocaleLowerCase() === word.toLocaleLowerCase();
-				});
-				hasIn || aMatched.push(word);
-			});
+		this.setState({aMatched});
+		const isNeedReplenish = sTyped && aMatched.length < iMax;
+		if (isNeedReplenish){
+			this.typeingTimer = setTimeout(()=>{
+				this.checkDict(sTyped, aMatched, iMax);
+			}, 350);
 		}
-		this.setState({aMatched, isSearching: false});
+		console.timeEnd('本地查找★★');
 	}
-	// ▼
-	
+	// ▼ 查字典 耗时 > 100ms
+	async checkDict(sTyped, aMatched, iMax){
+		console.time('查字典');
+		const theTB = wordsDB[sTyped[0]].where('word').startsWith(sTyped);
+		const res = await theTB.limit(iMax - aMatched.length).toArray();
+		res.forEach(({word})=>{
+			const hasIn = aMatched.find(one=>{
+				return one.toLocaleLowerCase() === word.toLocaleLowerCase();
+			});
+			hasIn || aMatched.push(word);
+		});
+		console.timeEnd('查字典');
+		this.setState({aMatched});
+	}
 }
 
 
