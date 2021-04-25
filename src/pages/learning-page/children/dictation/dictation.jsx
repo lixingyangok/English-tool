@@ -349,7 +349,8 @@ export default class Dictation extends MyClass {
 			fileSrc, fPerSecPx, buffer, loading, mediaId,
 			sSearching,
 			mediaFile_,
-			aLineArr, iCurLineIdx,
+			aLineArr,
+			iCurLineIdx,
 			iCurStep,
 		} = this.state;
 		const oThisLine = aLineArr[iCurLineIdx] || {};
@@ -360,7 +361,7 @@ export default class Dictation extends MyClass {
 		const {oldContext={}, context={}} = this;
 		const {UpdatedAt: UpdatedAtNew} = context.oStoryInfo || {};
 		const {UpdatedAt: UpdatedAtOld} = oldContext.oStoryInfo || {};
-		if (UpdatedAtNew && UpdatedAtNew !== UpdatedAtOld){
+		if (UpdatedAtNew && (UpdatedAtNew !== UpdatedAtOld)){
 			console.log("context数据更新了");
 			this.oldContext = context;
 			this.init();

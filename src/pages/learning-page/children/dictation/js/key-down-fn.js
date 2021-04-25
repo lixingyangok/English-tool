@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-24 21:08:55
+ * @LastEditTime: 2021-04-25 20:12:43
  * @Description: 
  */
 
@@ -209,7 +209,7 @@ class part02 {
 	// ▼保存字幕到浏览器
 	async toSaveInDb(dataId) {
 		const {
-			oMediaInfo: {id=dataId},
+			oMediaInfo: {id = dataId},
 			aLineArr: subtitleFile_,
 		} = this.state;
 		const [,oTime] = await getQiniuToken();

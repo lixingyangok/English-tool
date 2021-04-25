@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-14 15:19:04
+ * @LastEditTime: 2021-04-25 20:45:38
  * @Description: 
  */
 
@@ -164,15 +164,17 @@ class aboutSubtitle{
 	// ▼加载字幕
 	setSubtitle(oMediaInfo, oMediaInTB){
 		const {subtitleFileModifyTs, subtitleFileId} = oMediaInfo;
-		const {changeTs_, subtitleFile_, id} = oMediaInTB; // 可能得不到值
+		const {changeTs_, subtitleFile_} = oMediaInTB; // 可能得不到值
 		const {aLineArr} = this.state;
 		if (!changeTs_ && !subtitleFile_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
 				this.getSubtitleFromNet(true); // 查询网络字幕，并应用
 			}else{ // 网上也没有
-				aLineArr[0].text = '★没有字幕★';
-				this.setState({aLineArr});
-				this.toSaveInDb(id);
+				const sCurLineTxt = '★没有字幕★';
+				aLineArr[0].text = sCurLineTxt;
+				this.setState({
+					aLineArr, sCurLineTxt,
+				});
 			}
 			return;
 		}
