@@ -71,7 +71,7 @@ export default class {
 		}else{
 			oNewState.sCurLineTxt = aLineArr[iAimLine].text;
 		}
-		if(!doNotSave) this.saveHistory(oNewState); // 有报错补上 dc_
+		if (!doNotSave) this.saveHistory(oNewState); // 有报错补上 dc_
 		this.setState(oNewState);
 		this.setLinePosition(oNewLine || aLineArr[iAimLine], iAimLine);
 	}
@@ -286,7 +286,8 @@ export default class {
 	}
 	// ▼提示是否上传字幕
 	uploadToCloudBefore(){
-		this.goLine();
+		// this.goLine(); // 用于保存字幕到本地？
+		this.toSaveInDb(true);
 		const {oMediaInfo, changeTs} = this.state;
 		const {
 			name_,
@@ -295,14 +296,23 @@ export default class {
 			subtitleFileModifyTs,
 		} = oMediaInfo;
 		const onOk = async () => {
-			const toHide = this.message.loading('开始保存');
-			await this.uploadToCloud({
+			const key = 'updatable';
+			this.message.loading({ content: '开始保存...', key });
+			const bRes = await this.uploadToCloud({
 				fileName: subtitleFileName || (name_ + '.srt'),
 				key: subtitleFileId || '',
 			});
-			toHide();
+			const sFnName = bRes ? 'success' : 'error';
+			const content = `保存${bRes ? '成功' : '未成功'}`;
+			this.message[sFnName]({ 
+				content, key, duration: 0.3,
+			});
 		};
-		if (changeTs >= subtitleFileModifyTs) return onOk();
+		const justSave = (
+			!subtitleFileModifyTs ||
+			(changeTs >= subtitleFileModifyTs)
+		);
+		if (justSave) return onOk();
 		// ▲本新新，直接提交，▼本地旧，询问
 		this.confirm({
 			title: '提示',
@@ -332,7 +342,7 @@ export default class {
 			subtitleFileSize: file.size,
 			...getTimeInfo(oTime, 's'),
 		}, {
-			msg_: ['保存字幕未成功', '字幕保存成功'],
+			// msg_: ['保存字幕未成功', '字幕保存成功'],
 		});
 		if (!res) return;
 		mediaTB.update(oMediaInfo.id, {
@@ -340,6 +350,7 @@ export default class {
 		});
 		oMediaInfo.subtitleFileModifyTs = changeTs;
 		this.setState({changeTs, oMediaInfo});
+		return true;
 		// this.message.success('上传成功');
 	}
 	beforeUseNetSubtitle(){

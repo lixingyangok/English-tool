@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-04-25 20:12:43
+ * @LastEditTime: 2021-04-25 21:57:51
  * @Description: 
  */
 
@@ -207,19 +207,27 @@ class part02 {
 		this.goLine(iCurLineIdx, false, true);
 	}
 	// ▼保存字幕到浏览器
-	async toSaveInDb(dataId) {
+	async toSaveInDb(bForUpload) {
+		if (bForUpload){
+			const {aLineArr, iCurLineIdx, sCurLineTxt=''} = this.state;
+			const isDifferent = aLineArr[iCurLineIdx].text !== sCurLineTxt;
+			if (isDifferent){
+				aLineArr[iCurLineIdx].text = sCurLineTxt.trim();
+				this.setState({aLineArr});
+			}
+		}
 		const {
-			oMediaInfo: {id = dataId},
+			oMediaInfo: {id},
 			aLineArr: subtitleFile_,
 		} = this.state;
 		const [,oTime] = await getQiniuToken();
 		const changeTs_ = oTime.getTime();
-		if (id) { //有本地数据, //增量更新
-			mediaTB.update(id, {subtitleFile_, changeTs_});
-			this.setState({changeTs: changeTs_});
-			return this.message.success('保存成功');
+		if (!id) return this.message.error('保存未成功');
+		mediaTB.update(id, {subtitleFile_, changeTs_});
+		this.setState({changeTs: changeTs_});
+		if (!bForUpload){
+			this.message.success('保存成功');
 		}
-		this.message.error('保存未成功');
 	}
 	// ▼微调区域（1参可能是 start、end。2参是调整步幅
 	fixRegion(sKey, iDirection) {
