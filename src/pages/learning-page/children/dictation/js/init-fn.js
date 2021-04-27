@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-04-25 20:45:38
+ * @LastEditTime: 2021-04-27 20:56:51
  * @Description: 
  */
 
@@ -17,6 +17,7 @@ import {trainingDB} from 'assets/js/common.js';
 
 const {media: mediaTB} = trainingDB;
 const axios = window.axios;
+const sLoadingKey = 'sLoadingKey';
 
 class part01{
 	// ▼初始化（查询故事信息
@@ -81,24 +82,39 @@ const aboutMedia = class {
 		this.bufferToPeaks();
 		oMediaInTB.subtitleFile_ || this.giveUpThisOne(0); // 智能处理第一句
 	}
-	
+	// ▼从七牛下载媒体
+	async getMediaFromQiNiu(fileId){
+		const {loading} = this.message;
+		const oAxiosSetting = { // 请求文件的配置项
+			responseType: "blob",
+			params: {ts: new Date() * 1},
+			onDownloadProgress(info){
+				const percent = Math.round(info.loaded / info.total * 100);
+				loading({
+					content: `加载媒体文件 ${percent}%`,
+					key: sLoadingKey,
+					duration: 0,
+				});
+			},
+		};
+		const {data} = await axios.get(
+			`http://qn.hahaxuexi.com/${fileId}`,
+			oAxiosSetting,
+		);
+		return data;
+	}
 	// ▼取得媒体文件、和buffer
 	async getMediaAndButter({oMediaInfo, oMediaInTB}){
 		let {fileModifyTs: fTs, subtitleFile_, oBuffer_} = oMediaInTB; // 本地媒体信息
 		const isSame = fTs && (fTs === oMediaInfo.fileModifyTs); // 两地媒体文件一致
 		let needUpDateDB = !subtitleFile_; // 值为true表示需要更新DB
-		const {success, error} = this.message;
+		const {success, error, loading} = this.message;
 		const mediaFile_ = await (async ()=>{
 			if (isSame && oMediaInTB.mediaFile_) {
-				success('已加载【本地】媒体文件');
 				return oMediaInTB.mediaFile_; // 值相同取本地媒体
 			}
-			success('正在加载【云端】媒体文件');
-			const qiNiuUrl = 'http://qn.hahaxuexi.com/';
-			const {data} = await axios.get(`${qiNiuUrl}${oMediaInfo.fileId}`,  // 返回新数据
-				{responseType: "blob", params: {ts: new Date() * 1}},
-			);
 			needUpDateDB = true;
+			const data = await this.getMediaFromQiNiu(oMediaInfo.fileId);
 			return data; // 返回：Blob {size: 620705, type: "audio/mpeg"}
 		})();
 		const buffer = await (async ()=>{
@@ -108,10 +124,16 @@ const aboutMedia = class {
 				return oBuffer_;
 			}
 			needUpDateDB = true;
-			success('正在读取媒体波形');
+			loading({
+				content: `媒体已加载，开始加载媒体波形……`,
+				key: sLoadingKey,
+			});
 			const oResult = await fileToBuffer(mediaFile_);
-			if (oResult) return getFakeBuffer(oResult);
-			error('读取媒体波形未成功');
+			if (oResult) {
+				success({content: `波形加载完成！`, key: sLoadingKey});
+				return getFakeBuffer(oResult);
+			}
+			error({content: `读取媒体波形未成功！`, key: sLoadingKey});
 			return;
 		})();
 		return {mediaFile_, buffer, needUpDateDB};

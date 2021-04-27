@@ -305,7 +305,7 @@ export default class {
 			const sFnName = bRes ? 'success' : 'error';
 			const content = `保存${bRes ? '成功' : '未成功'}`;
 			this.message[sFnName]({ 
-				content, key, duration: 0.3,
+				content, key, duration: 1,
 			});
 		};
 		const justSave = (
