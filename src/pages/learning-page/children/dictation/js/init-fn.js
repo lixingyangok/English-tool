@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-04-27 20:56:51
+ * @LastEditTime: 2021-05-25 20:34:06
  * @Description: 
  */
 
@@ -46,6 +46,7 @@ class part01{
 		const oWaveWrap = this.oWaveWrap.current;
 		if (oWaveWrap) oWaveWrap.scrollLeft = 0; // 滚动条归位
 		this.context.setMedia(oMediaInfo); // 汇报父级页面当前媒体信息
+		this.setState({oMediaInfo}); // 存上，查询字幕时会用到
 		this.setSubtitle(oMediaInfo, oMediaInTB); // 查询字幕
 		this.setMedia(oMediaInfo, oMediaInTB); // 查询媒体
 	}
@@ -191,11 +192,13 @@ class aboutSubtitle{
 		if (!changeTs_ && !subtitleFile_) { // 本地无字幕
 			if (subtitleFileId){ // 网上有，上网取
 				this.getSubtitleFromNet(true); // 查询网络字幕，并应用
-			}else{ // 网上也没有
-				const sCurLineTxt = '★没有字幕★';
+			}else{ // 网上也没有，填充默认内容
+				const sCurLineTxt = '暂无字幕数据';
 				aLineArr[0].text = sCurLineTxt;
 				this.setState({
-					aLineArr, sCurLineTxt,
+					aLineArr,
+					sCurLineTxt,
+					iCurLineIdx: 0,
 				});
 			}
 			return;
@@ -216,7 +219,7 @@ class aboutSubtitle{
 		this.message.warning('本地字幕新，需要同步');
 	}
 	// ▼从云上获取字幕
-	async getSubtitleFromNet(toSave=false){
+	async getSubtitleFromNet(toSave){
 		const {oMediaInfo} = this.state;
 		if (!oMediaInfo.subtitleFileId) return; //没有字幕就不用查询
 		const aLineArr = await getSubtitle(oMediaInfo);

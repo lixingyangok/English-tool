@@ -366,7 +366,16 @@ export default class {
 		let { oMediaInfo, aLineArr } = this.state;
 		const {id, subtitleFileModifyTs: changeTs} = oMediaInfo;
 		aLineArr = subtitleFile_;
-		this.setState({ aLineArr, changeTs });
+		this.aHistory = [{
+			iCurLineIdx: 0,
+			aLineArr: [this.oEmptyLine.dc_],
+		}];
+		this.setState({ 
+			aLineArr,
+			changeTs,
+			iCurLineIdx: 0,
+			sCurLineTxt: aLineArr[0].text,
+		});
 		mediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
 	}
 	// ▼防抖方法

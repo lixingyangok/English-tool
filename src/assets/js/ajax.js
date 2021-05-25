@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-09-18 20:44:43
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-07 20:39:08
+ * @LastEditTime: 2021-05-25 20:31:33
  * @Description: 
  */
 import axios from 'axios';
@@ -10,7 +10,7 @@ import {message} from 'antd';
 
 const myAxios = axios.create({
 	// withCredentials: true, //添加此项以便跨域，值为true无法上传到七牛
-	timeout: 1000 * 30, //30秒超时
+	timeout: 1000 * 40, // x秒超时
 	'Cache-Control': 'no-cache', // 不要缓存
 	'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', // 
 	// 'Content-Type': 'application/json', // 

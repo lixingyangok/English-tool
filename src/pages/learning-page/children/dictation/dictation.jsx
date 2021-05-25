@@ -293,7 +293,7 @@ export default class Dictation extends MyClass {
 		});
 	}
 	getTextArea(){
-		const sCurLineTxt = this.state.sCurLineTxt;
+		const {sCurLineTxt} = this.state;
 		return <cpnt.TextareaWrap ref={this.oTextBg}>
 			{this.markWords(sCurLineTxt)}
 			<textarea className="textarea"

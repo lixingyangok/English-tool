@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-02-19 16:35:07
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-04-25 21:57:51
+ * @LastEditTime: 2021-05-25 20:07:32
  * @Description: 
  */
 
@@ -137,7 +137,7 @@ class keyDownFn {
 		if (isNeedReplenish){
 			this.typeingTimer = setTimeout(()=>{
 				this.checkDict(sTyped, aMatched, iMax);
-			}, 350);
+			}, 280);
 		}
 		console.timeEnd('本地查找★★');
 	}
