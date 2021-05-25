@@ -61,9 +61,12 @@ export default class {
 		}else{
 			iAimLine = iCurLineIdx;
 		}
-		if (aLineArr[iCurLineIdx].text !== sCurLineTxt){
+		const isDifferent = aLineArr[iCurLineIdx].text !== sCurLineTxt;
+		if (isDifferent){
 			aLineArr[iCurLineIdx].text = sCurLineTxt.trim(); // 旧的值，存起来
-			if (iAimLine % 2) this.toSaveInDb();
+		}
+		if (iAimLine % 2 && (!aLineArr[iAimLine] || isDifferent)) {
+			this.toSaveInDb();
 		}
 		if (oNewLine) {
 			oNewState.aLineArr.push(oNewLine);
