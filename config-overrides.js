@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2020-06-30 11:39:59
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-02-16 12:00:11
+ * @LastEditTime: 2021-05-25 19:48:43
  * @Description: 
  */
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
@@ -36,7 +36,8 @@ const addCustomize = () => config => {
 const devServerConfig = () => config => {
 	const proxy = {
 		'/api': {
-			target: 'http://localhost:2020',
+			// target: 'http://localhost:2020',
+			target: 'http://hahaxuexi.com',
 			changeOrigin: true,
 			pathRewrite: {'^/api': '/api'},
 		},

@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-06-06 20:00:11
+ * @LastEditTime: 2021-06-06 20:33:54
  * @Description: 
  */
 
@@ -82,7 +82,10 @@ const aboutMedia = class {
 			...oMediaInTBForSave,
 		});
 		this.bufferToPeaks();
-		oMediaInTB.subtitleFile_ || this.giveUpThisOne(0); // 智能处理第一句
+		if (oMediaInTB.subtitleFile_ || this.state.aLineArr.length > 1) {
+			return;
+		}
+		this.giveUpThisOne(0); // 智能处理第一句
 	}
 	// ▼从七牛下载媒体
 	async getMediaFromQiNiu(fileId){
