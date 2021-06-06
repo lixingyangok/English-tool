@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-17 11:30:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-05-25 20:34:06
+ * @LastEditTime: 2021-06-06 20:00:11
  * @Description: 
  */
 
@@ -45,6 +45,7 @@ class part01{
 		if (!oMediaInfo) return; // 查不到媒体信息
 		const oWaveWrap = this.oWaveWrap.current;
 		if (oWaveWrap) oWaveWrap.scrollLeft = 0; // 滚动条归位
+		this.cleanCanvas();
 		this.context.setMedia(oMediaInfo); // 汇报父级页面当前媒体信息
 		this.setState({oMediaInfo}); // 存上，查询字幕时会用到
 		this.setSubtitle(oMediaInfo, oMediaInTB); // 查询字幕

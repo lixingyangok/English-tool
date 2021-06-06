@@ -367,7 +367,7 @@ export default class {
 	useSubtitleFromNet(subtitleFile_){
 		subtitleFile_ = subtitleFile_ || this.state.aSubtitleFromNet || [];
 		let { oMediaInfo, aLineArr } = this.state;
-		const {id, subtitleFileModifyTs: changeTs} = oMediaInfo;
+		const {ID, subtitleFileModifyTs: changeTs} = oMediaInfo;
 		aLineArr = subtitleFile_;
 		this.aHistory = [{
 			iCurLineIdx: 0,
@@ -379,7 +379,7 @@ export default class {
 			iCurLineIdx: 0,
 			sCurLineTxt: aLineArr[0].text,
 		});
-		mediaTB.update(id, {changeTs_: changeTs, subtitleFile_ }); //增量更新
+		mediaTB.update(ID, {changeTs_: changeTs, subtitleFile_ }); //增量更新
 	}
 	// ▼防抖方法
 	debounceFn(iLong=350){
