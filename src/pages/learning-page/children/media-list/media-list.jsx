@@ -2,7 +2,7 @@
  * @Author: 李星阳
  * @Date: 2021-01-31 18:34:35
  * @LastEditors: 李星阳
- * @LastEditTime: 2021-03-13 20:58:55
+ * @LastEditTime: 2021-07-15 14:30:23
  * @Description: 
  */
 
@@ -42,6 +42,7 @@ export default class extends MyClass {
 		tipForChoseSrt: null, // 
 		oDownLoading: {}, //正在下载的字幕信息
 		aMediaFinished: [],
+		aHistory: [], // TODO 试图开发“学习历史记录”？
 		fRate: 0,
 		iRest: 0,
 	}

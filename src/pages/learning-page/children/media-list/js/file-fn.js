@@ -231,7 +231,34 @@ class FileList {
 			iRest,
 		});
 		this.checkMediaListInTB();
+		// ▼ TODO 测试
+		// await this.getOneHistory();
+		// await this.addOneHistory();
+		// this.getOneHistory();
 	}
+	// ▼ TODO 开发中-----------------
+	async addOneHistory(){
+		const oTarget = this.state.aHistory[0];
+		const sDate = new Date().toLocaleString() + '★★★';
+		const oDataForSubmit = {
+			ID: oTarget.ID,
+			id: oTarget.ID,
+			read: sDate, // + '★★★★★★',
+			dictation: sDate,
+			shadowing: sDate,
+			translation: sDate,
+		};
+		console.log('提交：', oDataForSubmit);
+		await axios.put('/history', oDataForSubmit);
+	}
+	async getOneHistory(){
+		const {aMedia} = this.state;
+		const {data} = await axios.get('/history', {
+			params: {mediaId: aMedia[0].ID},
+		});
+		this.setState({aHistory: data});
+	}
+	// ▲ TODO 开发中-----------------
 	// ▼删除一个已上传的文件
 	async delOneMedia(oneMedia){
 		this.setState({sLoadingAction: '正在删除'});
